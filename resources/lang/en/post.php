@@ -1,0 +1,1 @@
+<?php return array (  'title' => 'Title',  'index' => 'Index',);

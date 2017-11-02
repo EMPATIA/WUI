@@ -1,0 +1,1 @@
+<?php return array (  'accessMenu' => 'Menu de Acesso',  'store_ok' => 'Guardar ok',  'update_ok' => 'Atualizar ok',  'delete_ok' => 'Apagar ok',  'activate_ok' => 'Ativar ok',);

@@ -1,0 +1,1 @@
+<?php return array (  'list_eventSchedules' => 'Lista de Calendários de Eventos',  'create_eventSchedule' => 'Criar Calendário de Evento',  'show_eventSchedule' => 'Mostrar Calendário de Evento',  'update_eventSchedule' => 'Editar Calendário de Evento',  'update_periods' => 'Editar Horário',  'details' => 'Detalhes',  'period_details' => 'Detalhes do Horário',);

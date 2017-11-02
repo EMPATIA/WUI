@@ -1,0 +1,1 @@
+<?php return array (  'menu' => 'Menu',  'store_ok' => 'Uloženo',  'updateOrder_ok' => 'Aktualizováno',  'delete_ok' => 'Úspěšně smazáno',  'select' => 'Vybrat',);

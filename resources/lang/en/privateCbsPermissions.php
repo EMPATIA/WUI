@@ -1,0 +1,1 @@
+<?php return array (  'add_cb_permissions' => 'Add permissions to Add ',  'permissions_show' => 'Show',  'permissions_create' => 'Create',  'permissions_update' => 'Update',  'permissions_delete' => 'Delete',  'save' => 'Save',  'advancedSearch' => 'Advanced search',  'groups' => 'Groups',  'users' => 'Users',  'name' => 'Name',);

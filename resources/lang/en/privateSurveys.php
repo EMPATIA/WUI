@@ -1,0 +1,1 @@
+<?php return array (  'list_surveys' => 'Surveys List',  'create_surveys' => 'Create Survey',  'update_surveys' => 'Update Survey',  'show_surveys' => 'Show Survey',  'show_topics' => 'Show Topic',  'show_parameters' => 'Show Parameter',  'show_configurations' => 'Show Configuration',);

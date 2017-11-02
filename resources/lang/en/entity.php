@@ -1,0 +1,1 @@
+<?php return array (  'delete_ok' => 'Deleted Successfully',  'entity' => 'Entity ',  'store_ok' => 'Stored Successfully',  'update_ok' => 'Updated Successfully',);

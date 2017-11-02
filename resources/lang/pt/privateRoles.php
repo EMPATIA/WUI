@@ -1,0 +1,1 @@
+<?php return array (  'list_roles' => 'Lista de Cargos',  'create_role' => 'Criar Cargo',  'show_role' => 'Mostrar Cargo',  'update_role' => 'Editar Cargo',  'roles' => 'Funções',  'key' => 'Chave',  'name' => 'Nome',  'code' => 'Código',  'details' => 'Detalhes',  'description' => 'Descrição',);

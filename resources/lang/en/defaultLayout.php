@@ -1,0 +1,1 @@
+<?php return array (  'registration' => 'Register',  'user_profile' => 'User Profile',  'back_office' => 'BackOffice',  'sign_out' => 'Sign out',  'login' => 'Login',);

@@ -1,0 +1,1 @@
+<?php return array (  'title' => 'Titolo',  'authorize' => 'Autorizza',);

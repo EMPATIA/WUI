@@ -1,0 +1,1 @@
+<?php return array (  'back' => 'Zpět',  'create' => 'Vytvořit',  'index' => 'Návrhy',  'store' => 'Ukládám',  'messages' => 'Návrh',  'proposal' => 'Návrh',);

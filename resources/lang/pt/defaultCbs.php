@@ -1,0 +1,1 @@
+<?php return array (  'contentNotRecommended' => 'Conteúdo não recomendado',  'backButton' => 'Voltar',);

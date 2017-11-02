@@ -1,0 +1,1 @@
+<?php return array (  'private' => 'Soukromý',  'idea' => 'Nápad',  'kiosk' => 'Stánek',);

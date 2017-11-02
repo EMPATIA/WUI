@@ -1,0 +1,1 @@
+<?php return array (  'createTopic' => 'Efectuar pedido',  'editTopic' => 'Editar pedido',  'cityName' => 'Nome da cidade',  'summary' => 'Sumário',  'description' => 'Descrição',);

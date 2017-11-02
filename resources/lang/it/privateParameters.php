@@ -1,0 +1,1 @@
+<?php return array (  'type' => 'Tipo',  'name' => 'Nome',  'description' => 'Descrizione',  'title' => 'Titolo',  'id' => 'Id',  'parameter' => 'parametro',);

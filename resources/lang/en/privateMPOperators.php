@@ -1,0 +1,1 @@
+<?php return array (  'finish_ok' => 'Finished',  'create_error' => 'Create error',  'store_ok' => 'Stored',  'store_error' => 'Store error',  'show_error' => 'Show error',  'edit_error' => 'Edit error',  'update_ok' => 'Updated',  'update_error' => 'Update error',);

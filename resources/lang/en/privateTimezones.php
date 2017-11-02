@@ -1,0 +1,1 @@
+<?php return array (  'name' => 'Name',  'timezones' => 'Timezone',  'id' => 'ID',);

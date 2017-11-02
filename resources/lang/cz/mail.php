@@ -1,0 +1,1 @@
+<?php return array (  'mail' => 'E-mail',  'store_ok' => 'Uloženo',  'update_ok' => 'Aktualizováno',  'delete_ok' => 'Úspěšně smazáno',);

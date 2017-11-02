@@ -1,0 +1,1 @@
+<?php return array (  'delete' => 'Delete',  'are_you_sure_you_want_to_delete_this_attendance' => 'Are you sure you want to delete this attendance',  'cancel' => 'Cancel',  'schedule' => 'Schedule',  'participants' => 'Participants',  'edit' => 'Edit',  'no' => 'No',  'yourName' => 'Your name',  'save' => 'Save',  'thisIsClosedMessage' => 'Poll closed',  'yes' => 'Yes',);

@@ -1,0 +1,1 @@
+<?php return array (  'map_empaville' => 'Tem de selecionar as coodenadas',);

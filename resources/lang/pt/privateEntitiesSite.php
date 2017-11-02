@@ -1,0 +1,1 @@
+<?php return array (  'selectHomePageType' => 'Seleccione o Tipo',  'homePageType' => 'TIpo',  'close' => 'Fechar',  'create' => 'Criar',  'homePageConfigurationGroupKey' => 'Chave',  'homePageConfigurationGroupName' => 'Nome',);

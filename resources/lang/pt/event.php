@@ -1,0 +1,1 @@
+<?php return array (  'store_ok' => 'Guardado com sucesso',  'delete_ok' => 'Apagado com sucesso',);

@@ -1,0 +1,1 @@
+<?php return array (  'mps' => 'MPs',  'mails' => 'Mails',  'forum' => 'Forum',  'menus' => 'Menus',  'geoareas' => 'Geographic Areas',  'eventSchedules' => 'Polls',  'events' => 'Events',);

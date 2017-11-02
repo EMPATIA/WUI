@@ -1,0 +1,1 @@
+<?php return array (  'facebook_nok_connect' => 'Não é possível autenticar-se com o facebook',  'email_permission' => 'Tem que dar permissões de email',  'store_ok' => 'Guardado',  'message_email_already_exists' => 'Já está registado na plataforma. Por favor, faça login com a sua password e associe a conta de facebook',  'remove_ok' => 'Removido',);

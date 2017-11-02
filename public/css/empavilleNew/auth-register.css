@@ -1,0 +1,119 @@
+/*
+ * Copyright (C) 2016 OneSource - Consultoria Informatica Lda <geral@onesource.pt>
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License along
+ * with this program; if not, see <http://www.gnu.org/licenses>.
+ */
+
+/* vertical spacing*/
+.top-buffer {
+    margin-top: 40px;
+}
+
+.register-button-div button {
+    background-color: transparent;
+    color: #82bc41;
+    border: solid 2px #82bc41;
+    padding: 5px 15px;
+    font-size: 1.1em;
+}
+
+.register-button-div button:hover {
+    background-color: #82bc41;
+    color: #ffffff;
+    border: solid 2px #ffffff;
+    padding: 5px 15px;
+}
+
+.userProfileActions-button-div{
+    display: inline-block;
+}
+
+.userProfileActions-button-div button{
+    background-color: transparent;
+    color: #82bc41;
+    border: solid 2px #727272;
+    padding: 5px 15px;
+    font-size: 1.1em;
+    border-radius: 0;
+}
+
+.userProfileActions-button-div button:hover{
+    background-color: #82bc41;
+    color: #ffffff;
+    border: solid 2px #727272;
+}
+
+
+.user-picture-box {
+    margin-top: 30px;
+}
+
+.terms-conditions-wrapper{
+    height: 200px;
+    overflow-y: scroll;
+}
+
+.terms-conditions-footer{
+    padding: 10px;
+    padding-bottom: 0;
+}
+
+.oneFormSubmit{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/*-------------- New ----------*/
+.contentPage-heading-wrapper,
+.registerContent .page-title{
+    text-transform: uppercase;
+    font-size: 2em;
+    font-weight: 700;
+    margin-top: 60px;
+}
+
+.registerContent .register-box .user-img{
+    max-width:140px;
+    min-height:140px;
+    width: auto;
+}
+
+.registerContent .register-box .user-img>.fa.fa-user{
+    font-size: 100px;
+    line-height: 125px;
+    vertical-align: middle;
+}
+
+.registerContent .register-button-div{
+    margin-top: 20px;
+}
+
+.modal-title{
+    font-family: "Open Sans", Sans-Serif;
+    font-size: 2em;
+    margin-top: 25px;
+    color: #8DC641;
+}
+
+.terms-conditions-wrapper h1{
+    text-transform: uppercase;
+}
+
+.registerFinalMessage{
+    margin-top: 10px;
+}
+
+.registerUser-content{
+    margin-top: 40px;
+}

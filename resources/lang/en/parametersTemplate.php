@@ -1,0 +1,1 @@
+<?php return array (  'create' => 'Create',  'title' => 'Title',  'key' => 'Key',  'parameter' => 'Parameter',);

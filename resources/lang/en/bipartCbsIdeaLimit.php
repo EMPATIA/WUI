@@ -1,0 +1,1 @@
+<?php return array (  'title' => 'Limit reached',  'idea_limit_message' => 'Ideas limit reached',  'back' => 'Back',);

@@ -1,0 +1,1 @@
+<?php return array (  'failed_to_create_alliance' => 'Falha ao criar aliança',  'failed_to_respond_to_alliance' => 'Falha ao responder ao pedido de aliança',);

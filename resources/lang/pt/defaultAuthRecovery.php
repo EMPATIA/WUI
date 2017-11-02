@@ -1,0 +1,1 @@
+<?php return array (  'please_check_your_email' => 'Por favor verifique o E-mail',  'email' => 'E-mail',  'password_recovery' => 'Recuperar Palavra Passe',  'back' => 'Voltar',);

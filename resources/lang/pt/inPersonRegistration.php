@@ -1,0 +1,1 @@
+<?php return array (  'identityCard' => 'Cartão de Identificação',  'name' => 'Nome',  'voteInPerson' => 'Voto Presencial',);

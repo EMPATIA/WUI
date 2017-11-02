@@ -1,0 +1,1 @@
+<?php return array (  'title' => 'Site configurations',  'storeNok' => 'Error trying to store',  'show' => 'Show',  'deleteOk' => 'Delete ok',  'edit' => 'Edit',  'code' => 'Code',  'name' => 'Name',  'description' => 'Description',);

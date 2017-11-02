@@ -1,0 +1,1 @@
+<?php return array (  'registration' => 'Registration',  'youAlreadyRegistered' => 'Sorry, you are already registered',  'location' => 'Location',);

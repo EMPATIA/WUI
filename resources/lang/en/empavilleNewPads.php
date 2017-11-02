@@ -1,0 +1,1 @@
+<?php return array (  'login_to_Vote' => 'Login to Vote',  'form' => 'Form',  'images' => 'Images',  'files' => 'Files',  'videos' => 'Videos',  'share' => 'Share',);

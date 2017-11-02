@@ -1,0 +1,1 @@
+<?php return array (  'news' => 'Notizie',  'availableSoon' => 'Disponibile a breve',  'knowMore' => 'Saperne di più',  'noEventsAvailable' => 'Non ci sono eventi disponibili',);

@@ -1,0 +1,1 @@
+<?php return array (  'show' => 'Mostrar',  'entityModuleTitle' => 'Módulos',  'ModuleName' => 'Nome do Módulo',  'addEntityModule' => 'Adicionar Módulo',  'back' => 'Voltar',  'save' => 'Guardar',);

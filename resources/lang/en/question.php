@@ -1,0 +1,1 @@
+<?php return array (  'groups' =>   array (    'title' => 'Groups title',  ),  'title' => 'Title',  'store_ok' => 'Store ok ',  'update_ok' => 'Update ok',  'delete_ok' => 'Delete ok',  'reuseOk' => 'Reuse OK',  'reuseNok' => 'Reuse Error',);

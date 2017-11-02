@@ -1,0 +1,1 @@
+<?php return array (  'delete' => 'Smazat',  'are_you_sure_you_want_to_delete' => 'Opravdu smazat',  'cancel' => 'Zrušit',);

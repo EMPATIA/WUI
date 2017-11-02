@@ -1,0 +1,1 @@
+<?php return array (  'accessPages' => '?',  'id' => 'ID',  'name' => 'Jméno',  'accessTypeId' => '?',  'active' => 'Aktivní',  'accessType' => '?',  'description' => 'Popis',  'entityId' => 'ID entity',);

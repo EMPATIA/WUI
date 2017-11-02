@@ -1,0 +1,1 @@
+<?php return array (  'questions' => 'Question',  'title' => 'Title',  'description' => 'Description',  'questionOptions' => 'Options',);

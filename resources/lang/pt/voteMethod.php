@@ -1,0 +1,1 @@
+<?php return array (  'delete_ok' => 'Apagado com sucesso',  'voteMethod' => 'Método de Voto',  'store_ok' => 'Gravado com sucesso',  'update_ok' => 'Actualizado com sucesso',);

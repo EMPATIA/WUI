@@ -1,0 +1,1 @@
+<?php return array (  'needed_budget' => 'Required budget:',  'proposal' => 'Proposal',  'pros_and_cons' => 'Pros and cons',  'supporters' => 'Supporters',);

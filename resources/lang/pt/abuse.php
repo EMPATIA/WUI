@@ -1,0 +1,1 @@
+<?php return array (  'title' => 'título',  'store_ok' => 'guardar ok',  'update_ok' => 'atualizar ok',  'allaccepted_ok' => 'todos aceites ok',  'alldeclined_ok' => 'todos recusados ok',  'accepted_ok' => 'aceite_ok',  'declined_ok' => 'recusado ok',);

@@ -1,0 +1,27 @@
+<?php
+
+return array (
+  'forum_open' => 'Project Open',
+  'close_at' => 'Close at',
+  'undefined' => 'Undefined',
+  'forum_closed' => 'Project Closed',
+  'topics' => 'Topics',
+  'created_at' => 'Created at',
+  'project_2c' => 'Project',
+  'project_2c_description' => 'Description',
+  'create_project_2c_topic' => 'Create project',
+  'no_project_2c_topics_to_display' => 'No Projects to display',
+  'projects_2c' => 'Projects',
+  'no_projects_2c_to_display' => 'No Projects to display',
+  'days' => 'Day(s)',
+  'anonymous' => 'Anonymous',
+  'view_more' => 'View More',
+  'next' => 'Next',
+  'login_to_vote' => 'Login to vote',
+  'filter_by' => 'Filter By',
+  'order_by' => 'Order by',
+  'date' => 'Date',
+  'popularity' => 'Popularity',
+  'comments' => 'Comments',
+  'reset_filters' => 'Reset filters',
+);

@@ -1,0 +1,1 @@
+<?php return array (  'cancel' => 'Cancelar',  'color' => 'Cor',  'min_value' => 'Valor min.',  'max_value' => 'Valor máx.',  'icon' => 'Ícone',  'details' => 'Detalhes',);

@@ -1,0 +1,1 @@
+<?php return array (  'profile' => 'Profilo',  'name' => 'Nome',  'email' => 'E-mail',  'street' => 'Indirizzo',  'city' => 'Città',  'country' => 'Nazione',  'nationality' => 'Nazionalità',  'job' => 'Professione',  'mobileNumber' => 'Numero di Cellulare',  'homepage' => 'Homepage',  'back' => 'Ritorno',);

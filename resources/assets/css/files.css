@@ -1,0 +1,55 @@
+
+
+/* Files */
+.files {
+    border: dashed 2px lightgrey;
+    min-height: 150px;
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden
+}
+
+.file-btn-success{
+    background-color: #80BA41;
+    color: #ffffff;
+}
+
+.file-btn-info {
+    color: #fff;
+    background-color: #5bc0de;
+    border-color: #46b8da;
+}
+
+.file-btn-danger {
+    color: #fff;
+    background-color: #d9534f;
+    border-color: #d43f3a;
+}
+
+.files-dragdrop-here{
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    opacity: 0.4 ;
+    top: 90px;
+    font-size: 30px;
+}
+
+.files-drop-zone{
+    border-top: 3px solid #62a351;
+}
+
+.files-box-tools{
+    padding-top: 3px;
+}
+
+.fu-file-name{
+    font-size: 1rem!important;
+}
+
+.fu-file-wrapper{
+    padding:0 0.5rem;
+}
+
+
+

@@ -1,0 +1,265 @@
+.card-project {
+    height: 400px;
+    margin: 10px auto;
+    max-width: 300px;
+    box-shadow: 5px 5px 20px;
+}
+.card-project a {
+    color: #444;
+}
+.card-project .img-card-project {
+    width: 100%;
+    height: 150px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+}
+.card-project .title-card-project {
+    font-size: 20px;
+    text-transform: uppercase;
+    padding: 15px 10px 5px;
+}
+.card-project .list-subprojects {
+    list-style-type: none;
+    padding: 5px 15px;
+    margin: 0;
+}
+.card-project .list-subprojects h3 {
+    font-size: 16px;
+    margin: 5px;
+}
+.description-section {
+    margin-bottom: 20px;
+}
+.description-section .img-project {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: 200px;
+}
+.description-section .project-description {
+    font-size: 22px;
+    font-weight: 400;
+}
+.navigation-bar {
+    box-shadow: 5px 5px 20px;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+.navigation-bar .project-location {
+    vertical-align: middle;
+}
+.navigation-bar .previous-project,
+.navigation-bar .next-project {
+    text-transform: uppercase;
+    text-align: right;
+    font-size: 20px;
+    font-weight: 600;
+}
+.details-box {
+    text-align: center;
+}
+.status-box {
+    border-bottom: 1px solid #ccc;
+    padding: 10px 0;
+}
+.status-box .status {
+    margin-bottom: 10px;
+}
+.category-box,
+.num-votes-box,
+.cost-box,
+.details-box {
+    padding: 30px;
+    border-right: 1px solid #ccc;
+    height: 100px;
+}
+.detail-name-big,
+.detail-name-small {
+    text-align: center;
+    display: block;
+    margin: 0 auto;
+}
+.detail-name-big {
+    font-size: 18px;
+}
+.detail-name-small {
+    font-size: 16px;
+}
+.detail-value-big,
+.detail-value-small {
+    color: #80BA41;
+    text-align: center;
+    display: block;
+}
+.detail-value-big {
+    font-size: 26px;
+    font-weight: 600;
+}
+.detail-value-small {
+    font-size: 20px;
+}
+.detail-date-name {
+    font-size: 16px;
+    font-weight: 800px;
+}
+.detail-date-value {
+    font-size: 16px;
+}
+.modified-box {
+    margin-top: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #ccc;
+}
+.text-list-subprojects {
+    font-size: 20px;
+    text-transform: uppercase;
+    color: #80BA41;
+    font-weight: 800;
+}
+.table-subprojects th {
+    text-align: center;
+}
+.table-subprojects td {
+    text-align: center;
+    vertical-align: middle;
+}
+.table-subprojects .subproject-bar-container {
+    height: 20px;
+    width: 80%;
+    display: inline-block;
+    background-color: #ccc;
+    max-width: 60px;
+}
+.table-subprojects .subproject-bar {
+    background-color: #80BA41;
+}
+.subproject-cost-box {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+.subproject-progress {
+    padding: 10px 0;
+    border-bottom: 1px solid #ccc;
+}
+.subproject-progress .status {
+    margin-top: 10px;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+.subproject-contacts-box {
+    padding: 10px 0;
+    border-bottom: 1px solid #ccc;
+}
+.last_news {
+    padding: 10px 0;
+}
+.last_news .last_news_title {
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 600;
+}
+.last_news .news_description {
+    margin-top: 10px;
+}
+.subprojects-details-box {
+    padding: 10px 0;
+    text-align: center;
+}
+.subprojects-details-box .backButton, .details-box .backButton {
+    margin-top: 10px;
+}
+#collapseDetails{
+    margin-top: 20px;
+}
+.detail-subprojects .nav-pills li {
+    border-bottom: 1px dashed #80BA41;
+}
+.detail-subprojects .nav-pills li a {
+    text-transform: uppercase;
+    font-weight: 600;
+}
+.detail-subprojects .nav-pills li.active a {
+    background-color: #fff;
+    color: #80BA41;
+}
+.detail-subprojects .nav-pills li.active {
+    border-bottom: 5px solid #80BA41;
+}
+.detail-subprojects .expenditure-text {
+    font-size: 22px;
+    text-transform: uppercase;
+    color: #80BA41;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+.detail-subprojects #gantt-phases-container {
+    height: 200px;
+    width: 100%;
+}
+.detail-subprojects #gantt-phases-container .empatia-gantt-1 {
+    fill: #b2d68b;
+}
+.detail-subprojects #gantt-phases-container .empatia-gantt-2 {
+    fill: #add483;
+}
+.detail-subprojects #gantt-phases-container .empatia-gantt-3 {
+    fill: #a6d078;
+}
+.detail-subprojects #gantt-phases-container .empatia-gantt-4 {
+    fill: #9ecc6c;
+}
+.detail-subprojects #gantt-phases-container .empatia-gantt-5 {
+    fill: #97c861;
+}
+.detail-subprojects #gantt-phases-container .empatia-gantt-6 {
+    fill: #8dc352;
+}
+.detail-subprojects .expenditure-progress {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+.detail-subprojects .table-expenditures {
+    text-align: center;
+}
+.detail-subprojects .table-expenditures thead th {
+    text-align: center;
+}
+.detail-subprojects .table-news {
+    text-align: center;
+}
+.detail-subprojects .table-news th {
+    text-align: center;
+}
+.detail-subprojects .table-news th:nth-child(2) {
+    min-width: 100px;
+}
+.detail-subprojects .table-news td:nth-child(3) {
+    text-align: left;
+}
+.detail-subprojects .follow-bar .backButton {
+    margin-top: 0;
+}
+.detail-subprojects .followers-text {
+    font-size: 22px;
+    text-transform: uppercase;
+    margin: 10px;
+}
+.detail-subprojects .list-followers img {
+    max-height: 80px;
+}
+.detail-subprojects .table-documents {
+    text-align: center;
+}
+.detail-subprojects .table-documents th {
+    text-align: center;
+}
+.detail-subprojects .table-documents th:nth-child(1) {
+    min-width: 100px;
+}
+.detail-subprojects .table-documents td:nth-child(2) {
+    text-align: left;
+}
+

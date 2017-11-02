@@ -1,0 +1,1 @@
+<?php return array (  'store_ok' => 'stored',  'email' => 'email',  'name' => 'name',);

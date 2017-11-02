@@ -1,0 +1,1 @@
+<?php return array (  'list_title' => 'Section Types',  'key' => 'Key',  'code' => 'Code',  'title' => 'Title',  'details' => 'Details',  'name' => 'Name',);

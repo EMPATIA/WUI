@@ -1,0 +1,1 @@
+<?php return array (  'create_language' => 'Creare Lingua',  'show_language' => 'Visualizza Lingua',  'edit_language' => 'Modifica Lingua',  'add_language' => 'Aggiungi Lingua',  'details' => 'Dettagli',);

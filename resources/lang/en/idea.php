@@ -1,0 +1,1 @@
+<?php return array (  'id' => 'Id',  'title' => 'Idea',  'update_ok' => 'Update ok',  'store_ok' => 'Store ok',  'delete_ok' => 'Delete ok',  'idea' => 'Idea',);

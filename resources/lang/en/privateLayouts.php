@@ -1,0 +1,1 @@
+<?php return array (  'title' => 'Title',  'store_ok' => 'Stored Successfully',  'store_nok' => 'Store was Unsuccessful',  'show' => 'Show',  'edit' => 'Edit',  'update_ok' => 'Updated Successfully',  'update_nok' => 'Update was Unsuccessful',  'delete_ok' => 'Deleted Successfully',  'name' => 'Name',  'key' => 'Key',  'reference' => 'Reference',);

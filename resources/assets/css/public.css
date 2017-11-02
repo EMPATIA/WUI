@@ -1,0 +1,140 @@
+
+
+/*
+@font-face {
+    font-family: 'Kelson';
+    src: url('../fonts/kelson-sans-regular.otf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: 'Kelson';
+    font-weight: 400;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+*/
+
+
+.blockText {
+    display: block; /* Fallback for non-webkit */
+    display: -webkit-box;
+    text-align: justify;
+    max-width: 600px;
+    height: 100px; /* Fallback for non-webkit */
+    margin: 0 auto;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+}
+
+.box-body a i {
+    color: #FFFFFF;
+}
+
+.box-body a i:hover {
+    color: #FFFFFF;
+}
+
+.box img {
+    max-width:100%;
+    height: auto;
+}
+
+/***************
+ ** OVERRIDES **
+ ***************/
+
+/* OneForm */
+.tab-pane {
+    margin: 10px 15px;
+}
+
+/* Images */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+a{
+    color: #62a351;
+    text-decoration: none;
+}
+
+a.btn.empatia,
+.btn.empatia{
+    color: white;
+    text-decoration: none;
+    background-color: #62a351;
+}
+
+
+a.btn.empatia:hover,
+a.btn.empatia.hover,
+a.btn.empatia:focus,
+a.btn.empatia.focus,
+.btn.empatia:hover,
+.btn.empatia.hover,
+.btn.empatia:focus,
+.btn.empatia.focus{
+    color: black;
+    text-decoration: none;
+    background-color: #62a351!important;
+}
+
+a.btn.btn-flat.empatia:focus,
+a.btn.btn-flat.empatia:hover,
+a.btn.btn-flat.empatia.hover,
+a.btn.btn-flat.empatia.focus,
+.btn.btn-flat.empatia:focus,
+.btn.btn-flat.empatia:hover,
+.btn.btn-flat.empatia.hover,
+.btn.btn-flat.empatia.focus{
+    color: black;
+    text-decoration: none;
+    background-color: #62a351!important;
+}
+
+a:hover, a:focus {
+    color: #d8dd41;
+    text-decoration: none;
+}
+
+/* FORM BUTTONS */
+
+.btn-edit{
+    color: #62a351!important;
+}
+.btn-delete{
+    color: red !important;
+}
+
+.btn.btn-flat.btn-edit,
+.btn.btn-flat.btn-edit {
+    padding: 12px 6px!important;
+}
+
+.btn-edit:focus i,
+.btn-edit:hover i,
+.btn-edit.hover i,
+.btn-edit.focus i,
+.btn-delete:focus i,
+.btn-delete:hover i,
+.btn-delete.hover i,
+.btn-delete.focus i{
+    color: white!important;
+}
+
+
+.has-error .btn-group {
+    border: 1px solid #dd4b39;
+    border-radius: 5px;
+}
+
+/* Top bar */

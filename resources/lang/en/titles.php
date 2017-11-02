@@ -1,0 +1,1 @@
+<?php return array (  'Abuses' => 'Abuses',  'accessMenus' => 'Access Menus',);

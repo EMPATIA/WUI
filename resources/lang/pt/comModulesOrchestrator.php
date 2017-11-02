@@ -1,0 +1,1 @@
+<?php return array (  'failed_to_migrate_user_to_entity' => 'Falha ao migrar o utilizador para nova entidade',);

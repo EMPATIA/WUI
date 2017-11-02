@@ -1,0 +1,1 @@
+<?php return array (  'addAuthMethod' => 'Add Authentication Method',  'auth_methods' => 'Authentication Method',  'id' => 'ID',  'name' => 'Name',  'description' => 'Description',  'code' => 'Code',);

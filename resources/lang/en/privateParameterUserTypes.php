@@ -1,0 +1,1 @@
+<?php return array (  'update_ok' => 'Update OK',  'delete_ok' => 'Delete OK',  'details' => 'Details',  'parameterMandatory' => 'Mandatory',  'ParameterUserTypes' => 'User Types',  'id' => 'ID',  'name' => 'Name',  'parameter_mandatory' => 'Mandatory Parameter',  'parameter_unique' => 'Unique Parameter',);

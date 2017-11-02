@@ -1,0 +1,1 @@
+<?php return array (  'titleList' => 'Seznam názvů',  'title' => 'Název',  'tag' => 'Štítek',  'content' => 'Obsah',);

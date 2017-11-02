@@ -1,0 +1,1 @@
+<?php return array (  'create_template' => 'Create Template',  'emailTemplate' => 'Template',  'emailTemplateTranslations' => 'Translations',  'templateName' => 'Name',);

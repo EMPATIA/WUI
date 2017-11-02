@@ -1,0 +1,328 @@
+.votingDivContainer{
+    margin-top:3em;
+}
+
+
+.oneLikesRowStyle,
+.oneNegativeVotingRowStyle,
+.oneMultipleVotingRowStyle{
+    /*padding-top: 10px;
+    padding-bottom: 10px;*/
+    padding:0;
+}
+
+.oneLikesColStyle,
+.oneNegativeVotingColStyle,
+.oneMultipleVotingRowStyle,
+.multipleVotesBtnDivStyle{
+    float: left;
+}
+
+.oneNegativeVotingCol{
+    margin-top: -5px;
+    text-align: right;
+}
+
+.positiveVoteBtnDivStyle{
+    background:white;
+}
+
+.multipleVotesBtnDivStyle>a{
+    padding:0;
+}
+
+
+.negativeVoteBtnDivStyle,
+.negativeVoteNumberDivStyle,
+.positiveVoteBtnDivStyle,
+.positiveVoteNumberDivStyle,
+.likeDislikeNumberDivStyle,
+.likeDislikeBtnDivStyle,
+.multipleVotingNoWrapper{
+    padding:0;
+    /*padding-top:0;
+    padding-bottom:0;*/
+
+    line-height: normal;
+    vertical-align: top;
+    display: inline-block;
+    /* ie6/7 */
+    *display: inline;
+    zoom: 1;
+
+    float:none;
+}
+
+
+.negativeVoteBtnStyle,
+.positiveVoteBtnStyle,
+.likeDislikeBtnDivStyle,
+.likeDislikeNumberDivStyle,
+.multipleVotesBtnDivStyle,
+.userMultipleVotingNo,
+.totalMultipleVotingNo{
+    /*padding-top:0;
+    padding-bottom:0;*/
+    padding:0;
+    min-height: 35px;
+}
+
+
+.multipleVotesBtnDivStyle{
+    background: white;;
+}
+
+.multipleVoteBtn{
+    display: inline-block;
+}
+
+.negativeVoteBtnStyle img,
+.positiveVoteBtnStyle img,
+.likeDislikeBtnDivStyle img,
+.multipleVotesBtnDivStyle img{
+    width:auto;
+    max-width:30px;
+}
+
+.multipleVotesBtnDivStyle{
+    margin-left: 5px;
+}
+
+.multipleVoteCol{
+    display:block;
+}
+.multiple-positive-vote a.btn-xs{
+    padding-left: 0;
+}
+
+.multipleVoteCol:not(:first-child){
+    margin-top: 5px;
+}
+
+.multipleVoteCol p{
+    margin: 0;
+    font-size: 0.9em;
+}
+
+.multipleVoteCol .yourVote{
+    color: #8DC640;
+    font-weight: 600;
+}
+
+.multipleVote-wrapper{
+    text-align: right;
+    margin-right: 14px;
+}
+
+.totalMultipleVotingNo,
+.userMultipleVotingNo {
+    min-height: 40px;
+    line-height: 40px;
+}
+
+
+.positive{
+    color:#8DC640;
+}
+
+.negative{
+    color: #bf2a19;
+}
+
+
+
+.btnPositiveVoteSelected{
+    color:#8DC640;
+}
+
+.btnPositiveVoteSelected:hover{
+    color:#8DC640;
+}
+
+.btnNegativeVoteSelected{
+    color:#ad4d23;
+}
+
+.btnNegativeVoteSelected:hover{
+    color:#9d3d13;
+}
+
+
+
+
+.voteWord,
+.userMultipleVotingNo .word,
+.totalMultipleVotingNo .word{
+    padding:0;
+    margin-top: 0.5em;
+    font-size: 0.9em;
+}
+
+.userMultipleVotingNo .word,
+.totalMultipleVotingNo .word {
+    color: #484848;
+}
+
+
+
+/* ---------------- New Buttons Styles --------------------- */
+
+.forumTopicsItemVoting .oneNegativeVote-wrapper{
+    text-align: left;
+    display: inline-block;
+}
+
+.topics-ideaDetailsVoting .oneNegativeVote-wrapper:not(:first-child){
+    margin-top: 5px;
+}
+
+.topics-ideaDetailsVoting .voteNumber{
+
+}
+
+.topics-ideaDetail {
+    margin-bottom: 10px;
+}
+
+.oneNegativeVoteBtn-div{
+    display: inline-block;
+    padding: 0;
+    cursor: pointer;
+}
+
+.oneNegativeVoteBtn{
+    width:30px;
+    height:30px;
+    text-align: center;
+
+    display: inline-block;
+    line-height: 23px;
+    vertical-align: middle;
+    padding: 0;
+    margin: 0;
+
+    cursor: pointer;
+}
+
+.oneNegativeVoteBtn i.fa{
+    vertical-align: middle;
+    font-size: 18px;
+    padding:0;
+    margin: 0;
+}
+
+.oneNegativeVoteBtn i.fa:hover{
+    font-size: 25px;
+}
+
+
+.oneNegativeVoteBtn .fa-times{
+    vertical-align: middle;
+    padding: 2px 4px;
+}
+
+.oneNegativeVoteBtn.positiveVote{
+    border:solid 2px #8DC640;
+    background-color:#8DC640 ;
+    color: #ffffff;
+}
+
+.oneNegativeVoteBtn.neutralVote{
+    border:solid 2px #BBB;
+    color:#FFF;
+    background-color: #BBB;
+}
+
+.oneNegativeVoteBtn:hover,
+.oneNegativeVoteBtn.positiveVote:hover
+.oneNegativeVoteBtn.neutralVote:hover{
+    border:solid 2px #8cc63f;
+    color: #ffffff !important;
+    cursor: hand;
+    background-color:#8cc63f;
+}
+
+.oneNegativeVoteBtn i.demo-icon{
+    margin-right:0;
+    font-size: 18px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.oneNegativeVoteBtn i.demo-icon:hover{
+    font-size: 25px;
+
+}
+
+.voteNumber{
+    font-size: 1em;
+    font-weight: 400;
+    color: #515151;
+    font-family: "Maven Pro", Sans-Serif;
+    vertical-align: middle;
+    display: inline-block;
+    line-height: 30px;
+    margin: 0;
+    padding: 0;
+}
+
+.voteNumber p{
+    margin: 0;
+}
+
+.voteNumber.positiveVoteNumber{
+    color: #8DC640;
+}
+
+.voteNumber.neutralVoteNumber{
+    color: #b3b3b3 ;
+}
+
+.voting-buttons-likes-div{
+    text-align: right;
+}
+
+.button-votes-topic{
+    display: inline;
+}
+
+.button-div-horizontal{
+    display: inline;
+}
+
+.voteType-label{
+    display: inline-block;
+}
+
+
+@media (max-width: 768px){
+    .button-div-horizontal{
+        display: block;
+    }
+}
+
+.oneNegativeVoteBtn > i{
+    margin-left: -3px;
+}
+.votting-buttons .tooltip.in{
+    opacity: 1 !important;
+}
+
+.votting-buttons .tooltip-inner{
+    background-color: #8dc640;
+}
+.votting-buttons .tooltip-arrow{
+    border-top-color: #8dc640 !important;
+}
+
+.vote-button-opacity {
+    opacity: 0.6;
+}
+.vote-button-opacity:hover {
+    border: solid 2px transparent;
+    background-color: #BBB;
+}
+
+.vote-button-opacity i.demo-icon:hover,.vote-button-opacity i.fa:hover {
+    font-size: 18px;
+}

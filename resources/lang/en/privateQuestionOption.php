@@ -1,0 +1,1 @@
+<?php return array (  'status_history' => 'Status History',  'useOptions' => 'Use Options',  'selectOption' => 'Select Option',  'reuseQuestionOptions' => 'Reuse Question Options',  'selectValue' => 'Select Value',  'reuse' => 'Reuse',  'label' => 'Label',  'icons' => 'Icons',  'dependencies' => 'Dependencies',);

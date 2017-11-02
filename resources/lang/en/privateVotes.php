@@ -1,0 +1,1 @@
+<?php return array (  'create_vote' => 'Create Vote',  'edit_vote' => 'Edit Vote',  'show_vote' => 'Show Vote',);

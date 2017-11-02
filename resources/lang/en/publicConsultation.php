@@ -1,0 +1,1 @@
+<?php return array (  'publicConsultation' => 'Public Consultation',  'tematicConsultation' => 'Tematic Consultation',);

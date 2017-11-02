@@ -1,0 +1,52 @@
+header{
+    background-color: #3c8dbc;
+    -webkit-box-shadow: 0px 3px 5px 0px rgba(200,200,200,0.7);
+    -moz-box-shadow: 0px 3px 5px 0px rgba(200,200,200,0.7);
+    box-shadow: 0px 3px 5px 0px rgba(200,200,200,0.7);
+}
+
+
+.skin-blue-light .wrapper, .skin-blue-light .main-sidebar, .skin-blue-light .left-side {
+    background-color: #ffffff;
+}
+
+.content-wrapper, .right-side {
+    background-color: #ffffff;
+}
+
+a {
+    color: #3c8dbc;
+}
+
+.back2AdminMenu{
+    text-align: center;
+    padding: 2px 15px 0px 5px;
+    cursor: pointer;
+    width: auto;
+}
+
+.back2AdminMenuSidebar{
+    text-align: left;
+    padding: 2px 15px 0px 5px;
+    cursor: pointer;
+    width: auto;
+}
+
+.entitySelectMenuLabel{
+    color: #ffffff;
+    background-color: transparent;
+    padding: 8px;
+    margin-left: 20px;
+    margin-bottom: 0px;
+    width: auto;
+}
+
+.entitySelectMenuLabelSidebar{
+    color: #000000;
+    background-color: #f1f1f1;
+    text-align: left;
+    padding: 8px;
+    margin-bottom: 0px;
+    width: auto;
+}
+

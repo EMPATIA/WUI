@@ -1,0 +1,1 @@
+<?php return array (  'default' => 'Default',  'storeManagerOk' => 'Created Successfully',  'updateRole_ok' => 'Updated Successfully',);

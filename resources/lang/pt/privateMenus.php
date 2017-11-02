@@ -1,0 +1,1 @@
+<?php return array (  'list_menus' => 'Lista de Menus',  'create_menus' => 'Criar Menu',  'show_menu' => 'Mostrar Menu',  'update_menu' => 'Editar Menu',  'details' => 'Detalhes',);

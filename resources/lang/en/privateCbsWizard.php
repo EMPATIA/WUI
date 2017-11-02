@@ -1,0 +1,1 @@
+<?php return array (  'create_idea_cb' => 'Ideas',  'create_proposal_cb' => 'Proposals',  'create_project_cb' => 'Projects',  'create_empaville_cb' => 'EMPAVILLE',);

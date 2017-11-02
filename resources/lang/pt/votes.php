@@ -1,0 +1,1 @@
+<?php return array (  'remainingTotalVotes' => 'Votos restantes',  'youCanUse' => 'Pode usar',  'negativeVotes' => 'Votos negativos',  'positive_vote' => 'Voto Positivo',  'negative_vote' => 'Voto Negativo',);
