@@ -1,0 +1,333 @@
+.votingDivContainer{
+    margin-top:3em;
+}
+
+
+.oneLikesRowStyle,
+.oneNegativeVotingRowStyle,
+.oneMultipleVotingRowStyle{
+    /*padding-top: 10px;
+    padding-bottom: 10px;*/
+    padding:0;
+}
+
+.oneLikesColStyle,
+.oneNegativeVotingColStyle,
+.oneMultipleVotingRowStyle,
+.multipleVotesBtnDivStyle{
+    float: left;
+}
+
+.oneNegativeVotingCol{
+    margin-top: -5px;
+    text-align: right;
+}
+
+.positiveVoteBtnDivStyle{
+    background:white;
+}
+
+.multipleVotesBtnDivStyle>a{
+    padding:0;
+}
+
+
+.negativeVoteBtnDivStyle,
+.negativeVoteNumberDivStyle,
+.positiveVoteBtnDivStyle,
+.positiveVoteNumberDivStyle,
+.likeDislikeNumberDivStyle,
+.likeDislikeBtnDivStyle,
+.multipleVotingNoWrapper{
+    padding:0;
+    /*padding-top:0;
+    padding-bottom:0;*/
+
+    line-height: normal;
+    vertical-align: top;
+    display: inline-block;
+    /* ie6/7 */
+    *display: inline;
+    zoom: 1;
+
+    float:none;
+}
+
+
+.negativeVoteBtnStyle,
+.positiveVoteBtnStyle,
+.likeDislikeBtnDivStyle,
+.likeDislikeNumberDivStyle,
+.multipleVotesBtnDivStyle,
+.userMultipleVotingNo,
+.totalMultipleVotingNo{
+    /*padding-top:0;
+    padding-bottom:0;*/
+    padding:0;
+    min-height: 35px;
+}
+
+
+.multipleVotesBtnDivStyle{
+    background: white;;
+}
+
+.multipleVoteBtn{
+    display: inline-block;
+}
+
+.negativeVoteBtnStyle img,
+.positiveVoteBtnStyle img,
+.likeDislikeBtnDivStyle img,
+.multipleVotesBtnDivStyle img{
+    width:auto;
+    max-width:30px;
+}
+
+.multipleVotesBtnDivStyle{
+    margin-left: 5px;
+}
+
+.multipleVoteCol{
+    display:block;
+    margin-left: 5px;
+}
+
+.multipleVoteCol:not(:first-child){
+    margin-top: 5px;
+}
+
+.multipleVoteCol p{
+    margin: 0;
+    font-size: 0.9em;
+}
+
+.multipleVoteCol .yourVote{
+    color: #66a2d8;
+    font-weight: 600;
+}
+
+.multipleVote-wrapper{
+    text-align: right;
+}
+
+.totalMultipleVotingNo,
+.userMultipleVotingNo {
+    min-height: 40px;
+    line-height: 40px;
+}
+
+
+
+.voteNumber,
+.userMultipleVotingNo .number{
+    font-size: 1.1em;
+    font-weight: 400;
+    color:#585858;
+    font-family: "Open Sans", Sans-Serif;
+}
+
+
+.positive{
+    color:#66a2d8;
+}
+
+.negative{
+    color: #bf2a19;
+}
+
+
+
+.btnPositiveVoteSelected{
+    color:#8dc640;
+}
+
+.btnPositiveVoteSelected:hover{
+    color:#7db630;
+}
+
+.btnNegativeVoteSelected{
+    color:#ad4d23;
+}
+
+.btnNegativeVoteSelected:hover{
+    color:#9d3d13;
+}
+
+
+
+
+.voteWord,
+.userMultipleVotingNo .word,
+.totalMultipleVotingNo .word{
+    padding:0;
+    margin-top: 0.5em;
+    font-size: 0.9em;
+}
+
+.userMultipleVotingNo .word,
+.totalMultipleVotingNo .word {
+    color: #484848;
+}
+
+
+
+/* ---------------- New Buttons Styles --------------------- */
+
+.oneNegativeVote-wrapper{
+    text-align: right;
+}
+
+.oneNegativeVote-wrapper:not(:first-child){
+    margin-top: 5px;
+}
+
+.oneNegativeVoteBtn-div{
+    display: inline-block;
+    padding: 0;
+}
+
+.oneNegativeVoteBtn{
+    width:30px;
+    height:30px;
+    text-align: center;
+
+    display: inline-block;
+    line-height: 26px;
+    vertical-align: middle;
+    padding: 0;
+    margin: 0;
+}
+
+
+.oneNegativeVoteBtn i.fa{
+    vertical-align: middle;
+    font-size: 18px;
+    padding:0;
+    margin: 0;
+}
+
+.oneNegativeVoteBtn .fa-times{
+    vertical-align: middle;
+    padding: 2px 4px;
+}
+
+.oneNegativeVoteBtn.positiveVote{
+    border:solid 2px #66a2d8;
+    background-color:#66a2d8 ;
+    color: #ffffff;
+}
+
+.oneNegativeVoteBtn.neutralVote{
+    border:solid 2px #585858;
+    color: #585858;
+}
+
+.oneNegativeVoteBtn:hover,
+.oneNegativeVoteBtn.positiveVote:hover
+.oneNegativeVoteBtn.neutralVote:hover{
+    border:solid 2px #66a2d8;
+    background-color: #66a2d8;
+    color: #ffffff !important;
+    cursor: hand;
+}
+
+.oneNegativeVoteBtn i.demo-icon{
+    margin-right:0;
+    font-size: 18px;
+    text-align: center;
+    vertical-align: middle;
+    margin-left: -7px;
+}
+
+
+.voteNumber{
+    font-size: 0.8em;
+    font-weight: 400;
+    color:#585858;
+    font-family: "Open Sans", Sans-Serif;
+    vertical-align: middle;
+    display: inline-block;
+    line-height: 30px;
+    margin: 0;
+    padding: 0;
+}
+
+.voteNumber p{
+    margin: 0;
+}
+
+.voteNumber.positiveVoteNumber{
+    color: #66a2d8 ;
+}
+
+.voteNumber.neutralVoteNumber{
+    color: #b3b3b3 ;
+}
+
+
+
+
+
+@media screen and (min-width: 768px){
+    .btnImgContainer{
+        max-height:40px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .oneNegativeVotingColStyle,
+    .oneLikesColStyle,
+    .multipleVotesBtn-container{
+        width: 100%;
+    }
+
+    .totalMultipleVotingNo-container{
+        width:65%;
+    }
+
+    .likeDislikeBtnDivStyle{
+        width:15%;
+    }
+
+
+    .totalMultipleVotingNo,
+    .userMultipleVotingNo{
+        width:25%;
+    }
+}
+
+
+@media screen and (max-width: 400px) {
+    .likeDislikeBtnDivStyle{
+        width:100%;
+    }
+
+    .positiveVoteNumberDivStyle,
+    .negativeVoteNumberDivStyle{
+        width:100%;
+        padding-bottom:10px;
+    }
+
+    .btnImgWrapper{
+        display: inline-block;
+    }
+
+    .totalMultipleVotingNo,
+    .userMultipleVotingNo{
+        width:25%;
+    }
+}
+
+@media screen and (max-width: 270px) {
+
+    .totalMultipleVotingNo,
+    .userMultipleVotingNo{
+        width:55%;
+    }
+
+    /* New buttons */
+    .columnXS12{
+        width:100%;
+    }
+}

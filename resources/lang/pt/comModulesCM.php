@@ -1,0 +1,1 @@
+<?php return array (  'errorRetrievingMenu' => 'Erro a mostrar o Menu',  'errorRetrievingContents' => 'Erro a mostrar o conteúdo',  'failedToGetMenuTypeList' => 'Erro a mostrar a lista de tipos de menus',);

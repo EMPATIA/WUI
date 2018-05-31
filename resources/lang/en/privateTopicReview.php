@@ -1,0 +1,1 @@
+<?php return array (  'create_topic_review_reply' => 'Create Reply',  'create_topic_review' => 'Create Review',  'edit_topic_review' => 'Edit Review',  'delete' => 'Delete',  'are_you_sure you_want_to_delete_this_topic_review' => 'Are you sure you want to delete this review',  'cancel' => 'Cancel',);

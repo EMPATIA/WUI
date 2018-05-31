@@ -1,0 +1,1 @@
+<?php return array (  'default' => 'Výchozí',  'storeManagerOk' => 'Úspěšně Vytvořen',  'updateRole_ok' => 'Úspěšně aktualizováno',);

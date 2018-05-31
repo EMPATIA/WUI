@@ -1,0 +1,1 @@
+<?php return array (  'expandAll' => 'Expandir Todos',  'collapseAll' => 'Recolher Tudo',  'id' => 'Id',  'name' => 'Nome',  'link' => 'Link',  'active' => 'Ativo',  'description' => 'Descrição',  'site' => 'Site da Internet',  'menus' => 'Menus',  'createMenu' => 'Criar Menu',  'empty' => 'Vazio',);

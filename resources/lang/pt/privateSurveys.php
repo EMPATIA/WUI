@@ -1,0 +1,1 @@
+<?php return array (  'list_surveys' => 'Lista de Inquéritos',  'create_surveys' => 'Criar Inquérito',  'update_surveys' => 'Editar Inquérito',  'show_surveys' => 'Mostrar Inquérito',  'show_topics' => 'Mostrar Tópico',  'show_parameters' => 'Mostrar Parâmetro',  'show_configurations' => 'Mostrar Configuração',);

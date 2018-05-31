@@ -1,0 +1,1 @@
+<?php return array (  'expandAll' => 'Rozbalit vše',  'collapseAll' => 'Sbalit vše',  'id' => 'ID',  'name' => 'Jméno',  'link' => 'Odkaz',  'active' => 'Aktivní',  'description' => 'Popis',  'site' => 'Webová prezentace',  'menus' => 'Menu',  'createMenu' => 'Vytvořit menu',  'empty' => 'Prázndé',);

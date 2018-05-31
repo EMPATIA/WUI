@@ -1,0 +1,1 @@
+<?php return array (  'store_ok' => 'Aggiunto',  'update_ok' => 'Aggiornato',  'delete_ok' => 'Eliminata',);

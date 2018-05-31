@@ -1,0 +1,1 @@
+<?php return array (  'parameterUserType' => 'Parâmetros de tipo de utilizador',  'store_ok' => 'Gravado com Sucesso',);

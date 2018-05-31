@@ -1,0 +1,1 @@
+<?php return array (  'list_menus' => 'Seznam menu',  'create_menus' => 'Vytvořit menu',  'show_menu' => 'Ukázat menu',  'update_menu' => 'Aktualizovat menu',  'delete' => 'Smazat',  'are_you_sure_you_want_to_delete' => 'Opravdu smazat',  'cancel' => 'Zrušit',  'details' => 'Detaily',);

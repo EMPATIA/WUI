@@ -1,0 +1,1 @@
+<?php return array (  'statistics' => 'statistics ',  'url' => 'url',  'downloadPdf' => 'download pdf',  'QuestionGroups' => 'Question Groups',  'store_ok' => 'Store ok',  'update_ok' => 'Update ok',  'delete_ok' => 'Delete ok',  'title' => 'Title',);

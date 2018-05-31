@@ -1,0 +1,1 @@
+<?php return array (  'list_categories' => 'Lista de Categorias',  'create_category' => 'Criar Categoria',  'show_category' => 'Mostrar Categoria',  'update_category' => 'Editar Categoria',  'categories' => 'Categorias',  'id' => 'Id',  'name' => 'Nome',  'entityId' => 'Id da Entidade',  'details' => 'Detalhes',  'description' => 'Descrição',);

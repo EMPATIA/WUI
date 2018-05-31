@@ -1,0 +1,1 @@
+<?php return array (  'name' => 'Nome',  'code' => 'Código da língua',);

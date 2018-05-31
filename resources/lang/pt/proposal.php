@@ -1,0 +1,1 @@
+<?php return array (  'back' => 'Voltar',  'create' => 'Criar',  'index' => 'Índice',  'store' => 'Guardar',  'messages' => 'Mensagens',  'proposal' => 'Proposta',);

@@ -1,0 +1,1 @@
+<?php return array (  'storeOk' => 'Gravado com Sucesso',  'storeNok' => 'Erro ao Gravar',  'undefinedTranslation' => 'Tradução Indefinida',  'show' => 'Mostrar',  'edit' => 'Editar',  'deleteOk' => 'Apagado com Sucesso',  'title' => 'Título',  'code' => 'Código',  'name' => 'Nome',  'group' => 'Grupo',  'description' => 'Descrição',);

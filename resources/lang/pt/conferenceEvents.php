@@ -1,0 +1,1 @@
+<?php return array (  'eventsTitle' => 'Título',  'key' => 'Chave',  'name' => 'Nome',  'event' => 'Evento',);

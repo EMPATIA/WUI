@@ -1,0 +1,66 @@
+
+.translations-table{
+    border-spacing: 0.4375rem 0!important;
+    white-space: nowrap;
+    border-collapse: inherit;
+}
+.translations-table tbody td{
+    border-top: 1px solid #ddd;
+    padding: 3px 0px;
+}
+
+.translations-table thead tr:first-child td:first-child{
+    border: none;
+    border-bottom: 2px solid #3c8dbc;
+    padding:  3px 0px;
+    color: #3c8dbc;
+    font-weight: 900;
+}
+
+.translations-table thead td{
+    color: #000;
+    font-weight: 700;
+    padding:  2px 0px;
+    vertical-align: inherit;
+    border: none;
+    border-bottom: 2px solid #494949;
+}
+.empty-translation{
+    color: #adaaaa;
+}
+
+.translations-button-row{
+    margin-bottom: 35px;
+    min-height: 35px;
+
+}
+.translations-button-row button, .translations-button-row a{
+    float:left;
+    margin-right: 5px;
+}
+#loader{
+    font-size: 30px;
+    font-weight: 900;
+    color: #3c8dbc;
+    float: left;
+}
+
+#keys-list{
+    margin-top: 45px;
+}
+
+.translations-table .fa{
+    color: #ccc;
+    float: right;
+    padding-top: 5px;
+    margin-right: 5px;
+
+}
+
+.esenfc-no-padding {
+    padding: 0;
+}
+
+.cursor{
+    cursor: pointer;
+}

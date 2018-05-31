@@ -1,0 +1,1 @@
+<?php return array (  'cb_translations' => 'Translations',);

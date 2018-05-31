@@ -1,0 +1,1 @@
+<?php return array (  'postId' => 'id do post',  'comment' => 'comenta',  'abuses' => 'abusa',  'processed' => 'processado',  'created_at' => 'criado em',);

@@ -1,0 +1,1 @@
+<?php return array (  'resend' => 'Enviar un nuevo correo electrónico',);

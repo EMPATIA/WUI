@@ -1,0 +1,20 @@
+{
+    "name": "ktquez/laravel-tinymce",
+    "description": "TinyMCE editor for Laravel and Lumen Framework",
+    "keywords": ["lumen","laravel","tinymce","ckeditor","editor","WYSIWYG","textarea"],
+    "homepage": "https://github.com/ktquez/laravel-tinymce",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alan Albuquerque: ktquez",
+            "website": "http://ktquez.com",
+            "email": "ktquez@gmail.com"
+        }
+    ],
+    "autoload":{
+        "psr-4":{
+            "Ktquez\\Tinymce\\": "src/"
+        }
+    },
+    "require": {}
+}

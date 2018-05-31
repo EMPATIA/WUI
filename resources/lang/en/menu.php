@@ -1,0 +1,1 @@
+<?php return array (  'select' => 'Select',  'menu' => 'Menu',  'store_ok' => 'Store ok',  'updateOrder_ok' => 'Update Order ok',  'delete_ok' => 'Delete ok',);

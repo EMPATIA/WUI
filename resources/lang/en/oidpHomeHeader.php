@@ -1,0 +1,1 @@
+<?php return array (  'mappingParticipatoryInnovations' => 'MAPPING PARTICIPATORY INNOVATIONS',  'home' => 'Home',  'share' => 'Share',  'shareYourStory' => ' Share the story of the participatory innovations in your city.',);

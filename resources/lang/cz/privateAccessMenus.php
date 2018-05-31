@@ -1,0 +1,1 @@
+<?php return array (  'list_accessMenus' => 'Seznam skupin menu',  'create_accessMenus' => 'Vytvořit skupinu menu',  'show_group' => 'Ukázat skupinu menu',  'update_group' => 'Aktualizovat skupinu menu',  'delete' => 'Smazat',  'are_you_sure_you_want_to_delete' => 'Opravdu smazat',  'cancel' => 'Zrušit',  'details' => 'Detaily',);

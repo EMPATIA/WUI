@@ -1,0 +1,1 @@
+<?php return array (  'list_discussions' => 'Seznam diskuzí',  'create_discussions' => 'Vytvořit diskuzi',  'update_discussions' => 'Aktualizovat diskuzi',  'show_discussions' => 'Ukázat diskuzi',);

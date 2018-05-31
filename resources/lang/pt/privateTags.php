@@ -1,0 +1,1 @@
+<?php return array (  'tags' => 'Etiqueta',  'id' => 'ID',  'name' => 'Nome',  'entityId' => 'ID de Entidade',);

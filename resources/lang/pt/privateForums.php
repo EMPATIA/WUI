@@ -1,0 +1,1 @@
+<?php return array (  'list_forums' => 'Lista de Fóruns',  'create_forums' => 'Criar Fórum',  'update_forums' => 'Editar Fórum',  'show_forums' => 'Mostrar Fórum',);

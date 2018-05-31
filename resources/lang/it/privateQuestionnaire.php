@@ -1,0 +1,1 @@
+<?php return array (  'title' => 'Titolo',  'description' => 'Descrizione',  'startDate' => 'Data D\'inizio',  'endDate' => 'Data di fine',  'public' => 'Pubblico',  'question' => 'Domanda',  'question_type' => 'Tipo di Domanda',  'mandatory' => 'Obbligatorio',  'titleList' => 'Titolo',);

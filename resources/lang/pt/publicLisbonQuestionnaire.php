@@ -1,0 +1,1 @@
+<?php return array (  'form_submitted' => 'Formulário enviado',  'dear' => 'Caro',  'form_submitted_message' => 'Formulário enviado com sucesso',  'warning' => 'Atenção',  'already_form_submitted' => 'Formulário já submetido',);

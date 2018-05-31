@@ -1,0 +1,1 @@
+<?php return array (  'information' => 'Información',  'close' => 'Cerrar',);

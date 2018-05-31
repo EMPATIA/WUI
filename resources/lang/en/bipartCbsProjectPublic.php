@@ -1,0 +1,1 @@
+<?php return array (  'winner' => 'Winner',  'project_description' => 'Project description',  'support' => 'Support',  'attachments' => 'Attachments',  'prosandcons' => 'Pros and cons',  'supporters' => 'Supporters',  'evaluation' => 'Evaluation',  'attachment' => 'Attachement',  'no_attachments' => 'no attachments',);

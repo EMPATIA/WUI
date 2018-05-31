@@ -1,0 +1,1 @@
+<?php return array (  'imageResize' => 'image resize',);

@@ -1,0 +1,1 @@
+<?php return array (  'idea_number' => 'Numero di idea',  'delete' => 'Elimina',  'editPost' => 'Modifica',  'images' => 'Immagine',  'login_to_Vote' => 'Registrati per votare',  'remaining_votes' => 'I vostri voti',  'positive' => 'Positivo',  'negative' => 'Negativo',);

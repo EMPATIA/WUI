@@ -1,0 +1,630 @@
+.tableEventSchedule.poll {
+    border-collapse: separate;
+    border-spacing: 0;
+    position: relative;
+}
+.tableEventSchedule.poll .normal-sprite, .tableEventSchedule.poll tr.date.month {
+    background-repeat: no-repeat;
+}
+.tableEventSchedule.poll th, .tableEventSchedule.poll td {
+    font-size: 13px;
+    font-weight: normal;
+    line-height: 17px;
+}
+.tableEventSchedule.poll th b {
+    font-weight: bold;
+}
+.tableEventSchedule.poll tr.header th, .tableEventSchedule.poll tr.header td {
+    padding: 0 10px;
+}
+.tableEventSchedule.poll tr.date th, .tableEventSchedule.poll tr.date td {
+    background: #3c8dbc none repeat scroll 0 0;
+    color: #fff;
+}
+.tableEventSchedule.poll tr.date th a, .tableEventSchedule.poll tr.date td a {
+    color: #fff;
+}
+.tableEventSchedule.poll tr.date.month th {
+    padding-bottom: 3px;
+    padding-top: 7px;
+}
+.tableEventSchedule.poll tr.date.month td {
+    padding-bottom: 7px;
+    padding-top: 3px;
+}
+.tableEventSchedule.poll tr.date.month .asep {
+    background-position: -36px 0;
+    background-repeat: repeat-y;
+    cursor: pointer;
+    min-width: 36px;
+    padding: 0;
+    vertical-align: top;
+    width: 36px;
+}
+.tableEventSchedule.poll tr.date.month .asep > div {
+    background-position: -72px 0;
+    cursor: pointer;
+    height: 8px;
+    min-width: 36px;
+    padding: 0;
+    width: 36px;
+}
+.tableEventSchedule.poll tr.date.month.foot th.asep {
+    background-position: -36px 0;
+    background-repeat: repeat-y;
+    vertical-align: bottom;
+}
+.tableEventSchedule.poll tr.date.month.foot th.asep > div {
+    background-position: 0 0;
+}
+.tableEventSchedule.poll tr.date.month th.msep {
+    background: #3c8dbc no-repeat scroll right 9px;
+    padding-right: 15px;
+}
+.tableEventSchedule.poll tr.date.month td.msep {
+    background: #3c8dbc no-repeat scroll right -18px;
+    padding-right: 15px;
+}
+.tableEventSchedule.poll tr.date.day th, .tableEventSchedule.poll tr.date.day td {
+    padding-right: 10px;
+}
+.tableEventSchedule.poll tr.date.day th {
+    padding-bottom: 6px;
+}
+.tableEventSchedule.poll tr.date.day.foot th {
+    padding-top: 6px;
+}
+.tableEventSchedule.poll tr.date.day .asep {
+    background-position: 0 0;
+    cursor: pointer;
+    min-width: 36px;
+    padding: 0;
+    width: 36px;
+}
+.tableEventSchedule.poll tr.date.day th.msep {
+    background: #3c8dbc repeat-y scroll right 0;
+    padding-right: 15px;
+}
+.tableEventSchedule.poll tr.date.day td.msep {
+    background: #3c8dbc  repeat-y scroll right 0;
+    padding-right: 15px;
+}
+.tableEventSchedule.poll tr.date.day th.dsep, .tableEventSchedule.poll tr.date.day td.dsep {
+    background: #3c8dbc  repeat-y scroll right 0;
+    padding-right: 13px;
+}
+.tableEventSchedule.poll tr.header.month th.xsep {
+    background: #3c8dbc  repeat-y scroll right 0;
+    padding-right: 13px;
+}
+.tableEventSchedule.poll tr.date.day td.dsep {
+    background-position: right -15px;
+}
+.tableEventSchedule.poll tr.time th {
+    color: #323232;
+    font-size: 12px;
+    padding-bottom: 8px;
+    padding-right: 0;
+    padding-top: 0;
+}
+.tableEventSchedule.poll tr.time td {
+    color: #323232;
+    font-size: 12px;
+    padding-bottom: 11px;
+    padding-top: 9px;
+}
+.tableEventSchedule.poll tr.time th > div {
+    padding-right: 15px;
+    padding-top: 11px;
+}
+.tableEventSchedule.poll tr.time .asep {
+    background-position: -144px 0;
+    background-repeat: repeat-y;
+    cursor: pointer;
+    min-width: 36px;
+    padding: 0;
+    width: 36px;
+}
+.tableEventSchedule.poll tr.time td.asep {
+    background-position: -144px 0;
+    background-repeat: repeat-y;
+}
+.tableEventSchedule.poll tr.time th.msep, .tableEventSchedule.poll tr.time td.msep {
+    background: rgba(0, 0, 0, 0) repeat-y scroll right 0;
+}
+.tableEventSchedule.poll tr.time th.msep > div, .tableEventSchedule.poll tr.time td.msep > div {
+    padding-right: 15px;
+}
+.tableEventSchedule.poll tr.time th.dsep, .tableEventSchedule.poll tr.time td.dsep {
+    background: rgba(0, 0, 0, 0) repeat-y scroll right 0;
+}
+.tableEventSchedule.poll tr.time th.dsep > div, .tableEventSchedule.poll tr.time td.dsep > div, .tableEventSchedule.poll tr.time th.tsep > div {
+    padding-right: 13px;
+}
+.tableEventSchedule.poll tr.time td.tsep > div, .tableEventSchedule.poll tr.time td.rsep > div {
+    padding-right: 13px;
+}
+.tableEventSchedule.poll tr.time th.rsep > div {
+    padding-right: 13px;
+}
+.tableEventSchedule.poll tr.time th.tsep {
+    background: rgba(0, 0, 0, 0) repeat-y scroll right 0;
+}
+.tableEventSchedule.poll tr.time td.tsep {
+    background: rgba(0, 0, 0, 0) repeat-y scroll right 0;
+}
+.tableEventSchedule.poll tr.time td.msep, .tableEventSchedule.poll tr.time td.dsep, .tableEventSchedule.poll tr.time td.tsep {
+    background-position: right -1px;
+}
+.tableEventSchedule.poll tr th.nonHeader, .tableEventSchedule.poll tr td.nonHeader {
+    background: #fff none repeat scroll 0 0;
+}
+.tableEventSchedule.poll tr th.nonHeader.partCount, .tableEventSchedule.poll tr td.partCount {
+    background: #fff none repeat scroll 0 0;
+    color: #323232;
+    font-size: 13px;
+    font-weight: bold;
+    max-width: none;
+    min-width: 184px;
+    padding: 0 0 9px;
+    vertical-align: bottom;
+    width: 184px;
+}
+.tableEventSchedule.poll tr th.nonHeader.partCount div, .tableEventSchedule.poll tr td.partCount div {
+    min-width: 184px;
+    width: 184px;
+}
+.tableEventSchedule.poll tr.participant td, .tableEventSchedule.poll tr.participation td {
+    min-width: 20px;
+}
+.tableEventSchedule.poll tr.participant td.pname {
+    min-width: 182px;
+    padding: 0 2px 0 0;
+    position: relative;
+    width: 250px;
+}
+.tableEventSchedule.poll tr.participation td.pname {
+    image-rendering: -moz-crisp-edges;
+    min-width: 182px;
+    padding: 0 2px 0 0;
+    position: relative;
+    width: 182px;
+}
+.tableEventSchedule.poll td.pname div {
+    float: left;
+}
+.tableEventSchedule.poll td.pname div.pname {
+    font-size: 15px;
+    line-height: 15px;
+    margin-left: 3px;
+    max-width: 135px;
+    overflow: hidden;
+    padding: 8px 0 5px;
+    position: relative;
+    text-align: left;
+    white-space: nowrap;
+    width: 135px;
+}
+.tableEventSchedule.poll td.pname div.pname.short {
+    max-width: 90%;
+}
+.tableEventSchedule.poll td.pname > a {
+    float: left;
+}
+.tableEventSchedule.poll td.pname.long div.pname {
+    max-width: 159px;
+    padding: 8px 0 7px;
+    position: relative;
+}
+.tableEventSchedule.poll td.pname.long div.pname.short {
+    max-width: 144px;
+}
+.tableEventSchedule.poll td.pname div.icon, .tableEventSchedule.poll td.pname a.icon {
+    cursor: pointer;
+    margin: 9px 0 0 6px;
+}
+.tableEventSchedule.poll tr.participant td {
+    height: 33px;
+    text-align: center;
+    vertical-align: middle;
+}
+.tableEventSchedule.poll tr.participation td {
+    height: 33px;
+}
+.tableEventSchedule.poll tr.participation td.pname {
+    height: 33px;
+}
+.tableEventSchedule.poll tr.participant td.pname {
+    height: 33px;
+}
+.tableEventSchedule.poll tr.participant td.asep {
+    background-position: -144px 0;
+    background-repeat: repeat-y;
+    cursor: pointer;
+    min-width: 36px;
+    padding: 0 0 1px;
+    width: 36px;
+}
+.tableEventSchedule.poll tr.participant td.msep {
+    background-position: right -1px;
+    background-repeat: repeat-y;
+    padding-right: 5px;
+}
+.tableEventSchedule.poll tr.participant.endAccordion td.asep {
+    background-position: -108px 0;
+}
+.tableEventSchedule.poll tr.participant td.dsep, .tableEventSchedule.poll tr.participant td.tsep, .tableEventSchedule.poll tr.participant td.xsep {
+    background-position: right -1px;
+    background-repeat: repeat-y;
+    padding-right: 3px;
+}
+.tableEventSchedule.poll tr.participant td.y {
+    background-color: #d1f3d1;
+}
+.tableEventSchedule.poll tr.participant td.i {
+    background-color: #ffeda1;
+}
+.tableEventSchedule.poll tr.participant td.n {
+    background-color: #ffccca;
+}
+.tableEventSchedule.poll tr.participant td.q {
+    background-color: #eaeaea;
+}
+.tableEventSchedule.poll td.h {
+    background-color: #eaeaea;
+}
+.tableEventSchedule.poll tr.participation td.asep {
+    background-position: -108px 0;
+    cursor: pointer;
+    min-width: 36px;
+    padding: 0 0 1px;
+    width: 36px;
+}
+.tableEventSchedule{
+    border-collapse: collapse;
+}
+.tableEventSchedule.poll.withFooter tr.participation td.asep {
+    background-position: -144px 0;
+    background-repeat: repeat-y;
+}
+.tableEventSchedule.poll tr.participation td.msep {
+    background-position: right -1px;
+    background-repeat: repeat-y;
+    padding-right: 5px;
+}
+.tableEventSchedule.poll tr.participation td.dsep, .tableEventSchedule.poll tr.participation td.tsep, .tableEventSchedule.poll tr.participation td.xsep {
+    background-position: right -1px;
+    background-repeat: repeat-y;
+    padding-right: 3px;
+}
+.tableEventSchedule.poll tr.participation.partMyself td {
+    background-color: #d0e3fb;
+}
+.tableEventSchedule.poll tr.participation.partMyself td:hover {
+    background-color: #b2d1f9;
+}
+.tableEventSchedule.poll tr.participation td, .tableEventSchedule.poll tr.participation.inEdit td {
+    background-color: #eaeaea;
+    text-align: center;
+}
+.tableEventSchedule.poll tr.participation td:hover, .tableEventSchedule.poll tr.participation.inEdit td:hover {
+    background-color: #d6d6d6;
+}
+.tableEventSchedule.poll tr.participation td {
+    background-color: #eaeaea;
+    text-align: center;
+}
+.tableEventSchedule.poll tr.participation td.disabled {
+    background-color: #eaeaea;
+    text-align: center;
+}
+.tableEventSchedule.poll tr.participation.inEdit td, .tableEventSchedule.poll tr.participation td.disabled:hover, .tableEventSchedule.poll tr.participation.inEdit td.disabled:hover {
+    background-color: #eaeaea;
+    text-align: center;
+}
+.tableEventSchedule.poll tr.participation.yesNoIfneedbe td {
+    padding-bottom: 4px;
+    padding-top: 4px;
+}
+.tableEventSchedule.poll tr.participation.yesNoIfneedbe div.withHint {
+    position: relative;
+}
+.tableEventSchedule.poll tr.participation.yesNoIfneedbe a.i {
+    padding: 2px 20px;
+}
+.tableEventSchedule.poll tr.participation.yesNoIfneedbe .icon.yesNoIfneedbeHint {
+    background-position: 0 -1053px;
+    height: 15px;
+    margin: 0;
+    position: absolute;
+    right: 4px;
+    top: 1px;
+    width: 15px;
+}
+.tableEventSchedule.poll tr.participation.yesNoIfneedbe td.ymo {
+    background-color: #d1f3d1;
+}
+.tableEventSchedule.poll tr.participation.yesNoIfneedbe td.imo {
+    background-color: #ffeea6;
+}
+.tableEventSchedule.poll tr.participation.yesNoIfneedbe td.nmo {
+    background-color: #ffcfcd;
+}
+.tableEventSchedule.poll tr.participation.yesNoIfneedbe td.y {
+    background-color: #d1f3d1;
+}
+.tableEventSchedule.poll tr.participation.yesNoIfneedbe td.i {
+    background-color: #ffeea6;
+}
+.tableEventSchedule.poll tr.participation.yesNoIfneedbe td.n {
+    background-color: #ffcfcd;
+}
+.tableEventSchedule.poll tr.participation a {
+    display: block;
+    padding: 2px 10px;
+    text-decoration: none;
+}
+.tableEventSchedule.poll tr.participation a:hover {
+    text-decoration: underline;
+}
+.tableEventSchedule.poll tr.participation td.y a.y, .tableEventSchedule.poll tr.participation td.i a.i, .tableEventSchedule.poll tr.participation td.n a.n {
+    color: #323232;
+    text-decoration: underline;
+}
+.tableEventSchedule.poll tr.participation td.pname {
+    text-align: left;
+}
+.tableEventSchedule.poll tr.participation.yesNoIfneedbe td.pname {
+    padding: 0 2px 0 0;
+}
+.tableEventSchedule.poll tr.participation td {
+    line-height: 12px;
+}
+.tableEventSchedule.poll tr.participation td.pname input {
+    font-size: 12px;
+    height: 24px;
+    line-height: 20px;
+    margin: 3px 0 3px 3px;
+    padding: 2px 6px 2px 9px;
+    width: 131px;
+}
+.tableEventSchedule.poll tr.participation td.pname input.long {
+    margin: 3px 0;
+    padding-left: 9px;
+    width: 90%;
+}
+.avatarSmall {
+    background-color: #66a3eb;
+    position:relative;
+    float:left;
+}
+.tableEventSchedule.poll tr.sums td {
+    color: #6f6f6f;
+    line-height: 16px;
+    padding-left: 5px;
+    padding-right: 8px;
+    padding-top: 5px;
+    text-align: center;
+}
+.tableEventSchedule.poll tr.sums td.max {
+    font-weight: bold;
+}
+.tableEventSchedule.poll tr.sums td.sep {
+    min-width: 3px;
+}
+.tableEventSchedule.poll tr.sums td.nonHeader {
+    padding-right: 10px;
+    text-align: right;
+}
+.inlineEdit {
+    background: transparent no-repeat scroll 0 -942px;
+    height: 30px;
+    image-rendering: -moz-crisp-edges;
+    left: -50px;
+    position: absolute;
+    text-align: right;
+    width: 50px;
+    z-index: 499;
+}
+tr.partMyself .inlineEdit {
+    background: transparent no-repeat scroll 0 -972px;
+    display: block;
+}
+tr.partMyself .inlineEdit:hover {
+    background: transparents no-repeat scroll 0 -942px;
+}
+.inlineEdit.active.hover {
+    background: transparent no-repeat scroll 0 -942px;
+}
+.tableEventSchedule.poll tr.participation .inlineEdit > a {
+    margin: 7px 3px 0;
+    padding: 0;
+}
+.inlineEdit > a {
+    margin: 7px 3px 0;
+    padding: 0;
+}
+.inlineEdit.partLocked {
+    background: transparent no-repeat scroll 0 -942px;
+    height: 30px;
+    left: -30px;
+    width: 30px;
+}
+.inlineLockedIcon {
+    background: transparent no-repeat scroll 0 -764px;
+    display: inline-block;
+    height: 16px;
+    margin: 7px 0 0 9px;
+    width: 16px;
+}
+.inlineEditIcon {
+    background: transparent no-repeat scroll 0 -503px;
+    display: inline-block;
+    height: 16px;
+    width: 16px;
+}
+.inEdit .inlineEditIcon {
+    background: transparent no-repeat scroll 0 -519px;
+}
+.inlineEdit.active {
+    background: transparent no-repeat scroll 0 -942px;
+    display: block;
+}
+.participation .inlineEdit.active {
+    left: -12px;
+}
+.participation input[type="checkbox"] {
+    margin-top: 0;
+}
+.inEdit .inlineEdit.active.hover {
+    background-position: 0 -942px;
+}
+.inlineEditIcon:hover {
+    background: transparent no-repeat scroll 0 -519px;
+}
+.inlineDeleteIcon {
+    background: transparent no-repeat scroll 0 -359px;
+    display: inline-block;
+    height: 16px;
+    width: 16px;
+}
+
+#belowTable {
+    clear: both;
+    float: right;
+}
+#belowTable .btn, #belowTable #targetCalendar, #belowTable #targetCalendar_chzn {
+    display: inline-block;
+    margin-bottom: 0;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+#saveContainer #targetCalendar {
+    width: 150px;
+}
+#belowTable #targetCalendar_chzn {
+    text-align: left;
+}
+.targetCalendarContainer {
+    display: inline-block;
+    margin-right: 10px;
+}
+.targetCalendarContainer label {
+    padding: 0 0.5em;
+}
+.tableEventSchedule.poll tr.participant td.y.nonFinal, .tableEventSchedule.poll tr.participant td.i.nonFinal {
+    background-color: #d6d6d6;
+}
+.tableEventSchedule.poll tr.participant td.n.nonFinal {
+    background-color: #eaeaea;
+}
+.tableEventSchedule.poll td.inlineClosePoll:hover {
+    background-color: #eaeaea;
+}
+.tableEventSchedule.poll tr.sums td.final {
+    color: #5cad5c;
+}
+.tableEventSchedule.poll tr.header.calRow th {
+    padding: 0;
+}
+.tableEventSchedule.poll tr.header.calRow th.last {
+    padding-right: 2px;
+}
+.tableEventSchedule.poll tr.calRow td {
+    padding: 0;
+}
+.right.adTick, .right.adTickCanvas {
+    left: auto;
+    right: -3px;
+}
+.day .right.adTick {
+    right: -16px;
+}
+.avatarSmall {
+    background: #d2d6de none no-repeat scroll center center;
+    height: 34px;
+    width: 31px;
+}
+#extrafields.form-horizontal .form-group:last-child {
+    margin-bottom: 0;
+    min-height: 0;
+}
+.hiddenAcc{
+    display:none;
+}
+.participantIcon{
+    margin-top:8px;
+    margin-left:0px;
+}
+
+.removeIcon{
+    color:red;
+    cursor:pointer;
+    margin-top:30px;
+}
+.periodsHeader{
+    top: 13px;
+}
+
+.userIcon{
+    margin-top:8px;
+    margin-left:6px;
+}
+
+.borderSchedule{
+    border:1px solid #154e6f;
+    width:251px;
+}
+
+.tableEventSchedule{
+    border-collapse:collapse;
+}
+
+.headerSchedule{
+    width:50px;
+}
+
+.participantName{
+   margin-top: 7px;
+   padding-left: 8px;
+   width:155px;   
+}
+
+.btnSchedule{
+    margin-left:22px;
+}
+
+.counterDiv{
+    padding-left:5px;
+}
+
+.participantNameDiv{
+    margin-right:6px;
+}
+
+.editButtons{
+    margin-right:6px;
+}
+
+.editButton{
+    margin-top:6px;
+}
+
+.deleteButton{
+    margin-top:6px;
+}
+
+.btnUndo{
+    margin-top:6px;
+    margin-right:2px;   
+}
+
+.avatarDiv{
+    width:100%;
+}
+
+.editAndRemoveBtns{
+    position:relative;
+    top:6px;
+    right:5px;
+}

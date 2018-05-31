@@ -1,0 +1,1 @@
+<?php return array (  'accessPage' => 'Página de acceso',  'store_ok' => 'guardar ok',  'update_ok' => 'actualizar ok',  'delete_ok' => 'borrar ok',);

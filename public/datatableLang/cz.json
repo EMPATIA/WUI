@@ -1,0 +1,23 @@
+{
+  "sEmptyTable":   	"K dispozici v tabulce žádné údaje",
+  "sInfo":         	"Ukazující _START_ na _END_ přihlášek _TOTAL_",
+  "sInfoEmpty":    	"Ukazovat 0 až 0 z 0 záznamů",
+  "sInfoFiltered": 	"(Filtrují z celkem záznamů _MAX_)",
+  "sInfoPostFix":  	"",
+  "sInfoThousands":  	".",
+  "sLengthMenu":   	"Zobrazit Zápisy _MENU_",
+  "sLoadingRecords": 	"Nakládání...",
+  "sProcessing":   	"Zpracování...",
+  "sSearch":       	"Vyhledávání:",
+  "sZeroRecords":  	"Nebyly nalezeny žádné odpovídající záznamy.",
+  "oPaginate": {
+    "sFirst":    	"První",
+    "sPrevious": 	"Předchozí",
+    "sNext":     	"Další",
+    "sLast":     	"Poslední"
+  },
+  "oAria": {
+    "sSortAscending":  ": aktivovat třídit sloupce vzestupně",
+    "sSortDescending": ": aktivovat třídit sloupce sestupně"
+  }
+}

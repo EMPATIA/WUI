@@ -1,0 +1,1 @@
+<?php return array (  'list_kiosks' => 'Lista de Kioskes',  'createKiosk' => 'Criar um Kioske',  'details' => 'Detalhes',);

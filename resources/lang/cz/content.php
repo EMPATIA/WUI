@@ -1,0 +1,1 @@
+<?php return array (  'delete_ok' => 'Úspěšně smazáno',  'store_ok' => 'Uloženo',  'update_ok' => 'Aktualizováno',  'activateVersion_ok' => 'Verze aktivována',  'publish_ok' => 'Zveřejnit',  'unpublish_ok' => 'Zveřejnění zrušeno',  'updateFileDetails_ok' => '?',  'noContent' => 'Žádný obsah',);

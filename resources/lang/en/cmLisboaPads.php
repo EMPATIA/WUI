@@ -1,0 +1,1 @@
+<?php return array (  'comments' => 'Comments',  'location' => 'Location',  'follow' => 'Follow',  'unfollow' => 'Unfollow',  'videos' => 'Videos',  'followers' => 'Followers',  'and_more' => 'And More',  'close' => 'Close',  'files' => 'Files',  'share' => 'Share',);

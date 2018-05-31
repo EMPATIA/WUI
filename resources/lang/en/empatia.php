@@ -1,0 +1,1 @@
+<?php return array (  'user_profile' => 'User Profile',  'cookieDismiss' => 'Dismiss',  'cookieAccept' => 'Got it!',  'privacy_policy' => 'Privacy Policy',  'map' => 'Map',  'back' => 'Back',);

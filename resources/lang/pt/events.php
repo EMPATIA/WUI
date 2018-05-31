@@ -1,0 +1,1 @@
+<?php return array (  'listRegistrationUserName' => 'Nome',  'listRegistrationUserEmail' => 'E-mail',);

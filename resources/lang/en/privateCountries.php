@@ -1,0 +1,1 @@
+<?php return array (  'name' => 'Name',  'code' => 'Country Code',  'countries' => 'Countries',  'id' => 'ID',  'country' => 'Country',  'store_ok' => 'Stored Successfully',  'update_ok' => 'Updated Successfully',  'delete_ok' => 'Deleted Successfully',  'list' => 'List',);

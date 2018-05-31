@@ -1,0 +1,570 @@
+
+body{
+    background-color: #ffffff;
+    font-family: "Open Sans", Sans-Serif;
+}
+
+@font-face {
+    font-family: 'fontello';
+    src: url('/fonts/fontello-de52e592/font/fontello.eot');
+    src: url('/fonts/fontello-de52e592/font/fontello.eot') format('embedded-opentype'),
+    url('/fonts/fontello-de52e592/font/fontello.woff') format('woff'),
+    url('/fonts/fontello-de52e592/font/fontello.ttf') format('truetype'),
+    url('/fonts/fontello-de52e592/font/fontello.svg') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.readmore{
+    color: #66a2d8;
+}
+
+.readmore:hover{
+    color: #727272;
+}
+
+.demo-icon
+{
+    font-family: "fontello";
+    font-style: normal;
+    font-weight: normal;
+    speak: none;
+
+    display: inline-block;
+    text-decoration: inherit;
+    width: 1em;
+    margin-right: .2em;
+    text-align: center;
+    /* opacity: .8; */
+
+    /* For safety - reset parent styles, that can break glyph codes*/
+    font-variant: normal;
+    text-transform: none;
+
+    /* fix buttons height, for twitter bootstrap */
+    line-height: 1em;
+
+    /* Animation center compensation - margins should be symmetric */
+    /* remove if not needed */
+    margin-left: .2em;
+
+    /* You can be more comfortable with increased icons size */
+    /* font-size: 120%; */
+
+    /* Font smoothing. That was taken from TWBS */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    /* Uncomment for 3D effect */
+    /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+}
+
+
+
+/* ----------------------- Top navbar ------------------------*/
+
+.topBar-header{
+    position:relative;
+    z-index: 3;
+}
+
+.topBar{
+    padding: 0px 5vw;
+    display: inline-block;
+    width:100%;
+}
+
+.topBarNavigation{
+    padding: 20px 5vw;
+    position:relative;
+    background-color: #ffffff;
+}
+
+.home-logo{
+    display: inline-block;
+    padding-left: 0;
+    max-width: 300px;
+    vertical-align: middle;
+}
+
+.navigationTopBar{
+    float: right;
+    vertical-align: middle;
+    margin-top: 7px;
+}
+
+
+.navbar-top-login {
+    background: #6D6D6D;
+    min-height: 10px;
+    border-radius: 0;
+    margin-bottom: 0;
+}
+
+.navbar-top-menus {
+    background: #FFFFFF;
+    min-height: 60px;
+    border-radius: 0;
+    padding: 10px;
+    margin-bottom: 0;
+}
+
+.navbar-top-menus a{
+    color:#6D6D6D;
+}
+
+.navbar-collapse-button{
+    border: 2px solid #6D6D6D;
+}
+.navbar-collapse-button .icon-bar{
+    background-color: #6D6D6D;
+}
+
+.profile-pic-container{
+    float: left;
+    margin-top: -10px;
+    font-size: 10px;
+}
+
+.profile-pic-container img{
+    max-width:60px;
+}
+
+.profile-pic-container span{
+    font-size: 4em !important;
+}
+/* ----------------------- END top navbar ------------------------*/
+
+/* ----------------------- Language top dropdown ------------------------*/
+
+
+#lang-label{
+    float:left;
+    padding:20px 12px;
+}
+
+.langMenu {
+    float: right;
+    padding: 5px;
+}
+.langMenu span{
+    color: #FFFFFF;
+}
+
+.langBtn {
+    display: inline-block;
+    text-align: center;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.langBtn a {
+    color: #FFFFFF;
+}
+.langBtn a.active {
+    color: #66a2d8;
+}
+
+
+/* ----------------------- END Language top dropdown ------------------------*/
+
+/* ----------------------- User login top dropdown ------------------------*/
+.login-btn{
+    padding:5px;
+}
+.login-btn a{
+    color:#ffffff;
+}
+
+.login-btn span{
+    color: #FFFFFF;
+}
+
+
+.navbar-login li>a{
+    color:#ffffff;
+    padding: 5px;
+}
+
+
+.navbar-login  a:hover,
+.navbar-login  a:focus,
+.navbar-login  a:visited,
+.navbar-login  a:active{
+    background-color: #66a2d8 !important;
+}
+
+.navbar-login  #dropdownLoginID a:hover{
+    background-color: #66a2d8 !important;
+    color:#ffffff;
+}
+
+.navbar-login  .dropdownLogin{
+    min-width: 200px;
+    padding:0;
+    border:solid 2px #66a2d8;
+}
+
+.navbar-login  .dropdownLogin .dropdownLoginUserInfo{
+    padding: 0px;
+    margin: 10px;
+}
+
+.navbar-login  .dropdownLogin .dropdownLoginUserInfo .dropdownLoginMemberSince{
+    margin-top: 20px;
+    font-size: 0.9em;
+}
+
+.navbar-login  .dropdownLogin .dropDownLoginActionsList{
+    padding: 0;
+    margin: 0;
+}
+
+
+.navbar-login  .dropDownLoginActionsList .dropDownLoginAction{
+    border-top:solid 2px #66a2d8;
+    margin-top: 0;
+}
+
+.navbar-login  .dropDownLoginActionsList .dropDownLoginAction a{
+    display: block;
+    padding: 5px 10px;
+    text-align: center;
+}
+
+
+.navbar-login  .dropdownLogin li{
+    list-style: none;
+}
+
+.navbar-login  .dropdownLogin li>a{
+    color:#333333;
+    font-size: 1.1em;
+}
+
+.navbar-login  .dropdownLoginUsername{
+    margin-top: 15px;
+    margin-bottom: 20px;
+    padding:0;
+    display: block;
+}
+
+.navbar-login  .dropdownLoginUsername .fa{
+    font-size:2em;
+}
+
+
+.navbar-login  .dropdownLoginUsername h3{
+    font-size: 1.1em;
+    color:#6D6D6D ;
+    text-align: center;
+}
+
+.navbar-login > li > a.loggedUserNavBar > img{
+    max-width: 20px;
+}
+
+
+/* ----------------------- END login top dropdown ------------------------*/
+
+
+/* ----------------------- Home page banner ------------------------*/
+
+.photoBannerTitle{
+    font-family: "Open Sans", Sans-Serif;
+    margin-top: 50px;
+    font-size: 3em;
+}
+
+.photoBannerDescription{
+    font-family: "Open Sans", Sans-Serif;
+    font-weight: 200;
+    line-height: 1.3em;
+    font-size: 1.4em;
+}
+
+
+.caption {
+    color: #FFFFFF;
+    background-color: rgba(0, 0, 0, 0.40);
+}
+
+.banner-button-div {
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+.banner-button-div a{
+    font-size: 1.5em;
+    font-weight: 500;
+    background-color: transparent;
+    color: #ffffff;
+    border: solid 2px #ffffff;
+    padding: 5px 15px;
+}
+
+.banner-button-div  a:hover,
+.banner-button-div  a:active{
+    background-color:#6D6D6D !important;
+    color: #FFFFFF;
+}
+
+.parallax-window {
+    min-height: 400px;
+    /*background: transparent;*/
+}
+/* ----------------------- END Home page banner ------------------------*/
+
+
+/* ----------------------- Home page know more ------------------------*/
+.know-more-container{
+    background-color: #66a2d8;
+    color: #FFFFFF;
+    min-height: 100px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    text-transform: uppercase;
+
+
+}
+.know-more-button-div{
+    font-family: "Open Sans", Sans-Serif;
+    padding-top: 5px;
+    text-transform: none;
+    text-align: right;
+    font-size: 0.8em;
+
+}
+
+.know-more-button-div a{
+    font-size: 1.5em;
+    background-color: transparent;
+    border: solid 2px #FFFFFF;
+    padding: 5px 15px;
+    color: #FFFFFF;
+}
+
+.know-more-button-div  a:hover,
+.know-more-button-div  a:active{
+    background-color:#ffffff !important;
+    color: #66a2d8;
+}
+
+
+/* ----------------------- END Home page know more ------------------------*/
+/* ----------------------- Home page Questionnaire ------------------------*/
+
+.questionnaire-container{
+    background-color: #5a5a5a;
+    color: #FFFFFF;
+    min-height: 200px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    text-align: center;
+}
+
+.questionnaire-container .title{
+    font-weight: bold;
+    color: #FFFFFF;
+}
+/* ----------------------- END Home page Questionnaire ------------------------*/
+/* ----------------------- Home page News ------------------------*/
+.homeSectionTitle{
+    text-transform: uppercase;
+    font-size: 1.8em;
+}
+
+.news-container{
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+.lastNewsHome-title{
+    font-family: "Kelson Sans", Sans-Serif;
+    font-size: 1.2em;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-top: 10px;
+}
+
+.topics-grid .news-inner-img-div{
+    height:17vh;
+    background-size: cover;
+    background-position: center center;
+}
+.news-inner-img-div{
+    background-size: cover;
+    background-position: center center;
+    height:20vh;
+}
+.news-box{
+    padding-bottom: 20px;
+}
+.news-box a{
+    color: #000000;
+}
+
+.news-box a:hover{
+    color: #66a2d8;
+}
+
+.news-box .view-more-btn {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.news-box .view-more-btn a > span{
+    color: #66a2d8;
+}
+
+.cbs-box-horizontal .view-more-btn, .cbs-box .view-more-btn{
+    margin-top: 10px;
+    color: #000000;
+}
+.cbs-box-horizontal .view-more-btn:hover, .cbs-box .view-more-btn:hover{
+    color: #66a2d8;
+}
+
+.cbs-box-horizontal .view-more-btn span, .cbs-box .view-more-btn span{
+    color: #66a2d8;
+}
+
+
+
+
+.news-content-box{
+    height: 65px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.news-box .news-inner-div{
+    -webkit-box-shadow: 0px 0px 25px 0px rgba(0,0,0,0.21);
+    -moz-box-shadow: 0px 0px 25px 0px rgba(0,0,0,0.21);
+    box-shadow: 0px 0px 25px 0px rgba(0,0,0,0.21);
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+.news-button-div{
+    margin-top: 30px;
+    margin-bottom: 30px;
+    text-align: right;
+}
+
+.news-button-div a{
+    font-size: 1em;
+    background-color: transparent;
+    border: solid 2px #000000;
+    padding: 5px 15px;
+    color: #000000;
+}
+
+.news-button-div  a:hover,
+.news-button-div  a:active{
+    background-color:#66a2d8 !important;
+    color: #FFFFFF;
+    border-color: #66a2d8;
+}
+
+.otherNE-button,
+.otherNE-button>a{
+    font-size:1.8rem;
+    color: #333333;
+    text-transform: uppercase;
+    padding-bottom:1rem;
+    padding-top: 0;
+    font-weight: 600;
+}
+
+/* ----------------------- END Home page News ------------------------*/
+
+/* ----------------------- Footer ------------------------*/
+
+.footerContainer {
+    background-color: #5a5a5a;
+    color: #ffffff;
+    width: 100%;
+    position: absolute;
+}
+
+.footerTitle {
+    font-size: 1.7em;
+}
+
+.logoOneSource{
+    text-align: right;
+    vertical-align: middle;
+    height: 50px;
+    line-height: 50px;
+}
+
+.logoOneSource img {
+    max-width: 90px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.footerMailOneSource{
+    line-height: 50px;
+    vertical-align: middle;
+    line-height: 50px;
+}
+
+.footerContacts{
+    padding-bottom: 10px;
+}
+
+.footerContacts a, .footerContainer a{
+    color: #FFFFFF;
+}
+
+.footerContainer li, .footerContainer ul{
+    list-style-type: none;
+    text-transform: uppercase;
+}
+/* ----------------------- END Footer ------------------------*/
+
+.backButton{
+    color: #585858;
+    border: solid 2px #585858;
+    background-color: #ffffff;
+    padding: 7px 15px;
+    border-radius: 0;
+}
+
+.backButton:hover{
+    color: #ffffff;
+    border: solid 2px #66a2d8;
+    background-color: #66a2d8;
+    padding: 7px 15px;
+    border-radius: 0;
+}
+
+
+/* ------ media queries --------*/
+/* XS */
+@media screen and (max-width: 768px){
+    .navigationTopBar{
+        float: none;
+    }
+
+    .logoOneSource{
+        text-align: left;
+    }
+}
+
+@media (max-width: 767px){
+    .nav.navbar-nav.navbar-login{
+        display: inline-block;
+    }
+
+    .nav.navbar-nav.navbar-login>li.dropdown.open{
+        background-color: #ffffff;
+    }
+
+    .profile-pic-container img{
+        max-height: 35px;
+    }
+
+}

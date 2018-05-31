@@ -1,0 +1,1 @@
+<?php return array (  'addAuthMethod' => 'Přidat metodu ověření',);

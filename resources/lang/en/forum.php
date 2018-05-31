@@ -1,0 +1,1 @@
+<?php return array (  'title' => 'Title',  'contents' => 'Contents',  'create' => 'Create',  'topics' => 'Topics',  'abuses' => 'Abuses',  'status' => 'Status',  'topic' => 'Topic',  'index' => 'Index',  'show' => 'Show',  'store_ok' => 'Store ok',  'delete_ok' => 'Delete ok',);

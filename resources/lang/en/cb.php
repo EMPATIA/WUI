@@ -1,0 +1,1 @@
+<?php return array (  'editFile' => 'Edit File',  'filename' => 'File Name',  'description' => 'Description',  'cancel' => 'Cancel',  'save' => 'Save',  'drag_and_drop_files_to_here' => 'Drag and Drop files to here',  'add_files' => 'Add Files',  'details' => 'Details',  'use' => 'Use',  'updateFileDetails_ok' => 'Update File Details Ok',);

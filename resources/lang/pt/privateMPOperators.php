@@ -1,0 +1,1 @@
+<?php return array (  'finish_ok' => 'Finalizado com sucesso',  'create_error' => 'Erro ao criar',  'store_ok' => 'Adicionado com sucesso',  'store_error' => 'Erro ao adicionar',  'show_error' => 'Erro ao mostrar',  'edit_error' => 'Erro ao editar',  'update_ok' => 'Actualizado com sucesso',  'update_error' => 'Erro ao actualizar',);

@@ -1,0 +1,1 @@
+<?php return array (  'name' => 'Name',  'description' => 'Description',  'code' => 'Code',  'auth_methods' => 'Authentication Method',  'id' => 'ID',  'addAuthMethod' => 'Add Authentication Method',  'importer_success' => 'Imported successfully',  'list' => 'List',);

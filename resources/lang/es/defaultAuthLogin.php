@@ -1,0 +1,1 @@
+<?php return array (  'facebook_login' => 'Identificación por facebook',);

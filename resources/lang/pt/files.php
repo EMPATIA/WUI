@@ -1,0 +1,1 @@
+<?php return array (  'save' => 'Guardar',  'error' => 'Erro',  'drop-zone' => 'Zona de largar',  'files' => 'Ficheiros',  'drag_and_drop_files_to_here' => 'Arraste e largue os Ficheiros aqui',  'cancel' => 'Cancelar',);

@@ -1,0 +1,1 @@
+<?php return array (  'show_email' => 'Ver Email',);

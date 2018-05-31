@@ -1,0 +1,1 @@
+<?php return array (  'facebook_nok_connect' => 'You can\'t login with facebook',  'email_permission' => 'You have to grant permissions to email',  'store_ok' => 'Saved',  'remove_ok' => 'Removed',);

@@ -1,0 +1,1 @@
+<?php return array (  'geoarea' => 'Geoarea',  'update_ok' => 'Update ok',  'delete_ok' => 'Delete ok',);

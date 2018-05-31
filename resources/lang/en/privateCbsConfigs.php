@@ -1,0 +1,1 @@
+<?php return array (  'configurations' => 'Configurations',  'id' => 'ID',  'title' => 'Cbs Configurations',  'code' => 'Code',  'description' => 'Description',  'store_ok' => 'Stored Successfully',  'update_ok' => 'Updated Successfully',  'delete_ok' => 'Deleted Successfully',  'list' => 'List',);

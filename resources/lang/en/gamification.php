@@ -1,0 +1,1 @@
+<?php return array (  'cb' => 'Proposal',  'topics' => 'Topics',  'comments' => 'Comments',  'vote' => 'Vote',  'like' => 'Like',  'profile' => 'Profile',  'facebook' => 'Facebook',  'google' => 'Google',  'full_profile' => 'Full profile',  'submit' => 'Submit',  'gamification' => 'Gamification',  'points' => 'Points',);

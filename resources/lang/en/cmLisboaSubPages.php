@@ -1,0 +1,1 @@
+<?php return array (  'about_banner_title' => 'Na Minha Rua LX',);

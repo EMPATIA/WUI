@@ -1,0 +1,1 @@
+<?php return array (  'use_terms' => 'Terms of Service',  'privacy_policy' => 'Privacy Policy',);

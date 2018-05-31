@@ -1,0 +1,1 @@
+<?php return array (  'files' => 'Files',  'videos' => 'Videos',  'tab_random' => 'Random',  'tab_recent' => 'Recent',  'tab_popular' => 'Popular',  'tab_comments' => 'Comments',);

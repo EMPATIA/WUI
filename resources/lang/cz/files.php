@@ -1,0 +1,1 @@
+<?php return array (  'show_file' => 'Ukázat soubor',  'type' => 'Typ',  'select' => 'Vybrat',  'upload' => 'Nahrát',  'close' => 'Zavřít',  'save' => 'Uložit',  'error' => 'Chyba',  'drop-zone' => 'Prostor pro spuštění',  'files' => 'Soubory',  'banners' => 'Plakáty',  'resize' => 'Změnit velikost',  'image' => 'Obrázek',  'slideshow' => 'Prezentace',  'details' => 'Detaily',);
