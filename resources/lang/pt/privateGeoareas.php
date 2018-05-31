@@ -1,1 +1,0 @@
-<?php return array (  'list_geoareas' => 'Lista de Áreas Geográficas',  'create_geoarea' => 'Criar Área Geográfica',  'show_geoarea' => 'Mostrar Área Geográfica',  'details' => 'Detalhes',);

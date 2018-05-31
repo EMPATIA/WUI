@@ -1,1 +1,0 @@
-<?php return array (  'update_ok' => 'Update ok',);

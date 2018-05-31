@@ -1,1 +1,0 @@
-<?php return array (  'create_topic_review_reply' => 'Criar Resposta',  'create_topic_review' => 'Pedir Parecer',  'edit_topic_review' => 'Editar Parecer',  'delete' => 'Apagar',  'are_you_sure you_want_to_delete_this_topic_review' => 'Tem a certeza que pretende apagar este parecer',  'cancel' => 'Cancelar',);

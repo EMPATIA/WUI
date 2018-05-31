@@ -1,1 +1,0 @@
-<?php return array (  'delete' => 'Apagar',  'are_you_sure_you_want_to_delete_this_content' => 'Tem a certeza que pretende eliminar?',  'cancel' => 'Cancelar',);

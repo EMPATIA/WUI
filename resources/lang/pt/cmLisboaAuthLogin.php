@@ -1,1 +1,0 @@
-<?php return array (  'authentication_error' => 'Erro na Autenticação',  'email' => 'E-mail',  'password' => 'Palavra Passe',  'at_least_3_chars' => 'A password deverá ter no mínimo 3 caracteres',  'enter' => 'Entrar',  'back' => 'Voltar',  'register' => 'Registar',  'facebook_login' => 'Login Facebook',  'password_recovery' => 'Recuperar Palavra Passe',);

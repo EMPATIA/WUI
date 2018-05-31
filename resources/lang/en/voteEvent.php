@@ -1,1 +1,0 @@
-<?php return array (  'key' => 'Key',  'store_ok' => 'Store ok',  'update_ok' => 'Update ok',  'yes' => 'Yes',  'no' => 'No',);

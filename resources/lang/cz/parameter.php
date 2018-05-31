@@ -1,1 +1,0 @@
-<?php return array (  'store_ok' => 'Uloženo',  'update_ok' => 'Aktualizováno',  'id' => 'ID',  'title' => 'Název',);

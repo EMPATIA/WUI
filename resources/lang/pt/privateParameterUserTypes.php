@@ -1,1 +1,0 @@
-<?php return array (  'update_ok' => 'Actualizado com sucesso',  'delete_ok' => 'Apagado com sucesso',  'details' => 'Detalhes',  'parameterMandatory' => 'Obrigatório',  'ParameterUserTypes' => 'Parâmetros de tipo de utilizador',  'id' => 'ID',  'name' => 'Nome',  'parameter_mandatory' => 'Parâmetro Obrigatório',  'parameter_unique' => 'Parâmetro Único ',);

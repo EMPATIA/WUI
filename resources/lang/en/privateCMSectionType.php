@@ -1,1 +1,0 @@
-<?php return array (  'parameters' => 'Parameters',  'parameter_key' => 'Key',  'parameter_code' => 'Code',);

@@ -1,1 +1,0 @@
-<?php return array (  'show_email' => 'Show Email',  'create_email' => 'Create email',);

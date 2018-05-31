@@ -1,1 +1,0 @@
-<?php return array (  'selectOption' => 'Select Option',  'back' => 'Back',  'next' => 'Next',  'submit' => 'Submit',  'send' => 'Send',  'fillInAllRequiredFieldsOnForm' => 'Fill all required fields on questionnaire',  'errorTryingToSaveFormStepTryAgainLater' => 'Error trying to save form step, try again later',  'questionnaire' => 'Questionnaire',);

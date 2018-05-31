@@ -1,1 +1,0 @@
-<?php return array (  'edit_profile' => 'Editar perfil',);

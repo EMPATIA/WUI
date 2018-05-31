@@ -1,1 +1,0 @@
-<?php return array (  'list_accessMenus' => 'Listar grupo de menús',  'create_accessMenus' => 'Crear grupo de menús',  'show_group' => 'Mostrar grupos de menús',  'update_group' => 'Editar grupos de menús',  'delete' => 'Eliminar',  'are_you_sure_you_want_to_delete' => '¿Está seguro de que quiere eliminar?',  'cancel' => 'Cancelar',  'details' => 'Detalles',);

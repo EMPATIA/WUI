@@ -1,1 +1,0 @@
-<?php return array (  'updateNok' => 'Error no update',  'configurations' => 'Configurações',  'facebook_id' => 'Facebook Id',  'facebook_secret' => 'Facebook secret',  'analytics' => 'Analise',  'maps' => 'Mapas',);

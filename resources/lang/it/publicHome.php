@@ -1,1 +1,0 @@
-<?php return array (  'more' => 'Di Più',  'there_are_no_news' => 'Non ci sono notizie',  'thereAreNoEvents' => 'Non ci sono eventi',  'enterIdea' => 'Inserisci Idea',  'last_news' => 'Ultime Novità',  'viewAll' => 'Guarda Tutto',  'next_events' => 'Prossimi Eventi',);

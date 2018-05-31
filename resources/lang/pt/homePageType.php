@@ -1,1 +1,0 @@
-<?php return array (  'title' => 'Tipo de Página Inicial',  'home_page_type_key' => 'Chave',  'name' => 'Nome',  'type' => 'Tipo',  'code' => 'Código',);

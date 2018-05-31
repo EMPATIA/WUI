@@ -1,1 +1,0 @@
-<?php return array (  'location' => 'Location',  'answer_pre' => 'A:',  'form' => 'Form',  'comments' => 'Comments',  'files' => 'FIles',  'videos' => 'Videos',  'images' => 'Images',  'share' => 'Share',  'remaining_votes' => 'Your Votes',  'total' => 'Total',  'positive' => 'Positive(s)',  'negative' => 'Negative(s)',);

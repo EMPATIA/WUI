@@ -1,1 +1,0 @@
-<?php return array (  'name' => 'Nome',  'description' => 'Descrição',);

@@ -1,1 +1,0 @@
-<?php return array (  'select_element' => '- Select element -',);

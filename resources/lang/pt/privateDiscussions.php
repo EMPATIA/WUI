@@ -1,1 +1,0 @@
-<?php return array (  'list_discussions' => 'Lista de Debates',  'create_discussions' => 'Criar Debate',  'update_discussions' => 'Editar Debate',  'show_discussions' => 'Mostrar Debate',);

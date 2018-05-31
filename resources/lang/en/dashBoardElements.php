@@ -1,1 +1,0 @@
-<?php return array (  'list' => 'List',  'save' => 'Save',  'title' => 'Title',);

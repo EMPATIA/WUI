@@ -1,1 +1,0 @@
-<?php return array (  'delete_ok' => 'Eliminado com Sucesso',  'entity' => 'Entidade',  'store_ok' => 'Guardado com Sucesso',  'update_ok' => 'Actualizado com Sucesso',);

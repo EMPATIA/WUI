@@ -1,1 +1,0 @@
-<?php return array (  'currency' => 'Moeda',  'code' => 'Código',  'currencies' => 'Moedas',  'id' => 'Id',);

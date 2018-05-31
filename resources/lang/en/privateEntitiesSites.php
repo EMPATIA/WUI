@@ -1,1 +1,0 @@
-<?php return array (  'show_sites' => 'Sites',  'create_site_managers' => 'Create site manager',  'show_site' => 'Show Site',  'update_site' => 'Update Site',);

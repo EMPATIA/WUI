@@ -1,1 +1,0 @@
-<?php return array (  'list_discussions' => 'Discussions List',  'create_discussions' => 'Create Discussion',  'update_discussions' => 'Update Discussion',  'show_discussions' => 'Show Discussion',);

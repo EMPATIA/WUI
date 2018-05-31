@@ -1,1 +1,0 @@
-<?php return array (  'add_comments' => 'Añadir comentarios',);

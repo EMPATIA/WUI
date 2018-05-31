@@ -1,1 +1,0 @@
-<?php return array (  'pageTitle' => 'title',  'files' => 'files',  'previous' => 'previous',  'next' => 'next',  'news' => 'news',  'events' => 'events',  'summary' => 'summary',  'continueReading' => 'continue reading',);

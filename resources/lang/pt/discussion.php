@@ -1,1 +1,0 @@
-<?php return array (  'create' => 'Criar',  'title' => 'Título',  'contents' => 'Conteúdos',  'index' => 'índice',  'store' => 'Guardar',  'store_ok' => 'Guardar OK',  'update_ok' => 'Actualizar OK',  'delete_ok' => 'Apagar OK',  'edit' => 'Editar',  'show' => 'Mostrar',  'update' => 'Actualizar',  'discussion' => 'Debates',);

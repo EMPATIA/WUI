@@ -1,1 +1,0 @@
-<?php return array (  'update_ok' => 'Aktualizováno',  'delete_ok' => 'Úspěšně smazáno',  'details' => 'Detaily',  'parameterMandatory' => 'Povinný',  'ParameterUserTypes' => 'Uživatelské typy',  'id' => 'ID',  'name' => 'Jméno',);

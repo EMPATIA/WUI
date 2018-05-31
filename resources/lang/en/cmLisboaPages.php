@@ -1,1 +1,0 @@
-<?php return array (  'next' => 'Next',  'events' => 'Agenda',  'there_are_no_news' => 'There are no news to show',  'there_are_no_events' => 'There are no events to show',  'news' => 'Latest News',);

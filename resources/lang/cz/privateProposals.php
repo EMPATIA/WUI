@@ -1,1 +1,0 @@
-<?php return array (  'list_proposals' => 'Seznam návrhů',  'create_proposals' => 'Vytvořit návrh',  'update_proposals' => 'Aktualizovat návrh',  'show_proposals' => 'Ukázat návrh',);

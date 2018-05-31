@@ -1,1 +1,0 @@
-<?php return array (  'previous' => 'Anterior',  'next' => 'Seguinte',  'acceptTermsAndConditions' => 'Aceitar termos e condições',);

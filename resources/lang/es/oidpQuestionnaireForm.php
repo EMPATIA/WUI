@@ -1,1 +1,0 @@
-<?php return array (  'pleaseSearchForYourCity' => 'Busque su ciudad',  'pleaseSearchForYourCityHelp' => 'Empiece a escribir el nombre de su ciudad y si su ciudad aparece en el cuadro desplegable, haga clic en su ciudad',  'youAreInQuestion' => 'Estás en cuestión',);

@@ -1,1 +1,0 @@
-<?php return array (  'select_value' => 'Seleziona',  'cancel' => 'Cancella',  'create' => 'Crea',  'title' => 'Titolo',);

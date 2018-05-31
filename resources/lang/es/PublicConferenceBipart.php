@@ -1,1 +1,0 @@
-<?php return array (  'registration' => 'Registro',  'youAlreadyRegistered' => 'Ya se encuentra registrado',);

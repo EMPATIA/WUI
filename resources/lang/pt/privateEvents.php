@@ -1,1 +1,0 @@
-<?php return array (  'list_event' => 'Lista de Eventos',  'show_event' => 'Mostrar Evento',  'create_event' => 'Criar Evento',  'update_event' => 'Editar Evento',  'details' => 'Detalhes',);

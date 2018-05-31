@@ -1,1 +1,0 @@
-<?php return array (  'Abuses' => 'Zneužití',  'accessMenus' => 'Skupina menu stránek',);

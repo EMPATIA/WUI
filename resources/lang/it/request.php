@@ -1,1 +1,0 @@
-<?php return array (  'confirmationDoesNotMatch' => 'Le password inserite non coincidono! Stai più attento :)',);

@@ -1,1 +1,0 @@
-<?php return array (  'map_empaville' => 'Need to select the coordenates',);

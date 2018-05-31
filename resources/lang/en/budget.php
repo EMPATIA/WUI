@@ -1,1 +1,0 @@
-<?php return array (  'budget' => 'Budget',  'store_ok' => 'Store ok',  'update_ok' => 'Update ok',  'delete_ok' => 'Delete ok',);

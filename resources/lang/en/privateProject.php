@@ -1,1 +1,0 @@
-<?php return array (  'project' => 'Project',  'show_project' => 'Show project',  'show_topics' => 'Show topics',  'show_securityconfigurations' => 'Show security configurations',);

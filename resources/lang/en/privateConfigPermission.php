@@ -1,1 +1,0 @@
-<?php return array (  'accessLevels' => 'Access Levels',  'votes' => 'Votes',);

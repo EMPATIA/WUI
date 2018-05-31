@@ -1,1 +1,0 @@
-<?php return array (  'invalidEntity' => 'Špatná položka',);

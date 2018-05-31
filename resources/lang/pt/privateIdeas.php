@@ -1,1 +1,0 @@
-<?php return array (  'list_ideas' => 'Lista de Ideias',  'create_ideas' => 'Criar Ideia',  'update_ideas' => 'Editar Ideia',  'show_ideas' => 'Mostrar Ideia',  'show_topics' => 'Itens submetidos',  'show_parameters' => 'Parâmetros',  'show_votes' => 'Votos',  'show_moderators' => 'Moderadores',  'show_configurations' => 'Configurações',);

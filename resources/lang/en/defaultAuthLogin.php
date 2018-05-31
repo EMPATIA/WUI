@@ -1,1 +1,0 @@
-<?php return array (  'facebook_login' => 'Facebook Login',);

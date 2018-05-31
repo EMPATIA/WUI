@@ -1,1 +1,0 @@
-<?php return array (  'pin' => 'Ideia',  'pinGroups' => 'Grupo de Ideias',  'n_topics_dont_have_geo_mapping' => 'ideias sem georeferênciação',  'there_are_no_topics_with_geo_mapping' => 'Não existem ideias com georeferênciação',  'search_box' => 'Pesquisar',  'delete_marker' => 'Remover marcador',  'n_topics_with_geo_mapping' => 'ideias com georeferênciação',);

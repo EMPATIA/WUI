@@ -1,1 +1,0 @@
-<?php return array (  'informations' => 'Informace',  'terms_of_service' => 'Podmínky služby',  'privacy_police' => 'Zásady ochrany osobních údajů',  'privacy_policy' => 'Zásady ochrany osobních údajů',);

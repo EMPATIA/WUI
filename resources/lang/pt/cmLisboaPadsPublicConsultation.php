@@ -1,1 +1,0 @@
-<?php return array (  'form' => 'Formulário',  'share' => 'Partilhar',  'files' => 'FIcheiros',  'videos' => 'Vídeos',  'images' => 'Imagens',  'comments' => 'Comentários',  'remaining_votes' => 'Os seus votos',  'total' => 'Total',  'positive' => 'Positivo(s)',  'negative' => 'Negativo(s)',);

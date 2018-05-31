@@ -1,1 +1,0 @@
-<?php return array (  'site_translations' => 'Translations',);

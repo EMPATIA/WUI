@@ -1,1 +1,0 @@
-<?php return array (  'selectHomePageType' => 'Select Home Page Type',  'homePageType' => 'Type',  'close' => 'Close',  'create' => 'Create',  'homePageConfigurationGroupKey' => 'Key',  'homePageConfigurationGroupName' => 'Name',);

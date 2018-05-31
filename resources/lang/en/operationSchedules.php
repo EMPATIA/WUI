@@ -1,1 +1,0 @@
-<?php return array (  'list' => 'List',  'end_date_must_be_greater_then_start_date' => 'End date must be greater then start date',  'yes' => 'Yes',  'no' => 'No',  'deactivate' => 'Deactivate',  'activate' => 'Activate',);

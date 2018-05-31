@@ -1,1 +1,0 @@
-<?php return array (  'errorRetrievingMenu' => 'Chyba při načítání menu',  'errorRetrievingContents' => 'Chyba při načítání obsahu',  'failedToGetMenuTypeList' => 'Nepodařilo se získat menu typu seznam',);

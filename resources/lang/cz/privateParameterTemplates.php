@@ -1,1 +1,0 @@
-<?php return array (  'list_ParameterTemplates' => 'Seznam šablon parametru',  'create_parameterTemplate' => 'Vytvořit parametr šablony',  'show_parameterTemplate' => '?',  'details' => 'Detaily',);

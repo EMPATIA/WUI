@@ -1,1 +1,0 @@
-<?php return array (  'vote' => 'Voto(s)',  'votesInProposal' => 'Tem direito a',  'gaveThisProposal' => 'Deu a esta proposta',  'stillHas' => 'Ainda tem',  'votesIn' => 'Votos no',  'noMoreVotesIn' => 'Não tem mais votos no',  'warning' => 'Aviso',);

@@ -1,1 +1,0 @@
-<?php return array (  'errorWhileRemovingPost' => 'Erro a remover o post',);

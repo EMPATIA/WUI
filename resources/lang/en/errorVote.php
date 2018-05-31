@@ -1,1 +1,0 @@
-<?php return array (  'noVoteAvailable' => 'No vote(s) available',  'canNotVote' => 'Cannot vote',);

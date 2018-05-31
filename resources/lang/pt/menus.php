@@ -1,1 +1,0 @@
-<?php return array (  'parent_id' => 'Id Pai',  'access_name' => 'Nome',  'private' => 'Privado',  'parent' => 'Pai',  'menutype' => 'Tipo de Menu',);

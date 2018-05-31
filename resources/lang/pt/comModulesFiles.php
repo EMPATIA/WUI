@@ -1,1 +1,0 @@
-<?php return array (  'errorRetrievingUploadKey' => 'Erro a mostrar chave de upload',  'errorRetrievingFile' => 'Erro a mostrar ficheiro',);

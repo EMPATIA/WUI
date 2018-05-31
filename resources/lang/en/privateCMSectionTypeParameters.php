@@ -1,1 +1,0 @@
-<?php return array (  'select_parameters' => 'Select parameters',  'details' => 'Details',  'code' => 'Code',  'type_code' => 'Code',  'name' => 'Name',  'help_name' => ' help in name',  'description' => 'Description',  'help_description' => 'Help in description',  'list_title' => 'Section Types Parameters',  'sectionTypeParameters' => 'CMS Section Types Parameters',);

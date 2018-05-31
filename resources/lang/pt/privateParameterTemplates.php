@@ -1,1 +1,0 @@
-<?php return array (  'list_ParameterTemplates' => 'Lista de  Modelos de Parâmetros',  'create_parameterTemplate' => 'Criar Modelo de Parâmetro',  'show_parameterTemplate' => 'Mostrar Modelo de Parâmetro',  'details' => 'Detalhes',);

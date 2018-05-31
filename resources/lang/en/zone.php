@@ -1,1 +1,0 @@
-<?php return array (  'zone' => 'Zone',  'store_ok' => 'Store Ok',  'update_ok' => 'Update Ok',  'delete_ok' => 'Deleted',);

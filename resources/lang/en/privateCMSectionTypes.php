@@ -1,1 +1,0 @@
-<?php return array (  'code' => 'Code',  'title' => 'Title',  'details' => 'Details',  'is_translatable' => 'Is translatable',  'name' => 'Name',  'help_name' => 'Help in name',  'list_title' => 'Section Types',  'sectionTypes' => 'CMS Section Types',);

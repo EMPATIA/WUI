@@ -1,1 +1,0 @@
-<?php return array (  'continueReading' => 'continuar a ler',  'news' => 'notícias',  'events' => 'eventos',  'files' => 'ficheiros',  'summary' => 'sumário',  'pageTitle' => 'título',  'previous' => 'anterior',  'next' => 'seguinte',);

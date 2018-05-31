@@ -1,1 +1,0 @@
-<?php return array (  'cookieMsg' => 'Este sitio web utiliza cookies para garantizar una experiencia de usuario satisfactoria.',  'cookieAccept' => 'OK',  'registration' => 'Registro',  'register' => 'Registrar',);

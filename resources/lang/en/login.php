@@ -1,1 +1,0 @@
-<?php return array (  'yourCode' => 'Your Code',  'or' => 'Or',);

@@ -1,1 +1,0 @@
-<?php return array (  'events' => 'Eventos',  'view_more' => 'Ver Mais',  'there_are_no_news' => 'Não existem Notícias',  'next' => 'Próximo',  'there_are_no_events' => 'Não existem Eventos',  'news' => 'Notícias',);

@@ -1,1 +1,0 @@
-<?php return array (  'register_title' => 'Registro',);

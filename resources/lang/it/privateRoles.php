@@ -1,1 +1,0 @@
-<?php return array (  'roles' => 'Ruoli',  'key' => 'Chiave',  'name' => 'Nome',  'code' => 'Codice',  'description' => 'Descrizione',);

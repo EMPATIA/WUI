@@ -1,1 +1,0 @@
-<?php return array (  'store_ok' => 'Gravado com sucesso',  'update_ok' => 'Actualizado com sucesso',  'yes' => 'Sim',  'no' => 'Não',  'key' => 'Chave',);

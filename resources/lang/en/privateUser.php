@@ -1,1 +1,0 @@
-<?php return array (  'anonymous' => 'Anonymous',  'password' => 'Password',  'password_confirmation' => 'Password Confirmation',  'generate_random_password' => 'Generate random password',  'details' => 'Details',  'anonymization' => 'Anonymization',);

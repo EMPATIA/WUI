@@ -1,1 +1,0 @@
-<?php return array (  'status_history' => 'Histórico de Estados',  'useOptions' => 'Usar Opções',  'selectOption' => 'Selectiona Opção',  'reuseQuestionOptions' => 'Reutilizar Opções da Questão',  'selectValue' => 'Selecionar Valor',  'reuse' => 'Reutilizar',  'label' => 'Legenda',  'icons' => 'Ícones',  'dependencies' => 'Dependências',);

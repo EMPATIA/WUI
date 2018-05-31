@@ -1,1 +1,0 @@
-<?php return array (  'back' => 'Indietro',  'share' => 'Condividere',  'thankYouForParticipating' => 'Grazie per aver partecipato',  'viewMore' => 'Visualizzare più',);

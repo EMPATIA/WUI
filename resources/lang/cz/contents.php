@@ -1,1 +1,0 @@
-<?php return array (  'files' => 'Soubory',  'type' => 'Typ',);

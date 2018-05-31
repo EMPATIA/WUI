@@ -1,1 +1,0 @@
-<?php return array (  'registration' => 'Registar',  'login' => 'Entrar',);

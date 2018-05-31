@@ -1,1 +1,0 @@
-<?php return array (  'name' => 'Nome',  'timezones' => 'Fusi Orari',  'id' => 'ID',);

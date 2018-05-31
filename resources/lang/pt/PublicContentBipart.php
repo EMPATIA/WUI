@@ -1,1 +1,0 @@
-<?php return array (  'news' => 'Notícias',  'events' => 'Eventos',  'files' => 'Ficheiros',  'continueReading' => 'Continuar a ler',);

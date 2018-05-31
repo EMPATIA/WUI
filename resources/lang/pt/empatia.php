@@ -1,1 +1,0 @@
-<?php return array (  'map' => 'Localização',  'back' => 'Voltar',  'user_profile' => 'Perfil do Utilizador',  'cookieDismiss' => 'Dispenso',  'cookieAccept' => 'Ok!',  'privacy_policy' => 'Política de Privacidade',);

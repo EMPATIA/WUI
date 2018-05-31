@@ -1,1 +1,0 @@
-<?php return array (  'details' => 'Detalhes',  'password' => 'Palavra-passe',  'password_confirmation' => 'Confirmação da palavra-passe ',  'generate_random_password' => 'Gerar palavra-passe aleatória',);

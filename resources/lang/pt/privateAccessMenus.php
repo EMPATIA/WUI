@@ -1,1 +1,0 @@
-<?php return array (  'list_accessMenus' => 'Listar Grupos de Menus',  'create_accessMenus' => 'Criar Grupo de Menus',  'show_group' => 'Mostrar Grupos de Menus',  'update_group' => 'Editar Grupos de Menus',  'details' => 'Detalhes',);

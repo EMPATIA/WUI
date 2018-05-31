@@ -1,1 +1,0 @@
-<?php return array (  'register' => 'Registar Utilizador',  'nameSurname' => 'Nome de Utilizador',  'email' => 'E-mail',  'password' => 'Palavra Passe',  'confirm_password' => 'Confirmar Palavra Passe',  'terms_and_conditions' => 'Termos e Condições',  'accept' => 'Aceito os',  'cancel' => 'Cancelar',);

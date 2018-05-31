@@ -1,1 +1,0 @@
-<?php return array (  'add_entity_group_permission' => 'Add Entity Group Permission',  'permissions_delete' => 'Delete',);

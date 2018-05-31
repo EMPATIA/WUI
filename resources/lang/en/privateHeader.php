@@ -1,1 +1,0 @@
-<?php return array (  'create_empaville' => 'Create empaville',  'user_analyses_charts' => 'Statistical analysis of users',);

@@ -1,1 +1,0 @@
-<?php return array (  'details' => 'Details',  'create_questionGroup' => 'Create Question Group',  'update_questionGroup' => 'Update Question Group',  'show_questionGroup' => 'Show Question Group',);

@@ -1,1 +1,0 @@
-<?php return array (  'parameterUserType' => 'User Type Parameters',  'store_ok' => 'Store OK',  'no_code_defined' => 'No code defined',);

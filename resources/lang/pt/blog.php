@@ -1,1 +1,0 @@
-<?php return array (  'title' => 'Título',  'index' => 'Índice',  'edit' => 'Editar',  'create' => 'Criar',  'store' => 'Gravar',  'show' => 'Mostrar',  'update' => 'Editar',);

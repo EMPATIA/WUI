@@ -1,1 +1,0 @@
-<?php return array (  'title' => 'Home Page Configurations',  'home_page_configuration_key' => 'Key',  'groupName' => 'Name',  'drop-zone' => 'Drop-zone',  'homePageConfigurationGroups' => 'Home Page Configuration Groups',);

@@ -1,1 +1,0 @@
-<?php return array (  'code' => 'Code',  'name' => 'Name',  'description' => 'Description',  'store_ok' => 'Stored Successfully',  'update_ok' => 'Updated Successfully',  'destroy_ok' => 'Deleted Successfully',);

@@ -1,1 +1,0 @@
-<?php return array (  'delete_ok' => 'Apagar OK',  'store_ok' => 'Gravar OK',  'update_ok' => 'Actualizar OK',  'activateVersion_ok' => 'Activar Versão OK',  'publish_ok' => 'Publicar OK',  'unpublish_ok' => 'Omitir Publicação OK',  'updateFileDetails_ok' => 'Actualizar Detalhes de Ficheiro OK',  'noContent' => 'Sem Conteúdo',);

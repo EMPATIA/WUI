@@ -1,1 +1,0 @@
-<?php return array (  'id' => 'Id',  'title' => 'Title',  'type' => 'Type',  'template' => 'Select a template',  'store_ok' => 'Store ok',  'update_ok' => 'Update ok',);

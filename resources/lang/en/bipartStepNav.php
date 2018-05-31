@@ -1,1 +1,0 @@
-<?php return array (  'propose_idea' => 'Propose idea',  'propose_proposal' => 'New proposal',  'participate_in_project' => 'Participate in project',  'vote_in_project' => 'Vote in projects',  'complete' => 'Complete',);

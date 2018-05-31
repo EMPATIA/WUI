@@ -1,1 +1,0 @@
-<?php return array (  'id' => 'Id',  'user' => 'User',  'ip' => 'Ip',  'url' => 'Url',  'action' => 'Action',  'time' => 'Time',  'list' => 'List',  'auditing' => 'Auditing',);

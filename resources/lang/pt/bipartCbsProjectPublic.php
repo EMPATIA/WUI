@@ -1,1 +1,0 @@
-<?php return array (  'winner' => 'Vencedor',  'project_description' => 'Descrição do projecto',  'support' => 'Apoiar',  'attachments' => 'Anexos',  'prosandcons' => 'Prós e contras',  'supporters' => 'Apoiantes',  'evaluation' => 'Avaliação',  'attachment' => 'Anexo',  'no_attachments' => 'Sem anexos',);

@@ -1,1 +1,0 @@
-<?php return array (  'to' => 'To',  'from' => 'From',  'created_at' => 'Created at',  'sent_messages' => 'Sent',  'received_messages' => 'Received',  'content' => 'Content',);

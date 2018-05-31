@@ -1,1 +1,0 @@
-<?php return array (  'create_language' => 'Vytvořit Jazyka',  'show_language' => 'Zobrazit Jazyk',  'edit_language' => 'Editovat Jazyka',  'add_language' => 'Přidat Jazyk',  'details' => 'Podrobnosti',);

@@ -1,1 +1,0 @@
-<?php return array (  'errorRetrievingUploadKey' => 'Chyba při načítání nahrávacího klíče',  'errorRetrievingFile' => 'Chyba při načítání souboru',);

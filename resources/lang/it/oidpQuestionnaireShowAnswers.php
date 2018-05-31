@@ -1,1 +1,0 @@
-<?php return array (  'seeOthers' => 'Vedere gli altri',  'anonymous' => 'Anonimo',  'otherParticipation' => 'altra partecipazione',  'otherParticipations' => 'altre partecipazioni',);

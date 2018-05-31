@@ -1,1 +1,0 @@
-<?php return array (  'title' => 'Título',  'store_nok' => 'Não foi possível gravar',  'show' => 'Mostrar',  'update_ok' => 'Actualizado com sucesso',  'code' => 'Código',  'name' => 'Nome',  'user_parameter' => 'Parâmetros de Utilizador',  'max_value' => 'Valor Máximo',);

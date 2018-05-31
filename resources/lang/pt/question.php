@@ -1,1 +1,0 @@
-<?php return array (  'groups' =>   array (    'title' => 'Título de Grupo',  ),  'title' => 'Título',  'store_ok' => 'Gravado com sucesso',  'update_ok' => 'Actualizado com sucesso',  'delete_ok' => 'Apagado com sucesso',  'reuseOk' => 'Sucesso',  'reuseNok' => 'Erro',);

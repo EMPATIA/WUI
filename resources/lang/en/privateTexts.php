@@ -1,1 +1,0 @@
-<?php return array (  'title' => 'Title',  'content' => 'Content',  'tag' => 'Tag',  'titleList' => 'Title List',);

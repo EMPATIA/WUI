@@ -1,1 +1,0 @@
-<?php return array (  'registration' => 'Criar conta',  'user_profile' => 'Perfil de Utilizador',  'back_office' => 'Administração',  'sign_out' => 'Sair',  'login' => 'Iniciar sessão',);

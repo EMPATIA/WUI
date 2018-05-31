@@ -1,1 +1,0 @@
-<?php return array (  'country_code' => 'Country code',  'name' => 'Name',  'timezones' => 'Timezone',  'id' => 'ID',  'continent' => 'Continent',  'timezone' => 'Time zone',  'store_ok' => 'Store successfully',  'update_ok' => 'Update successfully',  'delete_ok' => 'Delete unsuccessful',  'list' => 'List',);

@@ -1,1 +1,0 @@
-<?php return array (  'remaining_votes' => 'Your votes',  'total' => 'Total',  'positive' => 'Positive(s)',  'negative' => 'Negative(s)',);

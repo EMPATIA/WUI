@@ -1,1 +1,0 @@
-<?php return array (  'page' => 'Pagina',  'store_ok' => 'Memorizzati con successo',  'activateVersion_ok' => ' Versione attivato con successo',  'update_ok' => 'Aggiornato con successo',  'delete_ok' => 'Cancellato con successo',);

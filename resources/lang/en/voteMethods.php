@@ -1,1 +1,0 @@
-<?php return array (  'voteMethodConfig' => 'Vote Method Configuration',);

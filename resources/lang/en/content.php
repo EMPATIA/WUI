@@ -1,1 +1,0 @@
-<?php return array (  'noContent' => 'No Content',  'delete_ok' => 'Delete ok',  'store_ok' => 'Store ok',  'update_ok' => 'Update ok',  'activateVersion_ok' => 'Activate Version ok',  'publish_ok' => 'Publish ok',  'unpublish_ok' => 'Unplublish ok',  'updateFileDetails_ok' => 'Update File Details ok',);

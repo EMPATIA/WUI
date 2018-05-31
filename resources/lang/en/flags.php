@@ -1,1 +1,0 @@
-<?php return array (  'list' => 'List',  'title' => 'Title',  'description' => 'Description',  'private_flag' => 'Private Flag',  'flag_visible' => 'Flag Visible',  'public_visible' => 'Public visible',);

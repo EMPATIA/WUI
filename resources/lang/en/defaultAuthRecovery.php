@@ -1,1 +1,0 @@
-<?php return array (  'please_check_your_email' => 'Please check your E-mail',  'email' => 'E-mail',  'password_recovery' => 'Password Recovery',  'back' => 'Back',);

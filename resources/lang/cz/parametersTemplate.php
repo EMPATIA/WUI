@@ -1,1 +1,0 @@
-<?php return array (  'create' => 'Vytvořit',  'title' => 'Název',  'key' => 'Klíč',  'parameter' => 'Parametr',);

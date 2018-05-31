@@ -1,1 +1,0 @@
-<?php return array (  'form_submitted_message' => 'Obrigado por teres participado',);

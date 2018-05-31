@@ -1,1 +1,0 @@
-<?php return array (  'list_questionnaires' => 'Lista de Questionários',  'create_questionnaire' => 'Criar Questionário',  'update_questionnaire' => 'Editar Questionário',  'show_questionnaire' => 'Mostrar Questionário',  'details' => 'Detalhes',);

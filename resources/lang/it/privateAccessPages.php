@@ -1,1 +1,0 @@
-<?php return array (  'id' => 'Id',  'name' => 'Nome',  'active' => 'Attivo',  'description' => 'Descrizione',  'entityId' => 'Id Entità',);

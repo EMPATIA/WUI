@@ -1,1 +1,0 @@
-<?php return array (  'list_emails' => 'Lista de Emails',  'Type' => 'Tipo',  'details' => 'Detalhes',  'recipient' => 'Destinatário',  'created_by' => 'Criado por',  'created_at' => 'Criado em',  'content' => 'Conteúdo',  'sent_emails' => 'Emails Enviados',);

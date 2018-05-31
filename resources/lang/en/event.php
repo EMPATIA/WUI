@@ -1,1 +1,0 @@
-<?php return array (  'store_ok' => 'Store ok',  'delete_ok' => 'Delete ok',);

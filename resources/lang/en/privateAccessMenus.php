@@ -1,1 +1,0 @@
-<?php return array (  'details' => 'Details',  'list_accessMenus' => 'Menu Groups List',  'create_accessMenus' => 'Create Menu Group',  'show_group' => 'Show Menu Group',  'update_group' => 'Update Menu Group',  'delete' => 'Delete',  'are_you_sure_you_want_to_delete' => 'Are you sure you want to delete',  'cancel' => 'Cancel',);

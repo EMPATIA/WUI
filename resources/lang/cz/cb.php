@@ -1,1 +1,0 @@
-<?php return array (  'updateFileDetails_ok' => '?',  'editFile' => 'Upravit soubor',  'filename' => 'Název souboru',  'description' => 'Popis',  'cancel' => 'Zrušit',  'save' => 'Uložit',  'add_files' => 'Přidat soubory',  'drag_and_drop_files_to_here' => 'Přetáhněte soubory sem',  'details' => 'Detaily',  'use' => 'Použít',  'index' => '?',);

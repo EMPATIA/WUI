@@ -1,1 +1,0 @@
-<?php return array (  'list_title' => 'Tipos de Secções',  'key' => 'Chave',  'code' => 'Código',  'title' => 'Título',  'details' => 'Detalhes',  'name' => 'Nome',);

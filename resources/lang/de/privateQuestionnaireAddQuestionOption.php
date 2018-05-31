@@ -1,1 +1,0 @@
-<?php return array (  'clickHereToSelectDependency' => 'klik her for at vælge en Dependency',);

@@ -1,1 +1,0 @@
-<?php return array (  'file_name' => 'Nome del file',  'file_description' => 'Descrizione del file',  'submitFileDetails' => 'Invia i dettagli dei file',  'type' => 'Tipo',  'next' => 'Il prossimo',);

@@ -1,1 +1,0 @@
-<?php return array (  'store_ok' => 'Uloženo',  'delete_ok' => 'Úspěšně smazáno',);

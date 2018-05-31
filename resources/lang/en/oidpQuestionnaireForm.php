@@ -1,1 +1,0 @@
-<?php return array (  'pleaseSearchForYourCity' => 'Please search for your city',  'pleaseSearchForYourCityHelp' => 'Start writing your city name, and if your city appears in the dropdown box, please click on your city',  'youAreInQuestion' => 'You are in question',);

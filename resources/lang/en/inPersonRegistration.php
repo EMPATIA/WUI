@@ -1,1 +1,0 @@
-<?php return array (  'identityCard' => 'Identity Card',  'name' => 'Name',  'voteInPerson' => 'Vote In Person',);

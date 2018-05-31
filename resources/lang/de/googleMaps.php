@@ -1,1 +1,0 @@
-<?php return array (  'search_box' => 'Søg',  'delete_marker' => 'Slet markør',);

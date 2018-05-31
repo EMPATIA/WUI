@@ -1,1 +1,0 @@
-<?php return array (  'create_question' => 'Criar Questão',  'update_question' => 'Editar Questão',  'show_question' => 'Mostrar Questão',  'details' => 'Detalhes',);

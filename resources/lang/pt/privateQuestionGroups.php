@@ -1,1 +1,0 @@
-<?php return array (  'create_questionGroup' => 'Criar Grupo de Questões',  'update_questionGroup' => 'Editar Grupo de Questões',  'show_questionGroup' => 'Mostrar Grupo de Questões',  'details' => 'Detalhes',);

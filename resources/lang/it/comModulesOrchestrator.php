@@ -1,1 +1,0 @@
-<?php return array (  'failed_to_migrate_user_to_entity' => 'Impossibile migrare l\'utente a nuova entità',);

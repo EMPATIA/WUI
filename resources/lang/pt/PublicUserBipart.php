@@ -1,1 +1,0 @@
-<?php return array (  'imageResize' => 'redimensionar imagem',  'name' => 'Nome',  'email' => 'Email',  'street' => 'Endereço',  'city' => 'Cidade',  'country' => 'País',  'nationality' => 'Nacionalidade',  'job' => 'Profissão',  'mobileNumber' => 'Número de Telemóvel',  'homepage' => 'Homepage',);

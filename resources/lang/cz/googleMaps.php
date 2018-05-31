@@ -1,1 +1,0 @@
-<?php return array (  'pinGroups' => 'Návrhy',  'search_box' => 'Vyhledávání',  'delete_marker' => 'Odstranit značku',);

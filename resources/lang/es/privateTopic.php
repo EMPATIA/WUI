@@ -1,1 +1,0 @@
-<?php return array (  'details' => 'Detalles',  'notifications' => 'Notificaciones',);

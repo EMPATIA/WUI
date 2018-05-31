@@ -1,1 +1,0 @@
-<?php return array (  'thankYouForParticipating' => 'Thank you for participating',  'share' => 'Share',  'viewMore' => 'View more',);

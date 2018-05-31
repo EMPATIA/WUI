@@ -1,1 +1,0 @@
-<?php return array (  'participatedOn' => 'Ha partecipato a',);

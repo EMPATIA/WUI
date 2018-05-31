@@ -1,1 +1,0 @@
-<?php return array (  'addOk' => 'Adicionar Ok',  'delete_ok' => 'Apagar Ok',);

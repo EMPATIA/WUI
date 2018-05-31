@@ -1,1 +1,0 @@
-<?php return array (  'clickHereToSelectDependency' => 'κάντε κλικ εδώ για να επιλέξετε μια εξάρτηση',);

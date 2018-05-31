@@ -1,1 +1,0 @@
-<?php return array (  'mps' => '?',  'mails' => 'E-maily',  'forum' => 'Fórum',  'menus' => 'Menu',  'geoareas' => 'Zeměpisná oblast',  'eventSchedules' => 'Hlasování',  'events' => 'Událost',);

@@ -1,1 +1,0 @@
-<?php return array (  'store_ok' => 'Gravado com sucesso',  'email' => 'Email',  'name' => 'Nome',);

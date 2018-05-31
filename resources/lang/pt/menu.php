@@ -1,1 +1,0 @@
-<?php return array (  'menu' => 'Menu',  'delete_ok' => 'Apagado com sucesso',);
