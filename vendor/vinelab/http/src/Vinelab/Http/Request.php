@@ -176,9 +176,9 @@ class Request implements RequestInterface
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_MAXREDIRS => $this->maxRedirects,
             CURLOPT_TIMEOUT => $this->timeout,
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0
+	    CURLOPT_RETURNTRANSFER => true,
+	    CURLOPT_SSL_VERIFYHOST => false,
+	    CURLOPT_SSL_VERIFYPEER => false
         );
 
         //digest auth support

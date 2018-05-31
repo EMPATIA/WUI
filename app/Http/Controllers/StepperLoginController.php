@@ -201,6 +201,7 @@ class StepperLoginController extends Controller
                 ->addColumn('action', function ($collection) use ($siteKey) {
                     return ONE::actionButtons(['levelParameterKey' => $collection->level_parameter_key, 'siteKey' => $siteKey], ['form' => 'siteLoginLevels', 'edit' => 'LoginLevelsController@edit', 'delete' => 'LoginLevelsController@delete']);
                 })
+                ->rawColumns(['name','mandatory','manual_verification','sms_verification','show_in_registration','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors([trans("privateLoginLevels.get_index_table_error") => $e->getMessage()]);
@@ -266,6 +267,7 @@ class StepperLoginController extends Controller
                     }
                     return $button;
                 })
+                ->rawColumns(['select'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors([trans("privateLoginLevels.get_index_configuration_table_error") => $e->getMessage()]);
@@ -285,7 +287,13 @@ class StepperLoginController extends Controller
                 $siteKey =  Session::get('SITE_KEY');
 
             $loginLevels = Orchestrator::getLoginLevels($siteKey);
-            return view('private.entities.sites.loginLevels.loginLevelReorder', compact('loginLevels', 'siteKey'));
+
+            $sidebar = 'site';
+            $active = 'stepperLoginReorder';
+
+            Session::put('sidebarArguments', ['siteKey' => $siteKey, 'activeFirstMenu' => 'stepperLoginReorder']);
+
+            return view('private.entities.sites.loginLevels.loginLevelReorder', compact('loginLevels', 'siteKey', 'sidebar', 'active'));
         } catch (Exception $e) {
             return redirect()->back()->withErrors([trans("privateLoginLevels.show_level_reorder_error") => $e->getMessage()]);
         }

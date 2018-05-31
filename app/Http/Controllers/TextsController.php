@@ -172,6 +172,7 @@ class TextsController extends Controller
             ->addColumn('action', function ($text) {
                 return ONE::actionButtons($text->text_key, ['edit' => 'TextsController@edit', 'delete' => 'TextsController@delete']);
             })
+            ->rawColumns(['title','action'])
             ->make(true);
     }
 }

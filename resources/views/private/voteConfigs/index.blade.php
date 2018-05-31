@@ -3,7 +3,7 @@
 @section('content')
     <div class="box box-primary">
         <div class="box-header">
-            <h3 class="box-title"><i class="fa"></i> {{ trans('privateVoteConfigs.title') }}</h3>
+            <h3 class="box-title"><i class="fa"></i> {{ trans('privateVoteConfigs.list') }}</h3>
         </div>
 
         <div class="box-body">

@@ -48,36 +48,33 @@ class TrackingController extends Controller
 
     public function showTracking(){
 
-        $trackingData = $this->getTrackingTable('1');
-        $data['trackingDatas']=$trackingData;
-            return view('private.tracking.tracking', $data);
+//        $trackingData = $this->getTrackingTable('1');
+//        $data['trackingDatas']=$trackingData;
+        $title = trans('auditing.auditing');
+            return view('private.tracking.tracking', compact('title'));
 
     }
 
 
-    public function getTrackingTable()
+    public function getTrackingTable(Request $request)
     {
-        $timeFilter='1';
-        $response = LogsRequest::getTrackingDataByTimeFilter($timeFilter);
+        try {
+            $timeFilter = '1';
 
-        // in case of json
+            $response = LogsRequest::getTrackingDataByTimeFilter($request, $timeFilter);
 
-        $collections = Collection::make($response);
-        foreach ($collections as $key=>$collection){
-            if($collection->time_end==null || $collection->time_start==null) $time=0;
-            else $time=$collection->time_end-$collection->time_start;
-        $collections[$key]->time=$time;
+            $collections = Collection::make($response->logs);
+
+            $recordsTotal = $response->recordsTotal;
+            $recordsFiltered = $collections->count();
+
+            return Datatables::of($collections)
+                ->with('filtered', $recordsFiltered ?? 0)
+                ->skipPaging()
+                ->setTotalRecords($recordsTotal ?? 0)
+                ->make(true);
+        } catch (Exception $e) {
         }
-
-        return Datatables::of($collections)->filterColumn('user_key', 'ip', 'url', 'id')
-            ->editColumn('id', function ($collections) {
-                return "<a href='".action('TrackingController@show', $collections->id)."'>".$collections->id."</a>";
-            })
-            ->editColumn('action', function ($collections) {
-                return ONE::actionButtons($collections->id, ['show' => 'TrackingController@show']);
-            })
-            ->make(true);
-
 
     }
 

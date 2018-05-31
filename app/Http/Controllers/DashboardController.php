@@ -19,6 +19,8 @@ use Datatables;
 use Session;
 use View;
 use Breadcrumbs;
+use App\ComModules\EMPATIA;
+use App\ComModules\Vote;
 
 class DashboardController extends Controller
 {
@@ -35,18 +37,13 @@ class DashboardController extends Controller
      */
     public function ideas()
     {
-        $cbs = collect(Orchestrator::getAllCbs())->toArray();
-
-        $cbs = collect($cbs)->filter(function($cb){
-            return in_array($cb->cb_type->code,['idea']);
-        })->toArray();
+        $cbs = collect(Orchestrator::getAllCbs())->filter(function($cb){
+            return !in_array($cb->cb_type->code,['survey','forum','discussion','tematicConsultation','publicConsultation','qa','project_2c','event']);
+        })->pluck("cb_key")->toArray();
 
         $cbs_topics = CB::getCBsByKeys($cbs);
 
-        $counter_topics = 0;
-        foreach($cbs_topics as $topics){
-            $counter_topics += $topics->statistics->topics;
-        }
+        $counter_topics = collect($cbs_topics??[])->sum("statistics.topics");
 
         return $counter_topics;
     }
@@ -67,6 +64,19 @@ class DashboardController extends Controller
         }
 
         return $counter_posts;
+    }
+
+    public function votes()
+    {
+        $voteEvents = collect(EMPATIA::getEntityVoteEvents())->pluck("vote_key")->toArray();
+        $voteEventsVotesCount = Vote::getEventsVoteCount($voteEvents);
+        
+        $votesCount = 0;
+        foreach ($voteEventsVotesCount as $voteEvent) {
+            $votesCount += ($voteEvent->votes_count??0);
+        }
+        
+        return $votesCount;
     }
 
     /**

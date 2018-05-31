@@ -1,1 +1,1 @@
-<?php return array (  'title' => 'Title',  'authorize' => 'Authorize',);
+<?php return array (  'authorize' => 'Authorize',  'title' => 'Title',);

@@ -134,6 +134,7 @@ class PostManagerController extends Controller
 
                 return $html . ONE::actionButtons([$collection->post_key, "showWithAbuses" => $showWithAbuses, "showCommentsNeedsAuth" => $showCommentsNeedsAuth], ['delete' => 'PostManagerController@delete']);
             })
+            ->rawColumns(['approve','abuses','action'])
             /* Makes DataTable not reordering the data again - was messing up with dates */
             ->order(function(){})
             ->skipPaging()

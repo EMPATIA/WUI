@@ -164,16 +164,12 @@ class RolesController extends Controller
 
     public function getIndexTable()
     {
-
-        if(ONE::verifyUserPermissions('orchestrator', 'role', 'create')){
         $roles = Orchestrator::getRolesList();
         // in case of json
         $collection = Collection::make($roles);
-        }else
-            $collection = Collection::make([]);
 
-        $edit = ONE::verifyUserPermissions('orchestrator', 'role', 'update');
-        $delete = ONE::verifyUserPermissions('orchestrator', 'role', 'delete');
+        $edit = true;
+        $delete = true;
 
         return Datatables::of($collection)
             ->editColumn('name', function ($collection) {
@@ -189,6 +185,7 @@ class RolesController extends Controller
                 else
                     return null;
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 
@@ -207,6 +204,7 @@ class RolesController extends Controller
             ->addColumn('action', function ($collection) {
                 return ONE::actionButtons($collection->role_key, ['edit' => 'RolesController@edit', 'delete' => 'RolesController@delete']);
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 

@@ -30,7 +30,7 @@ class EventSchedulesController extends Controller
 {
     public function __construct()
     {
-        View::share('title', trans('eventSchedules.title'));
+        View::share('title', trans('eventSchedules.schedules'));
 
     }
 
@@ -40,7 +40,7 @@ class EventSchedulesController extends Controller
      * @return View
      */
     public function index(){
-        $title = trans('privateEventSchedules.list_eventSchedules');
+        $title = trans('privateEventSchedules.polls');
         return view("private.eventSchedule.index", compact('title'));
     }
 
@@ -52,9 +52,7 @@ class EventSchedulesController extends Controller
     public function create()
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsCreate('q', 'poll')){
-                return redirect()->back()->withErrors(["eventSchedules.create" => trans('privateEventSchedules.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["eventSchedules.create" => trans('privateEventSchedules.permission_message')]);
         }
 
         $title = trans('privateEventSchedules.create_eventSchedule');
@@ -71,9 +69,7 @@ class EventSchedulesController extends Controller
     public function show($key)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsShow('q', 'poll')){
-                return redirect()->back()->withErrors(["eventSchedules.show" => trans('privateEventSchedules.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["eventSchedules.show" => trans('privateEventSchedules.permission_message')]);
         }
 
         try {
@@ -96,8 +92,7 @@ class EventSchedulesController extends Controller
     public function showPeriods($key)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsShow('q', 'poll'))
-                return redirect()->back()->withErrors(["eventSchedules.create" => trans('privateEventSchedules.permission_message')]);
+            return redirect()->back()->withErrors(["eventSchedules.create" => trans('privateEventSchedules.permission_message')]);
         }
 
         try {
@@ -120,9 +115,7 @@ class EventSchedulesController extends Controller
     public function store(Request $request)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsCreate('q', 'poll')){
-                return redirect()->back()->withErrors(["eventSchedules.store" => trans('privateEventSchedules.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["eventSchedules.store" => trans('privateEventSchedules.permission_message')]);
         }
 
         try {
@@ -180,9 +173,7 @@ class EventSchedulesController extends Controller
     public function update(EventScheduleRequest $request, $key)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsUpdate('q', 'poll')){
-                return redirect()->back()->withErrors(["eventSchedules.update" => trans('privateEventSchedules.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["eventSchedules.update" => trans('privateEventSchedules.permission_message')]);
         }
 
         try {
@@ -248,9 +239,7 @@ class EventSchedulesController extends Controller
     public function updateDetails(EventScheduleRequest $request, $key)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsUpdate('q', 'poll')){
-                return redirect()->back()->withErrors(["eventSchedules.updateDetails" => trans('privateEventSchedules.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["eventSchedules.updateDetails" => trans('privateEventSchedules.permission_message')]);
         }
 
         try {
@@ -285,9 +274,7 @@ class EventSchedulesController extends Controller
     public function updatePeriods(EventScheduleRequest $request, $key)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsUpdate('q', 'poll')){
-                return redirect()->back()->withErrors(["eventSchedules.updatePediods" => trans('privateEventSchedules.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["eventSchedules.updatePediods" => trans('privateEventSchedules.permission_message')]);
         }
 
         try {
@@ -331,9 +318,7 @@ class EventSchedulesController extends Controller
     public function edit($key)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsUpdate('q', 'poll')){
-                return redirect()->back()->withErrors(["eventSchedules.edit" => trans('privateEventSchedules.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["eventSchedules.edit" => trans('privateEventSchedules.permission_message')]);
         }
 
         try {
@@ -358,9 +343,7 @@ class EventSchedulesController extends Controller
     public function editPeriods($key)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsUpdate('q', 'poll')){
-                return redirect()->back()->withErrors(["eventSchedules.updatePediods" => trans('privateEventSchedules.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["eventSchedules.updatePediods" => trans('privateEventSchedules.permission_message')]);
         }
 
         try {
@@ -403,9 +386,7 @@ class EventSchedulesController extends Controller
     public function destroy($id){
 
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsDelete('q', 'poll')){
-                return redirect()->back()->withErrors(["eventSchedules.destroy" => trans('privateEventSchedules.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["eventSchedules.destroy" => trans('privateEventSchedules.permission_message')]);
         }
 
         try {
@@ -428,7 +409,7 @@ class EventSchedulesController extends Controller
      */
     public function getIndexTable()
     {
-        if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('q', 'poll')) {
+        if(Session::get('user_role') == 'admin') {
             // Request for Data List
 
             $response =Questionnaire::getEventSchedulesList();
@@ -441,7 +422,7 @@ class EventSchedulesController extends Controller
         } else
             $collection = Collection::make([]);
 
-        $delete = Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsDelete('q', 'poll');
+        $delete = Session::get('user_role') == 'admin';
 
 
         // Render Datatable
@@ -456,6 +437,7 @@ class EventSchedulesController extends Controller
                 else
                     return ONE::actionButtons($eventSchedule->key, ['show' => 'EventSchedulesController@show']);
             })
+            ->rawColumns(['title','action'])
             ->make(true);
 
         return $datatable;
@@ -498,7 +480,7 @@ class EventSchedulesController extends Controller
             // Check if private or public
             $eventSchedule = Questionnaire::getEventSchedule($key);
 
-            // $owner = Auth::getUserByKey($eventSchedule->created_by);
+//            $owner = Auth::getUserByKey($eventSchedule->created_by);
 
             if($eventSchedule->public == 1){
                 return redirect()->back()->withErrors(["public.".ONE::getEntityLayout().".eventSchedule.attendance" => "This is public"]);
@@ -539,7 +521,7 @@ class EventSchedulesController extends Controller
             // Message / notify
             $title = "Event: ".$request->eventName." - New attendance";
             $msg = "The user with the name ".$request->name.", requested an attendance for this event.";
-            // EventSchedulesController::notify($owner->email,$owner->name,$title,$msg);
+//            EventSchedulesController::notify($owner->email,$owner->name,$title,$msg);
 
             Session::flash('message', trans('attendance.create_ok'));
 
@@ -647,45 +629,45 @@ class EventSchedulesController extends Controller
             if (One::isAuth()) {
                 // Get user details
                 $user = Auth::getUser();
-                // $user = $response->user;
             }
 
             $eventSchedule = Questionnaire::getEventSchedule($key);
 
             if($eventSchedule->public == 0 && !One::isAuth()){
-                Session::set('redirect', 'public');
+                Session::put('redirect', 'public');
 
-                Session::set('url_previous', URL::action('EventSchedulesController@publicAttendance',$key));
+                Session::put('url_previous', URL::action('EventSchedulesController@publicAttendance',$key));
 
                 return redirect()->action('AuthController@login');
             }
 
-            $alreadyVoted = false;
-            if(!empty($user)){
-                foreach($eventSchedule->participants as $participant) {
-                    if($user->user_key == $participant->user_key ) {
-                        $alreadyVoted = true;
-                    }
-                }
-            }
-            if($eventSchedule->type_id == 1){/* Verify if Poll is type Date*/
-                $periods = [];
+			$alreadyVoted = false;
+			if(!empty($user)){
+				foreach($eventSchedule->participants as $participant) {
+					if($user->user_key == $participant->user_key ) {
+						$alreadyVoted = true;
+					}
+				}
+			}
+			if($eventSchedule->type_id == 1){/* Verify if Poll is type Date*/
+				$periods = [];
 
-                if(!empty($eventSchedule->periods)){
-                    foreach($eventSchedule->periods as $period){
-                        $periods[$period->start_date]["month"] = date("F", strtotime($period->start_date));
-                        $periods[$period->start_date]["year"] = date("Y", strtotime($period->start_date));
-                        $periods[$period->start_date]["day"] = date("j", strtotime($period->start_date));
-                        $periods[$period->start_date]["dayweek"] = $days[] = strftime('%A', strtotime($period->start_date));
-                        // Periods
-                        $periods[$period->start_date]["periods"][] = array("id" => $period->id ,"period" => $period->start_time);
-                    }
-                }
+				if(!empty($eventSchedule->periods)){
+					foreach($eventSchedule->periods as $period){
+						$periods[$period->start_date]["month"] = date("F", strtotime($period->start_date));
+						$periods[$period->start_date]["year"] = date("Y", strtotime($period->start_date));
+						$periods[$period->start_date]["day"] = date("j", strtotime($period->start_date));
+						$periods[$period->start_date]["dayweek"] = $days[] = strftime('%A', strtotime($period->start_date));
+						// Periods
+						$periods[$period->start_date]["periods"][] = array("id" => $period->id ,"period" => $period->start_time);
+					}
+				}
 
-                return view('public.'.ONE::getEntityLayout().'.poll.attendance_dates', compact('eventSchedule','key','user', 'periods', 'alreadyVoted'));
-            }elseif ($eventSchedule->type_id == 2){
-                return view('public.'.ONE::getEntityLayout().'.poll.attendance_questions', compact('eventSchedule','key','user', 'alreadyVoted'));
-            }
+				return view('public.'.ONE::getEntityLayout().'.poll.attendance_dates', compact('eventSchedule','key','user', 'periods', 'alreadyVoted'));
+			}elseif ($eventSchedule->type_id == 2){
+				return view('public.'.ONE::getEntityLayout().'.poll.attendance_questions', compact('eventSchedule','key','user', 'alreadyVoted'));
+			}
+
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["public.".ONE::getEntityLayout().".eventSchedule.attendance" => $e->getMessage()]);
         }
@@ -808,13 +790,13 @@ class EventSchedulesController extends Controller
             Session::flash('message', trans('attendance.update_ok'));
 
             // Message / notify
-            // $title = "Event: ".$request->eventName." - Updated attendance";
-            // $msg = "The user with the name ".$request->name.", update the attendance for this event.";
-            // $site = Orchestrator::getSite(Session::get('X-SITE-KEY'));
-            // $data ['users'] = [$owner->email];
-            // $data ['subject'] = $title;
-            // $data ['message'] = $msg;
-            // Notify::createEmails((object) $data, $site);
+//            $title = "Event: ".$request->eventName." - Updated attendance";
+//            $msg = "The user with the name ".$request->name.", update the attendance for this event.";
+//            $site = Orchestrator::getSite(Session::get('X-SITE-KEY'));
+//            $data ['users'] = [$owner->email];
+//            $data ['subject'] = $title;
+//            $data ['message'] = $msg;
+//            Notify::createEmails((object) $data, $site);
 
             return redirect()->action('EventSchedulesController@publicAttendance', $key);
         } catch (Exception $e) {

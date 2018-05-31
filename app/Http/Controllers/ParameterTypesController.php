@@ -17,7 +17,7 @@ class parameterTypesController extends Controller
 
     public function __construct()
     {
-        View::share('title', trans('privateParameterTypes.title'));
+        View::share('title', trans('privateParameterTypes.processParametersTypes'));
 
 
     }
@@ -30,7 +30,7 @@ class parameterTypesController extends Controller
      */
     public function index()
     {
-        $title = trans('privateParameterTypes.list_parameter_types');
+        $title = trans('privateParameterTypes.processParametersTypes');
         return view('private.parameterTypes.index', compact('title'));
     }
 
@@ -303,6 +303,7 @@ class parameterTypesController extends Controller
             ->addColumn('action', function ($collection) {
                 return ONE::actionButtons($collection->id, ['form' => 'parameterType',/*'edit' => 'ParameterTypesController@edit', */'delete' => 'ParameterTypesController@delete']);
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 

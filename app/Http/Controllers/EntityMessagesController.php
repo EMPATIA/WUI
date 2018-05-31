@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\ComModules\EMPATIA;
+use App\ComModules\Orchestrator;
 use App\Http\Controllers\Controller;
 use Datatables;
 use Illuminate\Http\Request;
@@ -13,96 +14,105 @@ use Exception;
 class EntityMessagesController extends Controller
 {
 
-    public function __construct(){
+    public function __construct()
+    {
 
     }
 
-    public function index(){
-        $title = trans('privateEntities.list_messages');
-        $sidebar = 'entityMessages';
-        $active = 'messages';
-
-        Session::put('sidebarArguments', ['activeFirstMenu' => 'messages']);
-
-        return view('private.entityMessages.index', compact('title', 'sidebar', 'active'));
-    }
-
-    public function getIndexTable(Request $request){
+    public function index()
+    {
         try {
-            $userKey = Session::get('user')->user_key;
-            $response = EMPATIA::getAllMessages($request, $userKey);
+            $title = trans('privateEntities.list_messages');
+            $active = "all_messages";
 
-            $messages = isset($response->messages) ? collect($response->messages): Collection::make([]);
-            $recordsTotal = $response->recordsTotal;
-            $recordsFiltered = $response->recordsFiltered;
-
-            return Datatables::of($messages)
-                ->editColumn('to', function ($messages) {
-                    if(!empty($messages->user_name)){
-                        return "<a href='".action('UsersController@show', $messages->to)."'>" . $messages->user_name . "</a>";
-                    }
-                    else{
-                        return null;
-                    }
-
-                })
-                ->editColumn('value', function ($messages) {
-                    return $messages->value ?? null;
-                })
-                ->editColumn('created_at', function ($messages) {
-                    return $messages->created_at;
-                })
-                ->addColumn('action', function ($messages) {
-                    return ONE::actionButtons($messages->from, ['show' => 'UsersController@showUserMessages']);
-                })
-                ->with('filtered', $recordsFiltered ?? 0)
-                ->skipPaging()
-                ->setTotalRecords($recordsTotal ?? 0)
-                ->make(true);
+            return view('private.entityMessages.index', compact('title', 'active'));
         } catch (Exception $e) {
-            return redirect()->back()->withErrors(["groupTypes.tableGroupTypes" => $e->getMessage()]);
+            return redirect()->back()->withErrors(["private.entityMessages" => $e->getMessage()]);
         }
     }
 
-    public function showMessagesTable(Request $request, $flag){
-        $title = trans('privateEntities.list_messages');
-        $sidebar = 'entityMessages';
+    public function show(Request $request, $messageKey){
+        $message = Orchestrator::getMessage($messageKey);
 
-        if($flag == 'sentMessages')
-            $active = 'sent_messages';
-        else
-            $active = 'received_messages';
+        $message = $message->value;
 
-        return view('private.entityMessages.messages', compact('title', 'flag', 'sidebar', 'active'));
+        return view('private.entityMessages.message',compact('message'));
     }
 
-    public function getMessagesTable(Request $request, $flag){
+    public function getIndexTable(Request $request)
+    {
         try {
-            $response = EMPATIA::getEntityMessages($request, $flag);
+            $filters = array(
+                "sent" => !empty($request->get("sent_messages")) ? 1 : 0,
+                "received" => !empty($request->get("received_messages")) ? 1 : 0
+            );
+
+            $response = EMPATIA::getEntityMessages($filters, $request);
             $messages = collect(isset($response->messages) ? $response->messages : []);
-            
+            $entityName = $response->entityName;
+
             $recordsTotal = $response->recordsTotal;
             $recordsFiltered = $response->recordsFiltered;
 
             return Datatables::of($messages)
-                ->editColumn('to', function ($messages)  use($flag){
-                    if(!empty($messages->user_name)) {
-                        if($flag == 'sentMessages')
-                            return "<a href='".action('UsersController@showUserMessages', $messages->to)."'>" . $messages->user_name . "</a>";
-                        else
-                            return "<a href='".action('UsersController@showUserMessages', $messages->from)."'>" . $messages->user_name . "</a>";
-                    } else
-                        return null;
+                ->editColumn('to', function ($message) use ($entityName){
+                    if ($message->type=="sent") {
+                        if(!empty($message->receiver->name)){
+                            return "<a href='" . action('UsersController@showUserMessages', $message->to) . "'>" . $message->receiver->name . "</a>";
+                        }else{
+                            return "";
+                        }
+                    } else {
+                        return $entityName;
+                    }
                 })
-                ->editColumn('value', function ($messages) {
-                    return $messages->value ?? null;
+                ->editColumn('from', function ($message) {
+                    if($message->user_id == 0){
+                        if(!empty($message->from)){
+                            return $message->from;
+                        }else{
+                            return "";
+                        }
+                    }else{
+                        if ($message->type=="received") {
+                            if(!empty($message->sender->name)){
+                                return "<a href='" . action('UsersController@showUserMessages', $message->to) . "'>" . $message->sender->name . "</a>";
+                            }else{
+                                return "";
+                            }
+                        } else {
+                            return "<a href='" . action('UsersController@show', ["userKey" => $message->from, "role" => ($message->sender->orchUser->entities[0]->role??"manager")])  . "'>" . $message->sender->name . "</a>";
+                        }
+                    }
                 })
-                ->editColumn('created_at', function ($messages) {
-                    return $messages->created_at;
+                ->editColumn('value', function ($message) {
+                    if (!empty($message->value)) {
+                        if($message->user_id == 0){
+                            $messageText = $message->value;
+                            if (strlen($messageText)>103)
+                                return substr($messageText,0, 100) . "...";
+                            else
+                                return $messageText; 
+                        }else{
+                            if (strlen($message->value)>103)
+                                return substr($message->value,0, 100) . "...";
+                            else
+                                return $message->value;
+                        }
+                    }
+                    return "<i>" . trans("privateEntities.empty_message") . "</i>";
                 })
-                ->addColumn('action', function ($messages) use($flag){
-                    return ONE::actionButtons($messages->to, ['show' => 'UsersController@showUserMessages']);
+                ->addColumn('action', function ($message) {
+                    if($message->user_id == 0){
+                        return ONE::actionButtons($message->message_key, ['show' => 'EntityMessagesController@show']);
+                    }else{
+                        if ($message->type=="received") {
+                            return ONE::actionButtons($message->from, ['show' => 'UsersController@showUserMessages']);
+                        }else 
+                            return ONE::actionButtons($message->to, ['show' => 'UsersController@showUserMessages']);
+                    }
                 })
+                ->rawColumns(['to','from','received','value','action'])
                 ->with('filtered', $recordsFiltered ?? 0)
                 ->skipPaging()
                 ->setTotalRecords($recordsTotal ?? 0)
@@ -110,7 +120,5 @@ class EntityMessagesController extends Controller
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["groupTypes.tableGroupTypes" => $e->getMessage()]);
         }
-}
-
-
+    }
 }

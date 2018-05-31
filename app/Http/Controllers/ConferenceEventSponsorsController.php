@@ -181,6 +181,7 @@ class ConferenceEventSponsorsController extends Controller
             ->addColumn('action', function ($collection) use ($eventKey) {
                 return ONE::actionButtons(['eventKey' => $eventKey, 'sponsorKey' => $collection->sponsor_key], ['show' => 'ConferenceEventSponsorsController@show', 'delete' => 'ConferenceEventSponsorsController@delete']);
             })
+            ->rawColumns(['title','action'])
             ->make(true);
 
 

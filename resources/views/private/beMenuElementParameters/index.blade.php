@@ -16,7 +16,7 @@
                         <th>{{ trans('privateBEMenuElementParameters.name') }}</th>
                         <th>{{ trans('privateBEMenuElementParameters.created_at') }}</th>
                         <th>
-                            {!! ONE::actionButtons(null, ['create' => 'BEMenuElementParametersController@create']) !!}
+                            {!! ONE::actionButtons(["form" => "BEMenuElementConfigurations"], ['create' => 'BEMenuElementParametersController@create']) !!}
                         </th>
                     </tr>
                 </thead>

@@ -43,6 +43,7 @@ class DashBoardElementsController extends Controller
                 ->addColumn('action', function ($dashBoardElements) {
                     return ONE::actionButtons($dashBoardElements->id, ['delete' => 'DashBoardElementsController@delete']);
                 })
+                ->rawColumns(['title','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["dashBoardElements.getIndexTable" => $e->getMessage()]);
@@ -138,7 +139,7 @@ class DashBoardElementsController extends Controller
             $data['title'] = $title;
             $data['languages'] = $languages;
             $data['dashBoardElement'] = $dashBoardElement;
-            $data['translations'] = $dashBoardElement->translations;
+            $data['translations'] = collect($dashBoardElement->translations)->keyBy('language_code')->toArray();
             $data['id'] = $id;
 
             return view('private.dashBoardElements.dashBoardElement', $data);
@@ -168,7 +169,7 @@ class DashBoardElementsController extends Controller
             $data['title'] = $title;
             $data['languages'] = $languages;
             $data['dashBoardElement'] = $dashBoardElement;
-            $data['translations'] = $dashBoardElement->translations;
+            $data['translations'] = collect($dashBoardElement->translations)->keyBy('language_code')->toArray();
 
             return view('private.dashBoardElements.dashBoardElement', $data);
 

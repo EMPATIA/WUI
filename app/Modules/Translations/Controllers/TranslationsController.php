@@ -223,13 +223,13 @@ class TranslationsController extends Controller
         if ($keys) {
 
             // Hide show controlls
-            $html .= "<div class='margin-top-20 margin-bottom-20'><b class='hide_show_languages'>".trans('Translations::translation.hide_show_languages').":</b> ";
+            $html .= "<div class='margin-top-20 margin-bottom-20'><b class='hide_show_languages'>".trans('Translations::translation.translation.hide_show_languages').":</b> ";
             foreach ($languages as $language) {
                 $html .= "<label class=\"toggle-vis-label\"  title=\"$language->name\" ><input id=\"toggle-vis-$language->code\"  value=\"$language->code\" class=\"toggle-vis\" type=\"checkbox\" checked onclick='javascript:hideShowLanguages(this);' > ". $language->code . '</label>';
             }
             $html .= "</div>";
 
-            $html .= '<table class="table translations-table">';
+            $html .= '<table class="table translations-table table-hover">';
             $html .= '<thead>';
             $html .= '<tr>';
             $html .= '<td class="text-center" colspan="' . (count($languages) + 1) . '">';
@@ -237,7 +237,7 @@ class TranslationsController extends Controller
             $html .= '</td>';
             $html .= '</tr>';
             $html .= '<tr>';
-            $html .= '<td>' . trans("Translations::translation.key") . '</td>';
+            $html .= '<td>' . trans("translations.key") . '</td>';
             foreach ($languages as $language) {
                 $html .= '<td class="translations-table-'.$language->code.'" title="'.$language->name.'">' . $language->code . '</td>';
             }
@@ -274,13 +274,13 @@ class TranslationsController extends Controller
         if ($keys) {
 
             // Hide show controlls
-            $html .= "<div class='margin-top-20 margin-bottom-20'><b class='hide_show_languages'>".trans('Translations::translation.hide_show_languages').":</b> ";
+            $html .= "<div class='margin-top-20 margin-bottom-20'><b class='hide_show_languages'>".trans('Translations::translation.translation.hide_show_languages').":</b> ";
             foreach ($languages as $language) {
                 $html .= "<label class=\"toggle-vis-label\"  title=\"$language->name\" ><input id=\"toggle-vis-$language->code\"  value=\"$language->code\" class=\"toggle-vis\" type=\"checkbox\" checked onclick='javascript:hideShowLanguages(this);' > ". $language->code . '</label>';
             }
             $html .= "</div>";
 
-            $html .= '<table class="table translations-table">';
+            $html .= '<table class="table translations-table table-hover">';
             $html .= '<thead>';
             $html .= '<tr>';
             $html .= '<td>' . trans("Translations::translation.key") . '</td>';
@@ -319,9 +319,9 @@ class TranslationsController extends Controller
     public static function reloadTranslationHtml($translation, $keyId, $languageId)
     {
         if ($translation == '') {
-            $html = '<span class="float-xs-left" title="' . trans("Translations::translation.add") . '">' . trans("Translations::translation.empty") . '<input type="hidden" id="key_id" value="' . $keyId . '"><input type="hidden" id="language_id" value="' . $languageId . '"></span></td>';
+            $html = '<span class="float-xs-left" title="' . trans("translations.add") . '">' . trans("Translations::translation.empty") . '<input type="hidden" id="key_id" value="' . $keyId . '"><input type="hidden" id="language_id" value="' . $languageId . '"></span></td>';
         } else {
-            $html = '<span class="float-xs-left" title="' . trans("Translations::translation.edit") . '">' . $translation . '</i></span><input type="hidden" id="key_id" value="' . $keyId . '"><input type="hidden" id="language_id" value="' . $languageId . '"></span><span class="remove-translation cursor" title="' . trans("Translations::translation.delete") . '"><i class="fa fa-trash"></i>';
+            $html = '<span class="float-xs-left" title="' . trans("translations.edit") . '">' . $translation . '</i></span><input type="hidden" id="key_id" value="' . $keyId . '"><input type="hidden" id="language_id" value="' . $languageId . '"></span><span class="remove-translation cursor" title="' . trans("Translations::translation.delete") . '"><i class="fa fa-trash"></i>';
         }
 
         return $html;
@@ -654,16 +654,17 @@ class TranslationsController extends Controller
                 $availableLanguages[$language->id] = $language->code;
             }
 
-            $translatableStrings = TranslatableString::all();
-            foreach ($translatableStrings as $translatableString) {
-                foreach ($translatableString->translations()->get() as $translation) {
+            $translatableStrings = TranslatableString::with("translations")->get();
+            foreach ($translatableStrings as $key => $translatableString) {
+                foreach ($translatableString->translations as $translation) {
                     $new = getArrayedTranslation($translatableString->key, $translation->translation);
-
 
                     $toSave[$translatableString->module . "::" . $translatableString->group][$availableLanguages[$translation->language_id]][$new["key"]] = $new["value"];
                     $count++;
                 }
+                $translatableStrings->forget($key);
             }
+            unset($translatableStrings);
 
             // Save to Files /
             foreach ($toSave as $path => $language) {

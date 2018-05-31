@@ -137,6 +137,7 @@ class LoginLevelsController extends Controller
             if (is_null($siteKey))
                 $siteKey =  Session::get('SITE_KEY');
 
+            $request->siteKey = $siteKey;
             Orchestrator::setLoginLevel($request);
             Session::flash('message', trans('privateLoginLevels.store_ok'));
             return redirect()->action('LoginLevelsController@index', ['siteKey' => $siteKey]);
@@ -196,8 +197,8 @@ class LoginLevelsController extends Controller
             // in case of json
             $collection = Collection::make($loginLevels);
 
-            $edit = ONE::verifyUserPermissions('orchestrator', 'site_login_levels', 'update');
-            $delete = ONE::verifyUserPermissions('orchestrator', 'site_login_levels', 'delete');
+            $edit = true;
+            $delete = true;
 
             return Datatables::of($collection)
                 ->editColumn('name', function ($collection) use ($siteKey) {
@@ -225,6 +226,7 @@ class LoginLevelsController extends Controller
                     else
                         return null;
                 })
+                ->rawColumns(['name','mandatory','manual_verification','sms_verification','show_in_registration','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors([trans("privateLoginLevels.get_index_table_error") => $e->getMessage()]);
@@ -293,6 +295,7 @@ class LoginLevelsController extends Controller
                     }
                     return $button;
                 })
+                ->rawColumns(['selected'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors([trans("privateLoginLevels.get_index_configuration_table_error") => $e->getMessage()]);

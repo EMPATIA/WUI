@@ -11,7 +11,7 @@
                 <thead>
                 <tr>
                     <th>{{ trans('privateMPs.name') }}</th>
-                    <th>@if(ONE::verifyUserPermissions('mp', 'mp', 'create')){!! ONE::actionButtons(null, ['create' => 'MPsController@create']) !!}@endif</th>
+                    <th>{!! ONE::actionButtons(null, ['create' => 'MPsController@create']) !!}</th>
                 </tr>
                 </thead>
             </table>

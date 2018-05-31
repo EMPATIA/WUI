@@ -34,7 +34,8 @@ class LanguagesController extends Controller
      */
     public function index()
     {
-        return view('private.languages.index');
+        $title = trans('language.languages');
+        return view('private.languages.index', compact('title'));
     }
 
     /**
@@ -79,12 +80,17 @@ class LanguagesController extends Controller
             $language = Orchestrator::getLanguage($id);
             $title = trans('privateLanguages.show_language').' '.(isset($language->name) ? $language->name: null);
 
-            // $sidebar = 'entity';
+            $entityKey = One::getEntityKey();
+            $sidebar = !empty($entityKey) ? 'entity' : null;
             $active = 'languages';
 
             Session::put('sidebarArguments', ['activeFirstMenu' => 'languages']);
 
-            return view('private.languages.language', compact('title','language', 'sidebar', 'active'));
+            if(!empty($entityKey))
+                return view('private.languages.language', compact('title','language', 'sidebar', 'active','entityKey'));
+
+            else
+                return view('private.languages.language', compact('title','language', 'sidebar', 'active'));
         }
         catch(Exception $e) {
             return redirect()->back()->withErrors(["language.show" => $e->getMessage()]);
@@ -103,13 +109,18 @@ class LanguagesController extends Controller
             $language = Orchestrator::getLanguage($id);
 
             $title = trans('privateLanguages.edit_language').' '.(isset($language->name) ? $language->name: null);
-
-            // $sidebar = 'entity';
+            
+            $entityKey = One::getEntityKey();
+            $sidebar = !empty($entityKey) ? 'entity' : null;
             $active = 'languages';
 
             Session::put('sidebarArguments', ['activeFirstMenu' => 'languages']);
 
-            return view('private.languages.language', compact('title', 'language', 'sidebar', 'active'));
+            if(!empty($entityKey))
+                return view('private.languages.language', compact('title','language', 'sidebar', 'active','entityKey'));
+
+            else
+                return view('private.languages.language', compact('title', 'language', 'sidebar', 'active'));
         }
         catch(Exception $e) {
             return redirect()->back()->withErrors(["language.edit" => $e->getMessage()]);
@@ -171,8 +182,9 @@ class LanguagesController extends Controller
                 return "<a href='".action('LanguagesController@show', $language->id)."'>".$language->name."</a>";
             })
             ->addColumn('action', function ($language) {
-                return ONE::actionButtons($language->id, ['edit' => 'LanguagesController@edit', 'delete' => 'LanguagesController@delete']);
+                return ONE::actionButtons($language->id, ['edit' => 'LanguagesController@edit', 'delete' => 'LanguagesController@delete', 'form' => 'languages']);
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 

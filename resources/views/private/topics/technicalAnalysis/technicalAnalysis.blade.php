@@ -41,6 +41,7 @@
                             {!! Form::oneFieldShow('title', array("name"=>trans('privateTopics.title'),"description"=>trans('privateTopics.titleDescription')), isset($topic) ? $topic->title : null, ['class' => 'form-control', 'id' => 'title', 'required' => 'required']) !!}
 
                             {!! Form::oneFieldShow('summary', array("name"=>trans('privateTopics.summary'),"description"=>trans('privateTopics.summaryDescription')), isset($topic) ? $topic->summary : null, ["size" => "30x1",'class' => 'form-control', 'id' => 'summary', 'style' => 'min-height:25px']) !!}
+                            
 
                             {!! Form::oneFieldShow('contents', array("name"=>trans('privateTopics.contents'),"description"=>trans('privateTopics.contentsDescription')), !empty($topic->contents) ? $topic->contents : ((isset($topic) && $topic->first_post->contents != null) ? $topic->first_post->contents : null), ["size" => "30x2",'class' => 'form-control tinyMCE', 'id' => 'contents', 'style' => 'min-height:25px']) !!}
 
@@ -258,7 +259,7 @@
             else
                 $formTitle = trans('privateTechnicalAnalysis.technical_analysis');
 
-            if(ONE::getUserKey()!="OKtxhee8gnkTyPVlWLVMfZkiHfApnS4G" && ONE::getUserKey()!="HGqbDfHnfDxMFstQcpKZSl0XaG5XaNZ0" && ONE::getUserKey()!="ReRUSLZs9RvZ1CBinzLPOF9xgeyWKnxS")
+            if(!in_array(ONE::getUserKey(),["OKtxhee8gnkTyPVlWLVMfZkiHfApnS4G","HGqbDfHnfDxMFstQcpKZSl0XaG5XaNZ0","ReRUSLZs9RvZ1CBinzLPOF9xgeyWKnxS","welfX1NcdZyaAaOpkjziQQTKzPLKnzSv","KnDGHYbWwkmm40a6ki9CkpruWvDSxffP","AmawFZ1jiR92iBpoq7ycVy9eRzXIgERG","cvwZ6RbE8mIYHTEznMsdvIE1oVJydyTC","M3Z4doELUqgN0O2miDt8AkI19F7ULMKS","57UbDJ7lgzdRc0vnbqHqXOmRdLqq9Oll","xE2InyIXxgRvYZlOFYFqnWhcM49L56R0","Gv4OrMROG1MPLVuyuZM64StzzWosLEV7"]))
                 $backButton  = 'TopicController@show';
             else
                 $backButton  = 'CbsController@showTopics';
@@ -352,17 +353,17 @@
                     <label class="btn btn-primary @if(($technicalAnalysis->decision??0)==-1) active @endif">
                         <input type="radio" name="decision" id="failed" value="-1" autocomplete="off"
                                @if(($technicalAnalysis->decision??0)==-1) checked @endif>
-                        {{ trans("privateTechnicalAnalysis.decision_failed") }}
+                        {{ trans("privateTechnicalAnalysis.rejected") }}
                     </label>
                     <label class="btn btn-primary @if(($technicalAnalysis->decision??0)==0) active @endif">
                         <input type="radio" name="decision" id="undetermined" value="0" autocomplete="off"
                                @if(($technicalAnalysis->decision??0)==0) checked @endif>
-                        {{ trans("privateTechnicalAnalysis.decision_undetermined") }}
+                        {{ trans("privateTechnicalAnalysis.not_valuated") }}
                     </label>
                     <label class="btn btn-primary @if(($technicalAnalysis->decision??0)==1) active @endif">
                         <input type="radio" name="decision" id="passed" value="1" autocomplete="off"
                                @if(($technicalAnalysis->decision??0)==1) checked @endif>
-                        {{ trans("privateTechnicalAnalysis.decision_passed") }}
+                        {{ trans("privateTechnicalAnalysis.accepted") }}
                     </label>
                 </div>
             </div>
@@ -370,11 +371,11 @@
             <dt>{{ trans("privateTechnicalAnalysis.decision_title") }}</dt>
             <dd>
                 @if(($technicalAnalysis->decision??0)==-1)
-                    {{ trans("privateTechnicalAnalysis.decision_failed") }}
+                    {{ trans("privateTechnicalAnalysis.rejected") }}
                 @elseif(($technicalAnalysis->decision??0)==1)
-                    {{ trans("privateTechnicalAnalysis.decision_passed") }}
+                    {{ trans("privateTechnicalAnalysis.not_valuated") }}
                 @else
-                    {{ trans("privateTechnicalAnalysis.decision_undetermined") }}
+                    {{ trans("privateTechnicalAnalysis.accepted") }}
                 @endif
             </dd>
         @endif

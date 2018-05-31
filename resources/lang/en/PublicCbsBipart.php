@@ -1,1 +1,1 @@
-<?php return array (  'change' => 'Change',  'approve' => 'Approve',  'close' => 'Close',);
+<?php return array (  'close' => 'Close',  'change' => 'Change',);

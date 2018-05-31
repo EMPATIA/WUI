@@ -1,6 +1,6 @@
 @extends('private._private.index')
 @section('header_styles')
-    <link href="{{ asset("css/jquery.scrollbar.css") }}" rel='stylesheet' type='text/css'>
+    <link href="{{ asset("css/default/jquery.scrollbar.css") }}" rel='stylesheet' type='text/css'>
 @endsection
 @section('content')
     <div class="box box-primary">
@@ -18,7 +18,7 @@
                 <div class="col-9">
                     <div class="checkbox pull-left margin-top-20">
                         <label>
-                            <input id="send-email" type="checkbox" value="send-email">
+                            <input id="send-email" type="checkbox" value="send-email" checked>
                             {{trans('privateSendMessageToUsers.send_email')}}
                         </label>
                     </div>
@@ -29,7 +29,7 @@
 
             </div>
             <div id="sending-message-div" class="text-center loader" style="display:none;">
-                <img src="{{ asset('images/bluePreLoader.gif') }}" alt="Loading"/><br>
+                <img src="{{ asset('images/default/bluePreLoader.gif') }}" alt="Loading"/><br>
                 {{trans("privateSendMessageToUsers.sending_messages")}}
             </div>
             <div id="sent-message-div"></div>

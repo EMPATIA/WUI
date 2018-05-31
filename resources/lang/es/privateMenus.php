@@ -1,0 +1,1 @@
+<?php return array (  'list_menus' => 'Lista de menús',  'create_menus' => 'Crear menú',  'show_menu' => 'Mostrar menú',  'update_menu' => 'Editar menú',  'delete' => 'Eliminar',  'are_you_sure_you_want_to_delete' => '¿Está seguro de que quiere eliminar?',  'cancel' => 'Cancelar',  'details' => 'Detalles',);

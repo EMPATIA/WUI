@@ -40,7 +40,7 @@
         {!! Form::hidden('end_date', isset($cb) && $cb->end_date!=null ? $cb->end_date  : '') !!}
         {!! Form::hidden('cb_key', isset($cb) ? $cb->cb_key : 0, ['id' => 'cb_key']) !!}
 
-        @if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('cb', 'notifications'))
+        @if(Session::get('user_role') == 'admin')
                 <!-- CB Configurations -->
         <div class="card flat">
             <div class="card-title" style="padding:10px">

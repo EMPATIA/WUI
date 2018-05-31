@@ -24,14 +24,11 @@
                         <a href="{{ action("HomePageTypesController@show", $homePageTypeKey) }}">{{ trans('privateSidebar.details') }}</a>
                     </div>
                 </li>
-
-                @if(ONE::verifyUserPermissionsCrud('cm', 'home_page_types_children'))
-                    <li class="menu-wrapper">
-                        <div class="@if($active=='children') menu-active @endif">
-                            <a href="{{ action("HomePageTypesController@showHomePageTypesChildren", $homePageTypeKey) }}">{{ trans('privateSidebar.content_home_pages_type_children') }}</a>
-                        </div>
-                    </li>
-                @endif
+                <li class="menu-wrapper">
+                    <div class="@if($active=='children') menu-active @endif">
+                        <a href="{{ action("HomePageTypesController@showHomePageTypesChildren", $homePageTypeKey) }}">{{ trans('privateSidebar.content_home_pages_type_children') }}</a>
+                    </div>
+                </li>
             </ul>
         </li>
     </ul>

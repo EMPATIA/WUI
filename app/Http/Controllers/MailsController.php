@@ -166,6 +166,7 @@ class MailsController extends Controller
             ->addColumn('action', function ($mail) {
                 return ONE::actionButtons($mail->mail_key, ['edit' => 'MailsController@edit', 'delete' => 'MailsController@delete']);
             })
+            ->rawColumns(['subject','action'])
             ->make(true);
     }
 }

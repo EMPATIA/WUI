@@ -19,10 +19,6 @@ class SiteAdditionalUrlsController extends Controller
      */
     public function create($siteKey)
     {
-        if(!ONE::verifyUserPermissions('orchestrator', 'entity_site', 'show')){
-            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-        }
-
         try {
             $entityKey = ONE::getEntityKey();
             $languages = Orchestrator::getLanguageList();
@@ -43,9 +39,6 @@ class SiteAdditionalUrlsController extends Controller
      */
     public function store(Request $request)
     {
-        if(!ONE::verifyUserPermissions('orchestrator', 'entity_site', 'create')){
-            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-        }
         try {
             $request['link'] = str_replace("https://", '', $request['link']);
             $request['link'] = str_replace("http://", '', $request['link']);
@@ -65,10 +58,6 @@ class SiteAdditionalUrlsController extends Controller
      */
     public function show($id)
     {
-        if(!ONE::verifyUserPermissions('orchestrator', 'entity_site', 'show')){
-            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-        }
-
         try {
             $entityKey = ONE::getEntityKey();
             $languages = Orchestrator::getLanguageList();
@@ -89,10 +78,6 @@ class SiteAdditionalUrlsController extends Controller
      */
     public function edit($id)
     {
-        if(!ONE::verifyUserPermissions('orchestrator', 'entity_site', 'edit')){
-            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-        }
-
         try {
             $entityKey = ONE::getEntityKey();
             $languages = Orchestrator::getLanguageList();
@@ -114,10 +99,6 @@ class SiteAdditionalUrlsController extends Controller
      */
     public function update(Request $request, $id)
     {
-
-        if(!ONE::verifyUserPermissions('orchestrator', 'entity_site', 'create')){
-            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-        }
         try {
             $request['link'] = str_replace("https://", '', $request['link']);
             $request['link'] = str_replace("http://", '', $request['link']);
@@ -140,10 +121,6 @@ class SiteAdditionalUrlsController extends Controller
      */
     public function destroy($urlId)
     {
-        if(!ONE::verifyUserPermissions('orchestrator', 'entity_site', 'delete')){
-            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-        }
-
         try {
             $additionalUrl = Orchestrator::getSiteAdditionalLinkById($urlId);
             $site = Orchestrator::getSiteById($additionalUrl->site_id);

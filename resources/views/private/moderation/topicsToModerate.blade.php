@@ -7,7 +7,7 @@
     <div class="col-12">
         <div class="box box-info box-side-by-side">
             <div class="box-header">
-                <h3 class="box-title">{{ trans('private.topics_pads_to_moderate') }}</h3>
+                <h3 class="box-title">{{ trans('private.list') }}</h3>
 
                 <div class="box-tools pull-right">
                     <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -201,7 +201,7 @@
         {data: 'cbType', name: 'cbType'},
         {data: 'cbTitle', name: 'cbTitle'},
         {data: 'userName', name: 'userName'},
-        {data: 'created_at', name: 'createdAt'},
+        {data: 'created_at', name: 'created_at'},
         {data: 'action', name: 'action', searchable: false, orderable: false, width: "80px"}
         ],
         order: [['4', 'desc']],

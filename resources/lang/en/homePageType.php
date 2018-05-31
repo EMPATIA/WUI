@@ -1,1 +1,1 @@
-<?php return array (  'title' => 'Home Page Type',  'home_page_type_key' => 'Home Page Type Key',  'name' => 'Name',  'type' => 'Type',  'code' => 'Code',);
+<?php return array (  'type' => 'Type',  'name' => 'Name',  'code' => 'Code',  'title' => 'Home Page Type',  'home_page_type_key' => 'Home Page Type Key',);

@@ -26,7 +26,8 @@ class AuthMethodsController extends Controller
      */
     public function index()
     {
-        return view('private.authMethods.index');
+        $title = trans('privateAuthMethods.auth_methods');
+        return view('private.authMethods.index', compact('title'));
     }
 
     /**
@@ -162,6 +163,7 @@ class AuthMethodsController extends Controller
             ->addColumn('action', function ($authMethod) {
                 return ONE::actionButtons($authMethod->auth_method_key, ['form' => 'authMethods' ,'edit' => 'AuthMethodsController@edit', 'delete' => 'AuthMethodsController@delete']);
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 }

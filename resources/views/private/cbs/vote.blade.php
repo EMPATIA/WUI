@@ -52,6 +52,15 @@
                 @endphp
             @endif
 
+            @if (ONE::actionType("vote")=="show")
+                <div class="">
+                    <a class="btn btn-flat empatia pull-right" href="{{action("CbsVoteController@mapVotesToParameter", ['cbKey'=>$cb->cb_key,'type'=>$type, 'voteKey' => $voteEvent->key ])}}">
+                        <i class="fa fa-files-o"></i>
+                        {{ trans('privateCbs.map_votes_to_parameter') }}
+                    </a>
+                </div>
+            @endif
+
             @if((ONE::actionType('vote') == 'show') || (ONE::actionType('vote') == 'edit'))
                 {!! Form::hidden('cbKey', isset($cbKey) ? $cbKey : 0, ['id' => 'cbKey']) !!}
                 {!! Form::hidden('voteKey', isset($voteEvent) ? $voteEvent->key : 0, ['id' => 'voteKey']) !!}
@@ -73,7 +82,6 @@
                 </div>
 
             @elseif(ONE::actionType('vote') == 'create')
-
                 {!! Form::hidden('cbKey', isset($cbKey) ? $cbKey : 0, ['id' => 'cbKey']) !!}
                 {!! Form::oneText('name', array("name"=>trans('privateCbs.voteName'),"description"=>trans('privateCbs.voteNameDescription')), isset($name) ? $name : null, ['class' => 'form-control', 'id' => 'name', 'required']) !!}
                 {!! Form::oneText('code', array("name"=>trans('privateCbs.code'),"description"=>trans('privateCbs.codeDescription')),$code ?? null, ['class' => 'form-control', 'id' => 'code']) !!}
@@ -102,6 +110,8 @@
                         </div>
                     </div>
                     <div id="configurationsDiv" class="box-body">
+                    </div>
+                    <div id="weightVotesDiv" class="box-body">
                     </div>
                 </div>
 
@@ -205,11 +215,7 @@
 
 @section('scripts')
     <script>
-
-        $(function() {
-            var array = ["{{ $type }}", "{{$cb->cb_key}}"]
-            getSidebar('{{ action("OneController@getSidebar") }}', 'votes', array, 'padsType' )
-        })
+var vezes = 0;
         @if(ONE::actionType('vote') == 'create')
         function showMethods() {
             var idMethodGroup = $('#methodGroupSelect').val();
@@ -319,7 +325,42 @@
             }
         });
 
+        @if(One::isEdit())
+            $("form").on("submit",function() {
+                if ($("#endDate").val() !== "" && ($("#startDate").val() > $("#endDate").val() || ($("#endTime").val() !== "" && $("#startDate").val()==$("#endDate").val() && $("#startTime").val()>=$("#endTime").val()))) {
+                    toastr.error("{{ preg_replace( "/\r|\n/", "", htmlentities(trans("privateCbs.invalid_dates"),ENT_QUOTES)) }} #1!");
+                    return false;
+                }
 
+                return true;
+            });
+        @endif
+
+        function weightVote(){
+
+            if($("#weightTypeVote:checked").length == 1){
+
+                $.ajax({
+                    method: 'get', // Type of response and matches what we said in the route
+                    url: '{{action('CbsVoteController@weightVote',[ 'type' => $type , 'cbKey' => $cbKey ])}}', // This is the url we gave in the route
+                    data: {"_token": "{{ csrf_token() }}", "vezes": vezes++}, // a JSON object to send back
+                    success: function (response) { // What to do if we succeed
+
+                        console.log(response);
+                        $("#weightVotesDiv").append(response);
+                        $('#weightVotesDiv').append('<a class="btn btn-flat btn-warning btn-xs add-small btn-xs" id="button_'+vezes+'" onclick="weightVote()"><i class="fa fa-plus"></i></a>');
+                        var remove = vezes -1;
+                        $("#button_"+remove+"").remove();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) { // What to do if we fail
+                        console.log("AJAX error: " + textStatus + ' : ' + errorThrown);
+                    }
+                });
+            }
+            else{
+                $("#weightVotesDiv").empty();
+            }
+        }
 
     </script>
 @endsection

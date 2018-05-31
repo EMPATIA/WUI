@@ -21,7 +21,7 @@
                 @foreach($topicParameters->total->all_votes as $date => $voteValue)
                 {   '{!! trans('privateCbsVoteAnalysis.date') !!}': "{{ $date }}",
                     "name": '{!! trans('privateCbsVoteAnalysis.votes') !!}',
-                    '{!! trans('privateCbsVoteAnalysis.votes') !!}': {{ number_format($voteValue, 3, '.', ',') }} },
+                    '{!! trans('privateCbsVoteAnalysis.votes') !!}': {{ $voteValue }} },
                 @endforeach
             ];
 
@@ -63,7 +63,11 @@
                 });
             }
 
+
+
         });
     </script>
 
 @endif
+
+@include('private.cbs.cbVoteAnalysis.cbDetailsScript')

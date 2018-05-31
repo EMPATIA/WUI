@@ -115,7 +115,7 @@
     <script>
         $( document ).ready(function() {
             //setTimeout(function(){
-            {!! ONE::addTinyMCE(".content_page", ['action' => action('ContentsController@getTinyMCE')]) !!}
+            {!! ONE::addTinyMCE(".content_page", ['action' => action('ContentManagerController@getTinyMCE')]) !!}
             // }, 500);
         });
     </script>

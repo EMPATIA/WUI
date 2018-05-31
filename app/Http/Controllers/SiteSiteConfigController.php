@@ -218,6 +218,7 @@ class SiteSiteConfigController extends Controller
             ->addColumn('action', function ($collection) {
                 return ONE::actionButtons($collection["code"], ['edit' => 'SiteSiteConfigController@edit', 'delete' => 'SiteSiteConfigController@delete']);
             })
+            ->rawColumns(['value','name','action'])
             ->make(true);
     }
 

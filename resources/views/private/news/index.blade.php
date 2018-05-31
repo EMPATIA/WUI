@@ -14,7 +14,7 @@
                     <th>{{ trans('privateNews.title') }}</th>
                     <th>{{ trans('form.start_date') }}</th>
                     <th>{{ trans('form.publish_date') }}</th>
-                    <th>@if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('cm', $type)){!! ONE::actionButtons($type, ['create' => 'ContentsController@create']) !!}@endif</th>
+                    <th>@if(Session::get('user_role') == 'admin'){!! ONE::actionButtons($type, ['create' => 'ContentsController@create']) !!}@endif</th>
                 </tr>
                 </thead>
             </table>

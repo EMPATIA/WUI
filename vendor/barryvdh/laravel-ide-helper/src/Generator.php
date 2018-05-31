@@ -12,7 +12,7 @@ namespace Barryvdh\LaravelIdeHelper;
 
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\AliasLoader;
-use Illuminate\Config\Repository as ConfigRepository;
+use Illuminate\Support\Collection;
 use ReflectionClass;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -80,17 +80,19 @@ class Generator
     public function generatePhpHelper()
     {
         $app = app();
-        return $this->view->make('ide-helper::helper')
-            ->with('namespaces', $this->getNamespaces())
+        return $this->view->make('helper')
+            ->with('namespaces_by_extends_ns', $this->getAliasesByExtendsNamespace())
+            ->with('namespaces_by_alias_ns', $this->getAliasesByAliasNamespace())
             ->with('helpers', $this->helpers)
             ->with('version', $app->version())
+            ->with('include_fluent', $this->config->get('ide-helper.include_fluent', true))
             ->render();
     }
 
     public function generateJsonHelper()
     {
         $classes = array();
-        foreach ($this->getNamespaces() as $aliases) {
+        foreach ($this->getValidAliases() as $aliases) {
             foreach ($aliases as $alias) {
                 $functions = array();
                 foreach ($alias->getMethods() as $method) {
@@ -118,7 +120,7 @@ class Generator
     {
         $defaultUserModel = config('auth.providers.users.model', config('auth.model', 'App\User'));
         $this->interfaces['\Illuminate\Contracts\Auth\Authenticatable'] = $defaultUserModel;
-        
+
         try {
             if (class_exists('Auth') && is_a('Auth', '\Illuminate\Support\Facades\Auth', true)) {
                 if (class_exists('\Illuminate\Foundation\Application')) {
@@ -182,17 +184,16 @@ class Generator
             }
         } catch (\Exception $e) {
         }
-
     }
 
     /**
-     * Find all namespaces/aliases that are valid for us to render
+     * Find all aliases that are valid for us to render
      *
-     * @return array
+     * @return Collection
      */
-    protected function getNamespaces()
+    protected function getValidAliases()
     {
-        $namespaces = array();
+        $aliases = new Collection();
 
         // Get all aliases
         foreach ($this->getAliases() as $name => $facade) {
@@ -200,7 +201,7 @@ class Generator
             if ($facade == 'Illuminate\Support\Facades\Redis' && !class_exists('Predis\Client')) {
                 continue;
             }
-            
+
             $magicMethods = array_key_exists($name, $this->magic) ? $this->magic[$name] : array();
             $alias = new Alias($name, $facade, $magicMethods, $this->interfaces);
             if ($alias->isValid()) {
@@ -208,16 +209,36 @@ class Generator
                 if (array_key_exists($name, $this->extra)) {
                     $alias->addClass($this->extra[$name]);
                 }
-
-                $namespace = $alias->getNamespace();
-                if (!isset($namespaces[$namespace])) {
-                    $namespaces[$namespace] = array();
-                }
-                $namespaces[$namespace][] = $alias;
+                
+                $aliases[] = $alias;
             }
         }
 
-        return $namespaces;
+        return $aliases;
+    }
+    
+    /**
+     * Regroup aliases by namespace of extended classes
+     *
+     * @return Collection
+     */
+    protected function getAliasesByExtendsNamespace()
+    {
+        return $this->getValidAliases()->groupBy(function (Alias $alias) {
+            return $alias->getExtendsNamespace();
+        });
+    }
+    
+    /**
+     * Regroup aliases by namespace of alias
+     *
+     * @return Collection
+     */
+    protected function getAliasesByAliasNamespace()
+    {
+        return $this->getValidAliases()->groupBy(function (Alias $alias) {
+            return $alias->getNamespace();
+        });
     }
 
     protected function getAliases()
@@ -246,7 +267,7 @@ class Generator
           'Storage' => 'Illuminate\Support\Facades\Storage',
           //'Validator' => 'Illuminate\Support\Facades\Validator',
         ];
-        
+
         $facades = array_merge($facades, $this->config->get('app.aliases', []));
 
         // Only return the ones that actually exist

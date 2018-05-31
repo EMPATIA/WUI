@@ -3,14 +3,14 @@
 @section('content')
     <div class="box box-primary">
         <div class="box-header">
-            <h3 class="box-title"><i class="fa"></i> {{ trans('privateEntityLoginLevels.login_levels') }}</h3>
+            <h3 class="box-title"><i class="fa"></i> {{ trans('privateEntityLoginLevels.list') }}</h3>
         </div>
 
         <div class="box-body">
             @if(Session::has('user_role') == 'admin')
-            <div class="box-footer clearfix">
-                <a type="button" class="btn btn-flat btn-success pull-right" href="{{action('EntityLoginLevelsController@updateAllUserLevels')}}">{!! trans("privateEntityLoginLevels.update_all_user_levels") !!}</a>
-            </div>
+                <div class="box-footer clearfix">
+                    <a type="button" class="btn btn-flat btn-success pull-right" href="{{action('EntityLoginLevelsController@updateAllUserLevels')}}">{!! trans("privateEntityLoginLevels.update_all_user_levels") !!}</a>
+                </div>
             @endif
             <table id="login_levels_list" class="table table-striped dataTable no-footer table-responsive">
                 <thead>
@@ -40,7 +40,7 @@
                 ajax: '{!! action('EntityLoginLevelsController@getIndexTable', ['entityKey' => $entityKey ?? null]) !!}',
                 columns: [
                     { data: 'name', name: 'name' },
-                    { data: 'action', name: 'action', searchable: false, orderable: false, width: "30px" },
+                    { data: 'action', name: 'action', searchable: false, orderable: false, width: "7%" },
                 ],
                 order: [[ 0, 'asc' ]]
             });

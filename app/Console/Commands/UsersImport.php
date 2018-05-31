@@ -55,7 +55,7 @@ class UsersImport extends Command
             if ($entityKey!=null) {
                 // The given entity key is not null (but I don't know if it's valid.)
 
-                Session::set('X-ENTITY-KEY', $entityKey);
+                Session::put('X-ENTITY-KEY', $entityKey);
                 if (is_null($this->option("auth")) && $this->confirm("You don't want to use a custom Auth URL?"))
                     $this->auth = $this->ask("Auth URL (including port):");
                 else

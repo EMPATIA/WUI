@@ -63,7 +63,7 @@
     <script>
         $(document).ready(function(){
 
-            {!! ONE::addTinyMCE(".use_term", ['action' => action('ContentsController@getTinyMCE')]) !!}
+            {!! ONE::addTinyMCE(".use_term", ['action' => action('ContentManagerController@getTinyMCE')]) !!}
 
         });
 

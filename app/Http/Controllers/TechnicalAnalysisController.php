@@ -27,10 +27,10 @@ class TechnicalAnalysisController extends Controller
     public function verifyIfExistsTechnicalAnalysis($type, $cbKey, $topicKey)
     {
         try {
-            $topic = CB::getVerificationIfTechnicalAnalysisExist($topicKey);
+            $topic = CB::getVerificationIfTechnicalAnalysisExist($topicKey, true);
             $technicalAnalysis = empty($topic->technical_analysis) ? null : $topic->technical_analysis;
 
-            if(!is_null($technicalAnalysis)){
+            if(!empty($technicalAnalysis)){
                 return redirect()->action('TechnicalAnalysisController@show', ["type"=>$type,"cbKey"=>$cbKey,"topicKey"=>$topicKey]);
             } else {
                 return redirect()->action('TechnicalAnalysisController@create', ["type"=>$type,"cbKey"=>$cbKey,"topicKey"=>$topicKey]);
@@ -54,7 +54,7 @@ class TechnicalAnalysisController extends Controller
 
         try {
             /* Response is false if there was created a Tech Analysis between stages and come with the questions */
-            $technicalAnalysisQuestions = CB::getQuestionsAndExistenceOfTechnicalAnalysis($cbKey,$topicKey);
+            $technicalAnalysisQuestions = CB::getQuestionsAndExistenceOfTechnicalAnalysis($cbKey,$topicKey, true);
 
             //            TOPIC RELATED DATA - BEGIN
             $data['topic'] = CB::getTopicParameters($topicKey);
@@ -253,7 +253,7 @@ class TechnicalAnalysisController extends Controller
             }
 
 //            TOPIC RELATED DATA - BEGIN
-            $data['topic'] = CB::getTopicParameters($topicKey, $version);
+            $data['topic'] = CB::getTopicParameters($topicKey);
 
             $data['topic_author'] = (Auth::getUser($data['topic']->created_by))->name;
             $data['topicParameters'] = [];
@@ -404,7 +404,7 @@ class TechnicalAnalysisController extends Controller
             $technicalAnalysisActive = $technicalAnalysis->technicalAnalysisActive;
 
             //            TOPIC RELATED DATA - BEGIN
-            $data['topic'] = CB::getTopicParameters($topicKey, $version);
+            $data['topic'] = CB::getTopicParameters($topicKey);
 
             $data['topic_author'] = (Auth::getUser($data['topic']->created_by))->name;
             $data['topicParameters'] = [];
@@ -651,6 +651,7 @@ class TechnicalAnalysisController extends Controller
             ->addColumn('name', function ($collection) {
                 return $collection->name;
             })
+            ->rawColumns(['select_groups'])
             ->make(true);
     }
 
@@ -664,6 +665,7 @@ class TechnicalAnalysisController extends Controller
             ->addColumn('name', function ($collection) {
                 return $collection->name;
             })
+            ->rawColumns(['select_managers'])
             ->make(true);
 
     }

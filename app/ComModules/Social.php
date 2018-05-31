@@ -50,7 +50,7 @@ class Social {
                 'app_id' => $facebook_id
             ]
         ]);
-
+        
         if($response->statusCode() != 201){
             throw new Exception(trans("comModulesSocial.error_storing_facebook_account"));
         }

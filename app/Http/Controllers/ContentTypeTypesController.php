@@ -39,27 +39,28 @@ class ContentTypeTypesController extends Controller
     {
         try {
 
-            if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('cm', 'content_subtypes')){
+            if(Session::get('user_role') == 'admin'){
                 //Get all Content Type types
                 $contentTypeTypes = CM::listByEntityContentTypeTypes();
 
                 // in case of json
                 $contentTypeTypes = Collection::make($contentTypeTypes);
+
+                foreach ($contentTypeTypes as $contentTypeType) {
+                    $contentTypeType->type = $contentTypeType->content_type->code ?? "";
+                }
             }else {
                 $contentTypeTypes = Collection::make([]);
             }
 
-            $edit = Session::get('user_permissions') == 'admin' || ONE::verifyUserPermissionsUpdate('cm', 'content_subtypes');
-            $delete = Session::get('user_permissions') == 'admin' || ONE::verifyUserPermissionsDelete('cm', 'content_subtypes');
+            $edit = Session::get('user_role') == 'admin';
+            $delete = Session::get('user_role') == 'admin';
 
             //  Datatable with Content Type Types list
             return Datatables::of($contentTypeTypes)
                 ->editColumn('name', function ($contentTypeType) {
                     $contentTypeType->name =  ($contentTypeType->name == "")? trans("privateContentTypeTypes.no_translations") : $contentTypeType->name;
                     return "<a href='" . action('ContentTypeTypesController@show', $contentTypeType->content_type_type_key) . "'>" . $contentTypeType->name  . "</a>";
-                })
-                ->editColumn('type', function ($contentTypeType) {
-                    return $contentTypeType->content_type->code;
                 })
                 ->editColumn('color', function ($contentTypeType) {
                     return "<span class=\"badge\" style=\"background-color:".$contentTypeType->color ."\">&nbsp;&nbsp;&nbsp;</span>";
@@ -77,6 +78,7 @@ class ContentTypeTypesController extends Controller
                     else
                         return null;
                 })
+                ->rawColumns(['name','color','text_color','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["contentTypeTypes.tableContentTypeTypes" => $e->getMessage()]);

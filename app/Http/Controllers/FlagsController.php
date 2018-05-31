@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use One;
 use Session;
 use Datatables;
+use App\ComModules\Auth;
 
 class FlagsController extends Controller
 {
@@ -22,7 +23,7 @@ class FlagsController extends Controller
     public function index($type,$cbKey)
     {
         //Page title
-        $title = trans('privateFlags.list_flags');
+        $title = trans('privateFlags.flags');
         Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'flags']);
         Session::put('sidebars', [0 => 'private', 1=> 'padsType']);
 
@@ -60,6 +61,7 @@ class FlagsController extends Controller
                 ->addColumn('action', function ($flags) use($type,$cbKey){
                     return ONE::actionButtons(['id' => isset($flags->id) ? $flags->id : null,'type' => $type, 'cbKey' => $cbKey,'f' => 'flags' ], ['edit' => 'FlagsController@edit','delete' =>'FlagsController@delete']);
                 })
+                ->rawColumns(['title','private_flag','flag_visible','public_visible','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["flags.getIndexTable" => $e->getMessage()]);
@@ -162,7 +164,6 @@ class FlagsController extends Controller
             $flag = CB::getFlag($id);
 
             // Message to show + redirect To
-            /*dd($flag);*/
             $data = [];
             $data['type'] = $type;
             $data['cbKey'] = $cbKey;
@@ -300,33 +301,12 @@ class FlagsController extends Controller
     }
 
 
-
-    public function prepareAttachmentTranslationsToSend($request,$languages)
-    {
-        $translations = [];
-        foreach($languages as $language){
-            if(!empty($request->input("flagAttachmentDescription_".$language->code))){
-                $translations[] = [
-                    'language_code' => $language->code,
-                    'description'   => $request->input("flagAttachmentDescription_" . $language->code) ?? null
-                ];
-            }
-        }
-        return $translations;
-    }
-
     public function attachFlag(Request $request)
     {
         try {
-            $languages = Orchestrator::getLanguageList();
-
-            $translations = $this->prepareAttachmentTranslationsToSend($request,$languages);
-
-            //Call to Com Module set method
-            CB::attachFlag($request, $translations,$request->input("attachmentCode"));
+            CB::attachFlag($request);
 
             return response()->json(["success" => trans('privateCbs.flagAttachmentSuccess')]);
-
         }
         catch(Exception $e) {
             return response()->json(["error" => trans('privateCbs.flagAttachmentError')]);
@@ -336,14 +316,34 @@ class FlagsController extends Controller
     public function getElementFlagHistory(Request $request)
     {
         try {
-
+            $elementKey = $request->input("elementKey");
+            $attachmentCode = $request->input("attachmentCode");
             //Call to Com Module set method
-            $flagHistory = CB::getElementFlagHistory($request->input("elementKey"),$request->input("attachmentCode"));
+            $flagHistory = CB::getElementFlagHistory($elementKey,$attachmentCode);
 
-            return view('private.cbs.flagHistory', compact('flagHistory'));
+            $usersKeys = [];
+            foreach ($flagHistory as $flag) {
+                $usersKeys[$flag->pivot->created_by] = $flag->pivot->created_by;
+            }
+            $usersNames = Auth::getUserNames($usersKeys);
+            foreach ($flagHistory as $flag) {
+                if(!empty($usersNames->{ $flag->pivot->created_by }))
+                    $flag->pivot->created_by = $usersNames->{ $flag->pivot->created_by }->name;
+            }
+            
+            return view('private.cbs.flagHistory', compact('flagHistory','elementKey','attachmentCode'));
         }
         catch(Exception $e) {
             return response()->json(["error" => trans('privateCbs.cantFetchFlagHistory')]);
+        }
+    }
+
+    public function toggleActiveStatus(Request $request) {
+        try{
+            CB::toggleFlagActiveStatus($request->input("status"),$request->input("elementKey"),$request->input("relationId"),$request->input("attachmentCode"));
+            return response()->json(["success" => true]);
+        } catch (Exception $e) {
+            return response()->json(["error" => trans('privateCbs.failed_to_toggle_active_status')]);
         }
     }
 }

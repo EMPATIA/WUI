@@ -3,7 +3,7 @@
 @section('content')
     <div class="box box-primary">
         <div class="box-header">
-            <h3 class="box-title"><i class="fa"></i> {{ trans('privateParameterUserTypes.ParameterUserTypes') }}</h3>
+            <h3 class="box-title"><i class="fa"></i> {{ trans('privateParameterUserTypes.list') }}</h3>
         </div>
 
         <div class="box-body">
@@ -13,7 +13,11 @@
                     <th>{{ trans('privateParameterUserTypes.id') }}</th>
                     <th>{{ trans('privateParameterUserTypes.code') }}</th>
                     <th>{{ trans('privateParameterUserTypes.name') }}</th>
-                    <th>@if(ONE::verifyUserPermissions('auth', 'user_parameters', 'create')){!! ONE::actionButtons(null, ['create' => 'ParameterUserTypesController@create']) !!}@endif</th>
+                    @if(!empty($entityKey))
+                        <th>
+                            {!! ONE::actionButtons(null, ['create' => 'ParameterUserTypesController@create']) !!}
+                        </th>
+                    @endif
                 </tr>
                 </thead>
             </table>
@@ -36,7 +40,9 @@
                     { data: 'id', name: 'id', width: "20px" },
                     { data: 'code', name: 'code', width: "50px" },
                     { data: 'name', name: 'name'},
+                        @if(!empty($entityKey))
                     { data: 'action', name: 'action', searchable: false, orderable: false, width: "50px" },
+                    @endif
                 ],
                 order: [['0', 'desc']]
             });

@@ -13,6 +13,7 @@ use App\Http\Requests\ContentRequest;
 use App\ComModules\Orchestrator;
 use One;
 use Session;
+use Carbon\Carbon;
 
 class emailsController extends Controller
 {
@@ -35,8 +36,12 @@ class emailsController extends Controller
     {
         //Page title
         $title = trans('privateEmails.list_emails');
+        $sidebar = 'email';
+        $active = 'sent';
 
-        return view('private.emails.index', compact('title'));
+        Session::put('sidebarArguments', ['activeFirstMenu' => 'sent']);
+
+        return view('private.emails.index', compact('title', 'sidebar', 'active'));
     }
 
 
@@ -51,14 +56,13 @@ class emailsController extends Controller
     {
         try {
             //Get all sent emails
-            if (Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('wui', 'email')){
+            if (Session::get('user_role') == 'admin'){
                 $response = Notify::getEmails($request);
 
                 $sentEmails = collect($response->emails);
                 $recordsTotal = $response->recordsTotal;
                 $recordsFiltered = $response->recordsFiltered;
             } else
-
                 $sentEmails = Collection::make([]);
 
             return Datatables::of($sentEmails)
@@ -80,6 +84,7 @@ class emailsController extends Controller
                 ->with('filtered', $recordsFiltered ?? 0)
                 ->skipPaging()
                 ->setTotalRecords($recordsTotal ?? 0)
+                ->rawColumns(['recipient','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["groupTypes.tableGroupTypes" => $e->getMessage()]);
@@ -122,6 +127,118 @@ class emailsController extends Controller
     }
 
     /**
+     * Shows Email details from a given email Key
+     *
+     * @param Request $request
+     * @param $emailKey
+     * @return $this
+     */
+    public function showSummary(Request $request)
+    {
+        try {
+
+//            HEADER-------------------------------------------------------------------------------------
+            $totalSentEmails = Notify::countTotalSentEmails();
+            $totalNotSentEmails = Notify::countTotalNotSentEmails();
+            $totalEmailsErrors = Notify::countTotalMailsErrors();
+
+            $data["totalSentEmails"] = $totalSentEmails;
+            $data["totalNotSentEmails"] = $totalNotSentEmails;
+            $data["totalEmailsErrors"] = $totalEmailsErrors;
+
+            $sidebar = 'email';
+            $active = 'summary';
+            $view = 'private.emails.summary';
+
+            Session::put('sidebarArguments', [ 'activeFirstMenu' => 'summary']);
+
+            return view($view, $data, compact('sidebar','active'));
+
+        }catch(Exception $e){
+            return redirect()->back()->withErrors(["sms.show" => $e->getMessage()]);
+        }
+    }
+
+    public function showStats(Request $request)
+    {
+
+        if ($request->start_date!=null){
+            $dates=explode("?end_date=",$request->start_date);
+            $start_date=$dates[0];
+            $end_date=$dates[1];
+        }else{
+            $start_date=null;
+            $end_date=null;
+        }
+
+        if ($start_date !== null && $end_date !== null){
+            $totalSentEmails30D = Notify::countTotalSentEmails30DPersonalized($start_date, $end_date);
+            $totalNotSentEmails30D = Notify::countTotalNotSentEmails30DPersonalized($start_date, $end_date);
+            $totalEmailsErrors30D = Notify::countTotalEmailsErrors30DPersonalized($start_date, $end_date);
+        }else{
+            $totalSentEmails30D = null;
+            $totalNotSentEmails30D = null;
+            $totalEmailsErrors30D = null;
+        }
+
+        $dataTotalSentEmails30D = [];
+        $dataTotalNotSentEmails30D = [];
+        $dataTotalEmailsErrors30D = [];
+
+        $sd = Carbon::parse($start_date);
+        $ed = Carbon::parse($end_date);
+
+        $days = $sd->diff($ed)->days;
+        $sd->subDay(1);
+
+        for($i = 0; $i <= $days; $i++)
+        {
+            $date = '';
+
+            $date = $sd->addDays(1);
+
+            $dataTotalSentEmails30D[$date->format('Y-m-d')] = 0;
+            $dataTotalNotSentEmails30D[$date->format('Y-m-d')] = 0;
+            $dataTotalEmailsErrors30D[$date->format('Y-m-d')] = 0;
+        }
+
+        foreach(!empty($totalSentEmails30D) ? $totalSentEmails30D : []  as $key => $item){
+            $dataTotalSentEmails30D[$item-> year."-".(($item->month<10) ? "0".$item->month : $item->month)."-". (($item->day<10)? "0".$item->day : $item->day)] = !empty($item->total_sent_emails) ? $item->total_sent_emails : 0 ;
+        }
+
+        foreach(!empty($totalNotSentEmails30D) ? $totalNotSentEmails30D : []  as $key => $item){
+            $dataTotalNotSentEmails30D[$item-> year."-".(($item->month<10) ? "0".$item->month : $item->month)."-". (($item->day<10)? "0".$item->day : $item->day)] = !empty($item->total_not_sent_emails) ? $item->total_not_sent_emails : 0 ;
+        }
+
+        foreach(!empty($totalEmailsErrors30D) ? $totalEmailsErrors30D : []  as $key => $item){
+            $dataTotalEmailsErrors30D[$item-> year."-".(($item->month<10) ? "0".$item->month : $item->month)."-". (($item->day<10)? "0".$item->day : $item->day)] = !empty($item->total_emails_errors) ? $item->total_emails_errors : 0 ;
+        }
+
+        $dataForTotalSentEmails30D = [];
+        $dataForTotalNotSentEmails30D = [];
+        $dataForTotalEmailsErrors30D = [];
+
+        foreach(!empty($dataTotalSentEmails30D) ? $dataTotalSentEmails30D : []  as $key => $item){
+            $dataForTotalSentEmails30D[] = collect(["Data" => $key, 'name' => 'SentEmails', 'Emails' => $item])->toJson();
+        }
+
+        foreach(!empty($dataTotalNotSentEmails30D) ? $dataTotalNotSentEmails30D : []  as $key => $item){
+            $dataForTotalNotSentEmails30D[] = collect(["Data" => $key, 'name' => 'NotSentEmails', 'Emails' => $item])->toJson();
+        }
+
+        foreach(!empty($dataTotalEmailsErrors30D) ? $dataTotalEmailsErrors30D : []  as $key => $item){
+            $dataForTotalEmailsErrors30D[] = collect(["Data" => $key, 'name' => 'ErrorEmails', 'Emails' => $item])->toJson();
+        }
+
+        // Return data to show in chart
+        return ["TotalSentEmails30D" => $dataForTotalSentEmails30D,
+            "TotalNotSentEmails30D" => $dataForTotalNotSentEmails30D,
+            "TotalEmailsErrors30D" => $dataForTotalEmailsErrors30D,
+        ];
+
+    }
+
+    /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function create()
@@ -129,8 +246,12 @@ class emailsController extends Controller
         $languages = Orchestrator::getLanguageList();
         $users = Orchestrator::getListOfAvailableUsersToSendEmails();
         $title = trans('privateEmail.create_email');
+        $sidebar = 'email';
+        $active = 'send';
 
-        return view('private.emails.email', compact('title', 'languages','users'));
+        Session::put('sidebarArguments', ['activeFirstMenu' => 'send']);
+
+        return view('private.emails.email', compact('title', 'languages','users', 'sidebar', 'active'));
     }
 
     /**

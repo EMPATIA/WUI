@@ -183,6 +183,7 @@ class CategoriesController extends Controller
             ->addColumn('action', function ($category) {
                 return ONE::actionButtons($category->category_key, ['edit' => 'CategoriesController@edit', 'delete' => 'CategoriesController@delete']);
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 }

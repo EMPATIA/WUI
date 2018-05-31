@@ -48,6 +48,8 @@
                         @include("private.contentManager.sections.contentsList",["parameters" => $sectionType->section_type_parameters])
                     @elseif($sectionType->code == 'linkedBanner')
                         @include("private.contentManager.sections.linkedBanner",["parameters" => $sectionType->section_type_parameters])
+                    @elseif($sectionType->code == 'homepageItemSection')
+                        @include("private.contentManager.sections.homepageItemSection",["parameters" => $sectionType->section_type_parameters])
                     @else
                         @include("private.contentManager.sectionTemplateParameter",["parameters" => $sectionType->section_type_parameters])
                     @endif
@@ -69,7 +71,18 @@
                         <div class="tab-content">
                             @foreach($languages as $language)
                                 <div role="tabpanel" class="tab-pane @if ($loop->first) active @else fade @endif" id="{{ $sectionType->section_type_key . "_" . $language->code . "_" . $sectionNumber }}" @if (One::isEdit()) data-parameter="{{ $language->code }}" @endif>
-                                    @include("private.contentManager.sectionTemplateParameter",["parameters" => $sectionType->section_type_parameters,"sectionNumber" => $sectionNumber,"language"  => $language->code])
+                                    @if($sectionType->code == 'padsList')
+                                        @include("private.contentManager.sections.padsList",["parameters" => $sectionType->section_type_parameters,"sectionNumber" => $sectionNumber,"language"  => $language->code])
+                                    @elseif($sectionType->code == 'contentsList')
+                                        @include("private.contentManager.sections.contentsList",["parameters" => $sectionType->section_type_parameters,"sectionNumber" => $sectionNumber,"language"  => $language->code])
+                                    @elseif($sectionType->code == 'linkedBanner')
+                                        @include("private.contentManager.sections.linkedBanner",["parameters" => $sectionType->section_type_parameters,"sectionNumber" => $sectionNumber,"language"  => $language->code])
+                                    @elseif($sectionType->code == 'homepageItemSection')
+                                        @include("private.contentManager.sections.homepageItemSection",["parameters" => $sectionType->section_type_parameters,"sectionNumber" => $sectionNumber,"language"  => $language->code])
+                                    @else
+                                        @include("private.contentManager.sectionTemplateParameter",["parameters" => $sectionType->section_type_parameters,"sectionNumber" => $sectionNumber,"language"  => $language->code])
+
+                                    @endif
                                 </div>
                             @endforeach
                         </div>

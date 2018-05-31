@@ -37,6 +37,7 @@ class CookieConsentServiceProvider extends ServiceProvider
         });
 
         $this->app['view']->composer('cookieConsent::index', function (View $view) {
+
             $cookieConsentConfig = config('laravel-cookie-consent');
 
             $alreadyConsentedWithCookies = Cookie::has($cookieConsentConfig['cookie_name']);

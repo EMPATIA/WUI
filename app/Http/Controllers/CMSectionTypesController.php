@@ -23,7 +23,7 @@ class CMSectionTypesController extends Controller
      */
     public function index()
     {
-        $title = trans('privateCMSectionTypes.list_title');
+        $title = trans('privateCMSectionTypes.sectionTypes');
         return view('private.CMSectionTypes.index', compact('title'));
     }
 
@@ -183,21 +183,25 @@ class CMSectionTypesController extends Controller
      *
      * @return mixed
      */
-    public function getIndexTable(){
+    public function getIndexTable(Request $request){
         // Request for Data List
-        $sectionTypesList = CM::getSectionTypes();
-
+        $sectionTypesList = CM::getSectionTypes($request);
         // JSON data collection
-        $collection = Collection::make($sectionTypesList);
-
+        $collection = collect($sectionTypesList->sectionTypes);
+        $recordsTotal = $sectionTypesList->recordsTotal;
+        $recordsFiltered = $sectionTypesList->recordsFiltered;
         // Render Datatable
         return Datatables::of($collection)
-            ->addColumn('key', function ($sectionType) {
-                return "<a href='".action('CMSectionTypesController@show', $sectionType->section_type_key)."'>".$sectionType->section_type_key."</a>";
+            ->addColumn('key', function ($collection) {
+                return "<a href='".action('CMSectionTypesController@show', $collection->section_type_key)."'>".$collection->section_type_key."</a>";
             })
-            ->addColumn('action', function ($sectionType) {
-                return ONE::actionButtons($sectionType->section_type_key, ['form' => 'CMSectionTypes','edit' => 'CMSectionTypesController@edit', 'delete' => 'CMSectionTypesController@delete'] );
+            ->addColumn('action', function ($collection) {
+                return ONE::actionButtons($collection->section_type_key, ['form' => 'CMSectionTypes','edit' => 'CMSectionTypesController@edit', 'delete' => 'CMSectionTypesController@delete'] );
             })
+            ->rawColumns(['key','action'])
+            ->with('filtered', $recordsFiltered ?? 0)
+            ->skipPaging()
+            ->setTotalRecords($recordsTotal ?? 0)
             ->make(true);
     }
 }

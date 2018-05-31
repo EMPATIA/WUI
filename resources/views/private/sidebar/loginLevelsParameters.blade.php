@@ -10,7 +10,7 @@
             <ul class="sub-menu-wrapper">
                 <li class="menu-wrapper">
                     <div class="@if($active=='details') menu-active @endif">
-                        <a href="{{ action('EntitiesSitesController@showSiteLevels', ['siteKey' => $siteKey ?? null, 'levelParameterKey' => $levelParameterKey ?? null]) }}">
+                        <a href="{{ action('LoginLevelsController@show', ['levelParameterKey' => $levelParameterKey ?? null]) }}">
                             {{ trans('privateSidebar.details') }}
                         </a>
                     </div>

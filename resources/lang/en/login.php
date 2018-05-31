@@ -1,1 +1,1 @@
-<?php return array (  'link' =>   array (    'private' => 'Link private',  ),  'or' => 'Or',  'yourCode' => 'Your Code',);
+<?php return array (  'yourCode' => 'Your Code',  'or' => 'Or',);

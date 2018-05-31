@@ -21,6 +21,9 @@ use Symfony\Component\Routing\Loader\ObjectRouteLoader;
 use View;
 use URL;
 use PDF;
+use App\ComModules\EMPATIA;
+use Carbon\Carbon;
+use Chumper\Zipper\Zipper;
 
 
 class UsersController extends Controller
@@ -75,7 +78,7 @@ class UsersController extends Controller
             }
         }
 
-        $title = trans('privateUsers.list_user');
+        $title = trans('privateUsers.users');
         return view("private.user.index", compact('title','role', 'roles'));
     }
 
@@ -95,10 +98,10 @@ class UsersController extends Controller
         $sites = Orchestrator::getSiteList();
 
         $title = trans('privateUsers.list_user_completed');
-        $sidebar = 'registration';
+        //$sidebar = 'registration';
         $active = 'confirm';
 
-        Session::put('sidebarArguments', ['activeFirstMenu' => 'personRegistration']);
+        Session::put('sidebarArguments', ['activeFirstMenu' => 'confirm']);
         return view("private.user.indexCompleted", compact('title', 'sites', 'sidebar', 'active'));
     }
 
@@ -149,7 +152,7 @@ class UsersController extends Controller
 
 
     /**
-     * Create a new resource.
+     *  a new resource.
      *
      * @param Request $request
      * @return View
@@ -157,9 +160,7 @@ class UsersController extends Controller
     public function create(Request $request)
     {
         if(Session::get('user_role') != 'admin' ) {
-            if (!ONE::verifyUserPermissionsCreate('auth', $request->role)) {
-                return redirect()->back()->withErrors(["user.create" => trans('user.invalidPermission')]);
-            }
+            return redirect()->back()->withErrors(["user.create" => trans('user.invalidPermission')]);
         }
 
         try{
@@ -168,7 +169,8 @@ class UsersController extends Controller
                 $role = $request->role;
             }
             if($role == 'manager' || $role == 'admin'){
-                return view('private.user.manager', compact('role'));
+                $inputRole = 'manager';
+                return view('private.user.manager', compact('role', 'inputRole'));
             }
             $roles = $this->rolesType;
             //* Get list of entities */
@@ -226,7 +228,6 @@ class UsersController extends Controller
         try {
             //role
             $inputRole = $request->role;
-
             $roles = $this->rolesType;
             if (isset($roles['admin'])) {
                 unset($roles['admin']);
@@ -259,13 +260,12 @@ class UsersController extends Controller
 
             if ($userOrchestrator->admin == 1) {
                 $role = 'admin';
-            } else {
-                $role = $userOrchestrator->role;
+            } else    {
+                $role = $userOrchestrator->role ?? "";
             }
 
             if (Session::get('user_role') != 'admin'){
-                if(!ONE::verifyUserPermissionsUpdate('auth', $role))
-                    return redirect()->back()->withErrors(["user.edit" => trans('user.invalidPermission')]);
+                return redirect()->back()->withErrors(["user.edit" => trans('user.invalidPermission')]);
             }
 
             if (ONE::isEntity()) {
@@ -282,60 +282,58 @@ class UsersController extends Controller
                 $entities[$obj->entity_key] = $obj->name;
             }
 
-            //TODO:change method when new version level is finished, maybe when get user return if he need to be moderated
+            if(ONE::isEntity()){
+                //TODO:change method when new version level is finished, maybe when get user return if he need to be moderated
 
-            if ($role != 'admin') {
-                $userOrchestrator = Orchestrator::getUserByKey($userKey);
-                $user->moderated = $userOrchestrator->moderated;
-                if ($user->moderated == false) {
-                    $user->moderation_site_key = $userOrchestrator->moderation_site_key;
+                if ($role != 'admin') {
+                    $userOrchestrator = Orchestrator::getUserByKey($userKey);
+                    $user->moderated = $userOrchestrator->moderated;
+                    if ($user->moderated == false) {
+                        $user->moderation_site_key = $userOrchestrator->moderation_site_key;
+                    }
                 }
-            }
 
-            // User Parameters
-            $userParametersResponse = json_decode(json_encode($user->user_parameters), true);
-            $registerParametersResponse = Orchestrator::getEntityRegisterParameters();
+                // User Parameters
+                $userParametersResponse = json_decode(json_encode($user->user_parameters), true);
+                $registerParametersResponse = Orchestrator::getEntityRegisterParameters();
 
-            //verify user parameters with responses
-            $registerParameters = [];
-            foreach ($registerParametersResponse as $parameter) {
-                $parameterOptions = [];
-                $value = '';
-                $file = null;
-                if ($parameter->parameter_type->code == 'radio_buttons' || $parameter->parameter_type->code == 'check_box' || $parameter->parameter_type->code == 'dropdown') {
-                    foreach ($parameter->parameter_user_options as $option) {
-                        $selected = false;
-                        if (isset($userParametersResponse[$parameter->parameter_user_type_key])) {
-                            foreach ($userParametersResponse[$parameter->parameter_user_type_key] as $userOption) {
-                                if ($userOption['value'] == $option->parameter_user_option_key) {
+                //verify user parameters with responses
+                $registerParameters = [];
+                foreach ($registerParametersResponse as $parameter) {
+                    $parameterOptions = [];
+                    $value = '';
+                    $file = null;
+                    if($parameter->parameter_type->code == 'radio_buttons' || $parameter->parameter_type->code == 'check_box' || $parameter->parameter_type->code == 'dropdown') {
+                        foreach ($parameter->parameter_user_options as $option) {
+                            $selected = false;
+                            foreach ($userParametersResponse as $userParameter) {
+                                if ($userParameter["parameter_user_key"] == $parameter->parameter_user_type_key && $userParameter['value'] == $option->parameter_user_option_key)
                                     $selected = true;
-                                    break;
-                                }
                             }
+                            $parameterOptions [] = [
+                                'parameter_user_option_key' => $option->parameter_user_option_key,
+                                'name' => $option->name,
+                                'selected' => $selected
+                            ];
                         }
-                        $parameterOptions [] = [
-                            'parameter_user_option_key' => $option->parameter_user_option_key,
-                            'name' => $option->name,
-                            'selected' => $selected
-                        ];
-                    }
-                } elseif ($parameter->parameter_type->code == 'file') {
-                    $id = isset($userParametersResponse[$parameter->parameter_user_type_key][0]) ? $userParametersResponse[$parameter->parameter_user_type_key][0]['value'] : '';
-                    if ($id != '') {
-                        $file = json_decode(json_encode(Files::getFile($id)), true);
-                    }
+                    }elseif($parameter->parameter_type->code == 'file'){
+                        $id = isset($userParametersResponse[$parameter->parameter_user_type_key][0]) ? $userParametersResponse[$parameter->parameter_user_type_key][0]['value'] : '';
+                        if ($id != '') {
+                            $file = json_decode(json_encode(Files::getFile($id)), true);
+                        }
 
-                } else {
-                    $value = isset($userParametersResponse[$parameter->parameter_user_type_key][0]) ? $userParametersResponse[$parameter->parameter_user_type_key][0]['value'] : '';
+                    } else {
+                        $value = collect($userParametersResponse)->where("parameter_user_key",$parameter->parameter_user_type_key)->first()["value"]??"";
+                    }
+                    $registerParameters [] = [
+                        'parameter_user_type_key' => $parameter->parameter_user_type_key,
+                        'parameter_type_code' => $parameter->parameter_type->code,
+                        'name' => $parameter->name,
+                        'value' => isset($file) ? $file : $value,
+                        'mandatory' => $parameter->mandatory,
+                        'parameter_user_options' => $parameterOptions
+                    ];
                 }
-                $registerParameters [] = [
-                    'parameter_user_type_key' => $parameter->parameter_user_type_key,
-                    'parameter_type_code' => $parameter->parameter_type->code,
-                    'name' => $parameter->name,
-                    'value' => isset($file) ? $file : $value,
-                    'mandatory' => $parameter->mandatory,
-                    'parameter_user_options' => $parameterOptions
-                ];
             }
 
             $loginStatus = Orchestrator::getAllLoginStatus();
@@ -345,12 +343,15 @@ class UsersController extends Controller
             }
 
             $userStatus = Orchestrator::getUserByKey($userKey);
-
+            
             $status = [];
-            foreach ($userStatus->entities as $item) {
+            
+            if(!empty($userStatus->entities)){
+                foreach ($userStatus->entities as $item) {
 
-                $status[$item->pivot->status] = !empty($item->pivot->status) ? $item->pivot->status : null;
+                    $status[$item->pivot->status] = !empty($item->pivot->status) ? $item->pivot->status : null;
 
+                }
             }
 
             $title = trans('privateUsers.edit_user') . ' ' . (isset($user->name) ? $user->name : null);
@@ -361,14 +362,18 @@ class UsersController extends Controller
             $data['status'] = $status ?? null;
             $data['user'] = $user;
             $data['allStatus'] = $allStatus;
-            $data['entities'] = $entities;
-            $data['entity'] = $entity;
+            $data['entities'] = $entities ?? null;
+            $data['entity'] = $entity ?? null;
             $data['roles'] = $roles;
             $data['role'] = $role;
             $data['inputRole'] = $inputRole;
-            $data['registerParameters'] = $registerParameters;
+            $data['registerParameters'] = $registerParameters ?? null;
             $data['levels'] = $levels;
-            $data['loginLevels'] = $loginLevels;
+            $data['loginLevels'] = $loginLevels ?? null;
+            $data['sidebar'] = 'registration';
+            $data['active'] = 'confirm';
+
+            Session::put('sidebarArguments', ['activeFirstMenu' => 'personRegistration']);
 
             if ($role == 'admin') {
                 return view('private.user.manager', $data);
@@ -380,6 +385,7 @@ class UsersController extends Controller
 
         }
         catch(Exception $e) {
+
             return redirect()->back()->withErrors(["private.user.edit" => $e->getMessage()]);
         }
     }
@@ -396,11 +402,6 @@ class UsersController extends Controller
         try {
             $data = [];
 
-            if(Session::get('user_role') != 'admin'){
-                if(!ONE::verifyUserPermissionsShow('auth', $request->role)){
-                    return redirect()->back()->withErrors(["user.show" => trans('user.invalidPermission')]);
-                }
-            }
             $roles = $this->rolesType;
 
             //role
@@ -413,7 +414,7 @@ class UsersController extends Controller
                 $user = Auth::getUserByKey($userKey);
 
             //get all site login levels
-            $siteKey = $request->header('X-SITE-KEY') ?? null;
+            $siteKey = Session::get('X-SITE-KEY') ?? null;
             $siteLoginLevels = Orchestrator::getLoginLevels($siteKey);
 
             $levels = [];
@@ -423,83 +424,92 @@ class UsersController extends Controller
 
             //Get user level
             $userLevel = Orchestrator::getUserLevel($user->user_key);
+            $userLoginLevels = Orchestrator::getUserLoginLevels($user->user_key);
+
             $user->user_level = isset($userLevel) ? $userLevel : null;
-
-            //TODO:change method when new version level is finished, maybe when get user return if he need to be moderated
-            if ($inputRole != 'admin'){
-                $userOrchestrator = Orchestrator::getUserByKey($userKey);
-                $user->moderated = $userOrchestrator->moderated;
-                if ($user->moderated == false) {
-                    $user->moderation_site_key = $userOrchestrator->moderation_site_key;
-                }
-            }
-            $usersToModerate = Orchestrator::getManualLoginLevelUsers();
-
-            // Entity and Roles
-            $entities = [];
-            $userObj = Orchestrator::getUserByKey($userKey);
-
-            if(isset($userObj->entities)){
-                foreach($userObj->entities as $item){
-                    $status = !empty($item->pivot->status) ? $item->pivot->status : null;;
-                }
-            }
-
+            $userOrchestrator = Orchestrator::getUserByKey($userKey);
             $role = '';
-            if($userObj->admin == 1){
+            if($userOrchestrator->admin == 1){
                 $role = 'admin';
             }else{
-                $role = $userObj->role;
+                $role = $userOrchestrator->role ?? "";
             }
+            
             if(ONE::isEntity()){
-                $entities = $userObj->entities;
-            }
+            //TODO:change method when new version level is finished, maybe when get user return if he need to be moderated
+                if ($inputRole != 'admin' && !is_null($siteKey)){
 
+                    $user->moderated = $userOrchestrator->moderated;
+                    if ($user->moderated == false) {
+                        $user->moderation_site_key = $userOrchestrator->moderation_site_key;
+                    }
 
-            // User Parameters
-            $userParametersResponse = json_decode(json_encode($user->user_parameters),true);
-            $registerParametersResponse = Orchestrator::getEntityRegisterParameters();
+                    $usersToModerate = Orchestrator::getManualLoginLevelUsers();
 
-            //verify user parameters with responses
-            $registerParameters = [];
-            foreach ($registerParametersResponse as $parameter){
-                $parameterOptions = [];
-                $value = '';
-                $file = null;
-                if($parameter->parameter_type->code == 'radio_buttons' || $parameter->parameter_type->code == 'check_box' || $parameter->parameter_type->code == 'dropdown') {
-                    foreach ($parameter->parameter_user_options as $option) {
-                        $selected = false;
-                        if (isset($userParametersResponse[$parameter->parameter_user_type_key])) {
-                            foreach ($userParametersResponse[$parameter->parameter_user_type_key] as $userOption) {
-                                if($userOption['value'] == $option->parameter_user_option_key){
-                                    $selected = true;
-                                    break;
-                                }
-                            }
+                    // Entity and Roles
+                    $entities = [];
+                    $userObj = Orchestrator::getUserByKey($userKey);
+
+                    if(isset($userObj->entities)){
+                        foreach($userObj->entities as $item){
+                            $status = !empty($item->pivot->status) ? $item->pivot->status : null;;
                         }
-                        $parameterOptions [] = [
-                            'parameter_user_option_key' => $option->parameter_user_option_key,
-                            'name' => $option->name,
-                            'selected' => $selected
+                    }
+
+                    if(ONE::isEntity()){
+                        $entities = $userObj->entities;
+                    }
+
+                    // User Parameters
+                    $userParametersResponse = json_decode(json_encode($user->user_parameters),true);
+                    $registerParametersResponse = Orchestrator::getEntityRegisterParameters();
+
+                    //verify user parameters with responses
+                    $registerParameters = [];
+                    foreach ($registerParametersResponse as $parameter){
+                        $parameterOptions = [];
+                        $value = '';
+                        $file = null;
+                        if($parameter->parameter_type->code == 'radio_buttons' || $parameter->parameter_type->code == 'check_box' || $parameter->parameter_type->code == 'dropdown') {
+                            foreach ($parameter->parameter_user_options as $option) {
+                                $selected = false;
+                                foreach ($userParametersResponse as $userParameter) {
+                                    if ($userParameter["parameter_user_key"] == $parameter->parameter_user_type_key && $userParameter['value'] == $option->parameter_user_option_key)
+                                        $selected = true;
+                                }
+                                $parameterOptions [] = [
+                                    'parameter_user_option_key' => $option->parameter_user_option_key,
+                                    'name' => $option->name,
+                                    'selected' => $selected
+                                ];
+                            }
+                        }elseif($parameter->parameter_type->code == 'file'){
+                            $id = isset($userParametersResponse[$parameter->parameter_user_type_key][0]) ? $userParametersResponse[$parameter->parameter_user_type_key][0]['value'] : '';
+                            if($id != ''){
+                                $file = json_decode(json_encode(Files::getFile($id)),true);
+                            }
+
+                        }else{
+                            $value = collect($userParametersResponse)->where("parameter_user_key",$parameter->parameter_user_type_key)->first()["value"]??"";
+                        }
+                        $registerParameters []= [
+                            'parameter_user_type_key'   => $parameter->parameter_user_type_key,
+                            'parameter_type_code'       => $parameter->parameter_type->code,
+                            'name'                      => $parameter->name,
+                            'value'                     => isset($file) ? $file : $value,
+                            'mandatory'                 => $parameter->mandatory,
+                            'parameter_user_options'    => $parameterOptions
                         ];
                     }
-                }elseif($parameter->parameter_type->code == 'file'){
-                    $id = isset($userParametersResponse[$parameter->parameter_user_type_key][0]) ? $userParametersResponse[$parameter->parameter_user_type_key][0]['value'] : '';
-                    if($id != ''){
-                        $file = json_decode(json_encode(Files::getFile($id)),true);
-                    }
+                    $data['entities'] = $entities;
+                    $data['registerParameters'] = $registerParameters;
+                    $data['hasLoginLevels'] = !empty(Orchestrator::getAllEntityLoginLevels(ONE::getEntityKey()));
+                    $userMessages = Orchestrator::getMessagesFromUser($userKey);
 
-                }else{
-                    $value = isset($userParametersResponse[$parameter->parameter_user_type_key][0]) ? $userParametersResponse[$parameter->parameter_user_type_key][0]['value'] : '';
+                    if($userMessages) {
+                        $data['user_messages'] = count(collect($userMessages)->where('viewed', false)->where('to',ONE::getEntityKey()));
+                    }
                 }
-                $registerParameters []= [
-                    'parameter_user_type_key'   => $parameter->parameter_user_type_key,
-                    'parameter_type_code'       => $parameter->parameter_type->code,
-                    'name'                      => $parameter->name,
-                    'value'                     => isset($file) ? $file : $value,
-                    'mandatory'                 => $parameter->mandatory,
-                    'parameter_user_options'    => $parameterOptions
-                ];
             }
 
             // Check if registration is completed
@@ -510,27 +520,24 @@ class UsersController extends Controller
             }
 
             // Form title (layout)
-            $title = trans('privateUsers.show_user').' '.(isset($user->name) ? $user->name: null);
+            $title = trans('privateUsers.userDetails');
 
             // Return the view with data
             $data['title'] = $title;
             $data['user'] = $user;
+            $data['userKey'] = $user->user_key;
             $data['status'] = $status ?? null;
-            $data['entities'] = $entities;
+
             $data['roles'] = $roles;
             $data['role'] = $role;
             $data['inputRole'] = $inputRole;
-            $data['registerParameters'] = $registerParameters;
             $data['registerCompleted'] = $registerCompleted;
             $data['moderation'] = $request->moderation ?? false;
             $data['levels'] = $levels;
-            $data['hasLoginLevels'] = !empty(Orchestrator::getAllEntityLoginLevels(ONE::getEntityKey()));
+            $data['sidebar'] = 'manager';
+            $data['active'] = 'details';
 
-            $userMessages = Orchestrator::getMessagesFromUser($userKey);
-
-            if($userMessages) {
-                $data['user_messages'] = count(collect($userMessages)->where('viewed', false)->where('to',ONE::getEntityKey()));
-            }
+            Session::put('sidebarArguments', ['activeFirstMenu' => 'personRegistration']);
 
 //            Todo: the user and manager views should probably be the same
             if($role == 'admin' || $role == 'manager'){
@@ -559,8 +566,7 @@ class UsersController extends Controller
     {
         $inputRole = $requestUser->role ?? null;
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsUpdate('auth', $requestUser->role))
-                return redirect()->back()->withErrors(["user.update" => trans('user.invalidPermission')]);
+            return redirect()->back()->withErrors(["user.update" => trans('user.invalidPermission')]);
         }
 
         try {
@@ -574,6 +580,10 @@ class UsersController extends Controller
             $data['password'] = isset($requestUser->password) ? $requestUser->password : null;
             $data['identity_card'] = isset($requestUser->identity_card) ? $requestUser->identity_card : null;
             $data['vat_number'] = isset($requestUser->vat_number) ? $requestUser->vat_number : null;
+
+            $data['sidebar'] = 'manager';
+            $data['active'] = 'details';
+
             $role = $requestUser->role;
             unset($userDetails['_token']);
             unset($userDetails['form_name']);
@@ -657,12 +667,10 @@ class UsersController extends Controller
             if(isset($requestUser->role)){
                 $role = $requestUser->role;
                 if(Session::get('user_role') != 'admin'){
-                    if(!ONE::verifyUserPermissionsCreate('auth', $role)){
-                        if ($internalCall)
-                            return ["error" => trans('privateEntitiesDivided.permission_message')];
-                        else
-                            return redirect()->back()->withErrors(["user.create" => trans('privateEntitiesDivided.permission_message')]);
-                    }
+                    if ($internalCall)
+                        return ["error" => trans('privateEntitiesDivided.permission_message')];
+                    else
+                        return redirect()->back()->withErrors(["user.create" => trans('privateEntitiesDivided.permission_message')]);
                 }
             }
 
@@ -709,10 +717,9 @@ class UsersController extends Controller
             if($requestUser->role != 'admin')
                 Orchestrator::updateUserStatus('authorized' ,$user->user_key);
 
-
-            if ($internalCall)
+            if ($internalCall) {
                 return ["success" => $user->user_key];
-            else {
+            } else {
                 Session::flash('message', trans('privateUsers.store_ok'));
                 return redirect()->action('UsersController@show', ['userKey' => $user->user_key, 'role' => $role]);
             }
@@ -833,9 +840,7 @@ class UsersController extends Controller
     public function destroy(Request $request,$userKey)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsDelete('auth', $request->role)){
-                return redirect()->back()->withErrors(["user.create" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["user.create" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         try {
@@ -881,18 +886,21 @@ class UsersController extends Controller
     {
         $role = $request->role;
 
-        $response = Auth::getUserList($request);
+        $anonymized = !empty($request->get("anonymized"));
+
+        $response = Auth::getUserList($request, $anonymized);
         $data = $response->data;
         $recordsTotal = $response->recordsTotal;
+        $recordsFiltered = $response->recordsFiltered;
 
-        if(ONE::verifyUserPermissions('auth', 'user', 'show') and ONE::verifyUserPermissions('auth', 'manager', 'show'))
+//        if(ONE::verifyUserPermissions('auth', 'user', 'show') and ONE::verifyUserPermissions('auth', 'manager', 'show'))
             $usersKeys = collect($data)->pluck('user_key');
-        elseif(ONE::verifyUserPermissions('auth', 'user', 'show') and !ONE::verifyUserPermissions('auth', 'manager', 'show'))
-            $usersKeys = collect($data)->where('pivot.role', 'user')->pluck('user_key');
-        elseif(!ONE::verifyUserPermissions('auth', 'user', 'show') and ONE::verifyUserPermissions('auth', 'manager', 'show'))
-            $usersKeys = collect($data)->where('pivot.role', 'manager')->pluck('user_key');
-        else
-            $usersKeys = [];
+//        elseif(ONE::verifyUserPermissions('auth', 'user', 'show') and !ONE::verifyUserPermissions('auth', 'manager', 'show'))
+//            $usersKeys = collect($data)->where('pivot.role', 'user')->pluck('user_key');
+//        elseif(!ONE::verifyUserPermissions('auth', 'user', 'show') and ONE::verifyUserPermissions('auth', 'manager', 'show'))
+//            $usersKeys = collect($data)->where('pivot.role', 'manager')->pluck('user_key');
+//        else
+//            $usersKeys = [];
 
         //TODO:change method when new version level is finished, maybe when get user return if he need to be moderated
         if ($role == 'user') {
@@ -902,13 +910,19 @@ class UsersController extends Controller
         }
         $collection = Collection::make($data);
 
-        $editUser = ONE::verifyUserPermissions('auth', 'user', 'update');
-        $deleteUser = ONE::verifyUserPermissions('auth', 'user', 'delete');
-        $editManager = ONE::verifyUserPermissions('auth', 'manager', 'update');
-        $deleteManager = ONE::verifyUserPermissions('auth', 'manager', 'delete');
+        $editUser = true;
+        $deleteUser = true;
+        $editManager = true;
+        $deleteManager = true;
+
+        if ($anonymized)
+            $deleteManager = false;
 
         // in case of json
         $dataTable = Datatables::of($collection)
+            ->editColumn('select_users', function ($user) use ($anonymized) {
+                return '<input class="user_key" type="checkbox" value="'.$user->user_key.'" id="'.$user->user_key.'" ' . ($anonymized?"disabled":"") .'/>';
+            })
             ->editColumn('name', function ($user) use($role){
                 return "<a href='".action('UsersController@show', ['userKey' => $user->user_key, 'role' => $user->role ?? null])."'>".$user->name."</a>";
             })
@@ -955,6 +969,8 @@ class UsersController extends Controller
                 elseif(isset($user->role) && $user->role == 'manager' and $editManager == false and $deleteManager == false)
                     return null;
             })
+            ->rawColumns(['select_users','name','authorize','role','action'])
+            ->with('filtered', $recordsFiltered)
             ->skipPaging()
             ->setTotalRecords($recordsTotal)
             ->make(true);
@@ -1032,8 +1048,9 @@ class UsersController extends Controller
 
 
         //TODO: merge functions
+        $status = 'authorized';
 //        $data = Orchestrator::getManualLoginLevelUsers();
-        $data = Auth::usersToModerate($request, $siteKey);
+        $data = Auth::usersToModerate($request, $siteKey, $status);
 
 
         $manage = $data->users;
@@ -1048,10 +1065,7 @@ class UsersController extends Controller
             $collection = Collection::make($manage)->take(10);
         }
 
-        if(!ONE::verifyUserPermissions('auth', 'confirm_user', 'show'))
-            $collection = Collection::make([]);
-
-        $authorize = ONE::verifyUserPermissions('auth', 'authorize', 'create');
+        $authorize = true;
 
         // in case of json
         return Datatables::of($collection)
@@ -1060,21 +1074,36 @@ class UsersController extends Controller
             })
             ->editColumn('authorize', function ($user){
                 $html = '';
-                if (!empty($user->login_levels)) {
-                    foreach ($user->login_levels as $login_level) {
-                        $html .= "<span href='" . action('UsersController@manualCheckLoginLevel', ['userKey' => $user->user_key, 'login_level_key' => $login_level->key]) . "' class='manual-login-level btn btn-success btn-xs btn-block text-left'><i class='glyphicon glyphicon-thumbs-up'></i> " . $login_level->name . "</span>";
-                    }
-                }
+
+                $html .= "<a href='" . action('UsersController@manualCheckUserLoginLevel', ['userKey' => $user->user_key]) . "' class='btn btn-success btn-xs btn-block'><i class='glyphicon glyphicon-thumbs-up'></i></a>";
+
                 return $html;
 //                return "<a href='javascript:oneActivate(\"".action('UsersController@moderateUser',['userKey' => $user->user_key, 'site_key' => $data->{$user->user_key}->site_key ])."\")' class='btn btn-success btn-xs'><i class='glyphicon glyphicon-thumbs-up'></i> ".trans("users.authorize")."</a>";
             })
-            ->addColumn('action', function ($user) {
-                return ONE::actionButtons($user->user_key, ['show' => 'UsersController@showReadOnly']);
+            ->addColumn('action', function ($user) use($moderation) {
+                return ONE::actionButtons(['user_key' =>$user->user_key,'role' => 'user','moderation' => $moderation], ['show' => 'UsersController@show']);
             })
+            ->rawColumns(['name','authorize','action'])
             ->with('total', $recordsTotal)
             ->with('filtered', $recordsFiltered)
             ->skipPaging()
             ->make(true);
+    }
+
+    /**
+     * @param Request $request
+     * @param $userKey
+     */
+    public function manualCheckUserLoginLevel(Request $request, $userKey)
+    {
+        try{
+            $status = Orchestrator::updateStatusCheckAndUpdateUserLoginLevel($userKey);
+
+            Session::flash('message', trans('privateUsers.manual_check_user_login_level_success'));
+            return redirect()->back();
+        }catch(Exception $e){
+            return redirect()->back()->withErrors([trans('privateUsers.manual_check_user_login_level_failed') => $e->getMessage()])->getTargetUrl();
+        }
     }
 
     /**
@@ -1084,7 +1113,7 @@ class UsersController extends Controller
      */
     public function tableUsersCompletedQuickView()
     {
-        $data = Orchestrator::getUsersWithStatus("complete");
+        $data = Orchestrator::getUsersWithStatus("authorized");
         $usersKey = [];
         foreach ($data as $item){
             $usersKey[] = $item->user_key;
@@ -1104,6 +1133,7 @@ class UsersController extends Controller
             ->addColumn('action', function ($user) {
                 return ONE::actionButtons($user->user_key, ['show' => 'UsersController@showReadOnly']);
             })
+            ->rawColumns(['name','authorize','action'])
             ->make(true);
     }
 
@@ -1210,6 +1240,7 @@ class UsersController extends Controller
             ->addColumn('action', function ($user) use  ($userKey){
                 return ONE::actionButtons( $userKey, ['edit' => 'UsersController@edit', 'delete' => 'UsersController@delete']);
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 
@@ -1235,6 +1266,7 @@ class UsersController extends Controller
                 return $html;
 
             })
+            ->rawColumns(['action'])
             ->make(true);
     }
 
@@ -1256,6 +1288,7 @@ class UsersController extends Controller
                 return $html;
 
             })
+            ->rawColumns(['action'])
             ->make(true);
     }
 
@@ -1311,13 +1344,9 @@ class UsersController extends Controller
                 if($parameter->parameter_type->code == 'radio_buttons' || $parameter->parameter_type->code == 'check_box' || $parameter->parameter_type->code == 'dropdown') {
                     foreach ($parameter->parameter_user_options as $option) {
                         $selected = false;
-                        if (isset($userParametersResponse[$parameter->parameter_user_type_key])) {
-                            foreach ($userParametersResponse[$parameter->parameter_user_type_key] as $userOption) {
-                                if($userOption['value'] == $option->parameter_user_option_key){
-                                    $selected = true;
-                                    break;
-                                }
-                            }
+                        foreach ($userParametersResponse as $userParameter) {
+                            if ($userParameter["parameter_user_key"] == $parameter->parameter_user_type_key && $userParameter['value'] == $option->parameter_user_option_key)
+                                $selected = true;
                         }
                         $parameterOptions [] = [
                             'parameter_user_option_key' => $option->parameter_user_option_key,
@@ -1332,7 +1361,7 @@ class UsersController extends Controller
                     }
 
                 }else{
-                    $value = isset($userParametersResponse[$parameter->parameter_user_type_key][0]) ? $userParametersResponse[$parameter->parameter_user_type_key][0]['value'] : '';
+                    $value = collect($userParametersResponse)->where("parameter_user_key",$parameter->parameter_user_type_key)->first()["value"]??"";
                 }
                 $registerParameters []= [
                     'parameter_user_type_key'   => $parameter->parameter_user_type_key,
@@ -1382,7 +1411,7 @@ class UsersController extends Controller
 
             $user = Auth::updateUserPassword($oldPassword,$password, $userKey);
             Session::flash('message', trans('publicUsers.updatePasswordOk'));
-            return redirect()->action('UsersController@edit',['userKey' => $userKey,'f' => 'user']);
+            return redirect()->action('UsersController@edit',['userKey' => $userKey,'role' => $request->get("role",""), 'f' => 'users']);
         }
         catch(Exception $e) {
             return redirect()->back()->withErrors([trans('privateUsers.update_password_nok') => $e->getMessage()]);
@@ -1528,9 +1557,8 @@ class UsersController extends Controller
 
     }
 
-    public function showUserMessages(Request $request, $user_key)
+    public function showUserMessages(Request $request, $user_key=null)
     {
-
         //  If request origin is from topic detail receives/sends cbKey/topicKey/type, for return button correct redirection
         $cbKey = !empty($request->cbKey) ? $request->cbKey : null;
         $topicKey = !empty($request->topicKey) ? $request->topicKey : null;
@@ -1539,6 +1567,7 @@ class UsersController extends Controller
         try{
             $title = trans('privateUsers.user_messages');
             $messages = Orchestrator::getMessagesFromUser($user_key);
+            $user = Orchestrator::getUserByKey($user_key);
             $userKeys = array_keys(collect($messages)->groupBy('from')->toArray());
             $messageUsers = Auth::listUser($userKeys);
 
@@ -1557,7 +1586,7 @@ class UsersController extends Controller
             $response = CB::getUserTopicsTimeline($user_key);
             $topics = $response->topics;
 
-            return view('private.user.messages', compact('messages','user_key','title', 'cbKey', 'topicKey', 'type', 'topics'));
+            return view('private.user.messages', compact('messages','user_key', 'user', 'title', 'cbKey', 'topicKey', 'type', 'topics'));
 
         }catch(Exception $e) {
             return redirect()->back();
@@ -1574,43 +1603,57 @@ class UsersController extends Controller
     public function excel(Request $request)
     {
         try {
+            $requestedUserKeys = collect(json_decode($request->get("userKeys")));
             $orchestratorUsers = collect(Orchestrator::getAllUsers())->keyBy("user_key");
-            $authUsers = collect(Auth::listUser($orchestratorUsers->keys()));
-            $entityUserParameters = collect(Orchestrator::getEntityRegisterParameters());
 
-            $usersArray = [];
-            $userParametersRow = [
-                trans("privateUsers.name"),
-                trans("privateUsers.email"),
-                trans("privateUsers.roles"),
-                trans("privateUsers.created_at")
-            ];
+            if (!$requestedUserKeys->isEmpty()) {
+                $orchestratorUsers = $orchestratorUsers->filter(function($value,$key) use ($requestedUserKeys) {
+                    return $requestedUserKeys->contains($value->user_key);
+                });
+            }
+            $usersKeys = $orchestratorUsers->keys();
+
+            $authUsers = collect(Auth::listUser($usersKeys));
+            $entityUserParameters = collect(Orchestrator::getEntityRegisterParameters());
+            $userTopicsCounts = EMPATIA::getUserTopicsCount($usersKeys);
+            $entityEventVotes = EMPATIA::getEntityVoteEvents();
+            $voteEventTopicsKeys = EMPATIA::getTopicsKeysForVoteEvents(collect($entityEventVotes)->pluck("vote_key"));
+            $userVotesCounts = Vote::getUserVotesCount(collect($entityEventVotes)->pluck("vote_key"),$usersKeys,$voteEventTopicsKeys);
+
+            $csvString = "User ID, "  .trans("privateUsers.name") . ", " . trans("privateUsers.email") . ", " . trans("privateUsers.roles") . ", " . trans("privateUsers.created_at");
 
             foreach ($entityUserParameters as $entityUserParameter) {
-                $userParametersRow[] = $entityUserParameter->name;
+                $csvString .= ", " . $entityUserParameter->name;
+            }
+            $csvString .= ", Topics";
+            foreach ($entityEventVotes as $entityEventVote) {
+                $csvString .=
+                    ", " . $entityEventVote->name . " (+)" .
+                    ", " . $entityEventVote->name . " (-)";
             }
 
+            $csvString .= "\r\n";
+
+            unset($requestedUserKeys,$usersKeys,$voteEventTopicsKeys);
+
             foreach ($authUsers as $user) {
+                $csvString .= $user->user_key . ", " . $user->name . ", " . $user->email . ", ";
+
                 switch($orchestratorUsers->get($user->user_key)->pivot->role) {
                     case "manager":
-                        $userRole = trans("privateUsers.role_manager");
+                        $csvString .= trans("privateUsers.role_manager");
                         break;
 
                     case "admin":
-                        $userRole = trans("privateUsers.role_admin");
+                        $csvString .= trans("privateUsers.role_admin");
                         break;
 
                     case "user":
                     default:
-                        $userRole = trans("privateUsers.role_user");
+                        $csvString .= trans("privateUsers.role_user");
                 }
 
-                $currentUser = [
-                    $user->name,
-                    $user->email,
-                    $userRole,
-                    $user->created_at
-                ];
+                $csvString .= ", " . $user->created_at;
 
                 $userParameters = collect($user->user_parameters);
                 foreach ($entityUserParameters as $entityUserParameter) {
@@ -1622,30 +1665,32 @@ class UsersController extends Controller
 
                             $choosenOption = $entityUserParameter->parameter_user_options->where("parameter_user_option_key",$currentParameter->first()->value);
                             if ($choosenOption->count()>0)
-                                $currentUser[] = $choosenOption->first()->name;
+                                $csvString .= ", " . $choosenOption->first()->name;
                             else
-                                $currentUser[] = "";
+                                $csvString .= ", ";
                         } else
-                            $currentUser[] = $currentParameter->first()->value;
+                            $csvString .= ", " . $currentParameter->first()->value;
                     } else
-                        $currentUser[] = "";
+                        $csvString .= ", ";
                 }
 
-                $usersArray[] = $currentUser;
+                $csvString .= ", " . strval($userTopicsCounts->{ $user->user_key }??0);
+                foreach ($entityEventVotes as $entityEventVote) {
+                    $csvString .=
+                        ", " . "+" . ($userVotesCounts->{ $entityEventVote->vote_key }->positive->{ $user->user_key } ?? 0) .
+                        ", " . "+" . ($userVotesCounts->{ $entityEventVote->vote_key }->negative->{ $user->user_key } ?? 0);
+                }
+
+                $csvString .= "\r\n";
             }
 
-            $usersArray = array_merge([$userParametersRow],$usersArray);
+            $headers = [
+                'Content-Encoding'    => 'UTF-8',
+                'Content-type'        => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="users.csv"',
+            ];
 
-            Excel::create('users', function ($excel) use ($usersArray) {
-                $excel->setTitle(trans("privateUsers.users"));
-                $excel->setCreator('EMPATIA');
-                $excel->setDescription(trans("privateUsers.export_title"));
-
-                $excel->sheet(trans("privateUsers.users"), function ($sheet) use ($usersArray) {
-                    $sheet->fromArray($usersArray, null, 'A1', false, false);
-                });
-
-            })->download('xlsx');
+            return \Response::make($csvString, 200, $headers);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["users.excel" => $e->getMessage()]);
         }
@@ -1653,9 +1698,22 @@ class UsersController extends Controller
 
     public function pdfList(Request $request){
         try {
+            $requestedUserKeys = collect(json_decode($request->get("userKeys")));
             $orchestratorUsers = collect(Orchestrator::getAllUsers())->keyBy("user_key");
-            $authUsers = collect(Auth::listUser($orchestratorUsers->keys()));
+
+            if (!$requestedUserKeys->isEmpty()) {
+                $orchestratorUsers = $orchestratorUsers->filter(function($value,$key) use ($requestedUserKeys) {
+                    return $requestedUserKeys->contains($value->user_key);
+                });
+            }
+            $usersKeys = $orchestratorUsers->keys();
+
+            $authUsers = collect(Auth::listUser($usersKeys));
             $entityUserParameters = collect(Orchestrator::getEntityRegisterParameters());
+            $userTopicsCounts = EMPATIA::getUserTopicsCount($usersKeys);
+            $entityEventVotes = EMPATIA::getEntityVoteEvents();
+            $voteEventTopicsKeys = EMPATIA::getTopicsKeysForVoteEvents(collect($entityEventVotes)->pluck("vote_key"));
+            $userVotesCounts = Vote::getUserVotesCount(collect($entityEventVotes)->pluck("vote_key"),$usersKeys,$voteEventTopicsKeys);
 
             $usersArray = [];
 
@@ -1679,6 +1737,9 @@ class UsersController extends Controller
                     "email" => $user->email,
                     "role" => $userRole,
                     "created_at" => $user->created_at,
+                    "topics" => $userTopicsCounts->{ $user->user_key }??0,
+                    "positiveVotes" => $userVotesCounts->positive->{ $user->user_key }??0,
+                    "negativeVotes" => $userVotesCounts->negative->{ $user->user_key }??0,
                     "parameters" => array()
                 );
 
@@ -1708,11 +1769,50 @@ class UsersController extends Controller
                 $usersArray[] = $currentUser;
             }
 
+            $allUsersArray = array_chunk($usersArray, 50);
+
+            $pdf = array();
+            foreach ($allUsersArray as $usersArray) {
+                $pdf[] = PDF::loadView('private.user.pdf', compact('usersArray'))
+                    ->setPaper('a4','portrait')->setWarnings(false);
+            }
+            /* unset everything to relase memory */
+            unset($orchestratorUsers,$usersKeys,$authUsers,$entityUserParameters,$userTopicsCounts,$entityEventVotes,$userVotesCounts,$user,$userRole,$currentUser,$currentParameter,$currentUserParameterToArray,$choosenOption,$entityUserParameter,$userParameters,$allUsersArray,$usersArray);
+
+            if (count($pdf) > 1) {
+                do {
+                    $zipFileName = storage_path("app/users-" . Carbon::now()->format("Y-m-d_his") . ".zip");
+                    if (\File::exists($zipFileName))
+                        $zipFileName = "";
+                } while (empty($zipFileName));
+                $zipFile = (new Zipper)->make($zipFileName);
+
+                $fileNames = array();
+                foreach ($pdf as $index => $pdfItem) {
+                    do {
+                        $fileName = storage_path("app/PDFTemp-" . str_random(32) . ".pdf");
+                        if (\File::exists($fileName))
+                            $fileName = "";
+                    } while (empty($fileName));
+
+                    $pdfItem->save($fileName);
+                    $zipFile->add($fileName, "users-" . $index . ".pdf");
+                    $fileNames[] = $fileName;
+                    $pdfItem = null;
+                    $pdf[$index] = null;
+                }
+
+                $zipFile->make($zipFileName);
+                \File::delete($fileNames);
+                return response()->download($zipFileName)->deleteFileAfterSend(true);
+            } else {
+                return $pdf[0]->download('users.pdf');
+            }
+
             $pdf = PDF::loadView('private.user.pdf', compact('usersArray'))
                 ->setPaper('a4','portrait')->setWarnings(false);
             return $pdf->download('users.pdf');
         } catch (Exception $e) {
-            dd($e);
             return redirect()->back()->withErrors(["users.pdfList" => $e->getMessage()]);
         }
     }
@@ -2059,6 +2159,7 @@ class UsersController extends Controller
                 }
                 return '<span data-toggle="tooltip" title="'.$collection->created_by.'">'.$collection->created_at.'</span>';
             })
+            ->rawColumns(['name','created_at'])
             ->make(true);
     }
 
@@ -2087,6 +2188,7 @@ class UsersController extends Controller
                     return '<a href="' . action('UsersController@manualGrantLoginLevel', ['userKey' => $userKey ?? null , 'loginLevelKey' => $collection->login_level_key]) . '" class="btn btn-flat btn-warning btn-xs login-level-operation" data-toggle="tooltip" title="' . trans('form.add') . '"><i class="fa fa-plus"></i></a> ';
 
             })
+            ->rawColumns(['name','manage'])
             ->make(true);
     }
 
@@ -2103,6 +2205,41 @@ class UsersController extends Controller
         }
         catch(Exception $e) {
             return redirect()->back()->withErrors(["user.updateLoginLevels_fail" => $e->getMessage()]);
+        }
+    }
+
+    public function anonymizeUser(Request $request, $userKey) {
+        if(Session::get('user_role') != 'admin'){
+            return redirect()->back()->withErrors(["user.anonymize" => trans('privateEntitiesDivided.permission_message')]);
+        }
+
+        try{
+            $anonymizeResponse = EMPATIA::anonymizeUsers($userKey);
+            if (!empty($anonymizeResponse->success)) {
+                if ($anonymizeResponse->success)
+                    Session::flash('message', trans('privateUsers.anonymize_ok'));
+                else
+                    Session::flash('message', trans('privateUsers.anonymize_failed'));
+            } else {
+                Session::flash('message', trans('privateUsers.anonymize_failed'));
+            }
+        } catch(Exception $e) {
+            Session::flash('message',$e->getMessage());
+        }
+    }
+
+    public function anonymizeUsers(Request $request) {
+        if(Session::get('user_role') != 'admin'){
+            return redirect()->back()->withErrors(["user.anonymize" => trans('privateEntitiesDivided.permission_message')]);
+        }
+
+        try{
+            $requestedUserKeys = json_decode($request->get("userKeys"));
+            EMPATIA::anonymizeUsers($requestedUserKeys);
+
+            return redirect()->back()->withMessage("privateUsers.anonymize_ok");
+        } catch(Exception $e) {
+            return redirect()->back()->withErrors([ trans('privateUsers.anonymize_nok') => $e->getMessage()]);
         }
     }
 }

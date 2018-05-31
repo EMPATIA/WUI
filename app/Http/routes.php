@@ -259,7 +259,7 @@ Route::get('test_export', function()
 
 Route::group(['middleware' => ['web']], function () use ($contentTypes) {
     Route::get("splashed",function() {
-        Session::set("splashScreen",time());
+        Session::put("splashScreen",time());
         return response()->redirectTo("/");
     })->name("splashScreen.pass");
 
@@ -270,11 +270,11 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
     Route::post('/auth/migrate', 'AuthController@migrateUserToEntity');
     Route::post('/auth/validateSmsToken', 'AuthController@validateSmsToken');
 
-    Route::get('TrackingController/showTracking', ['as'=>'showTracking', 'uses'=>'TrackingController@showTracking']);
-    Route::get('TrackingController/getTrackingTable', ['as'=>'getTrackingTable', 'uses'=>'TrackingController@getTrackingTable']);
-    Route::get('TrackingController/show', ['as'=>'show', 'uses'=>'TrackingController@show']);
-    Route::get('TrackingController/show/{id}', ['as'=>'show', 'uses'=>'TrackingController@show']);
-
+    Route::get('tracking/showTracking', ['as'=>'showTracking', 'uses'=>'TrackingController@showTracking']);
+    Route::get('tracking/getTrackingTable', ['as'=>'getTrackingTable', 'uses'=>'TrackingController@getTrackingTable']);
+    Route::get('tracking/show', ['as'=>'show', 'uses'=>'TrackingController@show']);
+    Route::get('tracking/show/{id}', ['as'=>'show', 'uses'=>'TrackingController@show']);
+    
     // Admin Login
     Route::group(['middleware' => ['privateAuthOneAdmin']], function () {
         /* ---- Auth Controller ---- */
@@ -298,10 +298,10 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
             return view('private');
         }]);*/
 
-        Route::get('TrackingController/showTracking', ['as'=>'showTracking', 'uses'=>'TrackingController@showTracking']);
-        Route::get('TrackingController/getTrackingTable', ['as'=>'getTrackingTable', 'uses'=>'TrackingController@getTrackingTable']);
-        Route::get('TrackingController/show', ['as'=>'show', 'uses'=>'TrackingController@show']);
-        Route::get('TrackingController/show/{id}', ['as'=>'show', 'uses'=>'TrackingController@show']);
+        Route::get('tracking/showTracking', ['as'=>'showTracking', 'uses'=>'TrackingController@showTracking']);
+        Route::get('tracking/getTrackingTable', ['as'=>'getTrackingTable', 'uses'=>'TrackingController@getTrackingTable']);
+        Route::get('tracking/show', ['as'=>'show', 'uses'=>'TrackingController@show']);
+        Route::get('tracking/show/{id}', ['as'=>'show', 'uses'=>'TrackingController@show']);
         Route::get('/private', ['as' => 'private', 'uses' => 'QuickAccessController@index']);
         Route::get('/private/wizard/install','QuickAccessController@firstInstallWizard');
         Route::get('/private/wizard/install/finish','QuickAccessController@firstInstallWizardFinish');
@@ -318,6 +318,7 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
         Route::get('private/dashboard/getLoggedInUsers', ['as' => 'dashboard.getLoggedInUsers', 'uses' => 'DashboardController@getLoggedInUsers']);
         Route::get('private/dashboard/ideas', ['as' => 'dashboard.ideas', 'uses' => 'DashboardController@ideas']);
         Route::get('private/dashboard/comments', ['as' => 'dashboard.comments', 'uses' => 'DashboardController@comments']);
+        Route::get('private/dashboard/votes', ['as' => 'dashboard.votes', 'uses' => 'DashboardController@votes']);
         Route::get('private/dashboardVotes/proposals/{cbKey?}', ['as' => 'dashboard.proposals','uses' => 'DashboardVotesController@proposals'] );
         Route::get('private/empavilleDashboard/{cbKey?}', ['as' => 'empavilleDashboard.proposals','uses' => 'EmpavilleDashboardController@proposals'] );
         Route::get('private/empavilleTotals/{cbKey?}', ['as' => 'empavilleDashboard.totals','uses' => 'EmpavilleDashboardController@totals'] );
@@ -360,6 +361,7 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
             Route::get('private/eventSchedule/{key}/delete', ['as' => 'eventSchedule.delete', 'uses' => 'EventSchedulesController@delete']);
             Route::resource('/private/eventSchedule', 'EventSchedulesController', ['only' => ['show', 'edit', 'update', 'store', 'destroy', 'index', 'create']]);
         });
+	/* Second Cycle Controller */
 
         /* Event Schedule Controller */
         Route::put('private/eventSchedule/{key}/updatePeriods', 'EventSchedulesController@updatePeriods');
@@ -374,6 +376,22 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
         Route::get('private/eventSchedule/table', 'EventSchedulesController@getIndexTable');
         Route::get('private/eventSchedule/{key}/delete', ['as' => 'eventSchedule.delete', 'uses' => 'EventSchedulesController@delete']);
         Route::resource('/private/eventSchedule', 'EventSchedulesController',['only' => ['show', 'edit', 'update', 'store', 'destroy', 'index', 'create']]);
+        /* Second Cycle Controller */
+
+
+        Route::get('private/second_cycle/{cbKey}/init', 'SecondCycleController@initialize');
+        Route::get('private/second_cycle/{type}/{cbKey}/manage', [ 'as' => 'secondCycle.manage', 'uses' => 'SecondCycleController@manage']);
+        Route::get('private/second_cycle/{type}/{cbKey}/manageCb', [ 'as' => 'secondCycle.manage', 'uses' => 'SecondCycleController@manageCb']);
+        Route::get('private/second_cycle/{cbKey}/update_files/{cbKeyChild}', 'SecondCycleController@update_files');
+        Route::get('private/second_cycle/{cbKey}/create/{level}/{parentTopicKey?}', ['as' => 'secondCycle.manage','uses' => 'SecondCycleController@create']);
+        Route::get('private/second_cycle/{cbKey}/edit/{topicKey}', ['as' => 'secondCycle.edit', 'uses' =>'SecondCycleController@edit']);
+        Route::get('private/second_cycle/{cbKey}/show/{topicKey}', ['as' => 'secondCycle.show', 'uses' =>'SecondCycleController@internalShow']);
+        Route::get('private/second_cycle/{cbKey}/delete/{topicKey}', 'SecondCycleController@delete');
+        Route::delete('private/second_cycle/{cbKey}/destroy/{topicKey}', 'SecondCycleController@destroy');
+        Route::post('private/second_cycle/{cbKey}/store/{level}/{parentTopicKey?}', 'SecondCycleController@store');
+        Route::post('private/second_cycle/{cbKey}/update/{topicKey}', 'SecondCycleController@update');
+
+        /* ---- END Second Cycle Controller ---- */
 
 
 //        /* Question Controller */
@@ -404,6 +422,16 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
 
         /*  END Topics Review */
 
+        //Accesses
+        Route::get('private/access/tableAccesses', ['as' => 'accesses.showAccesses', 'uses' => 'AccessesController@tableAccesses']);
+        Route::get('private/access/analytic/{entityKey?}', ['as' => 'analytic.analytic', 'uses' => 'AccessesController@analytic']);
+        Route::get('private/access/analyticEntityKey', ['as' => 'analytic.analyticEntityKey', 'uses' => 'AccessesController@analyticEntityKey']);
+        Route::resource('/private/access', 'AccessesController');
+        /* END OF ACCESSES */
+
+        //Gamification
+        Route::resource('/private/gamification', 'GamificationsController', ['only' =>'index']);
+        /* END OF Gamification */
 
         /* Topics Controller */
         Route::get('private/type/{type}/cbs/{cbKey}/topic/{topicKey}/status/{status}/{version}', 'TopicController@changeActiveVersionStatus')->where(["newStatus"=>"0|1"]);
@@ -455,13 +483,6 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
         Route::resource('private/postManager', 'PostManagerController');
         /* ---- END POSTS Controller ---- */
 
-        /* Parameters Template Controller */
-        Route::get('private/parametersTemplate/table', 'ParametersTemplateController@getIndexTable');
-        Route::get('private/parametersTemplate/{key}/delete', ['as' => 'private.parameterTemplate.delete', 'uses' => 'ParametersTemplateController@delete']);
-        Route::resource('private/parametersTemplate', 'ParametersTemplateController');
-        /* ---- END Parameters Template Controller ---- */
-
-
         /* Ideas Controller */
 
         Route::post('private/ideas/voteEvent/getMethodsData', 'CbsVoteController@getMethodsData');
@@ -503,8 +524,17 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
         /** [END] DEAL WITH IN PERSON VOTING**/
 
         Route::get('private/type/{type}/cbs/{cbKey}/getIndexTableVote', 'CbsVoteController@getIndexTableVote');
+        Route::get('private/type/{type}/cbs/{cbKey}/voteEvent/{voteKey}/getIndexTableVoteList', 'CbsVoteController@getIndexTableVoteList');
         Route::get('private/type/{type}/cbs/{cbKey}/voteEvent/{voteKey}/delete', ['as' => 'idea.vote.destroy', 'uses' => 'CbsVoteController@delete']);
+        Route::get('private/type/{type}/cbs/{cbKey}/voteEvent/{voteKey}/deleteVote', ['as' => 'idea.vote.delete', 'uses' => 'CbsVoteController@deleteVote']);
 
+        Route::get('private/type/{type}/cbs/{cbKey}/vote/{voteKey}/mapVotesToParameter', ['as' => 'private.cbs.mapVotesToParameter.create', 'uses' => 'CbsVoteController@mapVotesToParameter']);
+        Route::post('private/type/{type}/cbs/{cbKey}/vote/{voteKey}/mapVotesToParameter', ['as' => 'private.cbs.mapVotesToParameter.store', 'uses' => 'CbsVoteController@mapVotesToParameterSubmit']);
+        Route::get('private/type/{type}/cbs/{cbKey}/vote/weightVote', 'CbsVoteController@weightVote');
+        Route::get('private/type/{type}/cbs/{cbKey}/vote/{voteKey}/voteList', ['as' => 'private.cbs.voteList', 'uses' => 'CbsVoteController@voteList']);
+        Route::get('private/type/{type}/cbs/{cbKey}/vote/{voteKey}/submitVote', 'CbsVoteController@submitVote');
+        Route::post('private/type/{type}/cbs/{cbKey}/vote/{voteKey}/voteId/{voteId}/submitUserVote', 'CbsVoteController@submitUserVote');
+        Route::delete('private/type/{type}/cbs/{cbKey}/vote/{voteKey}/voteId/{voteId}/deleteUserVote', 'CbsVoteController@deleteUserVote');
         Route::resource('private/type/{type}/cbs/{cbKey}/vote', 'CbsVoteController');
 
         /*  END Ideas vote Controller */
@@ -551,97 +581,113 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
 
         /* END Moderation Controller*/
 
- Route::group(['middleware' => ['privateAuthOne'], 'name' => 'cbs'], function (){
-        /* Cbs Controller */
-        Route::get('private/wizard/cb/{type?}', ['as' => 'private.wizard.cb', 'uses' => 'CbsController@createWizard']);
-        Route::post('private/wizard/cb/{type?}', ['as' => 'private.wizard.cb', 'uses' => 'CbsController@storeWizard']);
-        Route::get('private/type/{type}/cbs/{cb_key}/analysis/getVotesSummaryTable', 'CbsController@getVotesSummaryTable');
+        Route::group(['middleware' => ['privateAuthOne'], 'name' => 'cbs'], function (){
+            Route::get('private/deleteLine', 'TranslationsController@deleteLine');
+            Route::get('private/exportTranslations', 'TranslationsController@exportTranslations');
+            Route::post('private/importTranslations', 'TranslationsController@importTranslations');
+            Route::resource('private/translation', 'TranslationsController');
 
-        /** Export topics routes */
-        Route::get('private/type/{type}/pads/{pad_key}/export', 'CbsController@showExportTopics')->name('cbs.exportTopics.show');
-        Route::get('private/type/{type}/pads/{pad_key}/topicsToExport', 'CbsController@topicsToExport')->name('cbs.exportTopics.topicsToExport');
-        Route::post('private/type/{type}/pads/{pad_key}/export', 'CbsController@exportTopics')->name('cbs.exportTopics.store');
+            Route::post('private/cb/setTranslation', ['as' => 'private.cb.translations', 'uses' => 'CbsController@setTranslation']);
+            Route::get('private/cb/translations', ['as' => 'private.cb.translations', 'uses' => 'CbsController@translations']);
+            /* Cbs Controller */
+            Route::get('private/wizard/cb/{type?}', ['as' => 'private.wizard.cb', 'uses' => 'CbsController@createWizard']);
+            Route::post('private/wizard/cb/{type?}', ['as' => 'private.wizard.cb', 'uses' => 'CbsController@storeWizard']);
+            Route::get('private/type/{type}/cbs/{cb_key}/analysis/getVotesSummaryTable', 'CbsController@getVotesSummaryTable');
 
-        Route::post('private/pads/mappingParams', 'CbsController@mappingParams')->name('cbs.exportTopics.mappingParams');
-        Route::post('private/pads/mappingParamOptions', 'CbsController@mappingParamOptions')->name('cbs.exportTopics.mappingParamOptions');
-        /** END Export topics routes */
+            /** Export topics routes */
+            Route::get('private/type/{type}/pads/{pad_key}/export', 'CbsController@showExportTopics')->name('cbs.exportTopics.show');
+            Route::get('private/type/{type}/pads/{pad_key}/topicsToExport', 'CbsController@topicsToExport')->name('cbs.exportTopics.topicsToExport');
+            Route::post('private/type/{type}/pads/{pad_key}/export', 'CbsController@exportTopics')->name('cbs.exportTopics.store');
+
+            Route::post('private/pads/mappingParams', 'CbsController@mappingParams')->name('cbs.exportTopics.mappingParams');
+            Route::post('private/pads/mappingParamOptions', 'CbsController@mappingParamOptions')->name('cbs.exportTopics.mappingParamOptions');
+            /** END Export topics routes */
 
 //        --------------------------------
 
-        Route::get('private/type/{type}/cbs/{cb_key}/showTemplate/{configuration_code}', 'CbsController@showNotificationEmailTemplate')->name('cbs.notificationTemplate.show');
-        Route::get('private/type/{type}/cbs/{cb_key}/editTemplate/{configuration_code}', 'CbsController@editNotificationEmailTemplate')->name('cbs.notificationTemplate.edit');
-        Route::get('private/type/{type}/cbs/{cb_key}/createTemplate/{configuration_code}', 'CbsController@createNotificationEmailTemplate')->name('cbs.notificationTemplate.create');
-        Route::put('private/type/{type}/cbs/{cb_key}/updateTemplate/{configuration_code}', 'CbsController@updateNotificationEmailTemplate')->name('cbs.notificationTemplate.update');
-        Route::post('private/type/{type}/cbs/{cb_key}/updateTemplate/{configuration_code}', 'CbsController@storeNotificationEmailTemplate')->name('cbs.notificationTemplate.store');
+            Route::get('private/type/{type}/cbs/{cb_key}/showTemplate/{configuration_code}', 'CbsController@showNotificationEmailTemplate')->name('cbs.notificationTemplate.show');
+            Route::get('private/type/{type}/cbs/{cb_key}/editTemplate/{configuration_code}', 'CbsController@private/menus/')->name('cbs.notificationTemplate.edit');
+            Route::get('private/type/{type}/cbs/{cb_key}/createTemplate/{configuration_code}', 'CbsController@createNotificationEmailTemplate')->name('cbs.notificationTemplate.create');
+            Route::put('private/type/{type}/cbs/{cb_key}/updateTemplate/{configuration_code}', 'CbsController@updateNotificationEmailTemplate')->name('cbs.notificationTemplate.update');
+            Route::post('private/type/{type}/cbs/{cb_key}/updateTemplate/{configuration_code}', 'CbsController@storeNotificationEmailTemplate')->name('cbs.notificationTemplate.store');
 
 //        --------------------------------
 
-        Route::post('private/cbs/addModalVote', 'CbsController@addModalVote');
-        Route::post('private/cbs/addModalParameter', 'CbsController@addModalParameter');
-        Route::post('private/cbs/addParameterTemplateSelection', 'CbsController@addParameterTemplateSelection');
-        Route::post('private/cbs/addParameterTemplate', 'CbsController@addParameterTemplate');
-        Route::post('private/cbs/getParameter', 'CbsController@getParameter');
-        Route::post('private/cbs/addVote', 'CbsController@addVote');
-        Route::post('private/cbs/addParameter', 'CbsController@addParameter');
-        Route::post('private/cbs/getAllTemplates', 'CbsController@getAllTemplates');
-        Route::post('private/cbs/getListOfCbsByType', 'CbsController@getListOfCbsByType');
-        Route::post('private/cbs/getListOfTopicsByCb', 'CbsController@getListOfTopicsByCb');
-        Route::post('private/cbs/getUsers', 'CbsController@getUsers');
-        Route::post('private/cbs/availableStatuses', 'CbsController@availableStatuses');
-        Route::get('private/type/{type}/cbs/getCbTemplate', ['as' => 'private.cbs.getCbTemplate', 'uses' => 'CbsController@getCbTemplate']);
-        Route::get('private/cbs/indexManager', ['as' => 'private.cbs.index_manager', 'uses' => 'CbsController@indexManager']);
-        Route::get('private/cbs/getIndexTable', 'CbsController@getIndexTable');
-        Route::post('private/cbs/getActivePads', 'CbsController@getActivePads');
-        Route::post('private/cbs/getVoteAnalysis', 'CbsController@getVoteAnalysis' )->name('cbs.voteAnalysis');
-        Route::get('private/type/{type}/cbs/getDetailsView', ['as' => 'private.cbs.getDetailsView', 'uses' => 'CbsController@getDetailsView']);
+            Route::post('private/cbs/addModalVote', 'CbsController@addModalVote');
+            Route::post('private/cbs/addModalParameter', 'CbsController@addModalParameter');
+            Route::post('private/cbs/addParameterTemplateSelection', 'CbsController@addParameterTemplateSelection');
+            Route::post('private/cbs/addParameterTemplate', 'CbsController@addParameterTemplate');
+            Route::post('private/cbs/getParameter', 'CbsController@getParameter');
+            Route::post('private/cbs/addVote', 'CbsController@addVote');
+            Route::post('private/cbs/addParameter', 'CbsController@addParameter');
+            Route::post('private/cbs/getAllTemplates', 'CbsController@getAllTemplates');
+            Route::post('private/cbs/getListOfCbsByType', 'CbsController@getListOfCbsByType');
+            Route::post('private/cbs/getListOfTopicsByCb', 'CbsController@getListOfTopicsByCb');
+            Route::post('private/cbs/getUsers', 'CbsController@getUsers');
+            Route::post('private/cbs/availableStatuses', 'CbsController@availableStatuses');
+            Route::get('private/type/{type}/cbs/getCbTemplate', ['as' => 'private.cbs.getCbTemplate', 'uses' => 'CbsController@getCbTemplate']);
+            Route::get('private/cbs/indexManager', ['as' => 'private.cbs.index_manager', 'uses' => 'CbsController@indexManager']);
+            Route::get('private/cbs/getIndexTable', 'CbsController@getIndexTable');
+            Route::post('private/cbs/getActivePads', 'CbsController@getActivePads');
+            Route::post('private/cbs/getVoteAnalysis', 'CbsController@getVoteAnalysis' )->name('cbs.voteAnalysis');
+            Route::get('private/type/{type}/cbs/getDetailsView', ['as' => 'private.cbs.getDetailsView', 'uses' => 'CbsController@getDetailsView']);
 
-        Route::post('private/type/{type}/cbs/updateCb', ['as' => 'private.cbs.updateCb', 'uses' => 'CbsController@updateCb']);
-        Route::get('private/type/{type}/cbs/{cb_key}/comments', 'CbsController@showCbComments')->name('cbs.comments');
-        Route::match(["get","post"],'private/type/{type}/cbs/{cb_key}/getAllComments', 'CbsController@getAllComments')->name('cbs.commentsTable');
-        Route::get('private/type/{type}/cbs/{cb_key}/analysis', 'CbsController@voteAnalysis')->name('cbs.analysis');
-        Route::get('private/type/{type}/cbs/{cb_key}/empavilleAnalysis', 'CbsController@voteAnalysisEmpaville')->name('cbs.empavilleAnalysis');
-        Route::get('private/type/{type}/cbs/{cbId}/deleteModerator/{id}', 'CbsController@deleteModerator');
-        Route::get('private/type/{type}/cbs/{cbId}/deleteModeratorConfirm/{id}', ['as' => 'private.cbs.deleteModerator.confirm', 'uses' => 'CbsController@deleteModeratorConfirm']);
-        Route::get('private/type/{type}/cbs/{cbId}/allManagers', ['as' => 'private.cbs.allManagers', 'uses' => 'CbsController@allManagers']);
-        Route::get('private/type/{type}/cbs/allUsers/{cbId?}', ['as' => 'private.cbs.allUsers', 'uses' => 'CbsController@allUsers']);
-        Route::get('private/type/{type}/cbs/{cbId}/delete', 'CbsController@delete');
-        Route::get('private/type/{type}/cbs/{cbId}/showTopics', ['as' => 'private.cbs.showTopics', 'uses' => 'CbsController@showTopics']);
-        Route::get('private/type/{type}/cbs/{cbId}/showParameters', ['as' => 'private.cbs.showParameters', 'uses' => 'CbsController@showParameters']);
-        Route::get('private/type/{type}/cbs/{cbId}/showVotes', ['as' => 'private.cbs.showVotes', 'uses' => 'CbsController@showVotes']);
-        Route::get('private/type/{type}/cbs/{cbId}/showModerators', ['as' => 'private.cbs.showModerators', 'uses' => 'CbsController@showModerators']);
-        Route::get('private/type/{type}/cbs/{cbId}/show/cbsConfigurations', 'CbsController@showConfigurations')->name('private.cbsConfigurations.show');
-        Route::get('private/type/{type}/cbs/{cbId}/edit/cbsConfigurations', 'CbsController@editConfigurations')->name('private.cbsConfigurations.edit');
-
+            Route::post('private/type/{type}/cbs/updateCb', ['as' => 'private.cbs.updateCb', 'uses' => 'CbsController@updateCb']);
+            Route::get('private/type/{type}/cbs/{cb_key}/comments', 'CbsController@showCbComments')->name('cbs.comments');
+            Route::match(["get","post"],'private/type/{type}/cbs/{cb_key}/getAllComments', 'CbsController@getAllComments')->name('cbs.commentsTable');
+            Route::get('private/type/{type}/cbs/{cb_key}/analysis', 'CbsController@voteAnalysis')->name('cbs.analysis');
+            Route::get('private/type/{type}/cbs/{cb_key}/empavilleAnalysis', 'CbsController@voteAnalysisEmpaville')->name('cbs.empavilleAnalysis');
+            Route::delete('private/type/{type}/cbs/{cbId}/deleteModerator/{id}', 'CbsController@deleteModerator');
+            Route::get('private/type/{type}/cbs/{cbId}/deleteModeratorConfirm/{id}', ['as' => 'private.cbs.deleteModerator.confirm', 'uses' => 'CbsController@deleteModeratorConfirm']);
+            Route::get('private/type/{type}/cbs/{cbId}/allManagers', ['as' => 'private.cbs.allManagers', 'uses' => 'CbsController@allManagers']);
+            Route::get('private/type/{type}/cbs/allUsers/{cbId?}', ['as' => 'private.cbs.allUsers', 'uses' => 'CbsController@allUsers']);
+            Route::get('private/type/{type}/cbs/{cbId}/delete', 'CbsController@delete');
+            Route::get('private/type/{type}/cbs/{cbId}/showTopics', ['as' => 'private.cbs.showTopics', 'uses' => 'CbsController@showTopics']);
+            Route::get('private/type/{type}/cbs/{cbId}/showParameters', ['as' => 'private.cbs.showParameters', 'uses' => 'CbsController@showParameters']);
+            Route::get('private/type/{type}/cbs/{cbId}/showVotes', ['as' => 'private.cbs.showVotes', 'uses' => 'CbsController@showVotes']);
+            Route::get('private/type/{type}/cbs/{cbId}/showModerators', ['as' => 'private.cbs.showModerators', 'uses' => 'CbsController@showModerators']);
+            Route::get('private/type/{type}/cbs/{cbId}/show/cbsConfigurations', 'CbsController@showConfigurations')->name('private.cbsConfigurations.show');
+            Route::get('private/type/{type}/cbs/{cbId}/edit/cbsConfigurations', 'CbsController@editConfigurations')->name('private.cbsConfigurations.edit');
+            Route::get('private/type/{type}/cbs/{cb_key}/showUsers', 'CbsController@showUsers')->name('cbs.showUsers');
+            Route::get('private/type/{type}/cbs/{cb_key}/cbsPermissions', 'CbsController@permissions')->name('cbs.permission');
+            Route::post('private/type/{type}/cbs/{cb_key}/updatePermission', 'CbsController@updatePermission');
 //        -----------------------------------------------------
-        Route::get('private/type/{type}/cbs/{cbId}/show/cbsNotifications', 'CbsController@showNotifications')->name('private.cbsNotifications.show');
-        Route::get('private/type/{type}/cbs/{cbId}/edit/cbsNotifications', 'CbsController@editNotifications')->name('private.cbsNotifications.edit');
+            Route::get('private/type/{type}/cbs/{cbId}/show/cbsNotifications', 'CbsController@showNotifications')->name('private.cbsNotifications.show');
+            Route::get('private/type/{type}/cbs/{cbId}/edit/cbsNotifications', 'CbsController@editNotifications')->name('private.cbsNotifications.edit');
+            Route::get('private/type/{type}/cbs/{cbId}/edit/{configuration_code}/editNotificationEmailTemplate', 'CbsController@editNotificationEmailTemplate');
 //        -----------------------------------------------------
 
 
-        Route::post('private/type/{type}/cbs/{cbId}/addModerator', 'CbsController@addModerator');
-        Route::post('private/type/{type}/cbs/{cbId}/storeTemplate', 'CbsController@storeCbTemplate');
-        Route::get('private/type/{type}/cbs/{cbId}/showGroupPermissions', ['as' => 'private.cbs.showGroupPermissions', 'uses' => 'CbsController@showGroupPermissions']);
-        Route::get('private/type/{type}/cbs/{cbId}/showPermissions', ['as' => 'private.cbs.showPermissions', 'uses' => 'CbsController@showPermissions']);
-        Route::post('private/type/{type}/cbs/{cbId}/getGroupsPads', ['as' => 'private.cbs.getGroupsPads', 'uses' => 'CbsController@getGroupsPads']);
-        Route::post('private/type/{type}/cbs/{cbId}/storePermissions', ['as' => 'private.cbs.storePermissions', 'uses' => 'CbsController@storePermissions']);
-        Route::get('private/type/{type}/cbs/moderateRouting/{action}/{step}', 'CbsController@moderateRouting');
-        Route::get('private/type/{type}/cbs/{cbId}/advancedEdit', ['as' => 'private.cbs.deleteModerator.advancedEdit', 'uses' => 'CbsController@advancedEdit']);
-        Route::get('private/type/{type}/cbs/{cbId}/show/cbsSecurityConfigurations', 'CbsController@showSecurityConfigurations')->name('private.securityConfigurations.show');
-        Route::get('private/type/{type}/cbs/{cbId}/edit/cbsSecurityConfigurations', 'CbsController@editSecurityConfigurations')->name('private.securityConfigurations.edit');
-        Route::match(['PUT', 'PATCH'],'/private/type/{type}/cbs/{cbId}/update/cbsSecurityConfigurations',['as' => 'private.securityConfigurations.update', 'uses' => 'CbsController@updateSecurityConfigurations']);
+            Route::post('private/type/{type}/cbs/{cbId}/addModerator', 'CbsController@addModerator');
+            Route::post('private/type/{type}/cbs/{cbId}/storeTemplate', 'CbsController@storeCbTemplate');
+            Route::get('private/type/{type}/cbs/{cbId}/showGroupPermissions', ['as' => 'private.cbs.showGroupPermissions', 'uses' => 'CbsController@showGroupPermissions']);
+            Route::get('private/type/{type}/cbs/{cbId}/showPermissions', ['as' => 'private.cbs.showPermissions', 'uses' => 'CbsController@showPermissions']);
+            Route::post('private/type/{type}/cbs/{cbId}/getGroupsPads', ['as' => 'private.cbs.getGroupsPads', 'uses' => 'CbsController@getGroupsPads']);
+            Route::post('private/type/{type}/cbs/{cbId}/storePermissions', ['as' => 'private.cbs.storePermissions', 'uses' => 'CbsController@storePermissions']);
+            Route::get('private/type/{type}/cbs/moderateRouting/{action}/{step}', 'CbsController@moderateRouting');
+            Route::get('private/type/{type}/cbs/{cbId}/advancedEdit', ['as' => 'private.cbs.deleteModerator.advancedEdit', 'uses' => 'CbsController@advancedEdit']);
+            Route::get('private/type/{type}/cbs/{cbId}/show/cbsSecurityConfigurations', 'CbsController@showSecurityConfigurations')->name('private.securityConfigurations.show');
+            Route::get('private/type/{type}/cbs/{cbId}/edit/cbsSecurityConfigurations', 'CbsController@editSecurityConfigurations')->name('private.securityConfigurations.edit');
+            Route::match(['PUT', 'PATCH'],'/private/type/{type}/cbs/{cbId}/update/cbsSecurityConfigurations',['as' => 'private.securityConfigurations.update', 'uses' => 'CbsController@updateSecurityConfigurations']);
 
-        Route::get('private/type/{type}/cbs/{cbKey}/show/showQuestionnaires', 'CbsController@showQuestionnaires')->name('private.cbsQuestionnaires.show');
-        Route::get('private/type/{type}/cbs/{cbKey}/edit/editQuestionnaires', 'CbsController@editQuestionnaires')->name('private.cbsQuestionnaires.edit');
-        Route::match(['PUT', 'PATCH'],'/private/type/{type}/cbs/{cbKey}/update/questionnaire',['as' => 'private.cbsQuestionnaires.update', 'uses' => 'CbsController@updateQuestionnaires']);
+            Route::get('private/type/{type}/cbs/{cbKey}/show/showQuestionnaires', 'CbsController@showQuestionnaires')->name('private.cbsQuestionnaires.show');
+            Route::get('private/type/{type}/cbs/{cbKey}/edit/editQuestionnaires', 'CbsController@editQuestionnaires')->name('private.cbsQuestionnaires.edit');
+            Route::match(['PUT', 'PATCH'],'/private/type/{type}/cbs/{cbKey}/update/questionnaire',['as' => 'private.cbsQuestionnaires.update', 'uses' => 'CbsController@updateQuestionnaires']);
 //        Route::get('private/type/{type}/cbs/{cbKey}/action/{actionCode}/showQuestionnaireTemplate', ['as' => 'private.questionnaireTemplate.show', 'uses' => 'CbsController@showQuestionnaireTemplate']);
-        Route::get('private/type/{type}/cbs/{cbKey}/action/{actionCode}/editQuestionnaireTemplate', ['as' => 'private.questionnaireTemplate.edit', 'uses' => 'CbsController@editQuestionnaireTemplate']);
-        Route::match(['PUT', 'PATCH'],'/private/type/{type}/cbs/{cbKey}/action/{actionCode}/updateQuestionnaireTemplate',['as' => 'private.questionnaireTemplate.update', 'uses' => 'CbsController@updateQuestionnaireTemplate']);
+            Route::get('private/type/{type}/cbs/{cbKey}/action/{actionCode}/editQuestionnaireTemplate', ['as' => 'private.questionnaireTemplate.edit', 'uses' => 'CbsController@editQuestionnaireTemplate']);
+            Route::match(['PUT', 'PATCH'],'/private/type/{type}/cbs/{cbKey}/action/{actionCode}/updateQuestionnaireTemplate',['as' => 'private.questionnaireTemplate.update', 'uses' => 'CbsController@updateQuestionnaireTemplate']);
 
-        Route::post('private/cbs/questionnaires/updateCbQuestionnaireTranslations','CbsController@updateQuestionnaireTemplate')->name('private.questionnaireTemplate.update');
-        Route::post('private/cbs/questionnaires/questionnaireTranslationsModal', 'CbsController@editQuestionnaireTemplate')->name('private.questionnaireTemplate.edit');
+            Route::post('private/cbs/questionnaires/updateCbQuestionnaireTranslations','CbsController@updateQuestionnaireTemplate')->name('private.questionnaireTemplate.update');
+            Route::post('private/cbs/questionnaires/questionnaireTranslationsModal', 'CbsController@editQuestionnaireTemplate')->name('private.questionnaireTemplate.edit');
 
-        Route::get('private/type/{type}/cbs/{cbId}/duplicateCb', 'CbsController@duplicate')->name('private.cbs.duplicate');
-        Route::resource('private/type/{type}/cbs', 'CbsController');
+            Route::get('private/type/{type}/cbs/{cbId}/duplicateCb', 'CbsController@duplicate')->name('private.cbs.duplicate');
+            Route::get('private/cbs/stepType', 'CbsController@stepType')->name('private.cbs.stepType');
+            Route::get('private/cbs/updateChecklistItem', 'CbsController@updateChecklistItem');
+            Route::get('private/cbs/createChecklistItem', 'CbsController@createChecklistItem');
+            Route::get('private/cbs/addCheckList', 'CbsController@addCheckList');
+            Route::get('private/cbs/removeCheckListItem', 'CbsController@removeCheckListItem');
+            Route::get('private/type/{type}/cbs/categoryFilter', 'CbsController@categoryFilter');
+            Route::resource('private/type/{type}/cbs', 'CbsController');
 
             /* --- END Cbs Controller --- */
         });
@@ -664,6 +710,7 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
 
         /* USER Controller */
  Route::group(['middleware' => ['privateAuthOne'], 'name' => 'user'], function () {
+     Route::get('private/user/{userKey}/manualCheckLoginLevel', ['as' => 'users.moderatUserLoginLevel', 'uses' => 'UsersController@manualCheckUserLoginLevel']);
         Route::post('private/user/{userKey}/manualCheck/{login_level_key}', ['as' => 'users.moderatUser', 'uses' => 'UsersController@manualCheckLoginLevel']);
         Route::get('private/user/{userKey}/moderate/{siteKey}', ['as' => 'users.moderatUser', 'uses' => 'UsersController@moderateUser']);
         Route::get('private/user/completed/{userKey}/updateStatus/{status}/confirm/{redirect}', ['as' => 'users.updateStatus', 'uses' => 'UsersController@updateStatusConfirmCompleted']);
@@ -676,9 +723,11 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
         Route::get('private/user/index/completed', ['as' => 'users.indexCompleted', 'uses' => 'UsersController@indexCompleted']);
         Route::get('private/user/{userKey}/updateStatus/{status}/confirm/{role}', ['as' => 'users.updateStatus', 'uses' => 'UsersController@updateStatusConfirm']);
         Route::get('private/user/{userKey}/updateStatus/{status}/update/{role}', ['as' => 'users.updateStatus', 'uses' => 'UsersController@updateStatus']);
+        Route::get('private/user/{userKey}/destroy', 'UsersController@destroy');
         Route::get('private/user/{user}/delete', ['as' => 'users.delete', 'uses' => 'UsersController@delete']);
-        Route::get('private/user/excel', 'UsersController@excel');
-        Route::get('private/user/pdfList', 'UsersController@pdfList');
+        Route::post('private/user/excel', 'UsersController@excel');
+        Route::post('private/user/pdfList', 'UsersController@pdfList');
+        Route::delete('private/user/anonymizeUsers', 'UsersController@anonymizeUsers');
         Route::get('private/user/table/', 'UsersController@tableUsers');
         Route::get('private/user/tableRolesUser/{type}', 'UsersController@tableRolesUser');
         Route::get('private/user/entityUsers', 'UsersController@tableUsersManager');
@@ -689,7 +738,7 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
         Route::get('private/user/updateRole/{userKey}/{entityKey}', 'UsersController@updateRole');
         Route::get('private/user/updateRoleMan/{userKey}/{entityKey}', 'UsersController@updateRoleMan');
 
-        Route::get('private/user/messages/{userKey}/showUserMessages', ['as' => 'users.showUserMessages', 'uses' => 'UsersController@showUserMessages']);
+        Route::get('private/user/messages/{userKey?}/showUserMessages', ['as' => 'users.showUserMessages', 'uses' => 'UsersController@showUserMessages']);
         Route::get('private/user/messages/markMessagesAsUnseen', ['as' => 'users.markMessagesAsUnseen', 'uses' => 'UsersController@markMessagesAsUnseen']);
 
         Route::get('private/sendMessageToAllUsers',['as'=>'messageToAll.create','uses'=>'UsersController@createMessageToAll']);
@@ -716,14 +765,11 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
             Route::get('private/user/{userKey}/BEUserMenu/{key}', "UserBEMenuController@userShow")->name("user.BEUserMenu.show");
             Route::patch('private/user/{userKey}/BEUserMenu/{key}', "UserBEMenuController@userUpdate")->name("user.BEUserMenu.update");
             Route::get('private/user/{userKey}/BEUserMenu/{key}/edit', "UserBEMenuController@userEdit")->name("user.BEUserMenu.edit");
+            Route::delete('private/user/{userKey}/anonymize', "UsersController@anonymizeUser");
 
             Route::resource('private/users', 'UsersController');
         });
         /* ---- END USER Controller ---- */
-
-        Route::get('private/accountRecovery/getIndexTable', ['as'=>'accountRecovery.getIndexTable','uses'=>'AccountRecoveryController@getIndexTable']);
-        Route::get('private/accountRecovery/{accountRecoveryParameterKey}/delete', ['as'=>'accountRecovery.destroy','uses'=>'AccountRecoveryController@delete']);
-        Route::resource('private/accountRecovery', 'AccountRecoveryController');
 
         /* Entity Groups Permissions */
         Route::get('/private/user/{userKey}/showPermissions', ['as' => 'users.permissions', 'uses' => 'UsersController@showPermissions']);
@@ -1016,6 +1062,8 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
         Route::group(['middleware' => ['privateAuthOne'], 'name' => 'emails'], function () {
             Route::get('/private/emails/{emailKey}/delete', 'EmailsController@delete');
             Route::get('/private/emails/table', 'EmailsController@tableEmails');
+            Route::get('/private/emails/summary', 'EmailsController@showSummary');
+            Route::get('private/emails/stats', 'EmailsController@showStats');
             Route::resource('/private/emails', 'EmailsController', ['only' => ['show', 'index', 'create', 'store']]);
         });
         /* ---- END Emails Controller ---- */
@@ -1028,15 +1076,31 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
         Route::match(['PUT', 'PATCH'],'/private/newsletters/{newsletterKey}/update', ['as' => 'newsletters.update', 'uses' => 'PrivateNewslettersController@update']);
         Route::get('/private/newsletters/sendNewsletter/{newsletterKey}/{flag}', ['as' => 'newsletters.test', 'uses' => 'PrivateNewslettersController@sendNewsletter']);
         Route::resource('/private/newsletters', 'PrivateNewslettersController', ['only' => ['show', 'index', 'create', 'store', 'edit', 'destroy']]);
-        /* ---- END Emails Controller ---- */
-
-
-        Route::get('/private/sms/table', 'SmsController@tableSms');
-        Route::resource('/private/sms', 'SmsController', ['only' => ['show','index', 'create', 'store']]);
 
         Route::get('/private/newsletterSubscription/table', 'NewsletterSubscriptionsController@getIndexTable');
         Route::get('/private/newsletterSubscription/exportAsCsv', 'NewsletterSubscriptionsController@exportAsCsv');
         Route::resource('/private/newsletterSubscription', 'NewsletterSubscriptionsController');
+        /* ---- END Emails Controller ---- */
+
+        /* Sms Controller */
+//        Route::get('/private/sms/resume', ['as' => 'sms.showResume', 'uses' => 'SmsController@showResume']);
+        Route::get('/private/sms/sendedSms', ['as' => 'sms.sendedSms', 'uses' => 'SmsController@showSendedSms']);
+        Route::get('/private/sms/receivedSms', ['as' => 'sms.receivedSms', 'uses' => 'SmsController@showReceivedSms']);
+        Route::get('/private/sms/analyticsSms', 'SmsController@showAnalyticsSms');
+        Route::get('/private/sms/table', 'SmsController@tableSendedSms');
+        Route::get('/private/sms/receivedTable', 'SmsController@tableReceivedSms');
+        Route::get('/private/sms/getSendedDatatableFilter', 'SmsController@getSendedDatatableFilter');
+        Route::get('/private/sms/getReceivedDatatableFilter', 'SmsController@getReceivedDatatableFilter');
+
+        Route::get('private/sms/statsResume30D', ['as' => 'sms.showResume30D', 'uses' => 'SmsController@showResume30D']);
+        Route::get('private/sms/statsResume', ['as' => 'sms.showResume48H', 'uses' => 'SmsController@showResume48H']);
+        Route::get('private/sms/stats', ['as' => 'sms.showAnalyticsSmsFiltered24H', 'uses' => 'SmsController@showAnalyticsSmsFiltered24H']);
+        Route::get('private/sms/stats30D', ['as' => 'sms.showAnalyticsSmsFiltered30D', 'uses' => 'SmsController@showAnalyticsSmsFiltered30D']);
+
+        Route::get('/private/sms/showReceivedDetails/{receivedSmsKey}', 'SmsController@showReceivedDetails');
+        Route::resource('/private/sms', 'SmsController', ['only' => ['show','index', 'create', 'store']]);
+        /* ---- END Sms Controller ---- */
+
         /* Entity Groups Users */
 
         Route::get('/private/entityGroups/{entityGroupKey}/addUser/{userKey}', ['as' => 'entityGroups.addUser', 'uses' => 'EntityGroupsController@addUser']);
@@ -1163,7 +1227,7 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
 
         /* Contents Controller */
 
-        Route::get('/private/content/type/{type}', ['as' => 'private.contents.index', 'uses' => 'ContentsController@index']);
+        Route::get('/private/content/{type}', ['as' => 'private.contents.index', 'uses' => 'ContentsController@index']);
         Route::get('/private/content/table/{type}', 'ContentsController@contentsDataTable');
         Route::get('/private/content/{id}/edit/version/{version?}', ['as' => 'private.contents.edit', 'uses' => 'ContentsController@edit']);
         Route::get('/private/content/{id?}/version/{version?}', ['as' => 'private.contents.show', 'uses' => 'ContentsController@show']);
@@ -1428,6 +1492,8 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
         Route::resource('/private/flagTypes', 'FlagTypesController');
 
         Route::post('/private/flags/getElementFlagHistory', 'FlagsController@getElementFlagHistory');
+        Route::post('/private/flags/toggleActiveStatus', 'FlagsController@toggleActiveStatus');
+        Route::post('/private/flags/getElementAttachFlag', 'FlagsController@getElementAttachFlag');
         Route::post('/private/flags/attachFlag', 'FlagsController@attachFlag');
         Route::get('/private/type/{type}/flags/{cbKey}/getIndexTable', ['as' =>  'private.cbs.flags.table', 'uses' =>'FlagsController@getIndexTable']);
         Route::get('/private/type/{type}/cbs/{cbKey}/flags', ['as' => 'private.cbs.flags.index', 'uses' =>'FlagsController@index']);
@@ -1583,7 +1649,7 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
 
         Route::get('/private/type/{type}/cbs/{cbKey}/showQuestions',['as' => 'private.cbs.showQuestions', 'uses' => 'TechnicalAnalysisProcessesController@showQuestions']);
         Route::get('/private/type/{type}/cbs/{cbKey}/question/{techAnalysisQuestionKey}/delete', ['as' => 'question.destroy', 'uses' => 'TechnicalAnalysisProcessesController@delete']);
-        Route::get('private/type/{type}/cbs/{cbKey}/getIndexTable', 'TechnicalAnalysisProcessesController@getIndexTable');
+        Route::get('private/type/{type}/cbs/{cbKey}/question/getIndexTable', 'TechnicalAnalysisProcessesController@getIndexTable');
         Route::resource('private/type/{type}/cbs/{cbKey}/question', 'TechnicalAnalysisProcessesController');
 
         Route::post('private/type/{type}/cbs/{cbKey}/topic/{topicKey}/technicalAnalysis/{technicalAnalysisKey}/sendNotification', 'TechnicalAnalysisController@sendNotification');
@@ -1598,12 +1664,11 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
 
         /** Entity Messages **/
         Route::get('private/entityMessages/getIndexTable', 'EntityMessagesController@getIndexTable');
-        Route::get('private/entityMessages/showMessagesTable/{flag}', ['as' => 'entityMessages.showMessages', 'uses' => 'EntityMessagesController@showMessagesTable']);
-        Route::get('private/entityMessages/getMessagesTable/{flag}', 'EntityMessagesController@getMessagesTable');
-        Route::resource('/private/entityMessages', 'EntityMessagesController', ['only' => ['index']]);
+        Route::get('private/entityMessages/show/{messageKey}', 'EntityMessagesController@show');
+        Route::get("private/entityMessages","EntityMessagesController@index")->name("private.entityMessages.index");
         /* --- END Entity Messages ---- */
 
-        Route::post('/private/operationSchedules/changeStatus', 'OperationSchedulesController@changeStatus');
+        Route::post('/private/operationSchedules/changeStatus', 'OperationSchedulesController@changeStatus') ;
         Route::get('/private/type/{type}/operationSchedules/{cbKey}/getIndexTable', 'OperationSchedulesController@getIndexTable');
         Route::get('/private/type/{type}/cbs/{cbKey}/operationSchedules/{operationScheduleKey}/delete', 'OperationSchedulesController@delete');
         Route::resource('/private/type/{type}/cbs/{cbKey}/operationSchedules', 'OperationSchedulesController');
@@ -1613,6 +1678,21 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
         Route::get('private/shortLinks/getIndexTable', 'ShortLinksController@getIndexTable');
         Route::get('private/shortLinks//{shortLinkKey}/delete', 'ShortLinksController@delete');
         Route::resource('/private/shortLinks', 'ShortLinksController');
+        
+        /* OpenData */
+        Route::get("private/openData/list","OpenDataController@index")->name("openData.list");
+        Route::get("private/openData/getIndexTable","OpenDataController@getIndexTable");
+        Route::get("private/openData/edit","OpenDataController@edit")->name("openData.edit");
+        Route::get("private/openData/{entityKey?}","OpenDataController@show")->name("openData.show");
+        Route::patch("private/openData/{entityKey?}","OpenDataController@update");
+
+        //Permissions
+        Route::post('/private/permissions/updateUserPermission', 'PermissionsController@updateUserPermission');
+        Route::post('/private/groupsPermissions/updateGroupPermission', 'PermissionsController@updateGroupPermission');
+        Route::get('/private/groupsPermissions/indexGroups', 'PermissionsController@indexGroups');
+        Route::get('/private/groupsPermissions/indexUsers', 'PermissionsController@indexUsers');
+        //end Permissions
+
     });
 
     Route::group(['middleware' => ['authOne']], function ()use($contentTypes) {
@@ -1628,6 +1708,10 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
         Route::get('/newContent/show/{contentType}/{contentKey}', 'PublicContentManagerController@show')->where("contentType", $contentTypes);
         Route::post('/newContent/last', 'PublicContentManagerController@getLastOf');
         /* END Public CMs Routes */
+
+        /*Public C Routes */
+        Route::get('/c/{contentKey}', 'PublicContentManagerController@showC');
+        /* END Public C Routes */
 
 
         Route::post('cb/post/delFile', ['as' => 'private.files.deleteFile', 'uses' => 'PublicPostController@deleteFile']);
@@ -1721,8 +1805,8 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
         Route::resource('ideas/{cbId}/idea', 'PublicIdeasController', ['only' => ['show', 'edit' ,'update', 'store', 'destroy']]);
         /* ---- END Public Ideas Controller ---- */
 
-
         /* ---- Topic Controller ---- */
+        Route::get('topic/formSuccess', 'PublicTopicController@formSuccess')->name('topic.formSuccess');
         Route::get('{cbKey}/topic/{topicKey}/{code}/{voteKey}/getQuestionnaireModal', 'PublicTopicController@getQuestionnaireModalData');
         Route::get('topic/register',  'PublicTopicController@registerMessage')->name('topic.registerMessage');
 
@@ -1731,6 +1815,13 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
         Route::get('topic/getComments', 'PublicTopicController@getTopicComments')->name('topic.getTopicComments');
         Route::post('topic/getVotes', 'PublicTopicController@getTopicVotes')->name('topic.getTopicVotes');
         Route::get('topic/success', 'PublicTopicController@successMessage')->name('topic.successMessage');
+        Route::get('topic/{topicKey}/basicInformation', ['as' => 'topic.basicInformation', 'uses' => 'PublicTopicController@basicInformation']);
+
+        Route::post('cb/getPadVotes', ['as' => 'cb.getPadVotes', 'uses' => 'PublicCbsController@getPadVotes']);
+        Route::post('cb/voteInTopic', ['as' => 'cb.voteInTopic', 'uses' => 'PublicCbsController@voteInTopic']);
+        Route::get('cb/{cbKey}/basicInformation', ['as' => 'cb.basicInformation', 'uses' => 'PublicCbsController@basicInformation']);
+        Route::get('cb/{cbKey}/getUserAvailableActions', ['as' => 'cb.basicInformation', 'uses' => 'PublicCbsController@getUserAvailableActions']);
+        Route::get('cb/{cbKey}/getPadTopics', ['as' => 'cb.getPadTopics', 'uses' => 'PublicCbsController@getPadTopics']);
 
         Route::get('cb/{cbKey}/topic/{topicKey}/download/{type?}', ['as' => 'topic.download', 'uses' => 'PublicTopicController@download']);
         Route::post('cb/{cbKey}/topic/vote', ['as' => 'topic.vote', 'uses' => 'PublicTopicController@vote']);
@@ -1738,11 +1829,16 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
         Route::post('cb/{cbKey}/topic/{topicKey}/revertVersionTopic', ['as' => 'topic.revertVersionTopic', 'uses' => 'PublicTopicController@revertVersionTopic']);
         Route::get('cb/{cbKey}/topic/{topicKey}/delete', ['as' => 'topic.delete', 'uses' => 'PublicTopicController@delete']);
         Route::get('cb/{cbKey}/topic/{topicKey}/publish', ['as' => 'topic.publish', 'uses' => 'PublicTopicController@publish']);
+        Route::get('cb/{cbKey}/topic/{topicKey}/updateCooperationStatus',  'PublicTopicController@updateCooperationStatus');
+
 
         Route::get('cb/cb/{cbKey}/topic/{topicKey}/ally/create', ["as" => "alliance.create", "uses" => 'PublicTopicController@createAlly']);
         Route::post('cb/cb/{cbKey}/topic/{topicKey}/ally/create', 'PublicTopicController@storeAlly');
         Route::post('cb/cb/{cbKey}/topic/{topicKey}/ally/{allyKey}/respond', 'PublicTopicController@updateAlly');
         Route::post('cb/showTopicDetail','PublicTopicController@getTopicDetailAjax');
+
+        // Route::get('/wizard','PublicController@wizard')->name('wizard.create');
+        Route::post('/wizard','PublicController@storeWizard');
 
         Route::get('cb/type/{type}/cbs/{cbKey}/vote/{voteEventKey}/publicUserVotingRegistration', ['as' => 'public.cb.vote.publicUserVotingRegistration', 'uses' => 'PublicCbsController@publicUserVotingRegistration']);
         Route::post('cb/vote/publicUserVotingRegistrationStoreVotes', ['as' => 'public.cb.vote.publicUserVotingRegistrationStoreVotes', 'uses' => 'PublicCbsController@publicUserVotingRegistrationStoreVotes']);
@@ -1752,11 +1848,13 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
 
         /* ---- Cbs Controller ---- */
         Route::get('cb/{cbKey}/topicsVoted', ['as' => 'topic.map', 'uses' => 'PublicCbsController@showTopicsVoted']);
+        Route::post('cb/{cbKey}/showTopicsCbsVoted', ['as' => 'topic.showTopicsCbsVoted', 'uses' => 'PublicCbsController@showTopicsCbsVoted']);
         Route::get('cb/{cbKey}/checkVoteCode', ['as' => 'cbs.voteCode', 'uses' => 'PublicCbsController@checkVoteCodeForm']);
         Route::post('cb/{cbKey}/checkVoteCode', ['as' => 'cbs.voteCode', 'uses' => 'PublicCbsController@checkVoteCode']);
         Route::get('cb/{cbKey}/map', ['as' => 'topic.map', 'uses' => 'PublicCbsController@generalMap']);
         Route::get('cb/list', ['as' => 'cbs.list', 'uses' => 'PublicCbsController@index']);
         Route::get('cb/{cbKey}', ['as' => 'cbs.show', 'uses' => 'PublicCbsController@show']);
+        Route::post('cb/simpleSubmitVotes', ['as' => 'topic.vote', 'uses' => 'PublicCbsController@simpleSubmitVotes']);
         Route::post('cb/submitVotes', ['as' => 'topic.vote', 'uses' => 'PublicCbsController@submitVotes']);
         Route::post('cb/genericSubmitVotes',['as' => 'topic.vote','uses'=> 'PublicCbsController@genericSubmitVotes']);
         Route::get('cb/{cbKey}/votesSubmitted',['as' => 'topic.vote','uses'=> 'PublicCbsController@votesSubmittedSuccessfuly']);
@@ -1769,6 +1867,17 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
         Route::post('cb/getCbTopicsListMap', 'PublicCbsController@getCbTopicsListMap');
         Route::post('cb/getPilotsForHomePage', 'PublicCbsController@getPilotsForHomePage');
         /* ---- END Cbs Controller ---- */
+
+        /* Second Cycle Controller */
+        Route::get('second_cycle/index/{cbKey}', 'SecondCycleController@index');
+        Route::get('second_cycle/news/{cbKey}', 'SecondCycleController@news');
+        Route::get('second_cycle/faqs/', 'SecondCycleController@showFaqs');
+        Route::get('second_cycle/news/{cbKey}/{type}', 'SecondCycleController@showAll');
+        Route::get('second_cycle/list_ajax/{cbKey}/{level}', 'SecondCycleController@list_ajax');
+        Route::get('second_cycle/show/{cbKey}/{level}/{topicKey}', 'SecondCycleController@show');
+
+
+        /* ---- END Second Cycle Controller ---- */
 
         Route::get('auth/confirmMail', ['as' => 'cbs.show', 'uses' => 'AuthController@sendConfirmEmail']);
         Route::post('auth/resetSentSms','AuthController@resetSentSms');
@@ -1792,6 +1901,7 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
 
         Route::post('/user/updatePassword', 'PublicUsersController@updatePassword');
         Route::post('/user/addPhoto', ['as' => 'public.user.addPhoto', 'uses' =>'PublicUsersController@addPhoto']);
+        Route::get('/user/removePhoto', ['as' => 'public.user.removePhoto', 'uses' =>'PublicUsersController@removePhoto']);
         Route::post('/user/fileUpload', 'PublicUsersController@fileUpload');
         Route::match(['PUT', 'PATCH'],'/user/{user_key}/updateLevelInfo', 'PublicUsersController@updateLevelInfo');
         Route::get('/user/levelForm/edit', 'PublicUsersController@fillLevelInfo')->name('levelForm.edit');
@@ -1928,9 +2038,6 @@ Route::group(['middleware' => ['web']], function () use ($contentTypes) {
     Route::get('files/{id}/{code}/{inline?}', 'FilesController@download');
     /* ---- END Files Controller ---- */
 });
-Route::group([], function () {
-    Route::get('informationVotes/{securityKey}', 'PublicCbsController@getTotalUsersAndVotes');
-});
 
 Route::group(['middleware' => ['web', 'kioskSite']], function () {
 
@@ -1984,6 +2091,38 @@ Route::post('PerformanceController/loadDataPerformance', 'PerformanceController@
 Route::post('PerformanceController/loadDataPerformanceBars', 'PerformanceController@loadDataPerformanceBars');
 Route::post('PerformanceController/loadAllServers', 'PerformanceController@loadAllServers');
 /* ---- END Performance Controller ---- */
+
+
+
+/* "Direct" Access APIs */
+Route::group(['middleware' => ['authOne']], function() {
+    Route::post("/api/sms/receive",function(Illuminate\Http\Request $request){
+        try {
+            $data = array(
+                /* Provider Data */
+                "sms_id"    => ($request->has("smsid"))? $request->get("smsid"):"0",        //MOM_ID
+                "sms_date" => $request->get("received_at"),  //TIMESTAMP
+
+                /* SMS Data */
+                "content"  => preg_replace('/[^A-Za-z0-9\. -]/', '', $request->get("content")),      //ALL_WORDS
+                "sender"   => $request->get("sender"),       //FROM_IMSISDN
+                "receiver" => $request->get("receiver"),      //TO_MSISDN
+
+                /* Headers Data */
+                "event"    => $request->header("event")
+            );
+
+            \Log::info("SMS [Id:" . $data["sms_id"] . "] " . $data["sender"] . "####" . preg_replace('/[^A-Za-z0-9\. -]/', '', $request->get("content")));
+            
+            \App\ComModules\Notify::storeReceivedSMS($data);
+            return response("",200);
+        } catch(\Exception $e) {
+            \Log::info($e);
+            return response("",500);
+        }
+    });
+    Route::get("/api/openData/{token}","OpenDataController@export");
+});
 
 
 

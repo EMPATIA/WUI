@@ -18,12 +18,13 @@ class FormMacroServiceProvider extends ServiceProvider
     public function boot()
     {
         require base_path() . '/resources/macros/oneForm.php'; //It can be register like this
-        require base_path() . '/resources/macros/oneVote.php';
         require base_path() . '/resources/macros/oneMessage.php';
         require base_path() . '/resources/macros/oneLogin.php';
         require base_path() . '/resources/macros/oneVoteEmpavilleSchools.php';
         require base_path() . '/resources/macros/oneCommentDefault.php';
         require base_path() . '/resources/macros/oneAnnotator.php';
+	    require base_path() . '/resources/macros/oneFileUpload.php';
+        require base_path() . '/resources/macros/oneVoteDemo.php';
     }
 
     /**

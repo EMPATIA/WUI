@@ -71,52 +71,53 @@
                 </div>
             </div>
             @foreach($cb->topics as $topic)
-                <div class="row defaultPadding">
-                    <div class="col-12 ideaBox">
-                        <div class="row">
-                            <div class="col-md-8 col-sm-8 col-12">
-                                <h2>
-                                    {{ $topic->title }}
-                                </h2>
-                            </div>
-                            <div class="col-md-4 col-sm-4 col-12 defaultPadding" id="idea_{{$topic->topic_key}}">
-                                @if($notSubmitted)
-                                    @if(!empty($votesByCb[$cb->cb->cb_key]))
-                                        @foreach($votesByCb[$cb->cb->cb_key] as $vt)
+                @if(($topic->active_status->status_type->code??"")!="excluded")
+                    <div class="row defaultPadding">
+                        <div class="col-12 ideaBox">
+                            <div class="row">
+                                <div class="col-md-8 col-sm-8 col-12">
+                                    <h2>
+                                        {{ $topic->title }}
+                                    </h2>
+                                </div>
+                                <div class="col-md-4 col-sm-4 col-12 defaultPadding" id="idea_{{$topic->topic_key}}">
+                                    @if($notSubmitted)
+                                        @if(!empty($votesByCb[$cb->cb->cb_key]))
+                                            @foreach($votesByCb[$cb->cb->cb_key] as $vt)
                                             @if( isset($vt["genericConfigurations"]) && $vt['existVotes'])
-                                                <div class="row">
-                                                    <div class="col-12">
-                                                        @if( $vt["method"] == "VOTE_METHOD_MULTI" )
-                                                            {!! Html::oneMultiVoting($userKey,
-                                                                                     $topic->topic_key,
-                                                                                     $cb->cb->cb_key,
-                                                                                     $vt["key"],
-                                                                                     (isset($vt["genericConfigurations"]) && array_key_exists("show_total_votes",$vt["genericConfigurations"]) && $vt["genericConfigurations"]["show_total_votes"] == 1) ? (isset($vt["totalVotes"][$topic->topic_key])? $vt["totalVotes"][$topic->topic_key]["positive"] : '0' ): "",
-                                                                                     !empty($vt["allReadyVoted"][$topic->topic_key]) ? $vt["allReadyVoted"][$topic->topic_key] : null ,
-                                                                                     !empty($vt["remainingVotes"]->total) ? $vt["remainingVotes"]->total : null ,
-                                                                                     $vt["configurations"]) !!}
-                                                        @endif
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            @if( $vt["method"] == "VOTE_METHOD_MULTI" )
+                                                                {!! Html::oneMultiVoting($userKey,
+                                                                                        $topic->topic_key,
+                                                                                        $cb->cb->cb_key,
+                                                                                        $vt["key"],
+                                                                                        (isset($vt["genericConfigurations"]) && array_key_exists("show_total_votes",$vt["genericConfigurations"]) && $vt["genericConfigurations"]["show_total_votes"] == 1) ? (isset($vt["totalVotes"][$topic->topic_key])? $vt["totalVotes"][$topic->topic_key]["positive"] : '0' ): "",
+                                                                                        !empty($vt["allReadyVoted"][$topic->topic_key]) ? $vt["allReadyVoted"][$topic->topic_key] : null ,
+                                                                                        !empty($vt["remainingVotes"]->total) ? $vt["remainingVotes"]->total : null ,
+                                                                                        $vt["configurations"]) !!}
+                                                            @endif
+                                                        </div>
                                                     </div>
+                                                @endif
+                                            @endforeach
+                                        @endif
+                                    @else
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="vottingBox">
+                                                    <h3>
+                                                        {{trans('vote.votesAlreadySubmitted')}}
+                                                    </h3>
                                                 </div>
-                                            @endif
-                                        @endforeach
-                                    @endif
-                                @else
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="vottingBox">
-                                                <h3>
-                                                    {{trans('vote.votesAlreadySubmitted')}}
-                                                </h3>
                                             </div>
                                         </div>
-                                    </div>
-                                @endif
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
+                @endif
         @endforeach
     @endforeach
     <!-- End Proposals -->

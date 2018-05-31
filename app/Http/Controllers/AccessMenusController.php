@@ -18,7 +18,6 @@ class AccessMenusController extends Controller
     public function __construct()
     {
         View::share('private.accessMenus', trans('accessMenu.accessMenu'));
-
     }
 
     /**
@@ -28,7 +27,6 @@ class AccessMenusController extends Controller
      */
     public function index()
     {
-
         $title = trans('privateAccessMenus.list_accessMenus');
         return view('private.accessMenus.index', compact('title'));
     }
@@ -41,9 +39,7 @@ class AccessMenusController extends Controller
     public function create()
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsCreate('cm', 'menu')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         $data = [];
@@ -84,9 +80,7 @@ class AccessMenusController extends Controller
     public function store(AccessMenuRequest $request)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsCreate('cm', 'menu')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
         try {
             $accessMenu = Orchestrator::storeAccessMenu($request);
@@ -108,9 +102,7 @@ class AccessMenusController extends Controller
     public function show($id)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsShow('cm', 'menu')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         $data = [];
@@ -170,9 +162,7 @@ class AccessMenusController extends Controller
     public function edit($id)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsUpdate('cm', 'menu')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         $data = [];
@@ -210,9 +200,7 @@ class AccessMenusController extends Controller
     public function update(AccessMenuRequest $request, $id)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsUpdate('cm', 'menu')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         try {
@@ -235,9 +223,7 @@ class AccessMenusController extends Controller
     public function destroy($id)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsDelete('cm', 'menu')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         try {
@@ -259,9 +245,7 @@ class AccessMenusController extends Controller
      */
     public function delete($id){
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsDelete('cm', 'menu')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         $data = array();
@@ -319,7 +303,7 @@ class AccessMenusController extends Controller
      */
     public function tableAccessMenus(Request $request)
     {
-        if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('cm', 'menu')){
+        if(Session::get('user_role') == 'admin'){
 
             $manage = Orchestrator::listAccessMenu();
 
@@ -333,21 +317,22 @@ class AccessMenusController extends Controller
 
             }else
                 $accessMenu = Collection::make($manage);
+
+            foreach($accessMenu as $accessMenuItem) {
+                $accessMenuItem->siteLink = $accessMenuItem->site->link ?? "";
+            }
         }else
             $accessMenu = Collection::make([]);
 
-        $edit = Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsUpdate('cm', 'menu');
-        $delete = Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsDelete('cm', 'menu');
-
+        $edit = Session::get('user_role') == 'admin';
+        $delete = Session::get('user_role') == 'admin';
+        
         return Datatables::of($accessMenu)
             ->editColumn('name', function ($accessMenu) {
                 return "<a href='".action('AccessMenusController@show', $accessMenu->id)."'>".$accessMenu->name."</a>";
             })
             ->addColumn('activeAction', function ($accessMenu) {
                 return ($accessMenu->active == 0) ? ONE::actionButtons($accessMenu->id,['activate' => 'AccessMenusController@activateConfirm']) : "";
-            })
-            ->editColumn('siteLink', function ($accessMenu) {
-                return !empty($accessMenu->site->link) ? $accessMenu->site->link : "";
             })
             ->editColumn('active', function ($accessMenu) {
                 return ($accessMenu->active == 1) ? trans("Yes") : trans("No");
@@ -362,6 +347,7 @@ class AccessMenusController extends Controller
                 else
                     return null;
             })
+            ->rawColumns(['name','activeAction','action'])
             ->make(true);
     }
 }

@@ -8,19 +8,19 @@ use App\One\One;
 use App\ComModules\EMPATIA;
 use Illuminate\Http\Request;
 use App\ComModules\Orchestrator;
-use Yajra\Datatables\Facades\Datatables;
+use Datatables;
 
 class ShortLinksController extends Controller {
     
     public function index() {
-        $title = trans('privateShortLinks.short_links_title');
+        $title = trans('privateShortLinks.short_links');
 
         return view('private.shortlinks.index', compact('title'));
     }
 
     public function create() {
         try{
-            $title = trans('privateShortLinks.short_links_title');
+            $title = trans('privateShortLinks.short_links');
 
             return view('private.shortlinks.shortlink', compact('title'));
         } catch (Exception $e) {
@@ -47,7 +47,7 @@ class ShortLinksController extends Controller {
 
     public function show($shortLinkKey) {
         try {
-            $title = trans('privateShortLinks.short_links_title');
+            $title = trans('privateShortLinks.short_links');
 
             $shortLink = EMPATIA::getShortLink($shortLinkKey);
 
@@ -59,7 +59,7 @@ class ShortLinksController extends Controller {
 
     public function edit($shortLinkKey) {
         try {
-            $title = trans('privateShortLinks.short_links_title');
+            $title = trans('privateShortLinks.short_links');
 
             $shortLink = EMPATIA::getShortLink($shortLinkKey);
 
@@ -107,9 +107,9 @@ class ShortLinksController extends Controller {
         }
     }
     
-    public function getIndexTable() {
+    public function getIndexTable(Request $requet) {
         try {
-            $shortLinksData = EMPATIA::getShortLinks();
+            $shortLinksData = EMPATIA::getShortLinks($requet);
 
             // in case of json
             $shortLinks = collect($shortLinksData->shortLinks);
@@ -122,6 +122,7 @@ class ShortLinksController extends Controller {
                 ->addColumn('action', function ($shortLink) {
                     return One::actionButtons($shortLink->short_link_key, ['show' => 'ShortLinksController@show','delete' => 'ShortLinksController@delete']);
                 })
+                ->rawColumns(['name','action'])
                 ->with('total', $shortLinksData->recordsTotal)
                 ->with('filtered', $shortLinksData->recordsFiltered)
                 ->skipPaging()

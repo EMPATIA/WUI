@@ -34,8 +34,16 @@
     </ul>
 </div>
 
+{{--<script>--}}
+    {{--localStorage.setItem('previousSidebar', 'entity');--}}
+    {{--localStorage.setItem('currentSidebar', 'manageEntityRegistrationValues');--}}
+    {{--localStorage.setItem('sidebarPosition', 2)--}}
+{{--</script>--}}
+
 <script>
-    localStorage.setItem('previousSidebar', 'entity');
+    if(localStorage.getItem('sidebarPosition') == 2)
+        localStorage.setItem('nextSidebar', localStorage.getItem('currentSidebar'));
     localStorage.setItem('currentSidebar', 'manageEntityRegistrationValues');
-    localStorage.setItem('sidebarPosition', 2)
+    localStorage.setItem('previousSidebar', 'entity');
+    localStorage.setItem('sidebarPosition', 1)
 </script>

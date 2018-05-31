@@ -24,7 +24,7 @@
                                         @if(isset($usersNames[$message->created_by]['photo_id']) && ($usersNames[$message->created_by]['photo_id'] > 0))
                                             <img class="img-sm" src="{{URL::action('FilesController@download',[$usersNames[$message->created_by]['photo_id'], $usersNames[$message->created_by]['photo_code'], 1])}}">
                                         @else
-                                            <img class="img-sm" src="{{ asset('images/cml/icon-user-default-160x160.png') }}">
+                                            <img class="img-sm" src="{{ asset('images/default/icon-user-default-160x160.png') }}">
                                         @endif
                                     </div>
                                     <div>

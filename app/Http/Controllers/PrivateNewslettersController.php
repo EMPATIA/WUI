@@ -23,8 +23,12 @@ class PrivateNewslettersController extends Controller
      */
     public function index(){
         try {
-            $title = trans('privateNewsletters.list');
-            return view('private.newsletters.index', compact('title'));
+            $title = trans('privateNewsletters.newsletters');
+            $sidebar = 'email';
+            $active = 'newsletters';
+
+            Session::put('sidebarArguments', ['activeFirstMenu' => 'newsletters']);
+            return view('private.newsletters.index', compact('title', 'sidebar', 'active'));
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["privateNewsletters.index" => $e->getMessage()]);
         }
@@ -158,6 +162,7 @@ class PrivateNewslettersController extends Controller
                 ->addColumn('action', function ($newsletters) {
                     return ONE::actionButtons($newsletters->newsletter_key, ['form' => 'newsletters', 'show' => 'PrivateNewslettersController@show', 'delete' => 'PrivateNewslettersController@delete']);
                 })
+                ->rawColumns(['subject','action'])
                 ->with('filtered', $recordsFiltered ?? 0)
                 ->skipPaging()
                 ->setTotalRecords($recordsTotal ?? 0)
@@ -195,7 +200,7 @@ class PrivateNewslettersController extends Controller
             if (!empty(json_decode($newsletter->extra_data))){
 
                 $extraData = json_decode($newsletter->extra_data);
-                if (!is_null($extraData->questionnaire)){
+                if (!is_null($extraData->questionnaire) && $extraData->questionnaire!="null") {
 
                     $usersData = EMPATIA::generateUniqueKey($userKeys, $extraData->questionnaire);
 
@@ -227,7 +232,8 @@ class PrivateNewslettersController extends Controller
             return view('private.newsletters.newsletter', compact('title', 'newsletter'));
         }
         catch(Exception $e) {
-            return redirect()->back()->withErrors(["privateNewsletters.testNewsletter" => $e->getMessage()]);
+            dd($e);
+            // return redirect()->back()->withErrors(["privateNewsletters.testNewsletter" => $e->getMessage()]);
         }
     }
 

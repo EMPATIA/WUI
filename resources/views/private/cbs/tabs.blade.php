@@ -37,7 +37,12 @@
     {{--@endif--}}
     {{--@if(in_array('empaville_analysis', Session::get('user_permissions_sidebar')) || sizeOf(Session::get('user_permissions_sidebar')) == 1)--}}
         {{--<li class="nav-item flex-sm-fill text-sm-center">--}}
-            {{--<a class="nav-link @if($active=='empavilleAnalysis') active @endif" href="{{ action('CbsController@voteAnalysisEmpaville', [$type, $cb->cb_key ?? $cbKey]) }}">{{ trans('privateSidebar.empaville_analytics') }}</a>--}}
+            {{--<a class="nav-link @if($active=='empavilleAnalysis') active @endif" href="{{ action('CbsController@voteAnalysisEmpaville', [$type, $cb->cb_key ?? $cbKey]) }}">{{ trans('privateSidebar.empaville') }}</a>--}}
+        {{--</li>--}}
+    {{--@endif--}}
+    {{--@if((in_array('project_2c', Session::get('user_permissions_sidebar')) || sizeOf(Session::get('user_permissions_sidebar')) == 1) && ($type == "project_2c_manage" || $type == "project_2c"))--}}
+        {{--<li class="nav-item flex-sm-fill text-sm-center">--}}
+            {{--<a class="nav-link @if($active=='project_2c_manage') active @endif" href="{{ action('SecondCycleController@manage', [$type, $cb->cb_key ?? $cbKey]) }}">{{ trans('privateSidebar.manageSecondCycle') }}</a>--}}
         {{--</li>--}}
     {{--@endif--}}
     {{--@if(in_array('topic_permissions', Session::get('user_permissions_sidebar')) || sizeOf(Session::get('user_permissions_sidebar')) == 1)--}}

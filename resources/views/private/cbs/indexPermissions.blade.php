@@ -18,8 +18,8 @@
                             <label class=" form-control-label" for="advancedFilter">{{ trans("privateCbsPermissions.advFilter")}}</label>
                             <div class="">
                                 <select id="advancedFilter" name="advancedFilter" multiple="multiple" class="select2privatePosts" onchange="showCbPermissionsDataTable()">
-                                    <option value="groups">{{ trans("privateCbsPermissions.groups")}}</option>
-                                    <option value="users">{{ trans("privateCbsPermissions.users") }}</option>
+                                    <option value="groups" selected>{{ trans("privateCbsPermissions.groups")}}</option>
+                                    <option value="users" selected>{{ trans("privateCbsPermissions.users") }}</option>
                                 </select>
                             </div>
                         </div>
@@ -31,6 +31,7 @@
             <table id="all_groups" class="table table-hover table-striped dataTable no-footer table-responsive">
                 <thead>
                 <tr>
+                    <th>{{ trans('privateCbsPermissions.type') }}</th>
                     <th>{{ trans('privateCbsPermissions.name') }}</th>
                 </tr>
                 </thead>
@@ -68,6 +69,7 @@
                     }
                 },
                 columns: [
+                    {data: 'type', name: 'type', width: "100px" },
                     {data: 'title', name: 'title'},
                 ]
             });

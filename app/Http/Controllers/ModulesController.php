@@ -23,7 +23,8 @@ class ModulesController extends Controller
      */
     public function index()
     {
-        return view('private.modules.index');
+        $title = trans('privateModules.modules');
+        return view('private.modules.index', compact('title'));
     }
 
     /**
@@ -179,6 +180,7 @@ class ModulesController extends Controller
             ->addColumn('action', function ($collection) {
                 return ONE::actionButtons($collection->module_key, ['form' => 'moduleType' ,'edit' => 'ModulesController@edit', 'delete' => 'ModulesController@delete']);
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 }

@@ -6,15 +6,11 @@ s<ul class="sidebar-menu side-menu-main">
 
 
     <li>
-        <div class="menu-border-bottom">
-            {{ trans('privateSidebar.entity_groups') }}
-        </div>
+        <div class="menu-border-bottom">{{ trans('privateSidebar.entity_groups') }}</div>
         <ul  class="sub-menu-wrapper">
-            @if(verifyUserPermissionsCrud('wui', 'entity_groups'))
-                <li class="treeview">
-                    <div class="menu-wrapper"><a @if($active=='entity_groups_list') class="menu-active"  @endif href="{{ action("EntityGroupsController@index",["groupTypeKey" => $variableToView] ) }}">{{ trans('privateSidebar.entity_groups_list') }}</a></div>
-                </li>
-            @endif
+            <li class="treeview">
+                <div class="menu-wrapper"><a @if($active=='entity_groups_list') class="menu-active"  @endif href="{{ action("EntityGroupsController@index",["groupTypeKey" => $variableToView] ) }}">{{ trans('privateSidebar.entity_groups_list') }}</a></div>
+            </li>
             <li class="treeview">
                 <div class="menu-wrapper"><a @if($active=='entity_groups_tree') class="menu-active"  @endif href="{{ action("EntityGroupsController@showGroups", ["groupTypeKey" => $variableToView]) }}">{{ trans('privateSidebar.entity_groups_tree') }}</a></div>
             </li>

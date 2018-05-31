@@ -40,21 +40,13 @@
                                         var formData = new FormData();
                                         formData.append('file', blob, $("#banner_img").attr("title"));
 
-                                        var file = new Blob([blob], { type: "image/jpeg" });
+                                        var file = new Blob([blob], { type: blob.type });
 
                                         var up = this[$("#banner_img").attr("uploader")];
                                         up.addFile(file);
 
-                                        //console.log( this[$("#banner_img").attr("uploader")]);
-                                       // var xhr = new XMLHttpRequest();
-                                    // Add any event handlers here...
-                                        //xhr.open('POST', '/upload/', true);
-                                        //xhr.send(formData);
-
                                         $("#banner_img").attr("src", "");
-                                        /* ... */
-                                    },
-                                    'image/jpeg'
+                                    }
                             );
                         }
 
@@ -196,6 +188,76 @@
                 });
     }
 
+
+
+    function ideaFileUploaded(id, response, div, upload, type) {
+
+        return $.post('{{ URL::action('PublicPostController@addFile') }}',
+            {
+                _token: "{{ csrf_token() }}",
+                file_id: response.result.id,
+                file_code: response.result.code,
+                post_key: "{{ isset($post) ? $post->post_key : 0 }}",
+                name: response.result.name,
+                type_id: type,
+            },
+            function (data) {
+
+            })
+            .done(function (result) {
+
+                updateFilesPostList(div, type);
+
+                $("#" + id).remove();
+
+                if (($("#"+upload).html()).length <= 0)
+                    $("#"+upload).slideUp();
+
+                @if (isset($post))
+                $(div).trigger('files-updated',[response.result.id, '{{(isset($post) ? $post->post_key : 0) }}']);
+                @endif
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+
+                console.log(xhr.responseText);
+            });
+    }
+
+
+
+
+    function ideaSingleImageUploaded(id, response, div, upload, type) {
+
+        $.post('{{ URL::action('PublicPostController@addFile') }}',
+            {
+                _token: "{{ csrf_token() }}",
+                file_id: response.result.id,
+                file_code: response.result.code,
+                post_key: "{{ isset($post) ? $post->post_key : 0 }}",
+                name: response.result.name,
+                type_id: type,
+            },
+            function (data) {
+
+            })
+            .done(function (result) {
+
+                updateSinglePostList(div, type);
+
+                $("#" + id).remove();
+
+                if (($("#"+upload).html()).length <= 0)
+                    $("#"+upload).slideUp();
+
+                @if (isset($post))
+                    $(div).trigger('files-updated',[response.result.id, '{{(isset($post) ? $post->post_key : 0) }}']);
+                @endif
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+
+                console.log(xhr.responseText);
+            });
+    }
 
 
     function contentFileUploaded(id, response, div, upload, type) {
@@ -422,6 +484,52 @@
             });
     }
 
+
+    function cbDeleteFile(id, div, type) {
+        $.post('{{ URL::action('PublicPostController@deleteFile')}}',
+            {
+                _token: "{{ csrf_token() }}",
+                file_id: id,
+                post_key: "{{(isset($post) ? $post->post_key : 0) }}",
+            },
+            function (data) {
+            })
+            .done(function (result) {
+                updateFilesPostList(div,type);
+                $(div).trigger('files-updated',[id, '{{(isset($post) ? $post->post_key : 0) }}']);
+            })
+            .fail(function () {
+            })
+            .always(function () {
+            });
+    }
+
+    function cbDeleteSingleImage(id, div, type) {
+        var ajaxloader = "<div id='ajax_loader_remove_file' style=\"display:flex;justify-content:center;align-items:center;height:200px;width:100%;background-color:#0000004d;position:absolute;top:0;left:0;\">\n" +
+            "<div><i class=\"fa fa-circle-o-notch fa-spin fa-3x fa-fw\"></i> <span class=\"sr-only\">Loading...</span></div>\n" +
+            "</div>";
+        $("#imagePreview").append(ajaxloader);
+        $.post('{{ URL::action('PublicPostController@deleteFile')}}',
+            {
+                _token: "{{ csrf_token() }}",
+                file_id: id,
+                post_key: "{{(isset($post) ? $post->post_key : 0) }}",
+            },
+            function (data) {
+            })
+            .done(function (result) {
+                updateSinglePostList(div,type);
+                $(div).trigger('files-updated',[id, '{{(isset($post) ? $post->post_key : 0) }}']);
+                setTimeout(function(){ $("#ajax_loader_remove_file").remove(); }, 250);
+            })
+            .fail(function () {
+                toastr.error('{{ trans("fileUpload.something_went_wrong") }}', '', {timeOut: 1000,positionClass: "toast-bottom-right"});
+                $("#ajax_loader_remove_file").remove();
+            })
+            .always(function () {
+            });
+    }
+
     function contentDeleteFile(id, div, type) {
         $.post('{{ URL::action('ContentsController@deleteFile')}}',
             {
@@ -562,6 +670,92 @@
                 })
                 .always(function () {
                 });
+    }
+
+    function updateFilesPostList(divName, type) {
+        $.get('{{ URL::action('PublicPostController@getFiles', (isset($post) ? $post->post_key : 0)) }}?type=' + type)
+            .done(function (result) {
+
+                var div = $(divName);
+                div.html("");
+
+                for (var i = 0; i < result.length; i++) {
+                    if( type == result[i].type_id ) {
+                        div.append('<div class="row" style="margin-bottom:5px;"> ' +
+                            /*
+                            '<div class="col-2" style="text-align: left;"> ' +
+                            '<a class="btn btn-flat btn-warning btn-sm' + (i == 0 ? " disabled" : "") + '" href="javascript:orderFilePosts(' + result[i].file_id + ', 1, \'' + divName + '\', ' + type + ')"><i class="fa fa-arrow-up"></i></a> ' +
+                            '<a class="btn btn-flat btn-warning btn-sm' + (i == result.length - 1 ? " disabled" : "") + '" href="javascript:orderFilePosts(' + result[i].file_id + ', -1, \'' + divName + '\', ' + type + ')"><i class="fa fa-arrow-down"></i></a> ' +
+                            '</div>' +
+                            */
+                            '<div class="col-10 col-lg-8 col-md-7 col-xs-10">' + result[i].name + '</div> ' +
+                            '<div class="col-2 col-lg-4 col-md-5 col-xs-2" style="text-align: right;"> ' +
+                            /*'<a class="btn btn-flat btn-info btn-sm file-btn-info" href="javascript:getFilePostDetails(' + result[i].file_id + ')"><i class="fa fa-gear"></i></a> ' +
+                            '<a class="btn btn-flat btn-success btn-sm file-btn-success" href="' + "{{ env('DOWNLOAD_API', '/files/') }}" + result[i].file_id + '/' + result[i].file_code + ' "><i class="fa fa-download"></i></a> ' +*/
+                            '<a class="btn btn-flat btn-danger btn-sm file-btn-danger" href="javascript:cbDeleteFile(' + result[i].file_id + ', \'' + divName + '\', ' + type + ')"><i class="fa fa-trash"></i></a> ' +
+                            '</div> ' +
+                            '</div> ');
+                    }
+                }
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                console.log(xhr.responseText);
+            })
+            .always(function () {
+            });
+    }
+
+    function updateSinglePostList(divName, type) {
+        $.get('{{ URL::action('PublicPostController@getFiles', (isset($post) ? $post->post_key : 0)) }}?type=' + type)
+            .done(function (result) {
+                var div = $("#imagePreview");
+                div.html("");
+
+                var showPreviewImage = false;
+
+                for (var i = 0; i < result.length; i++) {
+                    /*
+                    div.append('<div class="row" style="margin-bottom:5px;"> ' +
+                        /!*
+                        '<div class="col-2" style="text-align: left;"> ' +
+                        '<a class="btn btn-flat btn-warning btn-sm' + (i == 0 ? " disabled" : "") + '" href="javascript:orderFilePosts(' + result[i].file_id + ', 1, \'' + divName + '\', ' + type + ')"><i class="fa fa-arrow-up"></i></a> ' +
+                        '<a class="btn btn-flat btn-warning btn-sm' + (i == result.length - 1 ? " disabled" : "") + '" href="javascript:orderFilePosts(' + result[i].file_id + ', -1, \'' + divName + '\', ' + type + ')"><i class="fa fa-arrow-down"></i></a> ' +
+                        '</div>' +
+                        *!/
+                        '<div class="col-10 col-lg-8 col-md-7 col-xs-10">' + result[i].name + '</div> ' +
+                        '<div class="col-2 col-lg-4 col-md-5 col-xs-2" style="text-align: right;"> ' +
+                        /!*'<a class="btn btn-flat btn-info btn-sm file-btn-info" href="javascript:getFilePostDetails(' + result[i].file_id + ')"><i class="fa fa-gear"></i></a> ' +
+                        '<a class="btn btn-flat btn-success btn-sm file-btn-success" href="' + "{{ env('DOWNLOAD_API', '/files/') }}" + result[i].file_id + '/' + result[i].file_code + ' "><i class="fa fa-download"></i></a> ' +*!/
+                        '<a class="btn btn-flat btn-danger btn-sm file-btn-danger" href="javascript:cbDeleteFile(' + result[i].file_id + ', \'' + divName + '\', ' + type + ')"><i class="fa fa-trash"></i></a> ' +
+                        '</div> ' +
+                        '</div> ');*/
+                    if( type == result[i].type_id ) {
+                        var imageHtml = '<div style="background-image:url(' + "{{ env('DOWNLOAD_API', '/files/') }}" + result[i].file_id + '/' + result[i].file_code + '/1);background-size: cover;background-repeat:no-repeat;width:100%;height:180px;margin-bottom:10px;"></div>';
+                        imageHtml += '<a style="position: absolute;top: 15px;right:15px;margin-right:10px;" class="btn btn-flat btn-danger btn-sm file-btn-danger" href="javascript:cbDeleteSingleImage(' + result[i].file_id + ', \'' + divName + '\', ' + type + ')"><i class="fa fa-trash"></i></a>'
+                        div.html(imageHtml);
+                        showPreviewImage = true;
+                    }
+                }
+
+                if(showPreviewImage == true){
+                    $("#imagePreview").show();
+                    $("#drop-zone-gallery").hide();
+                    $("#box-tools").hide();
+                    $("#select-gallery").hide();
+                    $("#imagesAccepptedMessage").hide();
+                } else {
+                    $("#drop-zone-gallery").show();
+                    $("#box-tools").show();
+                    $("#imagePreview").hide();
+                    $("#select-gallery").show();
+                    $("#imagesAccepptedMessage").show();
+                }
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                console.log(xhr.responseText);
+            })
+            .always(function () {
+            });
     }
 
     function orderFilePosts(id, movement, div, type) {

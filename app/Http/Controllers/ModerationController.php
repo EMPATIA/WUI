@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Collection;
 use Session;
-use Yajra\Datatables\Facades\Datatables;
+use Datatables;
 
 class ModerationController extends Controller
 {
@@ -34,12 +34,12 @@ class ModerationController extends Controller
         try{
 
             //  SIDEBAR HANDLE
-            $sidebar = 'moderation';
-            $active = 'topics_to_moderate';
-            Session::put('sidebarArguments', ['activeFirstMenu' => $active]);
+//            $sidebar = 'moderation';
+//            $active = 'topics_to_moderate';
+//            Session::put('sidebarArguments', ['activeFirstMenu' => $active]);
 
 
-            $title = trans('privateModeration.list_with_topics_to_moderate');
+            $title = trans('privateModeration.participation');
 
             return view('private.moderation.topicsToModerate', compact('title', 'sidebar', 'active'));
             } catch (Exception $e) {
@@ -55,11 +55,11 @@ class ModerationController extends Controller
         try{
 
             //  SIDEBAR HANDLE
-            $sidebar = 'moderation';
-            $active = 'posts_to_moderate';
-            Session::put('sidebarArguments', ['activeFirstMenu' => $active]);
+//            $sidebar = 'sidebar';
+//            $active = 'posts_to_moderate';
+//            Session::put('sidebarArguments', ['activeFirstMenu' => $active]);
 
-            $title = trans('privateModeration.list_with_topics_to_moderate');
+            $title = trans('privateModeration.comments');
 
             return view('private.moderation.postsToModerate', compact('title', 'sidebar', 'active'));
         } catch (Exception $e) {
@@ -104,6 +104,7 @@ class ModerationController extends Controller
             ->addColumn('action', function ($collection) use ($listCbs) {
                 return '<a href="javascript:updateStatus(\''.$collection->topic_key.'\',\'moderated\',\''.$collection->cb_key.'\',\''.$listCbs->{$collection->cb_key}->cb_type->code.'\')">' . '<span class="badge badge-success">'.trans('privateModeration.moderate').'</span>' . '</a><a href="javascript:updateStatus(\''.$collection->topic_key.'\',\'not_accepted\',\''.$collection->cb_key.'\',\''.$listCbs->{$collection->cb_key}->cb_type->code.'\')">' . '<span class="badge badge-danger">'.trans('privateModeration.reject').'</span>' . '</a>';
             })
+            ->rawColumns(['title','cbTitle','userName','action'])
             ->make(true);
     }
 
@@ -184,6 +185,7 @@ class ModerationController extends Controller
 
                 return $html;
             })
+            ->rawColumns(['topic','created_by','content','abuses','action'])
             /* Makes DataTable not reordering the data again - was messing up with dates */
             ->order(function(){})
             ->skipPaging()
@@ -233,13 +235,6 @@ class ModerationController extends Controller
         $usersNames = [];
         if (count($usersKeys) > 0)
             $usersNames = Auth::getListNames($usersKeys);
-
-
-        $data['html'] = '';
-        foreach ($messages as $i=>$comment) {
-            if ($i!=0)  //TODO: Change CB to return only comments and not topic content post
-                $data['html'] .=  Html::oneCommentsItemNormalModal($comment, $usersNames, $cbKey, $type, $topicKey);
-        }
 
         $data['success'] = true;
         return $data;

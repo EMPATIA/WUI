@@ -57,14 +57,9 @@ But if you need any of the following features, you'll want to tie in the Faceboo
 
 Add the Laravel Facebook SDK package to your `composer.json` file.
 
-```json
-{
-    "require": {
-        "sammyk/laravel-facebook-sdk": "^3.0"
-    }
-}
-```
+    composer require sammyk/laravel-facebook-sdk
 
+> **Auto-discovery:** As of version **3.5.0**, the Laravel Facebook SDK supports [auto-discovery](https://medium.com/@taylorotwell/package-auto-discovery-in-laravel-5-5-ea9e3ab20518) for Laravel 5.5 and greater.
 
 ### Service Provider
 
@@ -128,6 +123,10 @@ Route::get('/facebook/login', function(SammyK\LaravelFacebookSdk\LaravelFacebook
 
 
 ### Configuration File
+
+> **Note:** As of version **3.4.0**, publishing the config file is optional as long as you set your [required config values](#required-config-values).
+
+> **Also note:** The config file contains a default Graph API version that gets bumped up to the latest stable version periodically which might cause a breaking change when you update this package in a minor or patch version. It is recommended that you still publish the config file and update the Graph API version on your own time to prevent breaking things.
 
 After [creating an app in Facebook](https://developers.facebook.com/apps), you'll need to provide the app ID and secret. In Laravel you can publish the configuration file with `artisan`.
 
@@ -366,7 +365,7 @@ By default the JavaScript SDK will not set a cookie, so you have to explicitly e
 FB.init({
   appId      : 'your-app-id',
   cookie     : true,
-  version    : 'v2.8'
+  version    : 'v2.10'
 });
 ```
 
@@ -759,7 +758,7 @@ Route::get('/example', function(SammyK\LaravelFacebookSdk\LaravelFacebookSdk $fb
     $fb2 = $fb->newInstance([
       'app_id' => env('FACEBOOK_APP_ID2'),
       'app_secret' => env('FACEBOOK_APP_SECRET2'),
-      'default_graph_version' => 'v2.8',
+      'default_graph_version' => 'v2.10',
       // . . .
     ]);
 });

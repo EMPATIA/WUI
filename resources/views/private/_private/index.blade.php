@@ -20,7 +20,8 @@
     {{--
     <!-- Bootstrap 4.0.0.1 Beta -->
     <link rel="stylesheet" href="/bootstrap/4.0.0-beta/css/bootstrap.min.css">
-    <script src="/bootstrap/4.0.0-beta/js/popper.min.js"></script>
+    --}}
+{{--    <script src="/bootstrap/4.0.0-beta/js/popper.min.js"></script>
     <script src="/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>--}}
     @yield('header_scripts')
 {{--
@@ -29,6 +30,16 @@
     {{--
     <script src="{{ asset("js/sidebar.js")}}"></script>
     --}}
+
+    <link rel="stylesheet" type="text/css" href="{!! asset("css/daterangepicker/daterangepicker.css") !!}" />
+
+    <!-- Date Range Picker -->
+    <script type="text/javascript" src="{!! asset("js/daterangepicker/moment.min.js") !!}"></script>
+    <script type="text/javascript" src="{!! asset("js/daterangepicker/daterangepicker.js") !!}"></script>
+
+    <script src="{!! asset("js/file-downloader/canvas-toBlob.js") !!}"></script>
+    <script src="{!! asset("js/file-downloader/FileSaver.min.js") !!}"></script>
+    <script src="{!! asset("js/file-downloader/download.js") !!}"></script>
 </head>
 <body class="fixed skin-blue-light sidebar-mini">
 <div class="wrapper">
@@ -38,11 +49,13 @@
 
 
     <div class="content-wrapper">
-        <section class="content-header">
-            <h1>
-                {{ $title or "" }}
-            </h1>
-        </section>
+        @if(!empty($title))
+            <section class="content-header">
+                <h1>
+                    {{ $title or "" }}
+                </h1>
+            </section>
+        @endif
 
         <section class="content">
             @yield('content')

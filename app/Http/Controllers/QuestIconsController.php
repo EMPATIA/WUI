@@ -41,7 +41,9 @@ class QuestIconsController extends Controller
      */
     public function create()
     {
-        return view('private.questIcons.icon');
+        $uploadKey = Files::getUploadKey();
+
+        return view('private.questIcons.icon',compact("uploadKey"));
     }
 
     /**
@@ -91,9 +93,10 @@ class QuestIconsController extends Controller
     public function edit($iconKey)
     {
         try {
+            $uploadKey = Files::getUploadKey();
             $icon = Questionnaire::getIcon($iconKey);
 
-            return view('private.questIcons.icon', compact('icon'));
+            return view('private.questIcons.icon', compact('icon','uploadKey'));
         }
         catch(Exception $e) {
             return redirect()->back()->withErrors([ trans('privateQuestIcons.edit') => $e->getMessage()]);
@@ -180,6 +183,7 @@ class QuestIconsController extends Controller
             ->addColumn('action', function ($collection) {
                 return ONE::actionButtons($collection->icon_key, ['form' => 'questIcon','edit' => 'QuestIconsController@edit', 'delete' => 'QuestIconsController@delete']);
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 

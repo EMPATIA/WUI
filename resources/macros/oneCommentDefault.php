@@ -263,7 +263,7 @@ Html::macro('oneComments', function($configurations, $topic, $comments, $usersNa
                                     </div>
                                 <?php }
                             } else { ?>
-                                <img class="img-responsive img-sm" src="<?php echo  asset('images/cml/icon-user-default-160x160.png') ?>">
+                                <img class="img-responsive img-sm" src="<?php echo  asset('images/default/icon-user-default-160x160.png') ?>">
                             <?php } ?>
                         </div>
                     </div>

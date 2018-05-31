@@ -109,6 +109,7 @@ class GroupTypesController extends Controller
                 ->addColumn('action', function ($groupType) {
                     return ONE::actionButtons($groupType->group_type_key, ['edit' => 'GroupTypesController@edit', 'delete' => 'GroupTypesController@delete', 'form' => 'groupTypes']);
                 })
+                ->rawColumns(['code','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["groupTypes.tableGroupTypes" => $e->getMessage()]);

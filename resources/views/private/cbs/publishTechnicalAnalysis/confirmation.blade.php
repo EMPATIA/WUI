@@ -37,76 +37,134 @@
                             <h5 class="box-title">
                                 {{ trans("privatePublishTechnicalAnalysis.technical_analysis_question") }}
                             </h5>
-                            {{ $question->question->question }}
                         </div>
                         <div class="col-12 col-md-6">
                             <h5 class="box-title">
                                 {{ trans("privatePublishTechnicalAnalysis.topic_parameter") }}
                             </h5>
-                            {{ $question->question->question }}
+                        </div>
+                        <div class="col-12">
+                            <div class="row" id="questions-to-use">
+                                @forelse($questions as $questionIndex => $question)
+                                    <div class="col-12 col-md-6">
+                                        {{ $question->question->question }}
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        {{ $parameters->{ $questionIndex }->parameter->parameter }}
+                                    </div>
+                                @empty
+                                    <div class="col-12 col-md-6">
+                                        {{ trans("privatePublishTechnicalAnalysis.no_new_status_for_passed_topics")}}
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        {{ trans("privatePublishTechnicalAnalysis.no_new_status_for_passed_topics")}}~
+                                    </div>
+                                @endforelse
+                            </div>
                         </div>
                         <div class="col-12">
                             <hr>
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <h5 class="box-title">
                                 {{ trans("privatePublishTechnicalAnalysis.passed_status") }}
                             </h5>
-                            {{ $passing->status->name }}
+                            @if(!empty($passing->status->name))
+                                {{ $passing->status->name }}
+                            @else
+                                {{ trans("privatePublishTechnicalAnalysis.no_new_status_for_passed_topics")}}
+                            @endif
                             <br><br>
-                            <h6 class="box-title">
-                                {{ trans("privatePublishTechnicalAnalysis.topics_to_pass") }}
-                                ({{ count($passing->topics) }})
-                            </h6>
-                            <div class="list-group" style="max-height:200px;overflow-y:auto;">
-                                @forelse($passing->topics as $topic)
-                                    <a class="list-group-item list-group-item-action"
-                                        href="{{ action("TopicController@show",["type"=>$type,"cbKey"=>$cbKey,"topicKey"=>$topic->topic_key]) }}">
-                                        {{ $topic->title }}
-                                    </a>
-                                @empty
-                                    {{ trans("privatePublishTechnicalAnalysis.no_topics_to_pass") }}
-                                @endforelse
+                            <div class="card">
+                                <h6 class="card-header box-title" data-toggle="collapse" href="#passing-topics" aria-expanded="false" aria-controls="passing-topics">
+                                    {{ trans("privatePublishTechnicalAnalysis.topics_to_pass") }}
+                                    ({{ count($passing->topics) }})
+                                </h6>
+                                <div id="passing-topics" class="card-block collapse">
+                                    <div class="list-group" style="max-height:200px;overflow-y:auto;">
+                                        @forelse($passing->topics as $topic)
+                                            <a class="list-group-item list-group-item-action"
+                                                href="{{ action("TopicController@show",["type"=>$type,"cbKey"=>$cbKey,"topicKey"=>$topic->topic_key]) }}">
+                                                {{ $topic->title }}
+                                            </a>
+                                        @empty
+                                            {{ trans("privatePublishTechnicalAnalysis.no_topics_to_pass") }}
+                                        @endforelse
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <h5 class="box-title">
                                 {{ trans("privatePublishTechnicalAnalysis.failed_status") }}<br>
                             </h5>
-                            {{ $failing->status->name }}
+                            @if(!empty($failing->status->name))
+                                {{ $failing->status->name }}
+                            @else
+                                {{ trans("privatePublishTechnicalAnalysis.no_new_status_for_failing_topics")}}
+                            @endif
                             <br><br>
-                            <h6 class="box-title">
-                                {{ trans("privatePublishTechnicalAnalysis.topics_to_fail") }}
-                                ({{ count($failing->topics) }})
-                            </h6>
-                            <div class="list-group" style="max-height:200px;overflow-y:auto;">
-                                @forelse($failing->topics as $topic)
-                                    <a class="list-group-item list-group-item-action"
-                                       href="{{ action("TopicController@show",["type"=>$type,"cbKey"=>$cbKey,"topicKey"=>$topic->topic_key]) }}">
-                                        {{ $topic->title }}
-                                    </a>
-                                @empty
-                                    {{ trans("privatePublishTechnicalAnalysis.no_topics_to_pass") }}
-                                @endforelse
+                            <div class="card">
+                                <h6 class="card-header box-title" data-toggle="collapse" href="#failing-topics" aria-expanded="false" aria-controls="failing-topics">
+                                    {{ trans("privatePublishTechnicalAnalysis.topics_to_fail") }}
+                                    ({{ count($failing->topics) }})
+                                </h6>
+                                <div id="failing-topics" class="card-block collapse">
+                                    <div class="list-group" style="max-height:200px;overflow-y:auto;">
+                                        @forelse($failing->topics as $topic)
+                                            <a class="list-group-item list-group-item-action"
+                                                href="{{ action("TopicController@show",["type"=>$type,"cbKey"=>$cbKey,"topicKey"=>$topic->topic_key]) }}">
+                                                {{ $topic->title }}
+                                            </a>
+                                        @empty
+                                            {{ trans("privatePublishTechnicalAnalysis.no_topics_to_failing") }}
+                                        @endforelse
+                                    </div>
+                                </div>
                             </div>
-
                         </div>
-                        <div class="col-12 col-md-4">
-                            <h5 class="box-title">
-                                {{ trans("privatePublishTechnicalAnalysis.topics_without_analysis") }}
-                                ({{ count($noAnalysis) }})
-                            </h5>
-                            <div class="list-group" style="max-height:200px;overflow-y:auto;">
-                                @forelse($noAnalysis as $topic)
-                                    <a class="list-group-item list-group-item-action"
-                                       href="{{ action("TopicController@show",["type"=>$type,"cbKey"=>$cbKey,"topicKey"=>$topic->topic_key]) }}">
-                                        {{ $topic->title }}
-                                    </a>
-                                @empty
-                                    {{ trans("privatePublishTechnicalAnalysis.no_topics_without_analysis") }}
-                                @endforelse
+                        <div class="col-12">
+                            <hr>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="card">
+                                <h6 class="card-header box-title" data-toggle="collapse" href="#without-decision-topics" aria-expanded="false" aria-controls="without-decision-topics">
+                                    {{ trans("privatePublishTechnicalAnalysis.topics_without_decision") }}
+                                    ({{ count($noDecision) }})
+                                </h6>
+                                <div id="without-decision-topics" class="card-block collapse">
+                                    <div class="list-group" style="max-height:200px;overflow-y:auto;">
+                                        @forelse($noDecision as $topic)
+                                            <a class="list-group-item list-group-item-action"
+                                                href="{{ action("TopicController@show",["type"=>$type,"cbKey"=>$cbKey,"topicKey"=>$topic->topic_key]) }}">
+                                                {{ $topic->title }}
+                                            </a>
+                                        @empty
+                                            {{ trans("privatePublishTechnicalAnalysis.no_topics_without_decision") }}
+                                        @endforelse
+                                    </div>
+                                </div>
                             </div>
-
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="card">
+                                <h6 class="card-header box-title" data-toggle="collapse" href="#no-analysis-topics" aria-expanded="false" aria-controls="no-analysis-topics">
+                                    {{ trans("privatePublishTechnicalAnalysis.topics_without_analysis") }}
+                                    ({{ count($noAnalysis) }})
+                                </h6>
+                                <div id="no-analysis-topics" class="card-block collapse">
+                                    <div class="list-group" style="max-height:200px;overflow-y:auto;">
+                                        @forelse($noAnalysis as $topic)
+                                            <a class="list-group-item list-group-item-action"
+                                                href="{{ action("TopicController@show",["type"=>$type,"cbKey"=>$cbKey,"topicKey"=>$topic->topic_key]) }}">
+                                                {{ $topic->title }}
+                                            </a>
+                                        @empty
+                                            {{ trans("privatePublishTechnicalAnalysis.no_topics_without_analysis") }}
+                                        @endforelse
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -118,8 +176,17 @@
                 {{ trans("privatePublishTechnicalAnalysis.cancel") }}
             </a>
 
-            <input type="hidden" name="questionKey" value="{{ $questionKey }}">
-            <input type="hidden" name="parameterId" value="{{ $parameterId }}">
+
+            @forelse($questions as $questionIndex => $question)
+                <input type="hidden" name="questionKeys[{{ $questionIndex }}]" value="{{ $question->question->tech_analysis_question_key }}">
+            @empty
+            @endforelse
+
+            @forelse($parameters as $parameterIndex => $parameter)
+                <input type="hidden" name="parameterIds[{{ $parameterIndex }}]" value="{{ $parameter->parameter->id }}">
+            @empty
+            @endforelse
+
             <input type="hidden" name="passedStatusKey" value="{{ $passedStatusKey }}">
             <input type="hidden" name="failedStatusKey" value="{{ $failedStatusKey }}">
             {!! csrf_field() !!}

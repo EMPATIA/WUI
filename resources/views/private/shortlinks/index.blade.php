@@ -4,13 +4,11 @@
     <div class="box box-primary">
 
         <div class="box-header">
-            <h3 class="box-title"><i class="fa"></i> {{ trans('privateShortLinks.short_links') }}</h3>
+            <h3 class="box-title"><i class="fa"></i> {{ trans('privateShortLinks.list') }}</h3>
             <div class="sendSMS-btn">
-                @if(ONE::verifyUserPermissions('wui', 'shortLinks', 'create'))
-                    <a href="{{ action("ShortLinksController@create") }}" class="btn btn-flat empatia" data-toggle="tooltip" data-delay="{'show':'1000'}" title="" data-original-title="form.send">
-                        {{ trans('privateShortLinks.create') }}
-                    </a>
-                @endif
+                <a href="{{ action("ShortLinksController@create") }}" class="btn btn-flat empatia" data-toggle="tooltip" data-delay="{'show':'1000'}" title="" data-original-title="form.send">
+                    {{ trans('privateShortLinks.create') }}
+                </a>
             </div>
         </div>
 
@@ -44,10 +42,10 @@
                 serverSide: true,
                 ajax: '{!! action('ShortLinksController@getIndexTable') !!}',
                 columns: [
-                    { data: 'name', name: 'name', searchable: true },
-                    { data: 'code', name: 'code', searchable: false },
-                    { data: 'url', name: 'url', searchable: true },
-                    { data: 'hits', name: 'hits', searchable: false },
+                    { data: 'name', name: 'name' },
+                    { data: 'code', name: 'code' },
+                    { data: 'url', name: 'url' },
+                    { data: 'hits', name: 'hits' },
                     { data: 'action', name: 'action', searchable: false, orderable: false, width: "30px" },
                 ],
                 order: [[ 1, 'asc' ]]

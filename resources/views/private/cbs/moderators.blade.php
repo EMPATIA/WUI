@@ -22,11 +22,9 @@
         </div>
         <!-- /.box-header -->
         <div class="box-body">
-            @if(ONE::verifyUserPermissionsCreate('cb', 'moderators') || Session::has('user_permissions') == false)
-                <div class="margin-bottom-10">
-                    <a href="" data-toggle="modal" data-target="#managersModal" class="btn btn-flat empatia">{{trans("privateCbs.add_moderator")}}</a>
-                </div>
-            @endif
+            <div class="margin-bottom-10">
+                <a href="" data-toggle="modal" data-target="#managersModal" class="btn btn-flat empatia">{{trans("privateCbs.add_moderator")}}</a>
+            </div>
             @foreach((isset($moderators)?$moderators:[]) as $moderator)
                 <div class="user-panel">
                     <div class="image" style="float: left">
@@ -42,13 +40,11 @@
                         <b>{{$moderator['name']}}</b><br>
                         <small>{{ trans('privateCbs.addedAt') }}: {{$moderator['date_added']}}</small>
                     </div>
-                    @if(ONE::verifyUserPermissionsDelete('cb', 'moderators') || Session::has('user_permissions') == false)
-                        <div style="position: absolute; right: 10px; top: 10px">
-                            <a href="javascript:oneDelete('{!! action('CbsController@deleteModeratorConfirm', ['type'=>$type,'cbKey'=> $cb->cb_key, 'id' => $moderator['user_key']]) !!}')">
-                                <i style="color:red;" class="fa fa-remove"></i>
-                            </a>
-                        </div>
-                    @endif
+                    <div style="position: absolute; right: 10px; top: 10px">
+                        <a href="javascript:oneDelete('{!! action('CbsController@deleteModeratorConfirm', ['type'=>$type,'cbKey'=> $cb->cb_key, 'id' => $moderator['user_key']]) !!}')">
+                            <i style="color:red;" class="fa fa-remove"></i>
+                        </a>
+                    </div>
                 </div>
             @endforeach
         </div>
@@ -57,7 +53,9 @@
     <!-- /.box-footer -->
 
         @if(isset($step))
-            <a type="button" class="btn btn-flat btn-secondary pull-left" href="{{action('CbsController@create',['type'=>$type,'cbKey' => $cbKey, 'step' => $step])}}">{!! trans("privateCbs.back") !!}</a>
+            <a class="btn btn-flat btn-preview pull-left" href="{{action('CbsController@create',['type'=>$type,'cbKey' => $cbKey, 'step' => $step])}}">
+                {!! trans("privateCbs.back") !!}
+            </a>
         @endif
     </div>
 
@@ -197,7 +195,7 @@
                 processing: true,
                 serverSide: true,
                 responsive: true,
-                ajax: '{!! action('TopicController@getIndexTableStatus',['type'=>$type,'cbKey'=>$cb->cb_key]) !!}',
+                ajax: '{!! action('TopicController@getIndexTableStatus',['type'=>$type, 'cbKey'=>$cb->cb_key, 'hasFlags' => !empty($cb->flags)]) !!}',
                 columns: [
                     { data: 'title', name: 'title', width: "20px" },
                     { data: 'created_at', name: 'created_at' },
@@ -281,7 +279,11 @@
                 if (allVals.length > 0) {
                     $.ajax({
                         method: 'POST', // Type of response and matches what we said in the route
-                        url: "{{action('CbsController@addModerator',['type'=> $type,'cbKey'=>$cb->cb_key])}}", // This is the url we gave in the route
+                        @if(!empty($step))
+                            url: "{{action('CbsController@addModerator',['type'=> $type,'cbKey'=>$cb->cb_key, "step" => $step])}}", // This is the url we gave in the route
+                        @else
+                            url: "{{action('CbsController@addModerator',['type'=> $type,'cbKey'=>$cb->cb_key])}}", // This is the url we gave in the route
+                        @endif
                         data: {
                             cbKey: $('#cb_key').val(),
                             moderatorsKey: JSON.stringify(allVals),

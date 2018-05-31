@@ -3,9 +3,12 @@
 
 @endsection
 @section('content')
+    @include('private.cbs.cbVoteAnalysis.cbDetails')
+
     @if(!empty($voteEvents))
         <div class="row">
             <div class="col-12" style="padding-bottom: 20px">
+                <div><label>{{ trans('privateCbsVoteAnalysis.vote_event') }}</label></div>
                 <select id="voteEventSelect" name="voteEventSelect" class="voteEventSelect" style="width: 50%;">
                     <option value="">{{ trans('privateCbsVoteAnalysis.select_vote_event') }}</option>
                     @foreach($voteEvents as $key => $voteEvent)
@@ -28,6 +31,17 @@
 {{--
                         <h3> {{ trans('privateCbsVoteAnalysis.vote_statistics_by_Top_ten') }}</h3>
 --}}
+                        <div class="text-right margin-top-20 margin-bottom-10">
+                            <div class="colors btn-group" data-toggle="buttons" style="pointer-events: none;cursor: default;opacity:0.8;">
+                                <label class="btn btn-primary">
+                                    <input type="radio" name="view_submitted" value="1" autocomplete="off" disabled > {{ trans('privateUserAnalysis.view_submitted') }}
+                                </label>
+                                <label id="default-view-all" class="btn btn-primary btn-selected">
+                                    <input type="radio" name="view_submitted" value="0" autocomplete="off" checked> {{ trans('privateUserAnalysis.all') }}
+                                </label>
+                            </div>
+                        </div>
+
                         <!-- Download -->
                         <div id="statistics_by_top_chart-download-wrapper" class="chart-download-wrapper">
                             <a id="statistics_by_top_DownloadCSV" class="btn btn-flat btn-blue pull-right">
@@ -98,7 +112,7 @@
                     parameter_key: parameterKey
                 },
                 beforeSend: function () {
-                    var ajaxLoader = '<div class="chartLoader"><div><i class="fa fa-spinner fa-pulse fa-3x fa-fw default-color"></i><span class="sr-only">Loading...</span></div></div>';
+                    var ajaxLoader = '<div class="chartLoader"><div><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw default-color"></i><span class="sr-only">Loading...</span></div></div>';
                     $('#tab_'+id).html(ajaxLoader);
                 },
                 success: function (response) { // What to do if we succeed
@@ -136,7 +150,7 @@
         <script>
             var statistics_by_top_data = [
                     @foreach($votesByTop->balance as $vote)
-                {"position": "{{ $vote->position }}", "{!! trans('privateCbsVoteAnalysis.topic_name') !!}":"{{ $vote->topic_name }}","{!! trans('privateCbsVoteAnalysis.total_votes') !!}": {{ $vote->total_votes }}},
+                {"position": {{ $vote->position }}", "{!! trans('privateCbsVoteAnalysis.topic_name') !!}":"{{ $vote->topic_name }}","{!! trans('privateCbsVoteAnalysis.total_votes') !!}": {{ $vote->total_votes }}},
                 @endforeach
 
             ];

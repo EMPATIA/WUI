@@ -12,28 +12,7 @@
             <button type="button" class="btn btn-default"
                     data-dismiss="modal">{!! $btn_ko or "form.modal_activate_cancel" !!}</button>
             <button type="button" class="btn btn-success"
-                    id="confirm">{!! $btn_ok or "form.modal_activate_aprove" !!}</button>
+                    id="confirm" onclick="modal('{{$id}}','{{$languageId}}')">{!! $btn_ok or "form.modal_activate_aprove" !!}</button>
         </div>
     </div>
 </div>
-
-<script type="text/javascript">
-    $(document).ready(function () {
-
-        //TODO: Check if sucess or error!!!
-        $(document.getElementById('activate-modal')).find('.modal-footer #confirm').on('click', function () {
-            $.ajax({
-                url: '{!!  $action !!}',
-                type: 'POST',
-                data: {_method: 'get', _token: '{{csrf_token()}}'},
-                success: function (action) {
-                    window.location = action;
-                },
-                error: function (data) {
-                    //TODO Deal with the error!
-                }
-            });
-            $(document.getElementById('activate-modal')).modal("hide");
-        });
-    });
-</script>

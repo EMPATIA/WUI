@@ -18,7 +18,7 @@ class SiteConfGroupController extends Controller
 
     public function __construct()
     {
-        View::share('title', trans('privateSiteConfGroup.title'));
+        View::share('title', trans('privateSiteConfGroup.siteConfiguration'));
 
 
     }
@@ -226,8 +226,9 @@ class SiteConfGroupController extends Controller
                 return "<a href='".action('SiteConfGroupController@show', $collection->site_conf_group_key)."'>".$collection->code."</a>";
             })
             ->addColumn('action', function ($collection) {
-                return ONE::actionButtons($collection->site_conf_group_key, ['edit' => 'SiteConfGroupController@edit', 'delete' => 'SiteConfGroupController@delete']);
+                return ONE::actionButtons($collection->site_conf_group_key, ['edit' => 'SiteConfGroupController@edit', 'delete' => 'SiteConfGroupController@delete', 'form' => 'siteConfGroup']);
             })
+            ->rawColumns(['code','action'])
             ->make(true);
     }
 
@@ -258,6 +259,7 @@ class SiteConfGroupController extends Controller
                 ->addColumn('action', function ($collection) use ($groupKey) {
                     return ONE::actionButtons(['siteConfGroup'=>$groupKey,'siteConf'=> $collection->site_conf_key], ['form' => 'siteConfigurations', 'edit' => 'SiteConfigurationsController@edit', 'delete' => 'SiteConfigurationsController@delete']);
                 })
+                ->rawColumns(['code','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["privateSiteConf.getGroupConfTable" => $e->getMessage()]);

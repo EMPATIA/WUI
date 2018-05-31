@@ -6,66 +6,7 @@ use App\One\One;
 use Exception;
 
 class EMPATIA {
-    public static function getAccountRecoveryParameters() {
-        $response = ONE::get([
-            'component' => 'empatia',
-            'api'       => 'accountRecovery'
-        ]);
 
-        if($response->statusCode() != 200){
-            throw new Exception(trans("comModulesEMPATIA.failed_to_get_account_recovery_parameters"));
-        }
-        return $response->json();
-    }
-    public static function getAccountRecoveryParameter($accountRecoveryParameterKey) {
-        $response = ONE::get([
-            'component' => 'empatia',
-            'api'       => 'accountRecovery',
-            'api_attribute' => $accountRecoveryParameterKey
-        ]);
-
-        if($response->statusCode() != 200){
-            throw new Exception(trans("comModulesEMPATIA.failed_to_get_account_recovery_parameter"));
-        }
-        return $response->json();
-    }
-    public static function createAccountRecoveryParameters($accountRecoveryParameter){
-        $response = ONE::post([
-            'component' => 'empatia',
-            'api'       => 'accountRecovery',
-            'params'    => $accountRecoveryParameter
-        ]);
-
-        if($response->statusCode()!= 201) {
-            throw new Exception(trans("comModulesEMPATIA.failed_to_create_account_recovery_parameter"));
-        }
-        return $response->json();
-    }
-    public static function editAccountRecoveryParameters($accountRecoveryParameterKey,$dataToSend){
-        $response = ONE::put([
-            'component' => 'empatia',
-            'api'       => 'accountRecovery',
-            'api_attribute' => $accountRecoveryParameterKey,
-            'params'    => $dataToSend
-        ]);
-
-        if($response->statusCode()!= 201) {
-            throw new Exception(trans("comModulesEMPATIA.failed_to_update_account_recovery_parameter"));
-        }
-        return $response->json();
-    }
-    public static function deleteAccountRecoveryParameters($accountRecoveryParameterKey){
-        $response = ONE::delete([
-            'component' => 'empatia',
-            'api'       => 'accountRecovery',
-            "api_attribute" => $accountRecoveryParameterKey,
-        ]);
-
-        if($response->statusCode()!= 200) {
-            throw new Exception(trans("comModulesEMPATIA.failed_to_delete_account_recovery_parameter"));
-        }
-        return $response->json();
-    }
     public static function getAccountRecoveryParametersForForm() {
         $response = ONE::get([
             'component' => 'empatia',
@@ -173,13 +114,13 @@ class EMPATIA {
         return $response->json();
     }
 
-    public static function getEntityMessages($request, $flag){
+    public static function getEntityMessages($filters, $request = null){
         $response = One::get([
             'component' => 'empatia',
             'api' => 'entityMessages',
             'method' => 'getEntityMessages',
             'params' => [
-                'flag' => $flag,
+                'filters' => $filters,
                 'tableData' => One::tableData($request),
             ]
         ]);
@@ -784,15 +725,18 @@ class EMPATIA {
         return $response->json();
     }
 
-    
+
     /* Short Links */
-    public static function getShortLinks() {
+    public static function getShortLinks($request = null) {
         $response = ONE::get([
             'component' => 'empatia',
             'api'       => 'shortLinks',
-            'method'    => 'list'
+            'method'    => 'list',
+            'params' => [
+                'tableData' => One::tableData($request),
+            ]
         ]);
-        
+
         if($response->statusCode()!= 200) {
             throw new Exception(trans("comModulesEMPATIA.failed_to_retreive_short_links"));
         }
@@ -804,7 +748,7 @@ class EMPATIA {
             'api'       => 'shortLinks',
             'method'    => $shortLinkKey
         ]);
-        
+
         if($response->statusCode()!= 200) {
             throw new Exception(trans("comModulesEMPATIA.failed_to_retreive_short_link"));
         }
@@ -857,10 +801,554 @@ class EMPATIA {
             'method'    => 'resolve',
             'attribute' => $shortLinkCode
         ]);
-        
+
         if($response->statusCode()!= 200) {
             throw new Exception(trans("comModulesEMPATIA.failed_to_resolve_short_link"));
         }
         return $response->json();
     }
+
+    /**
+     * @param $coopToken
+     * @return mixed
+     * @throws Exception
+     */
+    public static function verifyCoopToken($coopToken)
+    {
+        $response = One::get([
+            'component'     => 'empatia',
+            'api'           => 'topic',
+            'method'        => 'cooperators/verifyCoopToken',
+            'attribute'     => $coopToken,
+        ]);
+
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesEMPATIA.failed_to_verify_cooperation_token"));
+        }
+        return $response->json();
+    }
+
+    /**
+     * @param $coopToken
+     * @param $decision
+     * @return mixed
+     * @throws Exception
+     */
+    public static function updateCooperationStatus($coopToken, $decision)
+    {
+        $response = One::put([
+            'component'     => 'empatia',
+            'api'           => 'topic',
+            'method'        => 'updateCoopStatus',
+            'params'        => [
+                'coopToken' => $coopToken,
+                'decision'  => $decision
+            ]
+        ]);
+
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesEMPATIA.failed_to_update_cooperation_status"));
+        }
+        return $response->json();
+    }
+
+    public static function operationSchedules($cbKey)
+    {
+        $response = One::get([
+            'component'     => 'empatia',
+            'api'           => 'cbOperationSchedules',
+            'method'        => 'operationSchedules',
+            'attribute'     => $cbKey,
+        ]);
+
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesEMPATIA.failed_to_get_operation_schedules"));
+        }
+        return $response->json();
+    }
+
+    public static function getUserTopicsCount($userKeys) {
+        if (is_string($userKeys))
+            $userKeys = array($userKeys);
+
+        $response = One::post([
+            'component'     => 'empatia',
+            'api'           => 'user',
+            'method'        => 'topicsCount',
+            'params'        => [
+                "userKeys" => $userKeys
+            ]
+        ]);
+
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesEMPATIA.failed_to_get_user_topics_count"));
+        }
+        return $response->json();
+    }
+
+    public static function getEntityVoteEvents() {
+        $response = One::get([
+            'component'     => 'empatia',
+            'api'           => 'entity',
+            'method'        => 'entityVoteEvents'
+        ]);
+
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesEMPATIA.failed_to_Get_entity_vote_events"));
+        }
+        return $response->json();
+    }
+
+    public static function getTopicsKeysForVoteEvents($voteEventKeys) {
+        if (is_string($voteEventKeys))
+            $voteEventKeys = array($voteEventKeys);
+
+        $response = One::post([
+            'component'     => 'empatia',
+            'api'           => 'vote',
+            'method'        => 'getTopicsKeysForVoteEvents',
+            'params'        => [
+                'voteKeys' => $voteEventKeys
+            ]
+        ]);
+
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesEMPATIA.failed_to_Get_entity_vote_events"));
+        }
+        return $response->json();
+    }
+
+    public static function anonymizeUsers($userKeys) {
+        if (is_string($userKeys))
+            $userKeys = array($userKeys);
+
+        $response = One::delete([
+            'component'     => 'empatia',
+            'api'           => 'users',
+            'method'        => 'anonymize',
+            'params'        => [
+                "userKeys" => $userKeys
+            ]
+        ]);
+
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesEMPATIA.failed_to_anonymize_users"));
+        }
+        return $response->json();
+    }
+    public static function getTranslation($code, $language_code, $site_key=null, $cb_key=null){
+        $response = One::get([
+            'component'     => 'empatia',
+            'api'           => 'translation',
+            'method'        => 'getTranslation',
+            'params'        => [
+                "code" => $code,
+                "lang_code" => $language_code,
+                "cb_key"=> $cb_key,
+                "site_key"=> $site_key,
+            ]
+        ]);
+
+        if($response->statusCode()!= 200) {
+            return null;
+        }
+        return $response->json();
+    }
+    /**
+     * @return array with all sites per entity
+     * @throws Exception
+     */
+    public static function getEntitiesSites()
+    {
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api'       => 'site',
+            'method'    => 'getEntitiesSites',
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesEMPATIA.errorGetEntitiesSites"));
+        }
+        return $response->json();
+    }
+
+
+    /**
+     * Display a listing of the Cb check list.
+     * @return \Illuminate\Http\Response
+     * @throws Exception
+     */
+    public static function getCbChecklist($entity_key = null,$cb_Key = null)
+    {
+        $response = ONE::get([
+            'component'   => 'empatia',
+            'api'     => 'CbChecklists',
+            'method'  => 'list',
+            'params'  => [
+                "entity_key" => $entity_key,
+                "cb_key"     => $cb_Key,
+            ]
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesEMPATIA.failedToGetCheckList"));
+        }
+
+        return $response->json()->data;
+    }
+
+    public static function updateChecklistItem($request)
+    {
+        $response = ONE::put([
+            'component' => 'empatia',
+            'api' => 'CbChecklists',
+            'api_attribute' => $request->checklist_key,
+            'params' => [
+                $request->all()
+            ]
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesEMPATIA.failedToUpdateChecklistItem"));
+        }
+
+        return $response->json()->data;
+    }
+
+    public static function createChecklistItem($request)
+    {
+
+        $response = ONE::post([
+            'component' => 'empatia',
+            'api' => 'CbChecklists',
+            'params' => [
+                "text"      => $request->text,
+                "checked"   => $request->checked,
+                "state"     => $request->state,
+                "cbKey"     => $request->cbKey,
+                "entityKey" => $request->entityKey,
+            ]
+        ]);
+        if($response->statusCode() != 200){
+
+            throw new Exception(trans("comModulesEMPATIA.failedCreateChecklistItem"));
+        }
+
+        return $response->json()->data;
+    }
+
+    public static function removeCheckListItem($checklist_Key)
+    {
+        $response = ONE::delete([
+            'component' => 'empatia',
+            'api'       => 'CbChecklists',
+            'method'    => $checklist_Key,
+
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesEMPATIA.failedToRemoveCheckListItem"));
+        }
+
+        return $response->json()->data;
+
+    }
+    public static function uploadFileTranslations($file,$cbKey,$siteKey)
+    {
+        $response = ONE::post([
+            'component' => 'empatia',
+            'api'       => 'translation',
+            'method'    => 'uploadFileTranslation',
+            'params'    => [
+                'file'    => $file,
+                'cbKey'  => $cbKey,
+                'siteKey'=> $siteKey,
+            ]
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesEMPATIA.errorUploadFileTranslations"));
+        }
+        return $response->json();
+    }
+
+/* OpenData ComModules */
+    public static function getExistingOpenDatas() {
+        $response = One::get([
+            'component'     => 'empatia',
+            'api'           => 'openData'
+        ]);
+    
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesEMPATIA.failed_to_get_existing_open_data"));
+        }
+        return $response->json();
+    }
+    public static function getOpenDataConfigurations($entityKey) {
+        $response = One::get([
+            'component'     => 'empatia',
+            'api'           => 'openData',
+            'method'        => $entityKey
+        ]);
+    
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesEMPATIA.failed_to_get_open_data_configurations"));
+        }
+        return $response->json();
+    }
+    
+    public static function updateOpenDataConfigurations($entityKey, $userParameters, $cbsData) {
+        $response = One::put([
+            'component'     => 'empatia',
+            'api'           => 'openData',
+            'method'        => $entityKey,
+            'params'        => [
+                "user_parameters" => $userParameters,
+                "cbs"             => $cbsData
+            ]
+        ]);
+    
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesEMPATIA.failed_to_update_open_data_configurations"));
+        }
+        return $response->json();
+    }
+
+    public static function exportOpenData($token, $type = null) {
+        $response = One::post([
+            'component'     => 'empatia',
+            'api'           => 'openData',
+            'method'        => 'export',
+            'attribute'     => $token,
+            'params'        => [
+                "type"  => $type
+            ]
+        ]);
+    
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesEMPATIA.failed_to_export_open_data"));
+        }
+        return $response->json();
+    }
+
+    /* End of OpenData ComModules */
+
+
+
+    /* Permissions - users/groups/cbs*/
+    /**
+     * @param $userKey
+     * @return array with all menus and array with user permissions
+     * @throws Exception
+     */
+    public static function getPermissions($userKey,$entityKey)
+    {
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api'       => 'allPermissions',
+            'method'    => 'permissions',
+            'params'  => [
+                "user_key" => $userKey,
+                "entity_Key"=>$entityKey,
+            ]
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesEMPATIA.errorGetMenusPermissions"));
+        }
+        return $response->json()->data;
+    }
+
+
+    /**
+     * @param $code,$userId,$permission
+     * @throws Exception
+     */
+    public static function updatePermissions($code,$userId,$permission,$entityKey)
+    {
+        $response = ONE::put([
+            'component' => 'empatia',
+            'api'       => 'allPermissions',
+            'api_attribute' => $userId,
+            'params'  => [
+                "code" => $code,
+                "permission" => $permission,
+                "entity_Key" =>$entityKey,
+            ]
+        ]);
+
+        if($response->statusCode() != 200){
+
+            throw new Exception(trans("comModulesEMPATIA.errorUpdateMenusPermissions"));
+        }
+        return $response->json();
+    }
+
+    /**
+     * @param $entityGroupKey
+     * @return array with all groups permissions and array with user permissions
+     * @throws Exception
+     */
+    public static function getGroupsPermissions($entityGroupKey,$entityKey)
+    {
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api'       => 'allPermissions',
+            'method'    => 'entityGroupsPermissions',
+            'params'  => [
+                "entityGroupKey" => $entityGroupKey,
+                "entity_Key"      =>$entityKey,
+            ]
+        ]);
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesEMPATIA.errorGetGroupsPermissions"));
+        }
+        return $response->json()->data;
+    }
+
+
+    /**
+     * @param $code,$entityGroupId,$permission,$entityKey
+     * @throws Exception
+     */
+    public static function updateGroupPermission($code,$entityGroupId,$permission,$entityKey)
+    {
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api'       => 'allPermissions',
+            'method'    => 'updateGroupPermission',
+            'params'  => [
+                "entityGroupId" =>$entityGroupId,
+                "code" => $code,
+                "permission" => $permission,
+                "entity_Key" =>$entityKey,
+            ]
+        ]);
+        if($response->statusCode() != 200){
+
+            throw new Exception(trans("comModulesEMPATIA.errorUpdateGroupsPermissions"));
+        }
+        return $response->json();
+    }
+
+    /**
+     * @param
+     * @return array with all user permissions (menus, groups, cbs)
+     * @throws Exception
+     */
+    public static function getUserPermissions($user,$entityKey)
+    {
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api'       => 'allPermissions',
+            'method'    => 'userPermission',
+            'params'  => [
+                "user" =>$user,
+                "entity_Key" =>$entityKey,
+            ]
+        ]);
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesEMPATIA.errorGetUserPermissions"));
+        }
+        return $response->json();
+    }
+
+
+    /**
+     * @param $entityGroupKey
+     * @return array with all groups permissions and array with user permissions
+     * @throws Exception
+     */
+    public static function getCBPermissions($cbKey,$groupKey,$userKey,$entityKey)
+    {
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api'       => 'allPermissions',
+            'method'    => 'cbPermissions',
+            'params'  => [
+                'cbKey' => $cbKey,
+                'groupKey' => $groupKey,
+                'userKey' => $userKey,
+                "entityKey" =>$entityKey,
+            ]
+        ]);
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesEMPATIA.errorGetCbsPermissions"));
+        }
+        return $response->json()->data;
+    }
+    /**
+     * @param $code,$userId,$groupId,$permission,$entityKey
+     * @throws Exception
+     */
+    public static function updateCBPermissions($cbKey,$code,$userId,$groupId,$permission,$entityKey)
+    {
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api'       => 'allPermissions',
+            'method'    => 'updateCbPermissions',
+            'params'  => [
+                "cbKey" =>$cbKey,
+                "code" => $code,
+                "permission" => $permission,
+                "entity_Key" => $entityKey,
+                "userId" => $userId,
+                "groupId" => $groupId,
+            ]
+        ]);
+        if($response->statusCode() != 200){
+
+            throw new Exception(trans("comModulesEMPATIA.errorUpdateCbsPermissions"));
+        }
+        return $response->json();
+    }
+    /**
+     * @param $entityGroupKey
+     * @return array with all groups permissions and array with user permissions
+     * @throws Exception
+     */
+    public static function getUserCBPermissions($cbKey,$userKey,$entityKey)
+    {
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api'       => 'allPermissions',
+            'method'    => 'userCbPermissions',
+            'params'  => [
+                'cbKey' => $cbKey,
+                'userKey' => $userKey,
+                "entityKey" =>$entityKey,
+            ]
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesEMPATIA.errorGetUserCbsPermissions"));
+        }
+        return $response->json();
+    }
+
+    /**
+     * @param $entityGroupKey
+     * @return array with user cbs
+     * @throws Exception
+     */
+    public static function getUserCBs($user,$entityKey)
+    {
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api'       => 'allPermissions',
+            'method'    => 'cbs',
+            'params'  => [
+                'user' => $user,
+                "entityKey" =>$entityKey,
+            ]
+        ]);
+       
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesEMPATIA.errorGetUserCbs"));
+        }
+        return $response->json();
+    }
+    /* End Permissions - users/groups/cbs*/
 }
+
+

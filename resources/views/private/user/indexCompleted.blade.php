@@ -26,6 +26,8 @@
                 <tr>
                     <th>{{ trans('user.name') }}</th>
                     <th>{{ trans('user.email') }}</th>
+                    <th>{{ trans('user.created_at') }}</th>
+                    <th>{{ trans('user.updated_at') }}</th>
                     <th style="width:10%"></th>
                     <th></th>
                 </tr>
@@ -75,10 +77,12 @@
                 columns: [
                     { data: 'name', name: 'name' },
                     { data: 'email', name: 'email' },
+                    { data: 'created_at', name: 'created_at' },
+                    { data: 'updated_at', name: 'updated_at', searchable: false, orderable: false },
                     { data: 'authorize', name: 'authorize', searchable: false, orderable: false, width: "30px" },
                     { data: 'action', name: 'action', searchable: false, orderable: false, width: "30px" },
                 ],
-                order: [['1', 'asc']]
+                order: [['2', 'desc']]
             });
         }
 

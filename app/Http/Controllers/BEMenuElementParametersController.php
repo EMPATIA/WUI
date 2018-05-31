@@ -210,6 +210,7 @@ class BEMenuElementParametersController extends Controller
                 ->with('filtered', $recordsFiltered ?? 0)
                 ->skipPaging()
                 ->setTotalRecords($recordsTotal ?? 0)
+                ->rawColumns(['id','key','code','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["beMenuElementParameters.getIndexTable" => $e->getMessage()]);

@@ -25,7 +25,7 @@ class QuestionnairesController extends Controller
     public function __construct()
     {
 
-        View::share('title', trans('questionnaire.title'));
+        View::share('title', trans('questionnaire.questionnaires'));
 
 
     }
@@ -38,7 +38,7 @@ class QuestionnairesController extends Controller
      */
     public function index()
     {
-        $title = trans('privateQuestionnaires.list_questionnaires');
+        $title = trans('privateQuestionnaires.questionnaires');
         return view('private.questionnaire.index', compact('title'));
     }
 
@@ -51,9 +51,7 @@ class QuestionnairesController extends Controller
     public function create()
     {
         if(Session::get('user_role') != 'admin'){
-            if(ONE::verifyUserPermissionsCreate('q', 'q')){
-                return redirect()->back()->withErrors(["questionnaires.create" => trans('privateQuestionnaires.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["questionnaires.create" => trans('privateQuestionnaires.permission_message')]);
         }
 
         //Getting languages for translations
@@ -74,9 +72,7 @@ class QuestionnairesController extends Controller
     public function edit($key)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsUpdate('q', 'q')){
-                return redirect()->back()->withErrors(["questionnaires.edit" => trans('privateQuestionnaires.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["questionnaires.edit" => trans('privateQuestionnaires.permission_message')]);
         }
         try {
             // Getting languages for translations
@@ -110,9 +106,7 @@ class QuestionnairesController extends Controller
     public function show($key)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsShow('q', 'q')){
-                return redirect()->back()->withErrors(["questionnaires.show" => trans('privateQuestionnaires.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["questionnaires.show" => trans('privateQuestionnaires.permission_message')]);
         }
 
         try {
@@ -145,12 +139,13 @@ class QuestionnairesController extends Controller
     public function store(Request $request)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsCreate('q', 'q')){
-                return redirect()->back()->withErrors(["questionnaires.store" => trans('privateQuestionnaires.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["questionnaires.store" => trans('privateQuestionnaires.permission_message')]);
         }
 
         try {
+            if (!empty($request->get("end_date")) && !Carbon::parse($request->get("end_date"))->gt(Carbon::parse($request->get("start_date"))))
+                return redirect()->back()->withErrors([trans("privateQuestionnaires.end_date_must_be_greater_then_start_date")]);
+
             //Getting languages for translations
             $languages = Orchestrator::getLanguageList();
             $contentTranslation = [];
@@ -186,12 +181,13 @@ class QuestionnairesController extends Controller
     {
 
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsUpdate('q', 'q')){
-                return redirect()->back()->withErrors(["questionnaires.update" => trans('privateQuestionnaires.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["questionnaires.update" => trans('privateQuestionnaires.permission_message')]);
         }
 
         try {
+            if (!empty($request->get("end_date")) && !Carbon::parse($request->get("end_date"))->gt(Carbon::parse($request->get("start_date"))))
+                return redirect()->back()->withErrors([trans("privateQuestionnaires.end_date_must_be_greater_then_start_date")]);
+                
             $languages = Orchestrator::getLanguageList();
 
             $contentTranslation = [];
@@ -226,9 +222,7 @@ class QuestionnairesController extends Controller
      */
     public function destroy($key){
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsDelete('q', 'q')){
-                return redirect()->back()->withErrors(["questionnaires.delete" => trans('privateQuestionnaires.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["questionnaires.delete" => trans('privateQuestionnaires.permission_message')]);
         }
 
         try {
@@ -272,7 +266,7 @@ class QuestionnairesController extends Controller
      */
     public function getIndexTable(){
 
-        if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('q', 'q')){
+        if(Session::get('user_role') == 'admin'){
 
             $list = Questionnaire::listForm();
 
@@ -282,8 +276,8 @@ class QuestionnairesController extends Controller
         }else
             $collection = Collection::make([]);
 
-        $edit = Session::get('user_role') == 'admin' ||  ONE::verifyUserPermissionsUpdate('q', 'q');
-        $delete = Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsDelete('q', 'q');
+        $edit = Session::get('user_role') == 'admin';
+        $delete = Session::get('user_role') == 'admin';
 
         return Datatables::of($collection)
             ->editColumn('key', function ($collection) {
@@ -302,6 +296,7 @@ class QuestionnairesController extends Controller
                 else
                     return null;
             })
+            ->rawColumns(['key','title','action'])
             ->make(true);
 
     }
@@ -343,6 +338,7 @@ class QuestionnairesController extends Controller
             ->addColumn('action', function ($collection) {
                 return '';
             })
+            ->rawColumns(['form_reply_key','name','completed','action'])
             ->make(true);
 
     }
@@ -392,9 +388,9 @@ class QuestionnairesController extends Controller
                 return $pdf->download('questionnaire.pdf');
 
             }else{
-                Session::set('redirect', 'public');
+                Session::put('redirect', 'public');
 
-                Session::set('url_previous', URL::action('PublicQController@showQ',$key));
+                Session::put('url_previous', URL::action('PublicQController@showQ',$key));
 
                 return redirect()->action('AuthController@login');
             }
@@ -455,9 +451,9 @@ class QuestionnairesController extends Controller
                 return $pdf->download('questionnaire.pdf');
 
             }else{
-                Session::set('redirect', 'public');
+                Session::put('redirect', 'public');
 
-                Session::set('url_previous', URL::action('PublicQController@showQ',$questionnarieKey));
+                Session::put('url_previous', URL::action('PublicQController@showQ',$questionnarieKey));
 
                 return redirect()->action('AuthController@login');
             }
@@ -554,9 +550,9 @@ class QuestionnairesController extends Controller
                 exit;
 
             }else{
-                Session::set('redirect', 'public');
+                Session::put('redirect', 'public');
 
-                Session::set('url_previous', URL::action('PublicQController@showQ', $questionnaireKey));
+                Session::put('url_previous', URL::action('PublicQController@showQ', $questionnaireKey));
 
                 return redirect()->action('AuthController@login');
             }

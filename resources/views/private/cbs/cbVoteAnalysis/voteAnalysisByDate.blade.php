@@ -17,7 +17,7 @@
             {
                 '{!! trans('privateCbsVoteAnalysis.date') !!}': "{{ $date }}",
                 "name": '{!! trans('privateCbsVoteAnalysis.all_votes') !!}',
-                '{!! trans('privateCbsVoteAnalysis.votes') !!}': {{ number_format($voteValue, 3, '.', ',') }}
+                '{!! trans('privateCbsVoteAnalysis.votes') !!}': {{ $voteValue }}
             },
             @endforeach
         ];
@@ -60,6 +60,6 @@
                 downloadCSV(statistics_by_date_data,filename);
             });
         }
-
-
 </script>
+
+@include('private.cbs.cbVoteAnalysis.cbDetailsScript')

@@ -173,6 +173,9 @@
             </div>
             <div class="box-footer">
                 <button type="submit" form="cbPermissions" class="btn empatia">{{ trans('privateCbsPermissions.save') }}</button>
+                <a href="{{ action('CbsController@showGroupPermissions', ["type" => $type,"cbKey" => $cbKey]) }}" class="btn btn-flat btn-default">
+                    {{ trans('privateCbsPermissions.cancel') }}
+                </a>
             </div>
         </div>
     </form>

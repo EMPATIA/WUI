@@ -48,7 +48,7 @@
                     <div id="second-step-title" class="col-12 hidden">
                         <h4>{{ trans('privateBEMenu.fill_the_parameters') }}</h4></div>
                     <div id="second-step-loader" class="col-12 text-center hidden" style="padding-bottom: 20px">
-                        <img src="{{ asset('images/bluePreLoader.gif') }}" alt="Loading"  style="width: 40px;"/>
+                        <img src="{{ asset('images/default/bluePreLoader.gif') }}" alt="Loading"  style="width: 40px;"/>
                     </div>
                     <div id="second-step-container" class="col-12 hidden" style="padding-bottom: 20px"></div>
 

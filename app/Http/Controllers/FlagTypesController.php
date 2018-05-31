@@ -42,6 +42,7 @@ class FlagTypesController extends Controller
                 ->addColumn('action', function ($flagTypes) {
                     return ONE::actionButtons($flagTypes->id, ['delete' => 'FlagTypesController@delete']);
                 })
+                ->rawColumns(['title','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["flagTypes.getIndexTable" => $e->getMessage()]);

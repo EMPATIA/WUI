@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\One\One;
 use Illuminate\Support\Facades\Session;
 
 class RegisterRequest extends Request
@@ -33,7 +34,7 @@ class RegisterRequest extends Request
             ];
         }else{
             return [
-                'name' => 'required ',
+                'name' => 'name',
                 'email' => 'email'
 
             ];
@@ -43,9 +44,9 @@ class RegisterRequest extends Request
     public function messages()
     {
         return [
-            'required'  => trans('request.the').' :attribute '.trans('request.fieldIsRequired').'.',
-            'confirmed' => trans('request.the').' :attribute '.trans('request.confirmationDoesNotMatch').'.',
-            'email'     => trans('request.the').' :attribute '.trans('request.mustBeAvalidEmailAddress').'.'
+            'required'  => ONE::transSite('the').' :attribute '.ONE::transSite('field_is_required').'.',
+            'confirmed' => ONE::transSite('the').' :attribute '.ONE::transSite('confirmation_does_not_match').'.',
+            'email'     => ONE::transSite('the').' :attribute '.ONE::transSite('must_be_a_valid_email_address').'.'
         ];
     }
 }

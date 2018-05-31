@@ -53,7 +53,7 @@
                 @endforeach
             </div>
             <div class="box-footer">
-                <a class="btn btn-flat btn-preview" href=" {!!  action('EntitiesController@showModules',$entityKey) !!}"><i class="fa fa-arrow-left"></i> {!! trans('privateEntities.back') !!}</a>
+{{--                <a class="btn btn-flat btn-preview" href=" {!!  action('EntitiesController@showModules',$entityKey) !!}"><i class="fa fa-arrow-left"></i> {!! trans('privateEntities.back') !!}</a>--}}
                 <button type="submit" form="entityModule" class="btn btn-flat empatia">{{ trans('privateEntities.save') }}</button>
             </div>
         </div>

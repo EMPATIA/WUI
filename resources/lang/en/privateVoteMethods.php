@@ -1,1 +1,1 @@
-<?php return array (  'code' => 'Code',  'parameter_type' => 'Parameter Type',  'name' => 'Name',  'description' => 'Description',  'method_group' => 'Method Group',  'title' => 'Title',  'id' => 'Id',  'configurations' => 'Configurations',  'back' => 'Back',);
+<?php return array (  'configurations' => 'Configurations',  'id' => 'Id',  'name' => 'Name',  'back' => 'Back',  'title' => 'Title',  'code' => 'Code',  'method_group' => 'Method Group',  'description' => 'Description',  'parameter_type' => 'Parameter Type',  'list' => 'List',);

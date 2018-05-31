@@ -1,0 +1,1 @@
+<?php return array (  'writeYourComment' => 'Write your comment',);

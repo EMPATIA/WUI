@@ -233,6 +233,7 @@ class CbsConfigsController extends Controller
                 ->addColumn('action', function ($collection) use ($configTypeId){
                     return ONE::actionButtons(['configTypeId' => $configTypeId,'id' => $collection->id], ['form' => 'config','edit' => 'CbsConfigsController@edit', 'delete' => 'CbsConfigsController@delete']);
                 })
+                ->rawColumns(['title','action'])
                 ->make(true);
 
         } catch (Exception $e) {

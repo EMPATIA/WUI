@@ -19,7 +19,7 @@ class OneCbs
     {
         $option = null;
         foreach ( $parameters as $item){
-            if($item->code ==  $code){
+            if(!empty($item->code) && $item->code ==  $code){
                 $value  = $item->pivot->value;
                 foreach ($item->options as $optionItem){
                     if($optionItem->id == $value){

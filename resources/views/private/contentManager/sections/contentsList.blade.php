@@ -4,7 +4,7 @@
     @php
     $dataParameter = $parameter->section_type_parameter_key;
     $elementValue = ((!isset($language) || empty($language)) ? $parameter->section_param->value ?? "" : $parameter->section_param->translations->{$language}->value ?? "");
-    $name = ($dataParameter ?? "") . "_" . $sectionNumber;
+    $name = ($dataParameter ?? "") . "_" . $sectionNumber . (!empty($language) ? ("_" . $language) : "");
     $id = $name;
     $baseClasses = "form-control";
     $label = $parameter->value ?? trans("privateContentManager.unnamed_section_parameters");
@@ -45,7 +45,7 @@
 
     $elementValue = ((!isset($language) || empty($language)) ? $parameter->section_param->value ?? "" : $parameter->section_param->translations->{$language}->value ?? "");
 
-    $name = ($dataParameter ?? "") . "_" . $sectionNumber;
+    $name = ($dataParameter ?? "") . "_" . $sectionNumber . (!empty($language) ? ("_" . $language) : "");
     $label = $parameter->name ?? trans("privateContentManager.unnamed_section_parameters");
     $id = $name;
     $baseClasses = "form-control";

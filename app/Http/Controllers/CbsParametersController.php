@@ -143,6 +143,13 @@ class CbsParametersController extends Controller
             $visibleInList = isset($request->visibleInList)?$request->visibleInList : 0;
             $useFilter = isset($request->use_filter)?$request->use_filter : 0;
             $private = isset($request->private)?$request->private : 0;
+            $highlight = isset($request->highlight)?$request->highlight : 0;
+            $side = isset($request->side)?$request->side : 0;
+
+            // Files
+            $maxNumberFiles = isset($request->max_number_files)?$request->max_number_files : 0;
+            $maxNumberFilesFlag  = isset($request->max_number_files_flag)?$request->max_number_files_flag : 0;
+            $topicImage = isset($request->visibleInList)?$request->topic_image : 0;
 
             $parameterTranslations = [];
             foreach ($languages as $language) {
@@ -234,10 +241,15 @@ class CbsParametersController extends Controller
                 'visible'           => $visible,
                 'visible_in_list'   => $visibleInList,
                 'private'           => $private,
+                'highlight'         => $highlight,
+                'side'              => $side,
                 'use_filter'        => $useFilter,
                 'value'             => $fileId,
                 'options'           => $options,
-                'fields'            => $fields
+                'fields'            => $fields,
+                'topic_image'       => $topicImage,
+                'max_number_files'  => $maxNumberFiles,
+                'max_number_files_flag' => $maxNumberFilesFlag
             ];
 
             CB::setParameters($data);
@@ -371,6 +383,14 @@ class CbsParametersController extends Controller
             $visibleInList = isset($request->visibleInList)?$request->visibleInList : 0;
             $useFilter = isset($request->use_filter)?$request->use_filter : 0;
             $private = isset($request->private)?$request->private : 0;
+            $highlight = isset($request->highlight)?$request->highlight : 0;
+            $side = isset($request->side)?$request->side : 0;
+
+            // Files
+            $maxNumberFiles = isset($request->max_number_files)?$request->max_number_files : 0;
+            $maxNumberFilesFlag  = isset($request->max_number_files_flag)?$request->max_number_files_flag : 0;
+            $topicImage = isset($request->visibleInList)?$request->topic_image : 0;
+
             if($parameterTypeCode == 'image_map')
                 $fileId = isset($request->file_id)?$request->file_id:null;
 
@@ -494,10 +514,16 @@ class CbsParametersController extends Controller
                 'visible' => $visible,
                 'visible_in_list' => $visibleInList,
                 'private' => $private,
+                'highlight' => $highlight,
                 'use_filter' => $useFilter,
+                'side' => $side,
                 'value' => $fileId,
                 'options' =>$options,
-                'fields' => $fields
+                'fields' => $fields,
+                'fields'            => $fields,
+                'topic_image'       => $topicImage,
+                'max_number_files'  => $maxNumberFiles,
+                'max_number_files_flag' => $maxNumberFilesFlag
             ];
 
             CB::updateParameter($paramId,$data);
@@ -567,24 +593,19 @@ class CbsParametersController extends Controller
 
         try {
             $module = 'cb';
-            $type = 'pad_parameters';
-            if(Session::get('user_role') == 'admin' || Session::get('user_permissions')->$module->$type->permission_show){
+            $typeField = 'pad_parameters';
+            if(Session::get('user_role') == 'admin'){
                 $parameters = CB::getCbParameters($cbKey);
-                // in case of json
-                foreach ($parameters as $parameter) {
-
-                    $auth=Auth::getUser($cbKey);
-
-
+                foreach(!empty($parameters) ? $parameters : [] as $parameter) {
+                    $auth = Auth::getUser($cbKey);
                     $parameter->name=$auth->name;
                 }
-
                 $collection = Collection::make($parameters);
-            }else
+            } else {
                 $collection = Collection::make([]);
-
-            $edit = Session::get('user_role') == 'admin' || Session::get('user_permissions')->$module->$type->permission_update;
-            $delete = Session::get('user_role') == 'admin' || Session::get('user_permissions')->$module->$type->permission_delete;
+            }
+            $edit = Session::get('user_role') == 'admin';
+            $delete = Session::get('user_role') == 'admin';
 
             return Datatables::of($collection)
                 ->editColumn('title', function ($collection) use ($type,$cbKey) {
@@ -601,6 +622,7 @@ class CbsParametersController extends Controller
                         return null;
 
                 })
+                ->rawColumns(['title','action'])
                 ->make(true);
         }catch (Exception $e) {
             //TODO: save inputs
@@ -833,11 +855,11 @@ class CbsParametersController extends Controller
         }
 
         if(isset($parameterType) and !empty($parameterType->param_add_fields)){
-            Session::set('parameterFields', $parameterType->param_add_fields);
+            Session::put('parameterFields', $parameterType->param_add_fields);
         }
 
         if(isset($parameterType) and $parameterType->options == 1){
-            Session::set('parameterTypeOptions', $parameterType->options);
+            Session::put('parameterTypeOptions', $parameterType->options);
         }
 
         return ['parameterType' => $parameterType];

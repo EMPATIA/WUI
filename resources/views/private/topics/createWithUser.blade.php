@@ -3,6 +3,13 @@
 @section('header_scripts')
     <!-- Maps -->
     <script  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCn-K_QLK1mNPM6SjCjnUl2e3neuQ9FX6Q&libraries=places" type="text/javascript"></script>
+
+        <!-- Plupload Javascript fix and bootstrap fix @ start -->
+        <link rel="stylesheet" href="/bootstrap/plupload-fix/bootstrap.css">
+        <script src="/bootstrap/plupload-fix/bootstrap.min.js"></script>
+        <!-- Plupload Javascript fix and bootstrap fix @ End -->
+        <script src="{{ asset('vendor/jildertmiedema/laravel-plupload/js/plupload.full.min.js') }}"></script>
+        <script src="{{ asset("js/cropper.min.js") }}"></script>
 @endsection
 
 @section('content')
@@ -164,6 +171,17 @@
                             {!! Form::oneNumber("userData_" . $parameter['parameter_user_type_key'], $parameter['name'],
                             !empty($parameter['value']) ? $parameter['value'] : null,
                             ['class' => 'form-control', 'id' => $parameter['parameter_user_type_key'], ($parameter['mandatory'] == true ? 'required' : null)]) !!}
+                    @elseif($param["code"] == "default_image")
+                        <div class="col-sm-12">
+                            {{ Form::oneFileUpload('parameter_'.$param['id'], $param['name'], isset($topicParameters[$param['id']])? json_decode($topicParameters[$param['id']]->pivot->value) : null, !empty($uploadKey) ? $uploadKey :"", array("max_file_size"=>"10mb", "acceptedtypes"=> "images", "multi_selection" => false, "replacefile" => true) ) }}                        </div>
+                    @elseif($param["code"] == "files")
+                        <div class="col-sm-12">
+                            {{ Form::oneFileUpload('parameter_'.$param['id'], $param['name'], isset($topicParameters[$param['id']])? json_decode($topicParameters[$param['id']]->pivot->value) : null, !empty($uploadKey) ? $uploadKey :"", array("max_file_size"=>"200mb") ) }}
+                        </div>
+                    @elseif($param["code"] == "images")
+                        <div class="col-sm-12">
+                            {{ Form::oneFileUpload('parameter_'.$param['id'], $param['name'], isset($topicParameters[$param['id']])? json_decode($topicParameters[$param['id']]->pivot->value) : null, !empty($uploadKey) ? $uploadKey :"", array("max_file_size"=>"10mb","acceptedtypes"=> "images",) ) }}
+                        </div>
                     @endif
                 @endforeach
             @endif
@@ -181,6 +199,7 @@
             {!! Form::oneText('topicData_title', array("name"=>trans('privateTopics.title'),"description"=>trans('privateTopics.titleDescription')), isset($topic) ? $topic->title : null, ['class' => 'form-control', 'id' => 'title', 'required' => 'required']) !!}
 
             {!! Form::oneTextArea('topicData_summary', array("name"=>trans('privateTopics.summary'),"description"=>trans('privateTopics.summaryDescription')), isset($topic) ? $topic->summary : null, ["size" => "30x1",'class' => 'form-control', 'id' => 'summary', 'style' => 'min-height:25px']) !!}
+            
 
             {!! Form::oneTextArea('topicData_contents', array("name"=>trans('privateTopics.contents'),"description"=>trans('privateTopics.contentsDescription')), !empty($topic->contents) ? $topic->contents : ((isset($topic) && $topic->first_post->contents != null) ? $topic->first_post->contents : null), ["size" => "30x2",'class' => 'form-control tinyMCE', 'id' => 'contents', 'required' => 'required', 'style' => 'min-height:25px']) !!}
 
@@ -189,12 +208,12 @@
                     {!! Form::oneDate('topicData_start_date', trans('privateTopics.startDate'), isset($topic) ? $topic->start_date : null, ['class' => 'form-control oneDatePicker', 'id' => 'start_date']) !!}
                     {!! Form::oneDate('topicData_end_date', trans('privateTopics.endDate'), isset($topic) && $topic->end_date!=null ? $topic->end_date  : '', ['class' => 'form-control oneDatePicker', 'id' => 'end_date']) !!}
                 @endif
+                {{--
                 @if(isset($configurations) && (ONE::checkCBsOption($configurations, 'ALLOW-FILES')))
-                    <div class="form-group">
-                        <label for="title">{{ trans("cb.add_files") }}</label>
-                        {!! ONE::fileSimpleUploadBox("drop-zone", trans("cb.drag_and_drop_files_to_here") , trans('PublicCbs.files'), 'select-files', 'files-list', 'files') !!}
-                    </div>
+                    {!! Form::oneFileUpload("files", trans("cb.add_files"), !empty($jsonFileList[1]) ? $jsonFileList[1] : [], isset($uploadKey) ? $uploadKey : "",
+                                                         ["name" => "files[1]", "acceptedtypes"=> $allowFiles] ) !!}
                 @endif
+                --}}
                 @if(isset($configurations) && (ONE::checkCBsOption($configurations, 'TOPIC-ALLOW-EVENT-ASSOCIATION')))
                     <div class="form-group cbs-div">
                         <label>{{ trans("privateContentManager.select_the_pad") }}</label>
@@ -263,6 +282,7 @@
                 @endif
             @endif
 
+            {{--
             @if( isset($filesByType->images) )
                 <div class="cbImages">
                     @foreach($filesByType->images as $fileTmp)
@@ -286,6 +306,7 @@
                     @endforeach
                 </div>
             @endif
+            --}}
 
             @if(isset($parameters) && !empty($parameters))
                 @if(!($phases = collect($parameters)->where('code','=','topic_checkpoint_phase'))->isEmpty())
@@ -319,12 +340,12 @@
 
                                 @elseif($param["code"] == "check_box")
 
-                                    <div class="col-sm-12">
+                                    <div class="col-sm-12 @if($param['mandatory'] == 1) mandatory @endif">
                                         @if(!empty($param["options"]))
                                             <label for="parameter_"{{ $param['id'] }}>{{$param['name']}}</label>
 
                                             @foreach ($param["options"] as $optionValue => $option)
-                                                {!! Form::oneCheckbox('topicData_parameter_'.$param['id'] . '[]', $option, $optionValue, isset($topicParameters[$param["id"]]) ? str_contains($topicParameters[$param["id"]]->pivot->value,$optionValue) : false,['id'=>'parameter_'.$param['id'] . '_' . $optionValue,'class' => '',($param['mandatory'] == 1)?'Required':'']) !!}
+                                                {!! Form::oneCheckbox('topicData_parameter_'.$param['id'] . '[]', $option, $optionValue, isset($topicParameters[$param["id"]]) ? str_contains($topicParameters[$param["id"]]->pivot->value,$optionValue) : false,['id'=>'parameter_'.$param['id'] . '_' . $optionValue,'class' => '']) !!}
                                             @endforeach
                                         @else
                                             {!! Form::oneCheckbox('topicData_parameter_'.$param['id'], $param['name'], 1, isset($topicParameters[$param['id']])? $topicParameters[$param['id']]->pivot->value : null,['id'=>'parameter_'.$param['id'],'class' => '',($param['mandatory'] == 1)?'Required':'']) !!}
@@ -395,6 +416,18 @@
                                     <div class="col-sm-12">
                                         {!! Form::oneTextArea('topicData_parameter_'.$param['id'], $param['name'], isset($topicParameters[$param['id']])? $topicParameters[$param['id']]->pivot->value : null, ['class' => 'form-control tinyMCE', 'size' => '30x2', 'style' => 'resize: vertical',($param['mandatory'] == 1)?'Required':'']) !!}
                                     </div>
+                                @elseif($param["code"] == "default_image")
+                                    <div class="col-sm-12">
+                                        {{ Form::oneFileUpload('parameter_'.$param['id'], $param['name'], isset($topicParameters[$param['id']])? json_decode($topicParameters[$param['id']]->pivot->value) : null, !empty($uploadKey) ? $uploadKey :"", array("max_file_size"=>"10mb", "acceptedtypes"=> "images", "multi_selection" => false, "replacefile" => true) ) }}
+                                    </div>
+                                @elseif($param["code"] == "files")
+                                    <div class="col-sm-12">
+                                        {{ Form::oneFileUpload('parameter_'.$param['id'], $param['name'], isset($topicParameters[$param['id']])? json_decode($topicParameters[$param['id']]->pivot->value) : null, !empty($uploadKey) ? $uploadKey :"", array("max_file_size"=>"200mb") ) }}
+                                    </div>
+                                @elseif($param["code"] == "images")
+                                    <div class="col-sm-12">
+                                        {{ Form::oneFileUpload('parameter_'.$param['id'], $param['name'], isset($topicParameters[$param['id']])? json_decode($topicParameters[$param['id']]->pivot->value) : null, !empty($uploadKey) ? $uploadKey :"", array("max_file_size"=>"10mb","acceptedtypes"=> "images",) ) }}
+                                    </div>
                                 @endif
                             @endif
                         @endforeach
@@ -409,27 +442,36 @@
 
 
 @section('scripts')
-
     <!-- Plupload Javascript fix and bootstrap fix @ start -->
+    {{--
     <link rel="stylesheet" href="/bootstrap/plupload-fix/bootstrap.css">
-    <script src="/bootstrap/plupload-fix/bootstrap.min.js"></script>
+    <script src="/bootstrap/plupload-fix/bootstrap.min.js"></script>--}}
     <!-- Plupload Javascript fix and bootstrap fix @ End -->
+    {{--
     <script src="{{ asset('vendor/jildertmiedema/laravel-plupload/js/plupload.full.min.js') }}"></script>
     <script src="{{ asset("js/cropper.min.js") }}"></script>
+    --}}
     <script src="{{ asset("js/tinymce/tinymce.min.js") }}"></script>
 
     @include('private._private.functions') {{-- Helper Functions --}}
     <script>
-        {!! ONE::fileUploader('fileUploader', action('FilesController@upload'), 'ideaFileUploaded', 'select-files', 'drop-zone', 'files-list', 'files', 1, isset($uploadKey) ? $uploadKey : "", $allowFiles) !!}
-        fileUploader.init();
-
-        updateClickListener();
-
-        updateFilesPostList('#files',1);
-        {!! ONE::addTinyMCE(".tinyMCE", ['action' => action('ContentsController@getTinyMCE')]) !!}
+        <?php
+        // {!! ONE::fileUploader('fileUploader', action('FilesController@upload'), 'ideaFileUploaded', 'select-files', 'drop-zone', 'files-list', 'files', 1, isset($uploadKey) ? $uploadKey : "", $allowFiles) !!}   */
+        ?>
+        //fileUploader.init();
+        // updateClickListener();
+        // updateFilesPostList('#files',1);
+        {!! ONE::addTinyMCE(".tinyMCE", ['action' => action('ContentManagerController@getTinyMCE')]) !!}
     </script>
 
     <script>
+
+        $("form").on( "submit", function(event){
+            if($( ".mandatory" ).children( "div" ).children("input:checked").length == 0){
+                event.preventDefault();
+            }
+        } );
+
         function updateStatus(topicKey){
             $('#topicKeyStatus').val(topicKey);
             $('#updateStatusModal').modal('show');

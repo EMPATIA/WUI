@@ -1,1 +1,1 @@
-<?php return array (  'list_ParameterTemplates' => 'Parameter Templates List',  'create_parameterTemplate' => 'Create Parameter Template',  'show_parameterTemplate' => 'Show Parameter Template',  'details' => 'Details',);
+<?php return array (  'details' => 'Details',  'list_ParameterTemplates' => 'Parameter Templates List',  'create_parameterTemplate' => 'Create Parameter Template',  'show_parameterTemplate' => 'Show Parameter Template',);

@@ -12,9 +12,7 @@
                 <tr>
                     <th width="90%">{{ trans('privateEmailTemplates.templateName') }}</th>
                     <th width="10%">
-                        @if(ONE::verifyUserPermissions('orchestrator', 'site_email_template', 'create'))
-                            {!! ONE::actionButtons(isset($siteKey) ? $siteKey  : null, ['create' => 'EmailTemplatesController@createEmailsFromTemplates']) !!}
-                        @endif
+                        {!! ONE::actionButtons(isset($siteKey) ? $siteKey  : null, ['import' => 'EmailTemplatesController@createEmailsFromTemplates']) !!}
                     </th>
                 </tr>
                 </thead>

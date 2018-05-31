@@ -174,6 +174,7 @@ class TagsController extends Controller
             ->addColumn('action', function ($tag) {
                 return ONE::actionButtons($tag->id, ['show' => 'TagsController@show', 'delete' => 'TagsController@delete']);
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 }

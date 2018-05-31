@@ -13,7 +13,7 @@
     <div class="box box-primary">
 
         <div class="box-header">
-            <h3 class="box-title"><i class="fa"></i> {{ trans('privateNewsletters.newsletters') }}</h3>
+            <h3 class="box-title"><i class="fa"></i> {{ trans('privateNewsletters.list') }}</h3>
         </div>
 
         <div class="box-body">
@@ -25,9 +25,7 @@
                     <th>{{ trans('privateNewsletters.created_at') }}</th>
                     <th>{{ trans('privateNewsletters.tested') }}</th>
                     <th>
-                        @if(ONE::verifyUserPermissions('notify', 'message_all_users', 'create'))
-                            {!! ONE::actionButtons(['f'=>'newsletters'], ['create' => 'PrivateNewslettersController@create']) !!}
-                        @endif
+                        {!! ONE::actionButtons(['f'=>'newsletters'], ['create' => 'PrivateNewslettersController@create']) !!}
                     </th>
                 </tr>
                 </thead>

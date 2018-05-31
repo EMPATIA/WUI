@@ -166,7 +166,14 @@ elixir(function (mix) {
 
             // DataTables JS
             'bower_components/datatables.net/js/jquery.dataTables.min.js',
-            'bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js',
+            'bower_components/datatables.net-bs/js/dataTables.bootstrap.js',
+            /* 'bower_components/datatables.net/js/dataTables.buttons.js',
+            'bower_components/datatables.net/js/buttons.flash.js',
+            'bower_components/datatables.net/js/jszip.js',
+            'bower_components/datatables.net/js/pdfmake.js',
+            'bower_components/datatables.net/js/vfs_fonts.js',
+            'bower_components/datatables.net/js/buttons.html5.js',
+            'bower_components/datatables.net/js/buttons.print.js', */
 
             // DataTables
             /*
@@ -178,7 +185,7 @@ elixir(function (mix) {
 
             // Bootstrap4 Beta
             'resources/assets/js/bootstrap/4.0.0-beta/js/popper.min.js',
-            'resources/assets/js/bootstrap/4.0.0-beta/js/bootstrap.min.js',
+            'resources/assets/js/bootstrap/4.0.0-beta/js/bootstrap.js',
 
             // Draggabilly - Make that shiz draggable
             'bower_components/packery/dist/packery.pkgd.min.js',
@@ -238,7 +245,7 @@ elixir(function (mix) {
             'bower_components/REDIPS_drag/redips-drag-min.js',
             'resources/assets/js/EmpatiaLayout.js',
             'resources/assets/js/defaults.js',
-            'resources/assets/js/downloadCSV.js'
+            'resources/assets/js/downloadCSV.js',
 
         ], 'public/js/private.js', '.')
     /*General CSS and JS*/
@@ -314,6 +321,44 @@ elixir(function (mix) {
             'bower_components/REDIPS_drag/redips-drag-min.js'
 
         ], 'public/js/general.js', '.')
+
+    /* Demo */
+        .styles([
+            "resources/assets/css/demo/bootstrap.css",
+            // "resources/assets/css/demo/font-awesome.min.css",
+
+            "resources/assets/css/demo/create-idea-css.css",
+            "resources/assets/css/demo/home-css.css",
+            "resources/assets/css/demo/ideas-topic-css.css",
+            "resources/assets/css/demo/ideas-topics-css.css",
+            "resources/assets/css/demo/login-css.css",
+            "resources/assets/css/demo/news-list-css.css",
+            "resources/assets/css/demo/news-topic-css.css",
+            "resources/assets/css/demo/user-activity-css.css",
+            "resources/assets/css/demo/user-profile-css.css"
+        ], "public/css/demo/demo.css", ".")
+        .copy("resources/assets/images/demo/", "public/images/demo/")
+        .scripts([
+            // JQuery && Bootstrap4 Alpha && Sticky Plugin
+            'resources/assets/js/demo/jquery-3.1.1.slim.js',
+            'resources/assets/js/demo/tether.js',
+            
+            'resources/assets/js/demo/bootstrap.js',
+            'resources/assets/js/demo/jquery.sticky.js',
+            'resources/assets/js/demo/cookieconsent/cookieconsent.min.js',
+            'resources/assets/js/demo/dotDotDot/jquery.dotdotdot.min.js',
+            'resources/assets/js/demo/parallax/parallax.min.js',
+            'resources/assets/js/demo/jquery.jscroll.min.js',
+
+            // Fancybox
+            'resources/assets/js/demo/fancybox3/jquery.fancybox.min.js',
+
+            //Jscroll
+            'resources/assets/js/demo/jquery.jscroll.min.js',
+
+            // General functions
+        ], "public/js/demo/demo.js", ".")
+    /* Versioning */
         .version(
             [
                 'public/css/general.css',
@@ -322,6 +367,10 @@ elixir(function (mix) {
                 'public/js/empatia.js',
                 'public/css/private.css',
                 'public/js/private.js',
+
+                /* Demo */
+                "public/css/demo/demo.css",
+                "public/js/demo/demo.js"
 
             ], 'public');
 

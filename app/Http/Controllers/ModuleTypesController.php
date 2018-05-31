@@ -203,6 +203,7 @@ class ModuleTypesController extends Controller
             ->addColumn('action', function ($collection) {
                 return ONE::actionButtons($collection->module_type_key, ['form' => 'moduleType' ,'edit' => 'ModuleTypesController@edit', 'delete' => 'ModuleTypesController@delete']);
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 

@@ -1,1 +1,1 @@
-<?php return array (  'file_name' => 'File name',  'file_description' => 'File description',  'submitFileDetails' => 'Submit File Details',  'type' => 'Type',  'name' => 'Name',  'insert_link' => 'Insert link',  'next' => 'Next',);
+<?php return array (  'type' => 'Type',  'next' => 'Next',  'file_name' => 'File name',  'file_description' => 'File description',  'submitFileDetails' => 'Submit File Details',);

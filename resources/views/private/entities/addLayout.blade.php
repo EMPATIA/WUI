@@ -4,7 +4,7 @@
 
     <div class="box box-primary">
         <div class="box-header">
-            <h3 class="box-title"><i class="fa"></i> {{ trans('privateEntities.add_layout') }}</h3>
+            <h3 class="box-title"><i class="fa"></i> {{ trans('privateEntities.add_template') }}</h3>
         </div>
 
         <div class="box-body">

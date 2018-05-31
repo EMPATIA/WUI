@@ -42,27 +42,40 @@ class OneAuth
     {
         $siteKey = Session::get('X-SITE-KEY');
         $entityKey = Session::get('X-ENTITY-KEY');
-        $currentLang = Session::get('LANG_CODE');
+        //$currentLang = Session::get('LANG_CODE');
         $defaultLang = Session::get('LANG_CODE_DEFAULT');
         $middleware = Session::get('X-ACCESS-AREA');
         $layout = Session::get('X-LAYOUT-KEY');
-
-
+        $siteConfiguration = Session::get('SITE-CONFIGURATION');
+        //$languages = Session::get('languages');
+        
+        if($request->is("auth/login")){
+            ONE::clearSession();
+            
+            Session::put('X-SITE-KEY', $siteKey);
+            Session::put('X-ENTITY-KEY', $entityKey);
+            //Session::put('LANG_CODE', $currentLang);
+            Session::put('LANG_CODE_DEFAULT',$defaultLang);
+            Session::put('X-ACCESS-AREA', $middleware);
+            Session::put('X-LAYOUT-KEY', $layout);
+            Session::put('SITE-CONFIGURATION', $siteConfiguration);
+            //Session::put('languages', $languages);
+        }
+        
         if((empty($layout) || empty($entityKey) || empty($siteKey)) || $middleware != 'public') {
 
             if (isset($_SERVER["HTTP_HOST"])){
-//                $parameters = [
-//                    "url" => $_SERVER["HTTP_HOST"] ,
-//                ];
                 $url = $_SERVER["HTTP_HOST"];
             }else{
-//                $parameters = [
-//                    "url" => "" ,
-//                ];
                 $url = '';
             }
-            $response = Orchestrator::getSiteEntity($url);
-
+            
+            try {
+                $response = Orchestrator::getSiteEntity($url);
+            } catch(Exception $e) {
+                return response()->view("errors.invalidSite");
+            }
+            
             $layout = !empty($response->layout)? $response->layout : null;
 
             Session::put('X-LAYOUT-KEY' , $layout);
@@ -77,41 +90,45 @@ class OneAuth
                 Session::put('TIMEZONE' , $response->timezone->name);
             }
 
-        }elseif($siteKey == 'false'){
+        } elseif($siteKey == 'false') {
             return response()->json(['error' => 'Unauthorized'], 401)->send();
         }
 
         if((empty($currentLang) || empty($defaultLang)) ) {
-
+            // Get browser language
             if(isset ($_SERVER['HTTP_ACCEPT_LANGUAGE']) ){
-                $userLang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+                $browserLang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
             }
-            else
-                $userLang = 'en';
-
 
             ONE::clearLangSession();
 
             $allLang = ONE::getAllLanguages();
-            foreach($allLang as $lang){
-                if (!empty($request->cookie('EMPATIA-LANG'))){
-                    if($request->cookie('EMPATIA-LANG') === $lang->code){
-                        $userDefaultLang = $lang->code;
-                    }
-                }else{
-                    if($userLang === $lang->code){
-                        $userDefaultLang = $lang->code;
-                    }
+            $userDefaultLang = null;
+            $browserDefaultLang = null;
+            $defaultLang = null;
+            
+            foreach ($allLang as $lang) {
+                // Set COOKIE language as default
+                if (!empty($request->cookie('EMPATIA-LANG')) && $request->cookie('EMPATIA-LANG') === $lang->code) {
+                    $userDefaultLang = $lang->code;
                 }
-                if($lang->default){
+                
+                // Validate browser language
+                if (isset($browserLang) && $browserLang === $lang->code) {
+                    $browserDefaultLang = $lang->code;
+                }
+                
+                // Get default entity language
+                if (isset($lang->default) && $lang->default) {
                     $defaultLang = $lang->code;
                 }
             }
-
-            if(isset($userDefaultLang)){
+            
+            if (isset($userDefaultLang)) {
                 Session::put('LANG_CODE' , $userDefaultLang);
-            }
-            else{
+            } else if (isset($browserDefaultLang)) {
+                Session::put('LANG_CODE' , $browserDefaultLang);
+            } else {
                 Session::put('LANG_CODE' , $defaultLang);
             }
             Session::put('LANG_CODE_DEFAULT' , $defaultLang);
@@ -119,54 +136,53 @@ class OneAuth
 
         app()->setLocale(Session::get('LANG_CODE'));
 
-        if (!empty($request->cookie('EMPATIA-LANG'))){
-            Cookie::q('EMPATIA-LANG', $currentLang, 4500);
-        }
+        Cookie::queue('EMPATIA-LANG', Session::get('LANG_CODE'), 21600);
 
         Session::put('X-ACCESS-AREA', 'public');
 
         /* Validate TOKEN */
         if (Session::has('X-AUTH-TOKEN')) {
-            if(!ONE::checkIfValidToken()){
+            if (!ONE::checkIfValidToken()) {
                 ONE::clearSession();
-            }else{
+            } else if (!Session::has('user') || !Session::has('user_level')) {
+                // Get user details
                 $userInformation = Auth::getUser();
-                $userLevel = Orchestrator::getUserLevel($userInformation->user_key);
-                $userInformation->user_level = $userLevel->position ?? 0;
                 Session::put('user', $userInformation);
-                Session::put('user_level', $userLevel);
-                /*$userKey = isset(Session::get('user')->user_key) ?? null;
-                if (!empty($userKey)){
-                   Session::put('user_level', Orchestrator::getUserLevel($userKey));
-                }else{
-                    Session::put('user_level',0);
-                }*/
-
+                
+                // DEPRECATED USER LEVEL
+//                $userLevel = Orchestrator::getUserLevel($userInformation->user_key);
+//                $userInformation->user_level = $userLevel->position ?? 0;
+//                Session::put('user_level', $userLevel);
             }
         }
-        $siteConfGroups = Orchestrator::getSiteConfGroups(Session::get('X-SITE-KEY'),true);
 
+        if(!Session::has('SITE-CONFIGURATION')) {
+            $siteConfGroups = Orchestrator::getSiteConfGroups(Session::get('X-SITE-KEY'), true);
 
-        $sessionSiteConfigurations = [];
-        foreach($siteConfGroups as $key => $siteConfGroup){
-            if (str_contains($key, 'file_')){
+            $sessionSiteConfigurations = [];
+            foreach ($siteConfGroups as $key => $siteConfGroup) {
+                if (str_contains($key, 'file_')) {
 
-                if(isset($siteConfGroup)) {
+                    if (isset($siteConfGroup)) {
 
-                    if (!empty($element = json_decode($siteConfGroup))) {
-
-                        $sessionSiteConfigurations[$key] = action('FilesController@download', [$element[0]->id, $element[0]->code, 1]);
+                        if (!empty($element = json_decode($siteConfGroup))) {
+                            if (count($element) > 1) {
+                                foreach ($element as $subElement) {
+                                    $sessionSiteConfigurations[$key][] = action('FilesController@download', [$subElement->id, $subElement->code, 1]);
+                                }
+                            } else
+                                $sessionSiteConfigurations[$key] = action('FilesController@download', [$element[0]->id, $element[0]->code, 1]);
+                        }
                     }
+                } else {
+                    $sessionSiteConfigurations[$key] = $siteConfGroup ?? null;
                 }
-            }else{
-                $sessionSiteConfigurations[$key] = $siteConfGroup ?? null;
+
             }
 
+            Session::put('SITE-CONFIGURATION',$sessionSiteConfigurations);
         }
-
-        Session::set('SITE-CONFIGURATION',$sessionSiteConfigurations);
-
+        
         return $next($request);
-
     }
 }

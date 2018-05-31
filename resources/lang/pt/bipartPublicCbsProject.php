@@ -1,0 +1,1 @@
+<?php return array (  'project_number' => 'Projecto número',  'previous_project' => 'Projecto anterior',  'next_project' => 'Próximo projecto',);

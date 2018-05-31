@@ -122,13 +122,15 @@ class Orchestrator {
         return $response->json()->data;
     }
 
-    public static function getAllManagers(){
+    public static function getAllManagers($entityKey = null){
         $response = ONE::post([
             'component' => 'empatia',
             'api' => 'user',
             'method' => 'list',
             'params' => [
-                'role' => 'manager'
+                'role' => 'manager',
+                'entityKey' => $entityKey
+
             ]
         ]);
         if($response->statusCode() != 200){
@@ -319,23 +321,29 @@ class Orchestrator {
         return $response->json()->data;
     }
 
-    public static function getCountryList(){
+    public static function getCountryList($request=null){
         $response = ONE::get([
             'component' => 'empatia',
             'api'       => 'country',
-            'method'    => 'list'
-        ]);
+            'method'    => 'list',
+            'params' => [
+                'tableData' => ONE::tableData($request)
+            ]
+        ]);       
         if($response->statusCode() != 200){
             throw new Exception(trans("comModulesOrchestrator.errorGetCountryList"));
         }
         return $response->json()->data;
     }
 
-    public static function getTimeZoneList(){
+    public static function getTimeZoneList($request = null){
         $response = ONE::get([
             'component' => 'empatia',
             'api'       => 'tz',
-            'method'    => 'list'
+            'method'    => 'list',
+            'params' => [
+                'tableData' => ONE::tableData($request)
+            ]
         ]);
         if($response->statusCode() != 200){
             throw new Exception(trans("comModulesOrchestrator.errorGetTimeZoneList"));
@@ -343,12 +351,15 @@ class Orchestrator {
         return $response->json()->data;
     }
 
-    public static function getCurrencyList(){
+    public static function getCurrencyList($request=null){
         $response = ONE::get([
             'component' => 'empatia',
             'api'       => 'currency',
-            'method'    => 'list'
-        ]);
+            'method'    => 'list',
+            'params' => [
+                'tableData' => ONE::tableData($request)
+            ]
+        ]);       
         if($response->statusCode() != 200){
             throw new Exception(trans("comModulesOrchestrator.errorGetCurrencyList"));
         }
@@ -453,7 +464,19 @@ class Orchestrator {
         return $response->json();
     }
 
-
+    public static function deleteAdditionalUrl($id)
+    {
+        $response = ONE::delete([
+            'component' => 'empatia',
+            'api'       => 'site',
+            'method'    => 'deleteAdditionalUrl',
+            'api_attribute' => $id,
+        ]);
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesOrchestrator.errorDeletingSiteAdditionalUrl"));
+        }
+        return $response->json();
+    }
 
     public static function getSiteById($siteId)
     {
@@ -1636,6 +1659,8 @@ class Orchestrator {
             ]
         ]);
 
+\Log::info(">>>> ERROR ORCH: ".$response->content());
+
         if($response->statusCode() != 201) {
             throw new Exception(trans("comModulesOrchestrator.errorStoreUserOrchestractor"));
         }
@@ -1884,6 +1909,7 @@ class Orchestrator {
             'method'    => 'list',
 
         ]);
+
         if($response->statusCode() != 200){
             throw new Exception(trans("comModulesOrchestrator.FailedToGetCBTypes"));
         }
@@ -1976,19 +2002,20 @@ class Orchestrator {
         return $response->json();
     }
 
-    public static function setModuleTypeForCurrentEntity($moduleKey, $moduleTypeKey) {
+    public static function setModuleTypeForEntity($moduleKey, $moduleTypeKey, $entityKey = null) {
         $response = ONE::post([
             'component' => 'empatia',
             'api'           => 'entityModule',
-            'api_attribute' => 'setModuleTypeForCurrentEntity',
+            'api_attribute' => 'setModuleTypeForEntity',
             'params'     => [
                 "moduleKey"     => $moduleKey,
-                "moduleTypeKey" => $moduleTypeKey
+                "moduleTypeKey" => $moduleTypeKey,
+                "entityKey"     => $entityKey
             ]
         ]);
 
         if($response->statusCode()!= 200) {
-            throw new Exception(trans("comModulesOrchestrator.failed_to_set_module_type_for_current_entity"));
+            throw new Exception(trans("comModulesOrchestrator.failed_to_set_module_type_for_entity"));
         }
         return $response->json();
     }
@@ -2184,18 +2211,20 @@ class Orchestrator {
     }
 
     /* ParameterUserTypes HTTP REQUESTs */
-    public static function getParameterUserTypes(){
+    public static function getParameterUserTypes($request){
         $response = ONE::get([
             'component' => 'empatia',
-            'api'           => 'parameterUserType',
-            'method'        => 'list',
-        ]);
-
+            'api' => 'parameterUserType',
+            'method' => 'list',
+            'params'    => [
+                'tableData' => ONE::tableData($request),
+            ]
+            
+        ]);       
         if($response->statusCode() != 200){
             throw new Exception(trans("comModulesOrchestrator.errorGettingParameterUserTypes"));
         }
-
-        return $response->json()->data;
+        return $response->json();
     }
 
 
@@ -2239,7 +2268,7 @@ class Orchestrator {
         }
     }
 
-    public static function createParameterUserType($parameterTypeCode,$parameterCode,$mandatory,$unique,$contentTranslation,$optionsWithTranslation){
+    public static function createParameterUserType($parameterTypeCode,$parameterCode,$mandatory,$unique,$anonymizable,$minimumUsers,$voteInPerson,$externalValidation,$contentTranslation,$optionsWithTranslation){
 
         $response = ONE::post([
             'component' => 'empatia',
@@ -2249,6 +2278,10 @@ class Orchestrator {
                 'parameter_code' => $parameterCode,
                 'mandatory' => $mandatory,
                 'parameter_unique' => $unique,
+                'anonymizable' => $anonymizable,
+                'minimum_users' => $minimumUsers,
+                'vote_in_person' => $voteInPerson,
+                'external_validation' => $externalValidation,
                 'translations' => $contentTranslation,
                 'parameter_user_options' => $optionsWithTranslation
             ]
@@ -2259,7 +2292,7 @@ class Orchestrator {
         return $response->json();
     }
 
-    public static function updateParameterUserType($parameterUserTypeKey,$parameterCode,$parameterTypeCode,$mandatory,$unique,$contentTranslation,$optionsWithTranslation){
+    public static function updateParameterUserType($parameterUserTypeKey,$parameterCode,$parameterTypeCode,$mandatory,$unique,$anonymizable,$minimumUsers,$voteInPerson,$externalValidation,$contentTranslation,$optionsWithTranslation){
         $response = ONE::put([
             'component' => 'empatia',
             'api' => 'parameterUserType',
@@ -2269,6 +2302,10 @@ class Orchestrator {
                 'parameter_code' => $parameterCode,
                 'mandatory' => $mandatory,
                 'parameter_unique' => $unique,
+                'anonymizable' => $anonymizable,
+                'minimum_users' => $minimumUsers,
+                'vote_in_person' => $voteInPerson,
+                'external_validation' => $externalValidation,
                 'translations' => $contentTranslation,
                 'parameter_user_options' => $optionsWithTranslation
             ]
@@ -3941,13 +3978,37 @@ class Orchestrator {
     }
 
     /**
+     * @param $entityKey
+     * @param $type
+     * @return
+     * @throws Exception
+     */
+    public static function getVatNumbers($entityKey,$parameterUserTypeId) {
+
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api'       => 'entity',
+            'method'    => 'getVatNumbers',
+            'params' => [
+                'entity_key' => $entityKey,
+                'parameter_user_type_id' => $parameterUserTypeId
+            ]
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesOrchestrator.errorGetEntityRegistrationValues"));
+        }
+        return $response->json();
+    }
+
+    /**
      * @param $importedData
      * @param $type
      * @param $entityKey
      * @return mixed
      * @throws Exception
      */
-    public static function importRegistrationFields($importedData, $type, $entityKey)
+    public static function importRegistrationFields($importedData, $type, $entityKey,$parameterUserTypeId)
     {
         $response = ONE::post([
             'component' => 'empatia',
@@ -3956,9 +4017,11 @@ class Orchestrator {
             'params' => [
                 'values' => $importedData,
                 'type' => $type,
-                'entity_key' => $entityKey
+                'entity_key' => $entityKey,
+                'parameter_user_type_id' => $parameterUserTypeId
             ]
         ]);
+        
         if($response->statusCode()!= 200) {
             throw new Exception(trans("comModulesOrchestrator.errorEntityImportRegistrationFields"));
         }
@@ -3990,6 +4053,26 @@ class Orchestrator {
             throw new Exception(trans("comModulesOrchestrator.errorDeletingVatNumber"));
         }
     }
+
+
+    public static function deleteAllRegistrationValues($entityKey,$parameterUserTypeId)
+    {
+        $response = ONE::post([
+            'component' => 'empatia',
+            'api'       => 'entity',
+            'method'    => 'deleteAllRegistrationValues',
+            'params' => [
+                'entity_key' => $entityKey,
+                'parameter_user_type_id' => $parameterUserTypeId
+            ]
+        ]);
+        
+        if($response->statusCode() != 200) {
+            throw new Exception(trans("comModulesOrchestrator.errorDeletingAllVatNumbers"));
+        }
+    }
+
+
     /** ----------------------------------------------------------
      *  {END} Methods to deal with the entity registration values
      * -----------------------------------------------------------
@@ -4095,15 +4178,13 @@ class Orchestrator {
      * @return
      * @throws Exception
      */
-    public static function validateVatNumber($vatNumberToValidate,$name,$surname)
+    public static function validateVatNumber($vatNumberToValidate)
     {
         $response = ONE::post([
             'component' => 'empatia',
             'api'       => 'validateVatNumber',
             'params' => [
-                'vat_number' => $vatNumberToValidate,
-                'name' => $name,
-                'surname' => $surname
+                'vat_number' => $vatNumberToValidate
             ],
         ]);
         if($response->statusCode() != 200){
@@ -4165,6 +4246,28 @@ class Orchestrator {
 
     }
 
+    public static function sendMessageFromRegister($request)
+    {
+        $response = ONE::post([
+            'component' => 'empatia',
+            'api'       => 'message',
+            'params' => [
+                "name"                  => $request['name'],
+                "email"                 => $request['email'],
+                "mobile_phone"          => $request['mobile_phone'],
+                "message"               => $request['message'],
+                "parameter_user_key"    => $request['parameter_user_key'],
+                "parameter_value"       => $request['parameter_value'],
+                "register_message"      => $request['register_message'],
+            ],
+        ]);
+        if($response->statusCode() != 201){
+            throw new Exception(trans("comModulesOrchestrator.errorSendingMessage"));
+        }
+        return $response->json();
+
+    }
+
     public static function getMessages()
     {
         $response = ONE::get([
@@ -4194,6 +4297,21 @@ class Orchestrator {
         }
         return $response->json();
 
+    }
+
+    public static function getMessage($messageKey){
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api'       => 'message',
+            'method' => 'showMessage',
+            'params' => ['messageKey' => $messageKey]
+        ]);
+        
+        
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesOrchestrator.errorRetrievingMessage"));
+        }
+        return $response->json();
     }
 
     /**
@@ -4428,7 +4546,8 @@ class Orchestrator {
                 'site_key' => $request->site_key,
                 'name' => $request->name,
                 'description' => $request->description,
-                'active' => $request->active
+                'active' => $request->active,
+                'code' => $request->code
             ],
             'attribute' => $id
         ]);
@@ -4567,7 +4686,13 @@ class Orchestrator {
     }
 
 
-    public static function setCooperators($topicKey, $cooperators)
+    /**
+     * @param $topicKey
+     * @param $cooperators
+     * @return mixed
+     * @throws Exception
+     */
+    public static function setCooperators($topicKey, $cooperators, $actionUrl = null)
     {
         $response = ONE::post([
             'component'     => 'empatia',
@@ -4575,7 +4700,8 @@ class Orchestrator {
             'method'        => 'cooperators',
             'api_attribute' => $topicKey,
             'params' => [
-                'cooperators' => $cooperators
+                'cooperators' => $cooperators,
+                'action_url' => $actionUrl
             ]
         ]);
 
@@ -4649,7 +4775,7 @@ class Orchestrator {
         return $response->json();
     }
     public static function deleteEntity($entityKey){
-        $response = ONE::post([
+        $response = ONE::delete([
             'component' => 'empatia',
             'api' => 'entity',
             'attribute' => $entityKey
@@ -4871,7 +4997,7 @@ class Orchestrator {
             'attribute' => $id
         ]);
 
-        if($response->statusCode()!= 201) {
+        if($response->statusCode()!= 200) {          
             throw new Exception(trans("comModulesOrchestrator.error_get_country"));
         }
         return $response->json();
@@ -5714,5 +5840,21 @@ class Orchestrator {
         }
         return $response->json();
 
+    }
+
+    public static function updateStatusCheckAndUpdateUserLoginLevel($userKey){
+        $response = ONE::post([
+            'component'     => 'empatia',
+            'api'           => 'user',
+            'method'        => 'updateStatusLoginLevel',
+            'params'        => [
+                'user_key'      => $userKey
+            ]
+        ]);
+
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesOrchestrator.error_updating_user_login_levels"));
+        }
+        return $response->json();
     }
 }

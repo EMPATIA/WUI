@@ -11,7 +11,7 @@
 <script>
     var statistics_by_top_data = [
         @foreach($votesByTop->balance as $vote)
-            {"position": "{{ $vote->position }}", "{!! trans('privateCbsVoteAnalysis.topic_name') !!}":"{{ $vote->topic_name }}","{!! trans('privateCbsVoteAnalysis.total_votes') !!}": {{ $vote->total_votes }}},
+            {"position": {{ $vote->position }}, "{!! trans('privateCbsVoteAnalysis.topic_name') !!}":"{{ $vote->topic_name }}","{!! trans('privateCbsVoteAnalysis.total_votes') !!}": {{ $vote->total_votes }}},
         @endforeach
     ];
 
@@ -49,3 +49,5 @@
     }
 
 </script>
+
+@include('private.cbs.cbVoteAnalysis.cbDetailsScript')

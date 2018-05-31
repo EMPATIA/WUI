@@ -30,9 +30,11 @@ class DashBoardElementConfigurationsController extends Controller
     {
         try {
 
-            $requestFlags = CB::getDashBoardElementConfigurationsList();
-            // in case of json
-            $dashBoardElementConfigurations = Collection::make($requestFlags);
+            $requestFlags = CB::getDashBoardElementConfigurationsList($request);
+            // JSON data collection
+            $dashBoardElementConfigurations = collect($requestFlags->dashBoardElementConfigurations);
+            $recordsTotal = $requestFlags->recordsTotal;
+            $recordsFiltered = $requestFlags->recordsFiltered;
 
             //  Datatable with sent emails list
             return Datatables::of($dashBoardElementConfigurations)
@@ -42,6 +44,10 @@ class DashBoardElementConfigurationsController extends Controller
                 ->addColumn('action', function ($dashBoardElementConfigurations) {
                     return ONE::actionButtons($dashBoardElementConfigurations->id, ['delete' => 'DashBoardElementConfigurationsController@delete']);
                 })
+                ->rawColumns(['title','action'])
+                ->with('filtered', $recordsFiltered ?? 0)
+                ->skipPaging()
+                ->setTotalRecords($recordsTotal ?? 0)
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["dashBoardElementConfigurations.getIndexTable" => $e->getMessage()]);
@@ -233,7 +239,7 @@ class DashBoardElementConfigurationsController extends Controller
     {
         try {
 
-            CB::deleteDashBoardElement($id);
+            CB::deleteDashBoardElementConfiguration($id);
             Session::flash('message', trans('privateDashBoardElementConfigurations.deleteOk'));
             return action('DashBoardElementConfigurationsController@index');
 

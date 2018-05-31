@@ -36,6 +36,10 @@ class PreviousPageComposer
             'App\Http\Controllers\AuthController@updatePassword',
             'App\Http\Controllers\AuthController@migrateUserToEntityConfirmation',
             'App\Http\Controllers\AuthController@migrateUserToEntity',
+            'App\Http\Controllers\AuthSocialNetworkController@redirectToFacebook',
+            'App\Http\Controllers\AuthSocialNetworkController@handleFacebookCallback',
+            'App\Http\Controllers\AuthSocialNetworkController@checkRoleUser',
+            'App\Http\Controllers\AuthSocialNetworkController@removeFacebook',
         );
 
         if(!Request::ajax() && !empty(\Route::current()) && isset(\Route::current()->getAction()["controller"]) && !in_array(\Route::current()->getAction()["controller"],$actionsBlackList)) {            /** Save URL for redirect in case of login lost*/

@@ -14,15 +14,13 @@
                         </a>
                     </div>
                 </li>
-                @if(ONE::verifyUserPermissionsCrud('orchestrator', 'role_permissions'))
-                    <li class="menu-wrapper">
-                        <div class="@if($active=='permissions') menu-active @endif">
-                            <a href="{{ action("RolesController@showPermissions", $roleKey) }}">
-                                {{ trans('privateSidebar.permissions') }}
-                            </a>
-                        </div>
-                    </li>
-                @endif
+                <li class="menu-wrapper">
+                    <div class="@if($active=='permissions') menu-active @endif">
+                        <a href="{{ action("RolesController@showPermissions", $roleKey) }}">
+                            {{ trans('privateSidebar.permissions') }}
+                        </a>
+                    </div>
+                </li>
             </ul>
         </li>
     </ul>

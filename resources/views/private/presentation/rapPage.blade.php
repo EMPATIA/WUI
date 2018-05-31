@@ -17,7 +17,7 @@
             <div class="col-lg-3 col-md-4 col-sm-6 col-12">
                 <a href="#" class="text-center">
                     <div class="btn-presentation">
-                        <img  src="{{asset('images/apresentacaoBackOffice_icone-02.png')}}"/>
+                        <img  src="{{asset('images/default/apresentacaoBackOffice_icone-02.png')}}"/>
                         <div class="text-padding">
                             {{trans("privatePresentation.public_consultations")}}
                         </div>
@@ -27,7 +27,7 @@
             <div class="col-lg-3 col-md-4 col-sm-6 col-12">
                 <a href="#" class="text-center">
                     <div class="btn-presentation">
-                        <img src="{{asset('images/apresentacaoBackOffice_icone-01.png')}}"/>
+                        <img src="{{asset('images/default/apresentacaoBackOffice_icone-01.png')}}"/>
                         <div class="text-padding">
                             {{trans("privatePresentation.small_ideas")}}
                         </div>
@@ -48,7 +48,7 @@
             <div class="col-lg-3 col-md-4 col-sm-6 col-12">
                 <a href="#" class="text-center">
                     <div class="btn-presentation">
-                        <img src="{{asset('images/apresentacaoBackOffice_icone-03.png')}}"/>
+                        <img src="{{asset('images/default/apresentacaoBackOffice_icone-03.png')}}"/>
                         <div class="text-padding">
                             {{trans("privatePresentation.online_deliberation")}}
                         </div>

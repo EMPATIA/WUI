@@ -1,1 +1,1 @@
-<?php return array (  'postId' => 'PostId',  'comment' => 'Comment',  'abuses' => 'Abuses',  'processed' => 'Processed',  'created_at' => 'Created at',);
+<?php return array (  'comment' => 'Comment',  'processed' => 'Processed',  'created_at' => 'Created at',  'postId' => 'PostId',  'abuses' => 'Abuses',);

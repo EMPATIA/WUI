@@ -49,6 +49,70 @@ class Analytics
         return $response->json()->data;
     }
 
+/*
+    public static function getVoteStatisticsByChannelAndDate($voteEventKey, $options = [])
+    {
+        $response = ONE::get([
+            'component' => 'analytics',
+            'api' => 'voteEvent',
+            'api_attribute' => $voteEventKey,
+            'method' => 'statisticsByChannelAndDate',
+            'params' => $options
+        ]);
+
+        if($response->statusCode()!= 200){
+            throw new Exception(trans("comModulesAnalytics.error_retrieving_statistics_by_date_range"));
+        }
+        return $response->json()->data;
+    }
+*/
+
+
+    /** Get vote Statistics by date and channel
+     * @param $voteEventKey
+     * @return mixed
+     * @throws Exception
+     */
+    public static function getVoteStatisticsByDateRange($voteEventKey, $options = [])
+    {
+        $response = ONE::get([
+            // 'url' => 'http://ilidio.empatia-dev.onesource.pt:5001',
+            'component' => 'analytics',
+            'api' => 'voteEvent',
+            'api_attribute' => $voteEventKey,
+            'method' => 'statisticsByDateRange',
+            'params' => $options
+        ]);
+
+
+        if($response->statusCode()!= 200){
+            throw new Exception(trans("comModulesAnalytics.error_retrieving_statistics_by_date_range"));
+        }
+        return $response->json()->data;
+    }
+
+    /** Get vote Statistics by date and channel
+     * @param $voteEventKey
+     * @return mixed
+     * @throws Exception
+     */
+    public static function getVoteStatisticsByHour($voteEventKey, $options)
+    {
+        $response = ONE::get([
+            // 'url' => 'http://ilidio.empatia-dev.onesource.pt:5001',
+            'component' => 'analytics',
+            'api' => 'voteEvent',
+            'api_attribute' => $voteEventKey,
+            'method' => 'statisticsByHour',
+            'params' => $options
+        ]);
+
+        if($response->statusCode()!= 200){
+            throw new Exception(trans("comModulesAnalytics.error_retrieving_statistics_by_date"));
+        }
+        return $response->json()->data;
+    }
+
     /** Get vote Statistics by town and channel
      * @param $voteEventKey
      * @return mixed
@@ -170,10 +234,10 @@ class Analytics
 
     }
 
-    public static function getVoteStatisticsByParameter($voteEventKey, $parameterKey,$secondParameterKey,$thirdParameterKey,$ageInterval = null)
+    public static function getVoteStatisticsByParameter($voteEventKey, $parameterKey,$secondParameterKey,$thirdParameterKey,$ageInterval = null,$viewSubmitted = null)
     {
-
         $response = ONE::post([
+          //  // 'url' => 'http://ilidio.empatia-dev.onesource.pt:5001',
             'component' => 'analytics',
             'api' => 'voteEvent',
             'api_attribute' => $voteEventKey,
@@ -182,16 +246,161 @@ class Analytics
                 'parameter_key' => $parameterKey,
                 'second_parameter_key' => $secondParameterKey,
                 'third_parameter_key' => $thirdParameterKey,
-                'age_value' => $ageInterval
+                'age_value' => $ageInterval,
+                'view_submitted' => $viewSubmitted
+            ]
+        ]);
+        if($response->statusCode()!= 200){
+            throw new Exception(trans("comModulesAnalytics.error_retrieving_vote_statistics_by_parameter"));
+        }
+        return $response->json()->data;
+    }
+
+    public static function getVoteStatisticsByTopicParameter($voteEventKey, $cbKey,$parameterId,$secondParameterKey,$thirdParameterKey,$ageInterval = null, $viewSubmitted = null)
+    {
+        $response = ONE::post([
+            // 'url' => 'http://ilidio.empatia-dev.onesource.pt:5001',
+            'component' => 'analytics',
+            'api' => 'voteEvent',
+            'api_attribute' => $voteEventKey,
+            'method' => 'statisticsByTopicParameter',
+            'params' => [
+                'cb_key' => $cbKey,
+                'parameter_id' => $parameterId,
+                'second_parameter_key' => $secondParameterKey,
+                'third_parameter_key' => $thirdParameterKey,
+                'age_value' => $ageInterval,
+                'view_submitted' => $viewSubmitted
             ]
         ]);
 
         if($response->statusCode()!= 200){
-            throw new Exception(trans("comModulesAnalytics.error_retrieving_statistics_by_parameter"));
+            throw new Exception(trans("comModulesAnalytics.error_retrieving_vote_statistics_by_topicParameter"));
         }
         return $response->json()->data;
-
     }
+
+    public static function getVoteStatisticsByParameterChannel($voteEventKey, $parameterKey,$secondParameterKey,$thirdParameterKey,$ageInterval = null, $viewSubmitted = null)
+    {
+        $response = ONE::post([
+            // 'url' => 'http://ilidio.empatia-dev.onesource.pt:5001',
+            'component' => 'analytics',
+            'api' => 'voteEvent',
+            'api_attribute' => $voteEventKey,
+            'method' => 'statisticsByParameterChannel',
+            'params' => [
+                'parameter_key' => $parameterKey,
+                'second_parameter_key' => $secondParameterKey,
+                'third_parameter_key' => $thirdParameterKey,
+                'age_value' => $ageInterval,
+                'view_submitted' => $viewSubmitted
+            ]
+        ]);
+        if($response->statusCode()!= 200){
+            throw new Exception(trans("comModulesAnalytics.error_retrieving_vote_statistics_by_parameter_channel"));
+        }
+        return $response->json()->data;
+    }
+
+
+    public static function getVoteStatisticsByTopicParameterChannel($voteEventKey,$cbKey ,$parameterId,$secondParameterKey,$thirdParameterKey,$ageInterval = null, $viewSubmitted = null)
+    {
+        $response = ONE::post([
+            // 'url' => 'http://ilidio.empatia-dev.onesource.pt:5001',
+            'component' => 'analytics',
+            'api' => 'voteEvent',
+            'api_attribute' => $voteEventKey,
+            'method' => 'statisticsByTopicParameterChannel',
+            'params' => [
+                'cb_key' => $cbKey,
+                'parameter_id' => $parameterId,
+                'second_parameter_key' => $secondParameterKey,
+                'third_parameter_key' => $thirdParameterKey,
+                'age_value' => $ageInterval,
+                'view_submitted' => $viewSubmitted
+            ]
+        ]);
+
+        if($response->statusCode()!= 200){
+            throw new Exception(trans("comModulesAnalytics.error_retrieving_vote_statistics_by_topic_parameter_channel"));
+        }
+        return $response->json()->data;
+    }
+
+
+    public static function getVoteStatisticsByParameterChannelDateRange($voteEventKey, $parameterKey,$options = null)
+    {
+        $response = ONE::post([
+            // 'url' => 'http://ilidio.empatia-dev.onesource.pt:5001',
+            'component' => 'analytics',
+            'api' => 'voteEvent',
+            'api_attribute' => $voteEventKey,
+            'method' => 'voteStatisticsByParameterChannelDateRange',
+            'params' => $options
+        ]);
+
+        if($response->statusCode()!= 200){
+            throw new Exception(trans("comModulesAnalytics.error_retrieving_vote_statistics_by_parameter_channel_date_range"));
+        }
+        return $response->json()->data;
+    }
+
+
+
+    public static function getVoteStatisticsByTopicParameterChannelDateRange($voteEventKey ,$parameterId, $options = null)
+    {
+        $response = ONE::post([
+            // 'url' => 'http://ilidio.empatia-dev.onesource.pt:5001',
+            'component' => 'analytics',
+            'api' => 'voteEvent',
+            'api_attribute' => $voteEventKey,
+            'method' => 'voteStatisticsByTopicParameterChannelDateRange',
+            'params' => $options
+        ]);
+
+        if($response->statusCode()!= 200){
+            throw new Exception(trans("comModulesAnalytics.error_retrieving_vote_statistics_by_topic_parameter_channel_date_range"));
+        }
+        return $response->json()->data;
+    }
+
+
+
+    public static function getVoteStatisticsByUser($voteEventKey, $options = null)
+    {
+        $response = ONE::post([
+             // 'url' => 'http://ilidio.empatia-dev.onesource.pt:5001',
+            'component' => 'analytics',
+            'api' => 'voteEvent',
+            'api_attribute' => $voteEventKey,
+            'method' => 'getVoteStatisticsByUser',
+            'params' => $options
+        ]);
+
+        // !is_null($response->json()) ? dd("remote/DD",$response->json()) : die("remote/ECHO" .$response->content());
+        if($response->statusCode()!= 200){
+            throw new Exception(trans("comModulesAnalytics.error_retrieving_vote_statistics_by_user"));
+        }
+        return $response->json()->data;
+    }
+
+    public static function getVoteStatisticsByTopic($voteEventKey, $options = null)
+    {
+        $response = ONE::post([
+            // 'url' => 'http://ilidio.empatia-dev.onesource.pt:5001',
+            'component' => 'analytics',
+            'api' => 'voteEvent',
+            'api_attribute' => $voteEventKey,
+            'method' => 'getVoteStatisticsByTopic',
+            'params' => $options
+        ]);
+
+        if($response->statusCode()!= 200){
+            throw new Exception(trans("comModulesAnalytics.error_retrieving_vote_statistics_by_topic"));
+        }
+        return $response->json()->data;
+    }
+
 
     public static function getVoteStatisticsLastDay($voteEventKey)
     {
@@ -208,24 +417,40 @@ class Analytics
         return $response->json()->data;
     }
 
-    public static function getVoteStatisticsTotal($voteEventKey,$top)
+    public static function getVoteStatisticsTotal($voteEventKey, $options = null)
     {
-
         $response = ONE::post([
+//            'url' => 'http://luismonteiro.empatia-dev.onesource.pt:5001',
             'component' => 'analytics',
             'api'       => 'voteEvent',
             'api_attribute' => $voteEventKey,
             'method'    => 'votes',
-            'params' => [
-                'top' => $top
-            ]
+            'params' => $options
         ]);
+
+//       !is_null($response->json()) ? dd("remote/DD",$response->json()) : die("remote/ECHO" .$response->content());
+
         if($response->statusCode() != 200){
             throw new Exception("comModulesAnalytics.error_retrieving_total_statistics");
         }
         return $response->json();
+    }
 
-
+    public static function getVoteStatisticsTotalByChannel($voteEventKey, $options = null)
+    {
+        $response = ONE::post([
+//             'url' => 'http://luismonteiro.empatia-dev.onesource.pt:5001',
+            'component' => 'analytics',
+            'api'       => 'voteEvent',
+            'api_attribute' => $voteEventKey,
+            'method'    => 'votesTotalByChannel',
+            'params' => $options
+        ]);
+//        !is_null($response->json()) ? dd("remote/DD",$response->json()) : die("remote/ECHO" .$response->content());
+        if($response->statusCode() != 200){
+            throw new Exception("comModulesAnalytics.error_retrieving_total_statistics");
+        }
+        return $response->json();
     }
 
     /**
@@ -233,14 +458,19 @@ class Analytics
      * @return mixed
      * @throws Exception
      */
-    public static function getVoteStatisticsByChannel($voteEventKey)
+    public static function getVoteStatisticsByChannel($voteEventKey, $options = null)
     {
         $response = ONE::get([
+            // 'url' => 'http://ilidio.empatia-dev.onesource.pt:5001',
             'component' => 'analytics',
             'api'       => 'voteEvent',
             'api_attribute' => $voteEventKey,
             'method'    => 'votesByChannel',
+            'params' => $options
         ]);
+
+        // !is_null($response->json()) ? dd("remote/DD",$response->json()) : die("remote/ECHO" .$response->content());
+
         if($response->statusCode() != 200){
             throw new Exception("comModulesAnalytics.error_retrieving_votes_by_channel");
         }
@@ -272,14 +502,21 @@ class Analytics
      * @return mixed
      * @throws Exception
      */
-    public static function getVoteStatisticsVotesSummary($voteEventKey)
+    public static function getVoteStatisticsVotesSummary($voteEventKey, $options = [])
     {
         $response = ONE::post([
+            // 'url' => 'http://ilidio.empatia-dev.onesource.pt:5001',
             'component' => 'analytics',
             'api'       => 'voteEvent',
             'api_attribute' => $voteEventKey,
             'method'    => 'votesSummary',
+            'params'=> $options
         ]);
+
+
+
+        //!is_null($response->json()) ? dd("remote/DD",$response->json()) : die("remote/ECHO" .$response->content());
+
         if($response->statusCode() != 200){
             throw new Exception("comModulesAnalytics.error_retrieving_total_statistics");
         }

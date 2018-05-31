@@ -1,4 +1,3 @@
-    {{--<h3> {{ trans('privateCbsVoteAnalysis.total_voters_per_date') }}</h3>--}}
     <!-- Download -->
     <div id="statistics_voters_per_day_chart-download-wrapper" class="chart-download-wrapper">
         <a id="voters_per_day_DownloadCSV" class="btn btn-flat btn-blue pull-right">
@@ -18,7 +17,7 @@
                     {
                         '{!! trans('privateCbsVoteAnalysis.date') !!}': "{{ $date }}",
                         "name": '{!! trans('privateCbsVoteAnalysis.voters_per_day') !!}',
-                        '{!! trans('privateCbsVoteAnalysis.votes') !!}': {{ number_format($voteValue, 3, '.', ',') }} },
+                        '{!! trans('privateCbsVoteAnalysis.votes') !!}': {{ $voteValue }} },
                     @endforeach
 
                 ];
@@ -65,3 +64,6 @@
             });
         </script>
     @endif
+
+
+    @include('private.cbs.cbVoteAnalysis.cbDetailsScript')

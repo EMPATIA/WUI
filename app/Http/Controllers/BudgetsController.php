@@ -172,6 +172,7 @@ class BudgetsController extends Controller
             ->addColumn('action', function ($budget) {
                 return ONE::actionButtons($budget->id, ['edit' => 'BudgetsController@edit', 'delete' => 'BudgetsController@delete']);
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 }

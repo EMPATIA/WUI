@@ -5,6 +5,7 @@ namespace App\ComModules;
 use App\One\One;
 use Exception;
 use Session;
+use Carbon\Carbon;
 
 class Notify {
     /**
@@ -81,6 +82,119 @@ class Notify {
             return $response->json();
         }
         return false;
+    }
+
+    public static function countTotalSentEmails()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'email',
+            'method' => 'getCountTotalSentEmails'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sent_emails"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSentEmails30DPersonalized($startDate, $endDate)
+    {
+
+        $response = One::get([
+
+            'component' => 'notify',
+            'api' => 'email',
+            'method' => 'countTotalSentEmails30DPersonalized',
+            'params'    => [
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ]
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sent_emails_last30D_personalized"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalNotSentEmails()
+    {
+        $response = One::get([
+
+            'component' => 'notify',
+            'api' => 'email',
+            'method' => 'getCountTotalNotSentEmails'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sent_emails"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalNotSentEmails30DPersonalized($startDate, $endDate)
+    {
+
+        $response = One::get([
+
+            'component' => 'notify',
+            'api' => 'email',
+            'method' => 'countTotalNotSentEmails30DPersonalized',
+            'params'    => [
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ]
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_not_sent_emails_last30D_personalized"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalMailsErrors()
+    {
+        $response = One::get([
+
+            'component' => 'notify',
+            'api' => 'email',
+            'method' => 'countTotalMailsErrors'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sent_emails"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalEmailsErrors30DPersonalized($startDate, $endDate)
+    {
+
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'email',
+            'method' => 'countTotalEmailsErrors30DPersonalized',
+            'params'    => [
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ]
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_emails_errors_last30D_personalized"));
+        }
+
+        return $response->json();
     }
 
     /**
@@ -436,9 +550,511 @@ class Notify {
             'method' => 'entitySms'
         ]);
 
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sent_sms"));
+        }
+
+        return $response->json();
+    }
+
+    /**
+     * @return mixed
+     * @throws Exception
+     */
+    public static function getReceivedSms()
+    {
+
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'receivedEntitySms'
+        ]);
 
         if($response->statusCode() != 200 ){
             throw new Exception(trans("comModulesNotify.error_getting_sent_sms"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSendedSms()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalSendedSms'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sended_sms"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalReceivedSms()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalReceivedSms'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_received_sms"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSmsVotes()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalSmsVotes'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_count_total_sms"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSmsVotesErrors()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalSmsVotesErrors'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_received_sms"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSendedSmsLast30D()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalSendedSmsLast30D'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sended_sms_last30D"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSendedSmsLast24H()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalSendedSmsLast24H'
+        ]);
+
+//        dd($response);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sended_sms_last24H"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSendedSmsLast48hPerHour()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalSendedSmsLast48H'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sended_sms_last24H"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSendedSms24hPersonalized($startDate, $endDate)
+    {
+
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'countTotalSendedSms24hPersonalized',
+            'params'    => [
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ]
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sended_sms_last24H_personalized"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalReceivedSms24hPersonalized($startDate, $endDate)
+    {
+
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'countTotalReceivedSms24hPersonalized',
+            'params'    => [
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ]
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_received_sms_last24H_personalized"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSmsVotes24hPersonalized($startDate, $endDate)
+    {
+
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'countTotalSmsVotes24hPersonalized',
+            'params'    => [
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ]
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_total_sms_votes_last24H_personalized"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSmsVotesErrors24hPersonalized($startDate, $endDate)
+    {
+
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'countTotalSmsVotesErrors24hPersonalized',
+            'params'    => [
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ]
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_total_sms_votes_errors_last24H_personalized"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSendedSms30DPersonalized($startDate, $endDate)
+    {
+
+        $response = One::get([
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'countTotalSendedSms30DPersonalized',
+            'params'    => [
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ]
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sended_sms_last30D_personalized"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalReceivedSms30DPersonalized($startDate, $endDate)
+    {
+        $response = One::get([
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'countTotalReceivedSms30DPersonalized',
+            'params'    => [
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ]
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sended_sms_last24H_personalized"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSmsVotes30DPersonalized($startDate, $endDate)
+    {
+
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'countTotalSmsVotes30DPersonalized',
+            'params'    => [
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ]
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sended_sms_last24H_personalized"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSmsVotesErrors30DPersonalized($startDate, $endDate)
+    {
+
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'countTotalSmsVotesErrors30DPersonalized',
+            'params'    => [
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ]
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sended_sms_last24H_personalized"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSendedSmsLast30DPerDay()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalSendedSmsLast30dPerDay'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sended_sms_last24H"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSendedSmsLastHour()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalSendedSmsLastHour'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sended_sms_last_hour"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalReceivedSmsErrors()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalReceivedSmsErrors'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_received_sms"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalReceivedSmsLast24H()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalReceivedSmsLast24H'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_received_sms"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalReceivedSmsLast48hPerHour()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalReceivedSmsLast48H'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sended_sms_last24H"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalReceivedSmsLast30DPerDay()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalReceivedSmsLast30D'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sended_sms_last24H"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSmsVotesLast48hPerHour()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalSmsVotesLast48H'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sended_sms_last24H"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSmsVotesLast30DPerDay()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalSmsVotesLast30D'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sended_sms_last24H"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSmsVotesErrorsLast48hPerHour()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalSmsVotesErrorsLast48H'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sended_sms_last24H"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalSmsVotesErrorsLast30DPerDay()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalSmsVotesErrorsLast30D'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_sended_sms_last24H"));
+        }
+
+        return $response->json();
+    }
+
+    public static function countTotalReceivedSmsLast24hErrors()
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getCountTotalReceivedSmsLast24hErrors'
+        ]);
+
+        if($response->statusCode() != 200 ){
+            throw new Exception(trans("comModulesNotify.error_getting_received_sms"));
         }
 
         return $response->json();
@@ -453,12 +1069,37 @@ class Notify {
     {
         $response = One::get([
 
+
             'component' => 'notify',
             'api' => 'sms',
             'attribute' => $smsKey
         ]);
+
         if($response->statusCode() != 200) {
             throw new Exception(trans("comModulesNotify.error_getting_sms"));
+        }
+
+        return $response->json();
+    }
+
+    /**
+     * @param $smsKey
+     * @return mixed
+     * @throws Exception
+     */
+    public static function getReceivedSmsDetails($receivedSmsKey)
+    {
+        $response = One::get([
+
+
+            'component' => 'notify',
+            'api' => 'sms',
+            'method' => 'getReceivedSmsDetails',
+            'attribute' => $receivedSmsKey
+        ]);
+
+        if($response->statusCode() != 200) {
+            throw new Exception(trans("comModulesNotify.error_getting_received_sms_details"));
         }
 
         return $response->json();
@@ -614,16 +1255,17 @@ class Notify {
         $response = ONE::post([
             'component' => 'notify',
             'api'       => 'sms',
-            'method'   => 'createSms',
+            'method'   => 'sendSMS',
             'params'    => [
                 'username' => Session::get("SITE-CONFIGURATION.sms_service_username"),
                 'password' => Session::get("SITE-CONFIGURATION.sms_service_password"),
-                'to'       => (isset($request->to) ? $request->to : null),
-                'message'      => (isset($request->message) ? $request->message : null),
+                'recipient'       => (isset($request->to) ? $request->to : null),
+                'content'      => (isset($request->message) ? $request->message : null),
                 'sms_type' => 'classic',
 
             ]
         ]);
+
 
         if($response->statusCode()!= 200) {
             throw new Exception(trans("comModulesNotify.failed_to_set_sms"));
@@ -654,8 +1296,10 @@ class Notify {
     }
 
 
-    public static function sendSMS($recipient, $text) {
+    public static function sendSMS($recipient = null, $text = '') {
+
         $response = ONE::post([
+
             'component' => 'notify',
             'api' => 'sms',
             'method' => 'sendSMS',
@@ -666,10 +1310,29 @@ class Notify {
                     'sender_name'   => Session::get("SITE-CONFIGURATION.sms_service_sender_name",""),
                     'service'       => Session::get("SITE-CONFIGURATION.sms_service_code",""),
                 ),
-                'recipient' => $recipient,
+                'recipients' => $recipient,
                 'content' => $text
             ]
         ]);
+        
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesNotify.failed_to_send_sms"));
+        }
+
+        return $response->json();
+    }
+
+    public static function storeReceivedSMS($data) {
+        $response = ONE::post([
+            'component' => 'notify',
+            'api' => 'receivedSMS',
+            'params' => $data
+        ]);
+        
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesNotify.failed_to_store_received_sms"));
+        }
+
         return $response->json();
     }
 }

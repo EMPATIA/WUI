@@ -36,9 +36,7 @@ class EntitiesSitesController extends Controller
     public function index()
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsShow('orchestrator', 'entity_site')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         if (ONE::isEntity()) {
@@ -61,9 +59,7 @@ class EntitiesSitesController extends Controller
     public function create()
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsCreate('orchestrator', 'entity_site')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         $entityKey = ONE::getEntityKey();
@@ -89,12 +85,16 @@ class EntitiesSitesController extends Controller
     public function store(Request $request)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsCreate('orchestrator', 'entity_site')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         try {
+            $data['end_date'] = $request->input('end_date');
+            $data['start_date'] = $request->input('start_date');
+            
+            if (!empty($data["end_date"]) && !Carbon::parse($data["end_date"])->gt(Carbon::parse($data["start_date"])))
+                return redirect()->back()->withErrors([trans("privateEntitiesDivided.end_date_must_be_greater_then_start_date")]);
+                
             $entityKey = ONE::getEntityKey();
             $languages = Orchestrator::getLanguages($entityKey);
             $langsTemp = [];
@@ -129,12 +129,10 @@ class EntitiesSitesController extends Controller
      */
     public function show($siteKey)
     {
-        Session::set('SITE_KEY', $siteKey ?? null);
+        Session::put('SITE_KEY', $siteKey ?? null);
 
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsShow('orchestrator', 'entity_site')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         try {
@@ -177,9 +175,7 @@ class EntitiesSitesController extends Controller
     public function edit($siteKey)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsUpdate('orchestrator', 'entity_site')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         try {
@@ -221,10 +217,9 @@ class EntitiesSitesController extends Controller
     public function update(EntitySiteRequest $request, $siteKey)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsUpdate('orchestrator', 'entity_site')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
+
 
         try {
             $languages = Orchestrator::getLanguageList();
@@ -269,9 +264,7 @@ class EntitiesSitesController extends Controller
     public function destroy($siteKey)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsDelete('orchestrator', 'entity_site')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         try {
@@ -286,7 +279,7 @@ class EntitiesSitesController extends Controller
     public function tableSitesEntity()
     {
         try {
-            if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('orchestrator', 'entity_site')){
+            if(Session::get('user_role') == 'admin'){
                 $entityKey = ONE::getEntityKey();
                 $entity = Orchestrator::getEntity($entityKey);
                 $sites = $entity->sites;
@@ -296,8 +289,8 @@ class EntitiesSitesController extends Controller
             }else
                 $collection = Collection::make([]);
 
-            $edit = Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsUpdate('orchestrator', 'entity_site');
-            $delete = Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsDelete('orchestrator', 'entity_site');
+            $edit = Session::get('user_role') == 'admin';
+            $delete = Session::get('user_role') == 'admin';
 
             return Datatables::of($collection)
                 ->editColumn('name', function ($collection) {
@@ -313,6 +306,7 @@ class EntitiesSitesController extends Controller
                     else
                         return false;
                 })
+                ->rawColumns(['name','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["entitiesDivided.showSites" => $e->getMessage()]);
@@ -339,6 +333,7 @@ class EntitiesSitesController extends Controller
                 ->addColumn('action', function ($collection){
                     return ONE::actionButtons($collection->id, ['form' => 'SiteAdditionalUrlsController', 'edit' => 'SiteAdditionalUrlsController@edit', 'delete' => 'SiteAdditionalUrlsController@deleteConfirm']);
                 })
+                ->rawColumns(['link','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["entitiesDivided.showSites" => $e->getMessage()]);
@@ -349,15 +344,15 @@ class EntitiesSitesController extends Controller
     public function tableSiteEmailsManagers($siteKey)
     {
         try{
-            if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('orchestrator', 'site_email_template')){
+            if(Session::get('user_role') == 'admin'){
                 $templates = Notify::getEmailTemplatesSite($siteKey);
 
                 $collection = Collection::make($templates);
             }else
                 $collection = Collection::make([]);
 
-            $edit = Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsUpdate('orchestrator', 'site_email_template');
-            $delete = Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsDelete('orchestrator', 'site_email_template');
+            $edit = Session::get('user_role') == 'admin';
+            $delete = Session::get('user_role') == 'admin';
 
             return Datatables::of($collection)
                 ->editColumn('templateSubject', function($collection) use ($siteKey){
@@ -372,6 +367,7 @@ class EntitiesSitesController extends Controller
                     else
                         return null;
                 })
+                ->rawColumns(['templateSubject','action'])
                 ->make(true);
         }catch (Exception $e){
             return redirect()->back()->withErrors(["entities.tableSiteEmailsManagers" => $e->getMessage()]);
@@ -413,7 +409,12 @@ class EntitiesSitesController extends Controller
         return view('private.entities.sites.loginLevels.index', compact('siteKey', 'sidebar', 'active'));
     }
     public function showStepperLoginList($siteKey){
-        return view('private.entities.sites.stepperLogin.index', compact('siteKey'));
+        $sidebar = 'site';
+        $active = 'stepperLogin';
+
+        Session::put('sidebarArguments', ['siteKey' => $siteKey, 'activeFirstMenu' => 'stepperLogin']);
+
+        return view('private.entities.sites.stepperLogin.index', compact('siteKey','sidebar','active'));
     }
 
 
@@ -438,6 +439,8 @@ class EntitiesSitesController extends Controller
                 $data['title'] = $title;
                 $data['message'] = $message;
                 $data['siteKey'] = $siteKey;
+                $data['sidebar'] = 'site';
+                    $data['active'] = 'use_terms';
                 return view('private.entities.sites.siteEthicEmpty', $data);
             }
 
@@ -492,6 +495,8 @@ class EntitiesSitesController extends Controller
                 $data['title'] = $title;
                 $data['message'] = $message;
                 $data['siteKey'] = $siteKey;
+                $data['sidebar'] = 'site';
+                $data['active'] = 'privacy_policy';
                 return view('private.entities.sites.siteEthicEmpty', $data);
             }
 

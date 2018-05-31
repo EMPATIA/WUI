@@ -1,1 +1,1 @@
-<?php return array (  'percentage_complete' => 'Percentage Complete',);
+<?php return array (  'selectOption' => 'Select option',  'percentage_complete' => 'Percentage complete',);

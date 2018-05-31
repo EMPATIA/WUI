@@ -1,1 +1,1 @@
-<?php return array (  'create_cb' => 'Create CB',  'create_entity' => 'Create Entity',  'go_to_dashboard' => 'Go to Dashboard',  'title' => 'EMPATIA First installation wizard',);
+<?php return array (  'title' => 'EMPATIA First installation wizard',  'create_entity' => 'Create Entity',  'create_cb' => 'Create CB',  'go_to_dashboard' => 'Go to Dashboard',);

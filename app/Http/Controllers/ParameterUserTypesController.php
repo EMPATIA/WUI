@@ -32,7 +32,19 @@ class ParameterUserTypesController extends Controller
      */
     public function index()
     {
-        return view('private.parameterUserTypes.index');
+        $entityKey = One::getEntityKey();
+
+        if(!empty($entityKey)){
+            $title = trans('parameterUserType.parameterUserType');
+            $sidebar = 'entity';
+            $active = 'parameterUserTypes';
+
+            return view('private.parameterUserTypes.index',compact('entityKey', 'sidebar', 'active','title'));
+        }else{
+            $title = trans('parameterUserType.parameterUserType');
+
+            return view('private.parameterUserTypes.index',compact('title'));
+        }
     }
 
     /**
@@ -69,20 +81,23 @@ class ParameterUserTypesController extends Controller
     public function store(ParameterUserTypeRequest $request)
     {
         try {
-
             $parameterTypeCode = (isset($request->parameter_type_code) ? $request->parameter_type_code : null);
             $parameterCode = (isset($request->code) ? $request->code : null);
             $mandatory = (isset($request->parameterMandatory) ? $request->parameterMandatory : false);
             $unique = (isset($request->parameterUnique) ? $request->parameterUnique : false);
+            $anonymizable = (isset($request->anonymizable) ? $request->anonymizable : false);
+            $minimumUsers = (isset($request->minimum_users) ? $request->minimum_users : 0);
+            $voteInPerson = (isset($request->vote_in_person) ? $request->voteInPerson : 0);
+            $externalValidation = (isset($request->externalValidation) ? $request->externalValidation : 0);
             $languages = Orchestrator::getLanguageList();
             // Translations
             $contentTranslation = [];
             foreach($languages as $language){
-                if($request->input("name_" . $language->code) && ($request->input("name_" . $language->code) != '') || $request->input("required_name_" . $language->code) && ($request->input("required_name_" . $language->code) != '')) {
+                if($request->input("required_name_" . $language->code) && ($request->input("required_name_" . $language->code) != '') || $request->input("required_name_" . $language->code) && ($request->input("required_name_" . $language->code) != '')) {
                     $contentTranslation[] = [
                         'language_id' => $language->id,
                         'language_code' => $language->code,
-                        'name' => $language->default == true ? $request->input("required_name_" . $language->code) : $request->input("name_" . $language->code),
+                        'name' => ($language->default??true) == true ? $request->input("required_name_" . $language->code) : $request->input("required_name_" . $language->code),
                         'description' => $request->input("description_" . $language->code)
                     ];
                 }
@@ -114,7 +129,24 @@ class ParameterUserTypesController extends Controller
                     break;
             }
 
-            $parameterUserType = Orchestrator::createParameterUserType($parameterTypeCode,$parameterCode,$mandatory,$unique,$contentTranslation,$optionsWithTranslation);
+            $parameterUserType = Orchestrator::createParameterUserType($parameterTypeCode,$parameterCode,$mandatory,$unique,$anonymizable,$minimumUsers,$voteInPerson,$externalValidation,$contentTranslation,$optionsWithTranslation);
+            
+            if(!empty($request->external_validation_text) && !empty(One::getEntityKey())){
+
+                $entityKey = One::getEntityKey();
+                $parameterUserTypeId = $parameterUserType->id;
+                $type = "vat_numbers";
+                $externalValidationNumbers = $request->external_validation_text;
+                $externalValidationNumbers = preg_split("/[\s,;]/", $externalValidationNumbers, -1, PREG_SPLIT_NO_EMPTY);
+                $importedData = [];
+
+                foreach($externalValidationNumbers as $number){
+                    $number = trim($number);
+                    $importedData[]['vat_number'] = $number;
+                }
+                
+                Orchestrator::importRegistrationFields($importedData,$type,$entityKey,$parameterUserTypeId);
+            }
 
             Session::flash('message', trans('parameterUserType.store_ok'));
             return redirect()->action('ParameterUserTypesController@show', $parameterUserType->parameter_user_type_key);
@@ -149,8 +181,22 @@ class ParameterUserTypesController extends Controller
 
             $parameterType = Orchestrator::getParametersType($parameterUserType->parameter_type_id);
             $typeName = $parameterType->name;
+            
+            $numbersVal= "";
+
+            if($parameterUserType->external_validation == 1 && !empty(One::getEntityKey())){
+                $entityKey = One::getEntityKey();
+                $numbers = Orchestrator::getVatNumbers($entityKey,$parameterUserType->id);
+                $numberVal = [];
+                foreach($numbers as $number){
+                    $numberVal[] = $number->vat_number;
+                }
+
+                $numbersVal = implode(';',$numberVal);
+            }
+
             return view('private.parameterUserTypes.parameterUserType',
-                compact('parameterUserType','typeName','languages','translations','optionsTranslations'));
+                compact('parameterUserType','typeName','languages','translations','optionsTranslations','numbersVal'));
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["parameterUserTypes.show" => $e->getMessage()]);
         }
@@ -193,8 +239,22 @@ class ParameterUserTypesController extends Controller
                 }
             }
 
+            $numbersVal= "";
+
+            if($parameterUserType->external_validation == 1 && !empty(One::getEntityKey())){
+                $entityKey = One::getEntityKey();
+                $numbers = Orchestrator::getVatNumbers($entityKey,$parameterUserType->id);
+                $numberVal = [];
+                foreach($numbers as $number){
+                    $numberVal[] = $number->vat_number;
+                }
+
+                $numbersVal = implode(';',$numberVal);
+            }
+			
+
             return view('private.parameterUserTypes.parameterUserType',
-                compact('parameterUserType', 'types', 'languages','translations','selectedType','optionsTranslations'));
+                compact('parameterUserType', 'types', 'languages','translations','selectedType','optionsTranslations','numbersVal'));
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["parameterUserTypes.edit" => $e->getMessage()]);
         }
@@ -214,15 +274,19 @@ class ParameterUserTypesController extends Controller
             $parameterCode = (isset($request->code) ? $request->code : null);
             $mandatory = (isset($request->parameterMandatory) ? $request->parameterMandatory : false);
             $unique = (isset($request->parameterUnique) ? $request->parameterUnique : false);
+            $anonymizable = (isset($request->anonymizable) ? $request->anonymizable : false);
+            $minimumUsers = (isset($request->minimum_users) ? $request->minimum_users : 0);
+            $voteInPerson = (isset($request->voteInPerson) ? $request->voteInPerson : 0);
+            $externalValidation = (isset($request->externalValidation) ? $request->externalValidation : 0);
             $languages = Orchestrator::getLanguageList();
             // Translations
             $contentTranslation = [];
             foreach($languages as $language){
-                if($request->input("name_" . $language->code) && ($request->input("name_" . $language->code) != '') || $request->input("required_name_" . $language->code) && ($request->input("required_name_" . $language->code) != '')) {
+                if($request->input("required_name_" . $language->code) && ($request->input("required_name_" . $language->code) != '') || $request->input("required_name_" . $language->code) && ($request->input("required_name_" . $language->code) != '')) {
                     $contentTranslation[] = [
                         'language_id' => $language->id,
                         'language_code' => $language->code,
-                        'name' => $language->default == true ? $request->input("required_name_" . $language->code) : $request->input("name_" . $language->code),
+                        'name' => ($language->default??true) == true ? $request->input("required_name_" . $language->code) : $request->input("required_name_" . $language->code),
                         'description' => $request->input("description_" . $language->code)
                     ];
                 }
@@ -267,7 +331,26 @@ class ParameterUserTypesController extends Controller
                     break;
             }
 
-            $parameterUserType = Orchestrator::updateParameterUserType($parameterUserTypeKey,$parameterCode,$parameterTypeCode,$mandatory,$unique,$contentTranslation,$optionsWithTranslation);
+            $parameterUserType = Orchestrator::updateParameterUserType($parameterUserTypeKey,$parameterCode,$parameterTypeCode,$mandatory,$unique,$anonymizable,$minimumUsers,$voteInPerson,$externalValidation,$contentTranslation,$optionsWithTranslation);
+            
+            if(!empty($request->external_validation_text) && !empty(One::getEntityKey())){
+
+                $entityKey = One::getEntityKey();
+                $parameterUserTypeId = $parameterUserType->id;
+                $type = "vat_numbers";
+                $externalValidationNumbers = $request->external_validation_text;
+                $externalValidationNumbers = preg_split("/[\s,;]/", $externalValidationNumbers, -1, PREG_SPLIT_NO_EMPTY);
+                $importedData = [];
+
+                foreach($externalValidationNumbers as $number){
+                    $number = trim($number);
+                    $importedData[]['vat_number'] = $number;
+                }
+                
+                Orchestrator::deleteAllRegistrationValues($entityKey,$parameterUserTypeId);
+                Orchestrator::importRegistrationFields($importedData,$type,$entityKey,$parameterUserTypeId);
+            }
+            
             Session::flash('message', trans('privateParameterUserTypes.update_ok'));
             return redirect()->action('ParameterUserTypesController@show', $parameterUserType->parameter_user_type_key);
         }
@@ -286,6 +369,10 @@ class ParameterUserTypesController extends Controller
     public function destroy($parameterUserTypeKey)
     {
         try {
+            $entityKey = One::getEntityKey();
+            $parameterUserTypeId = Orchestrator::getParameterUserType($parameterUserTypeKey);
+            $parameterUserTypeId = $parameterUserTypeId->id;
+            Orchestrator::deleteAllRegistrationValues($entityKey,$parameterUserTypeId);
             Orchestrator::deleteParameterUserType($parameterUserTypeKey);
             Session::flash('message', trans('privateParameterUserTypes.delete_ok'));
             return action('ParameterUserTypesController@index');
@@ -317,19 +404,24 @@ class ParameterUserTypesController extends Controller
      *
      * @return Datatable of Collection made
      */
-    public function getIndexTable()
+    public function getIndexTable(Request $request)
     {
         // Getting list
-        $data = Orchestrator::getParameterUserTypes();
-        $manage = $data;
+        $data = Orchestrator::getParameterUserTypes($request);
 
         // in case of json
-        if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('auth', 'user_parameters'))
-            $collection = Collection::make($manage);
+        if(Session::get('user_role') == 'admin'){
+
+            $collection = collect($data->parametersUserType);
+            
+            $recordsTotal = $data->recordsTotal;
+            $recordsFiltered = $data->recordsFiltered;
+
+        }
         else
             $collection = Collection::make([]);
 
-        $delete = Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsDelete('auth', 'user_parameters');
+        $delete = Session::get('user_role') == 'admin';
 
         return Datatables::of($collection)
             ->editColumn('id', function ($collection) {
@@ -345,11 +437,17 @@ class ParameterUserTypesController extends Controller
                 return "<a href='".action('ParameterUserTypesController@show', $collection->parameter_user_type_key)."'>".$collection->name."</a>";
             })
             ->addColumn('action', function ($collection) use($delete){
-                if($delete == true)
-                    return ONE::actionButtons($collection->parameter_user_type_key, ['form' => 'parameterUserTypes', 'show' => 'ParameterUserTypesController@show', 'delete' => 'ParameterUserTypesController@delete']);
-                else
-                    return ONE::actionButtons($collection->parameter_user_type_key, ['form' => 'parameterUserTypes', 'delete' => 'ParameterUserTypesController@delete']);
+                if (!empty(One::getEntityKey())) {
+                    if($delete == true)
+                        return ONE::actionButtons($collection->parameter_user_type_key, ['form' => 'parameterUserTypes', 'show' => 'ParameterUserTypesController@show', 'delete' => 'ParameterUserTypesController@delete']);
+                    else
+                        return ONE::actionButtons($collection->parameter_user_type_key, ['form' => 'parameterUserTypes', 'delete' => 'ParameterUserTypesController@delete']);
+                }
             })
+            ->rawColumns(['name','action'])
+            ->with('filtered', $recordsFiltered ?? 0)
+            ->skipPaging()
+            ->setTotalRecords($recordsTotal ?? 0)
             ->make(true);
     }
 }

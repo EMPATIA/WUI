@@ -3,7 +3,7 @@
         <!-- Menu Title -->
         <li class="main-menu-title">
             <div class="menu-border-bottom">
-            {{ trans('privateSidebar.site') }}
+                {{ trans('privateSidebar.site') }}
             </div>
             <!-- Sub Menu -->
             <ul class="sub-menu-wrapper">
@@ -43,61 +43,76 @@
                     </div>
                 </li>
                 <li class="menu-wrapper">
-                    <div class="@if($active=='siteLevels') menu-active @endif">
-                        <a href="{{action('EntitiesSitesController@showSiteLevels', $site->key ?? $siteKey)}}">
-                            {{ trans('privateSidebar.site_login_levels') }}
+                    <div class="@if($active=='site_translations') menu-active @endif">
+                        <a href="{{ action('TranslationsController@index', ['siteKey' => $site->key ?? $siteKey]) }}">
+                            {{ trans('privateSidebar.translations') }}
                         </a>
                     </div>
                 </li>
-                <li class="menu-wrapper">
-                    <div class="@if($active=='reorder') menu-active @endif">
-                        <a href="{{ action('LoginLevelsController@showLevelReorder', ['siteKey' => $site->key ?? $siteKey]) }}">
-                            {{ trans('privateSidebar.reorder_login_levels') }}
-                        </a>
-                    </div>
-                </li>
-                @if(in_array('pages', Session::get('user_permissions_sidebar')) || sizeOf(Session::get('user_permissions_sidebar')) == 1)
-                    <li class="menu-wrapper">
-                        <div class="@if($active=='cm.pages') menu-active @endif">
-                            <a href="{{ action('ContentManagerController@index', ['contentType'=>'pages','siteKey' => $site->key ?? $siteKey]) }}">
-                                {{ trans('privateSidebar.pages') }}
-                            </a>
-                        </div>
-                    </li>
-                @endif
-                <li class="menu-wrapper">
-                    <div class="@if($active=='cm.news') menu-active @endif">
-                        <a href="{{ action('ContentManagerController@index', ['contentType'=>'news','siteKey' => $site->key ?? $siteKey]) }}">
-                            {{ trans('privateSidebar.news') }}
-                        </a>
-                    </div>
-                </li>
-                <li class="menu-wrapper">
-                    <div class="@if($active=='cm.events') menu-active @endif">
-                        <a href="{{ action('ContentManagerController@index', ['contentType'=>'events','siteKey' => $site->key ?? $siteKey]) }}">
-                            {{ trans('privateSidebar.events') }}
-                        </a>
-                    </div>
-                </li>
-
-                <!-- --//-- -->
-                <li class="menu-wrapper">
-                    <div class="@if($active=='stepperLogin') menu-active @endif">
-                        <a href="{{action('EntitiesSitesController@showStepperLoginList', $site->key ?? $siteKey)}}">
-                            {{ trans('privateSidebar.stepper_login_levels') }}
-                        </a>
-                    </div>
-                </li>
-                <li class="menu-wrapper">
-                    <div class="@if($active=='stepperLoginReorder') menu-active @endif">
-                        <a href="{{ action('StepperLoginController@showLevelReorder', ['siteKey' => $site->key ?? $siteKey]) }}">
-                            {{ trans('privateSidebar.reorder_stepper_login_levels') }}
-                        </a>
-                    </div>
-                </li>
+                {{--<li class="menu-wrapper">--}}
+                    {{--<div class="@if($active=='siteLevels') menu-active @endif">--}}
+                        {{--<a href="{{action('EntitiesSitesController@showSiteLevels', $site->key ?? $siteKey)}}">--}}
+                            {{--{{ trans('privateSidebar.site_login_levels') }}--}}
+                        {{--</a>--}}
+                    {{--</div>--}}
+                {{--</li>--}}
+                {{--@if(in_array('pages', Session::get('user_permissions_sidebar')) || sizeOf(Session::get('user_permissions_sidebar')) == 1)--}}
+                    {{--<li class="menu-wrapper">--}}
+                        {{--<div class="@if($active=='cm.pages') menu-active @endif">--}}
+                            {{--<a href="{{ action('ContentManagerController@index', ['contentType'=>'pages','siteKey' => $site->key ?? $siteKey]) }}">--}}
+                                {{--{{ trans('privateSidebar.pages') }}--}}
+                            {{--</a>--}}
+                        {{--</div>--}}
+                    {{--</li>--}}
+                {{--@endif--}}
+                {{--<li class="menu-wrapper">--}}
+                    {{--<div class="@if($active=='cm.news') menu-active @endif">--}}
+                        {{--<a href="{{ action('ContentManagerController@index', ['contentType'=>'news','siteKey' => $site->key ?? $siteKey]) }}">--}}
+                            {{--{{ trans('privateSidebar.news') }}--}}
+                        {{--</a>--}}
+                    {{--</div>--}}
+                {{--</li>--}}
+                {{--<li class="menu-wrapper">--}}
+                    {{--<div class="@if($active=='cm.events') menu-active @endif">--}}
+                        {{--<a href="{{ action('ContentManagerController@index', ['contentType'=>'events','siteKey' => $site->key ?? $siteKey]) }}">--}}
+                            {{--{{ trans('privateSidebar.events') }}--}}
+                        {{--</a>--}}
+                    {{--</div>--}}
+                {{--</li>--}}
             </ul>
         </li>
 
+        <!-- Menu Title -->
+        {{--<li class="main-menu-title">--}}
+            {{--<div class="menu-border-bottom">--}}
+                {{--{{ trans('privateSidebar.advancedConfig') }}--}}
+            {{--</div>--}}
+            {{--<!-- Sub Menu -->--}}
+            {{--<ul class="sub-menu-wrapper">--}}
+                {{--<li class="menu-wrapper">--}}
+                    {{--<div class="@if($active=='reorder') menu-active @endif">--}}
+                        {{--<a href="{{ action('LoginLevelsController@showLevelReorder', ['siteKey' => $site->key ?? $siteKey]) }}">--}}
+                            {{--{{ trans('privateSidebar.reorder_login_levels') }}--}}
+                        {{--</a>--}}
+                    {{--</div>--}}
+                {{--</li>--}}
+
+                {{--<li class="menu-wrapper">--}}
+                    {{--<div class="@if($active=='stepperLogin') menu-active @endif">--}}
+                        {{--<a href="{{action('EntitiesSitesController@showStepperLoginList', $site->key ?? $siteKey)}}">--}}
+                            {{--{{ trans('privateSidebar.stepper_login_levels') }}--}}
+                        {{--</a>--}}
+                    {{--</div>--}}
+                {{--</li>--}}
+                {{--<li class="menu-wrapper">--}}
+                    {{--<div class="@if($active=='stepperLoginReorder') menu-active @endif">--}}
+                        {{--<a href="{{ action('StepperLoginController@showLevelReorder', ['siteKey' => $site->key ?? $siteKey]) }}">--}}
+                            {{--{{ trans('privateSidebar.reorder_stepper_login_levels') }}--}}
+                        {{--</a>--}}
+                    {{--</div>--}}
+                {{--</li>--}}
+            {{--</ul>--}}
+        {{--</li>--}}
     </ul>
 </div>
 

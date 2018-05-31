@@ -71,6 +71,8 @@ class Vote {
      */
     public static function setVoteEvent($request, $configurations) {
 
+        // dd($request->all());
+
         $name           = $request->name;
         $code           = $request->code;
         $endDate        = $request->endDate;
@@ -79,7 +81,26 @@ class Vote {
         $startTime      = $request->startTime;
         $methodSelect   = $request->methodSelect;
 
+        $array = [];
+        if(!empty($request->weightTypeVote) && $request->weightTypeVote == 1){
+
+            foreach ($request->all() as $key => $value) {
+                $b = explode('_', $key);
+                $c = explode('-',$key);
+                if (strpos($key, '_pos') !== false) {
+                    $array[$b[0]][$b[1]] = $value;
+                }
+                if (strpos($key, '_weight') !== false) {
+                    $array[$b[0]][$b[1]] = $value;
+                }
+                if (strpos($key, 'text') !== false) {
+                    $array[$c[1]]['translations'][$c[2]] = ['lang_code' => $c[2], 'translation' => $value];
+                }
+            }
+        }
+
         $response = ONE::post([
+            // 'url' => 'http://pedro.pinto.empatia-dev.onesource.pt:5011',
             'component' => 'vote',
             'api'       => 'event',
             'params'    => [
@@ -91,6 +112,7 @@ class Vote {
                 'start_date'        => $startDate,
                 'start_time'        => $startTime,
                 'configurations'    => $configurations,
+                'weightType'        => $array,
             ]
         ]);
 
@@ -126,8 +148,8 @@ class Vote {
             throw new Exception(trans("comModulesVote.errorStoreVoteEvent"));
         }
         return $response->json();
-    }    
-    
+    }
+
     public static function getAllShowEvents($eventKey) {
         $events = [];
 
@@ -417,6 +439,7 @@ class Vote {
         }else{
 
             $response = One::get([
+                // 'url' => 'http://pedro.pinto.empatia-dev.onesource.pt:5011',
                 'component' => 'vote',
                 'api' => 'event',
                 'api_attribute' => $voteKey,
@@ -494,7 +517,7 @@ class Vote {
                     ]
                 ]);
             }
-            
+
             if ($response->statusCode() != 200){
                 throw new Exception(trans("comModulesVote.errorSubmitingVotesTypes"));
             } else if ($returnVotes && isset($response->json()->votes))
@@ -550,6 +573,26 @@ class Vote {
             'method' => 'userVotes',
             'params' => [
                 'eventKeys' => $eventKeys,
+            ]
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesVote.error_retrieving_user_votes_for_event"));
+        }
+        return $response->json();
+
+    }
+
+    public static function getUserVotesForEvent($eventKey, $userKey)
+    {
+        $response = One::post([
+            // 'url' => 'http://pedro.pinto.empatia-dev.onesource.pt:5011',
+            'component' => 'vote',
+            'api' => 'event',
+            'method' => 'userVotesForEvent',
+            'params' => [
+                'eventKey' => $eventKey,
+                'userKey' => $userKey
             ]
         ]);
 
@@ -752,8 +795,8 @@ class Vote {
             'api' => 'eventlevels',
             'method' => 'eventlevel',
             'params'=>[
-              'cb_key'=> $cbKey,
-              'event_key'=>$eventKey
+                'cb_key'=> $cbKey,
+                'event_key'=>$eventKey
             ]
         ]);
         if($response->statusCode() != 200){
@@ -770,8 +813,8 @@ class Vote {
             'api' => 'eventlevels',
             'method' => 'storeEventLevel',
             'params'=>[
-              'cb_key'=> $cbKey,
-              'values'=>$values
+                'cb_key'=> $cbKey,
+                'values'=>$values
             ]
         ]);
         if($response->statusCode() != 200){
@@ -788,8 +831,8 @@ class Vote {
             'api' => 'eventlevels',
             'method' => 'updateEventLevel',
             'params'=>[
-              'cb_key'=> $cbKey,
-              'values'=>isset($values) ? $values:null
+                'cb_key'=> $cbKey,
+                'values'=>isset($values) ? $values:null
             ]
         ]);
 
@@ -806,7 +849,7 @@ class Vote {
             'api' => 'eventlevels',
             'method' => 'eventlevelCbKey',
             'params'=>[
-              'cb_key'=> $cbKey
+                'cb_key'=> $cbKey
             ]
         ]);
         // dd($response);
@@ -829,7 +872,7 @@ class Vote {
         return $response->json();
     }
 
-    public static function setVote($event_key, $vote_key, $value, $source, $user_key){
+    public static function setVote($event_key, $vote_key, $value,$source, $user_key, $type_id = null){
         if(!is_null($user_key)){
             $response = ONE::post([
                 'component' => 'vote',
@@ -839,20 +882,22 @@ class Vote {
                     'vote_key' => $vote_key,
                     'value' => $value,
                     'source' => $source,
-                    'user_key' => $user_key
+                    'user_key' => $user_key,
 
                 ],
             ]);
         }
         else{
             $response = ONE::post([
+                // 'url' => 'http://pedro.pinto.empatia-dev.onesource.pt:5011',
                 'component' => 'vote',
                 'api' => 'vote',
                 'params' => [
                     'event_key' => $event_key,
                     'vote_key' => $vote_key,
                     'value' => $value,
-                    'source' => $source
+                    'source' => $source,
+                    'type_id' => $type_id
 
                 ],
             ]);
@@ -864,4 +909,147 @@ class Vote {
         return $response->json();
     }
 
+    public static function getUserVotesCount($voteEvents, $userKeys, $voteKeys = null) {
+        if (is_string($voteEvents))
+            $voteEvents = array($voteEvents);
+
+        if (is_string($userKeys))
+            $userKeys = array($userKeys);
+
+        if (is_string($voteKeys))
+            $voteKeys = array($voteKeys);
+
+        $response = One::post([
+            'component'     => 'vote',
+            'api'           => 'vote',
+            'method'        => 'userVotesCount',
+            'params'        => [
+                "voteEvents" => $voteEvents,
+                "userKeys" => $userKeys,
+                "voteKeys" => $voteKeys
+            ]
+        ]);
+
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesVote.failed_to_get_user_votes_count"));
+        }
+        return $response->json();
+    }
+
+    public static function deleteUserVotes() {
+        $response = One::delete([
+            'component'     => 'vote',
+            'api'           => 'vote',
+            'method'        => 'deleteUserVotes'
+        ]);
+
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesVote.failed_to_delete_user_votes"));
+        }
+        return $response->json();
+    }
+
+    public static function getEventsVoteCount($voteEventsKeys){
+        if (is_string($voteEventsKeys))
+            $voteEventsKeys = array($voteEventsKeys);
+
+        $response = ONE::post([
+            'component' => 'vote',
+            'api' => 'event',
+            'method' => 'voteCounts',
+            'params' => [
+                'events' => $voteEventsKeys
+            ]
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesVote.failed_to_retrieve_vote_event_counts"));
+        }
+        return $response->json();
+    }
+
+
+    public static function getPadVotes($voteKeys, $userKey)
+    {
+        $response = ONE::post([
+            'component' => 'vote',
+            'api' => 'event',
+            'method' => 'getPadVotes',
+            'params' => [
+                'events' => $voteKeys,
+                'user_key' => $userKey
+            ]
+        ]);
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesVote.failed_to_retrieve_vote_event_counts"));
+        }
+        return $response->json()->data;
+    }
+
+    public static function getVoteList($voteKey,$role,$filters,$request){
+        $response = ONE::get([
+            'component' => 'vote',
+            'api' => 'vote',
+            'method' => 'getVoteList',
+            'params' => [
+                'voteKey' => $voteKey,
+                'role'    => $role,
+                'filters' => $filters,
+                'tableData' => One::tableData($request)
+            ],
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesVote.failed_to_retrieve_votes_list"));
+        }
+        return $response->json();
+
+    }
+
+    public static function submitUserVote($votesId, $submit){
+
+        $response = One::post([
+            'component'     => 'vote',
+            'api'           => 'vote',
+            'method' => 'submitUserVote',
+            'params' => [
+                'votes_id' => $votesId,
+                'submit'   => $submit
+            ],
+        ]);
+
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesVote.failed_to_submit_user_votes"));
+        }
+        return $response->json();
+    }
+
+    public static function deleteUserVote($voteId){
+
+        $response = One::delete([
+            'component'     => 'vote',
+            'api'           => 'vote',
+            'attribute' => $voteId,
+        ]);
+
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesVote.failed_to_delete_user_vote"));
+        }
+        return $response->json();
+    }
+
+    public static function deleteVotes($votesId){
+
+        $response = One::post([
+            'component'     => 'vote',
+            'api'           => 'vote',
+            'method' => 'deleteVotes',
+            'params' => ['votes_id' => $votesId],
+        ]);
+
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesVote.failed_to_delete_user_votes"));
+        }
+        return $response->json();
+    }
 }

@@ -20,7 +20,7 @@ class PublicKioskController extends Controller
 
     public function __construct()
     {
-        $this->kioskKey = 'Z8Ml89vSpRS9Lhg4zwaJ8VkYYk0VTDOn';
+        $this->kioskKey = env('KIOSK', 'Z8Ml89vSpRS9Lhg4zwaJ8VkYYk0VTDOn');
     }
 
     public function login(Request $request){

@@ -93,7 +93,7 @@ class KiosksController extends Controller
      */
     public function index()
     {
-        $title = trans('privateKiosks.list_kiosks');
+        $title = trans('privateKiosks.kiosks');
         return view('private.kiosk.index', compact('title', 'permissions'));
     }
 
@@ -297,7 +297,7 @@ class KiosksController extends Controller
             // Rebuild an array with all proposals that aren't in entity
             $topicList = [];
             if(!empty($kiosk->entity_cb)){
-                $topics = CB::getTopicWithFirstPost($kiosk->entity_cb->cb_key);
+                $topics = CB::getTopicWithFirstPost($kiosk->entity_cb->cb_key)->data;
                 foreach($topics as $topic){
                     if(!in_array($topic->id, $proposalsIds)){
                         $topicList[] = $topic;
@@ -430,6 +430,7 @@ class KiosksController extends Controller
             ->addColumn('action', function ($eventSchedule) {
                 return ONE::actionButtons($eventSchedule->kiosk_key, ['show' => 'KiosksController@show', 'delete' => 'KiosksController@delete'] );
             })
+            ->rawColumns(['title','action'])
             ->make(true);
     }
 
@@ -482,6 +483,7 @@ class KiosksController extends Controller
                 ->addColumn('action', function ($proposal) use ($kioskKey) {
                     return ONE::actionButtons([$kioskKey,$proposal->id], ['add' => 'KiosksController@addProposalAction']);
                 })
+                ->rawColumns(['action'])
                 ->make(true);
         }
         catch(Exception $e) {

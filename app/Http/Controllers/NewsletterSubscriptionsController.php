@@ -8,15 +8,20 @@ use Datatables;
 use Exception;
 use Illuminate\Http\Request;
 use One;
+use Session;
 
 class NewsletterSubscriptionsController extends Controller
 {
 
     public function index() {
         try {
-            $title = trans('privateNewsletterSubscriptions.list_subscriptions');
+            $title = trans('privateNewsletterSubscriptions.subscriptions');
+            $sidebar = 'email';
+            $active = 'newsletters_subcriptions';
 
-            return view('private.newsletterSubscriptions.index', compact('title'));
+            Session::put('sidebarArguments', ['activeFirstMenu' => 'newsletters_subcriptions']);
+
+            return view('private.newsletterSubscriptions.index', compact('title', 'sidebar', 'active'));
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["newsletterSubscription.index" => $e->getMessage()]);
         }
@@ -44,6 +49,7 @@ class NewsletterSubscriptionsController extends Controller
                 ->addColumn('action', function ($subscription) {
                     return ONE::actionButtons($subscription->newsletter_subscription_key, ['show' => 'NewsletterSubscriptionsController@show']);
                 })
+                ->rawColumns(['email','active','action'])
                 ->with('filtered', $recordsFiltered ?? 0)
                 ->skipPaging()
                 ->setTotalRecords($recordsTotal ?? 0)

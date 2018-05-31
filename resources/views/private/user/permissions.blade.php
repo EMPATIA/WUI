@@ -110,61 +110,114 @@
                                     @foreach($module->types as $module_type)
                                         @if(!empty($module_type))
                                             <div class="row background-hover" style="margin-bottom: 5px">
-                                                <div class="col-4">
-                                                    <label for="description">{{$module_type->name}}</label>
-                                                </div>
-                                                <div class="col-2 {{$module->module_key}}_type_show">
-                                                    {!! Form::oneSwitch(
-                                                        "modules_types[$module->module_key][$module_type->module_type_key][show]",
-                                                        null,
-                                                        ( isset($permissions[$module->module_key][$module_type->module_type_key]) && $permissions[$module->module_key][$module_type->module_type_key]->permission_show == 1 ) ? true: false  ,
-                                                        array(
-                                                            "readonly"=>false,
-                                                            'id' => $module_type->module_type_key."_show",
-                                                            'value' => 1
-                                                        )
-                                                    ) !!}
-                                                </div>
-                                                <div class="col-2 {{$module->module_key}}_type_create">
-                                                    {!! Form::oneSwitch(
-                                                        "modules_types[$module->module_key][$module_type->module_type_key][create]",
-                                                        null,
-                                                        (isset($permissions[$module->module_key][$module_type->module_type_key]) && $permissions[$module->module_key][$module_type->module_type_key]->permission_create == 1 ) ? true: false,
-                                                        array(
-                                                            "readonly"=>false,
-                                                            'id' => $module_type->module_type_key."_create",
-                                                            'value' => 1
-                                                        )
-                                                    ) !!}
-                                                </div>
-                                                <div class="col-2 {{$module->module_key}}_type_update">
-                                                    {!! Form::oneSwitch(
-                                                        "modules_types[$module->module_key][$module_type->module_type_key][update]",
-                                                        null,
-                                                        (isset($permissions[$module->module_key][$module_type->module_type_key]) && $permissions[$module->module_key][$module_type->module_type_key]->permission_update == 1 ) ? true: false,
-                                                        array(
-                                                            "readonly"=>false,
-                                                            'id' => $module_type->module_type_key."_update",
-                                                            'value' => 1
-                                                        )
-                                                    ) !!}
-                                                </div>
-                                                <div class="col-2 {{$module->module_key}}_type_delete">
-                                                    {!! Form::oneSwitch(
-                                                        "modules_types[$module->module_key][$module_type->module_type_key][delete]",
-                                                        null,
-                                                        (isset($permissions[$module->module_key][$module_type->module_type_key]) && $permissions[$module->module_key][$module_type->module_type_key]->permission_delete == 1 ) ? true: false,
-                                                        array(
-                                                            "readonly"=>false,
-                                                            'id' => $module_type->module_type_key."_delete",
-                                                            'value' => 1
-                                                        )
-                                                    ) !!}
-                                                </div>
+                                                @if($module_type->code == "vote_list" && Session::get('user')->user_key == "defaultUSERprojectEMPATIA2016JAN")
+                                                    <div class="col-4">
+                                                        <label for="description">{{$module_type->name}}</label>
+                                                    </div>
+                                                    <div class="col-2 {{$module->module_key}}_type_show">
+                                                        {!! Form::oneSwitch(
+                                                            "modules_types[$module->module_key][$module_type->module_type_key][show]",
+                                                            null,
+                                                            ( isset($permissions[$module->module_key][$module_type->module_type_key]) && $permissions[$module->module_key][$module_type->module_type_key]->permission_show == 1 ) ? true: false  ,
+                                                            array(
+                                                                "readonly"=>false,
+                                                                'id' => $module_type->module_type_key."_show",
+                                                                'value' => 1
+                                                            )
+                                                        ) !!}
+                                                    </div>
+                                                    <div class="col-2 {{$module->module_key}}_type_create">
+                                                        {!! Form::oneSwitch(
+                                                            "modules_types[$module->module_key][$module_type->module_type_key][create]",
+                                                            null,
+                                                            (isset($permissions[$module->module_key][$module_type->module_type_key]) && $permissions[$module->module_key][$module_type->module_type_key]->permission_create == 1 ) ? true: false,
+                                                            array(
+                                                                "readonly"=>false,
+                                                                'id' => $module_type->module_type_key."_create",
+                                                                'value' => 1
+                                                            )
+                                                        ) !!}
+                                                    </div>
+                                                    <div class="col-2 {{$module->module_key}}_type_update">
+                                                        {!! Form::oneSwitch(
+                                                            "modules_types[$module->module_key][$module_type->module_type_key][update]",
+                                                            null,
+                                                            (isset($permissions[$module->module_key][$module_type->module_type_key]) && $permissions[$module->module_key][$module_type->module_type_key]->permission_update == 1 ) ? true: false,
+                                                            array(
+                                                                "readonly"=>false,
+                                                                'id' => $module_type->module_type_key."_update",
+                                                                'value' => 1
+                                                            )
+                                                        ) !!}
+                                                    </div>
+                                                    <div class="col-2 {{$module->module_key}}_type_delete">
+                                                        {!! Form::oneSwitch(
+                                                            "modules_types[$module->module_key][$module_type->module_type_key][delete]",
+                                                            null,
+                                                            (isset($permissions[$module->module_key][$module_type->module_type_key]) && $permissions[$module->module_key][$module_type->module_type_key]->permission_delete == 1 ) ? true: false,
+                                                            array(
+                                                                "readonly"=>false,
+                                                                'id' => $module_type->module_type_key."_delete",
+                                                                'value' => 1
+                                                            )
+                                                        ) !!}
+                                                    </div>
+                                                @elseif($module_type->code != "vote_list")
+                                                    <div class="col-4">
+                                                        <label for="description">{{$module_type->name}}</label>
+                                                    </div>
+                                                    <div class="col-2 {{$module->module_key}}_type_show">
+                                                        {!! Form::oneSwitch(
+                                                            "modules_types[$module->module_key][$module_type->module_type_key][show]",
+                                                            null,
+                                                            ( isset($permissions[$module->module_key][$module_type->module_type_key]) && $permissions[$module->module_key][$module_type->module_type_key]->permission_show == 1 ) ? true: false  ,
+                                                            array(
+                                                                "readonly"=>false,
+                                                                'id' => $module_type->module_type_key."_show",
+                                                                'value' => 1
+                                                            )
+                                                        ) !!}
+                                                    </div>
+                                                    <div class="col-2 {{$module->module_key}}_type_create">
+                                                        {!! Form::oneSwitch(
+                                                            "modules_types[$module->module_key][$module_type->module_type_key][create]",
+                                                            null,
+                                                            (isset($permissions[$module->module_key][$module_type->module_type_key]) && $permissions[$module->module_key][$module_type->module_type_key]->permission_create == 1 ) ? true: false,
+                                                            array(
+                                                                "readonly"=>false,
+                                                                'id' => $module_type->module_type_key."_create",
+                                                                'value' => 1
+                                                            )
+                                                        ) !!}
+                                                    </div>
+                                                    <div class="col-2 {{$module->module_key}}_type_update">
+                                                        {!! Form::oneSwitch(
+                                                            "modules_types[$module->module_key][$module_type->module_type_key][update]",
+                                                            null,
+                                                            (isset($permissions[$module->module_key][$module_type->module_type_key]) && $permissions[$module->module_key][$module_type->module_type_key]->permission_update == 1 ) ? true: false,
+                                                            array(
+                                                                "readonly"=>false,
+                                                                'id' => $module_type->module_type_key."_update",
+                                                                'value' => 1
+                                                            )
+                                                        ) !!}
+                                                    </div>
+                                                    <div class="col-2 {{$module->module_key}}_type_delete">
+                                                        {!! Form::oneSwitch(
+                                                            "modules_types[$module->module_key][$module_type->module_type_key][delete]",
+                                                            null,
+                                                            (isset($permissions[$module->module_key][$module_type->module_type_key]) && $permissions[$module->module_key][$module_type->module_type_key]->permission_delete == 1 ) ? true: false,
+                                                            array(
+                                                                "readonly"=>false,
+                                                                'id' => $module_type->module_type_key."_delete",
+                                                                'value' => 1
+                                                            )
+                                                        ) !!}
+                                                    </div>
+                                                @endif
                                             </div>
                                         @endif
                                     @endforeach
-
                                 </div>
                             </div>
                         </div>

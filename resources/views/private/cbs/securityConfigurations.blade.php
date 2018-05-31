@@ -21,7 +21,7 @@
 
 @section('content')
     <div class="card flat topic-data-header">
-        <p><label for="contentStatusComment">{{trans('privateCbs.pad')}}</label>  {{$cb->title}}<br></p>
+        <p><label for="contentStatusComment">{{trans('privateCbs.pad')}}</label>  {{$cb->title ?? null}}<br></p>
         @if(!empty($cbAuthor))
         <p><label for="contentStatusComment">{{trans('privateCbs.author')}}</label>
             <a href="{{action('UsersController@show', ['userKey' => $cbAuthor->user_key, 'role' => $cbAuthor->role ?? null])}}">{{$cbAuthor->name}}</a>
@@ -41,13 +41,13 @@
         ->open();
     @endphp
 
-    {!! Form::hidden('title', isset($cb) ? $cb->title : null) !!}
+    {!! Form::hidden('title', $cb->title ?? null) !!}
     {!! Form::hidden('description', isset($cb) ? $cb->contents : null) !!}
     {!! Form::hidden('start_date', isset($cb) ? $cb->start_date : date('Y-m-d')) !!}
     {!! Form::hidden('end_date', isset($cb) && $cb->end_date!=null ? $cb->end_date  : '') !!}
     {!! Form::hidden('cb_key', isset($cb) ? $cb->cb_key : 0, ['id' => 'cb_key']) !!}
 
-    @if(ONE::verifyUserPermissions('cb', 'security_configurations', 'show'))
+
 
         <!-- CB Configurations -->
             <div class="card flat">
@@ -112,7 +112,7 @@
                 </div>
             </div>
     </div>
-    @endif
+
     {!! $form->make() !!}
 @endsection
 

@@ -23,18 +23,18 @@
             $files = isset($filesByType[$topic->topic_key]) ? $filesByType[$topic->topic_key] : null;
             @endphp
 
-            <span class="param-text-area-title">Beschreibung der Idee</span>
+            <span class="param-text-area-title">{{ trans("topics.description") }}</span>
             <div class="row" style="margin-bottom: 10px;">
                 <div class="col-sm-12 col-12 col-md-12 proposalTopicSummary" style="margin-bottom: 10px;">
                     {!! nl2br($topic->contents) !!}
                 </div>
             </div>
 
-            @php $topic->parameters = collect($topic->parameters)->sortBy('position'); @endphp
+            @php $topic->parameters = collect($topic->parameters??[])->sortBy('position'); @endphp
 
             @foreach($topic->parameters as $parameter)
 
-                @if(!empty($parameter->visible) && ($parameter->visible == 1) && (isset($topic->topicVersionId) ? (isset($parameter->pivot->topic_version_id) ? $parameter->pivot->topic_version_id == $topic->topicVersionId : true) : true))
+                @if(!empty($parameter->visible) && ($parameter->visible == 1) /*  && (isset($topic->topicVersionId) ? (isset($parameter->pivot->topic_version_id) ? $parameter->pivot->topic_version_id == $topic->topicVersionId : true) : true) */)
 
                     @if($parameter->code == 'image_map')
                         <span class="param-text-area-title">
@@ -67,7 +67,7 @@
                         }
                     @endphp
                     <span class="parameter-text">
-                        @if($parameter->code == "dropdown" || $parameter->code == "category" || $parameter->code == "budget" || $parameter->code == 'check_box' )
+                        @if($parameter->code == "dropdown" || $parameter->code == "category" || $parameter->code == "budget" || $parameter->code == 'check_box' || $parameter->code == "radio_buttons")
                             @if(explode(",",$parameter->pivot->value)>0)
                                 @foreach(explode(",",$parameter->pivot->value) as $value)
                                     @if(!empty($dropDownOptions) && isset($dropDownOptions[$value]) && $value != 0)
@@ -92,7 +92,7 @@
                 @foreach($topic->voteData as $voteData)
                     <span class="param-text-area-title"> {{ $voteData->name }}</span>
                     <div class="row" style="margin-bottom: 10px;">
-                        {{ trans('privateCbs.votes').': '.$voteData->votes }}
+                        {{ trans('privateCbs.votes') }}: {{ $voteData->votes }} (+{{ $voteData->positive??0 }} / -{{ $voteData->negative??0 }})
                     </div>
                 @endforeach
             @endif

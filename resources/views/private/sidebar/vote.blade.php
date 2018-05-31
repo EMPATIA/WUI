@@ -15,31 +15,43 @@
 
             <!-- Sub Menu -->
             <ul class="sub-menu-wrapper">
+                @if(in_array('pad_votes', Session::get('user_permissions_sidebar')) || sizeOf(Session::get('user_permissions_sidebar')) == 1)
+                    <li class="menu-wrapper">
+                        <div class="@if (strpos(Route::getCurrentRoute()->getName(), 'vote.show') !== false) menu-active @endif">
+                            <a href="{{ action('CbsVoteController@show',  [$type, $cbKey, $voteKey]) }}">
+                                {{ trans('privateSidebar.details') }}
+                            </a>
+                        </div>
+                    </li>
+                @endif
                 <li class="menu-wrapper">
-                    <div class="@if($active=='registerPersonVotes') menu-active @endif">
+                    <div class="@if (strpos(Route::getCurrentRoute()->getName(), 'public.cb.vote.publicUserVotingRegistration') !== false) menu-active @endif">
                         <a href="{{ action("PublicCbsController@publicUserVotingRegistration", [$type, $cbKey, $voteKey]) }}">
-                            {{ trans('privateSidebar.publicUserVotingRegistration') }}
+                            {{ trans('privateSidebar.inPersonVote') }}
                         </a>
                     </div>
                 </li>
-                @if(ONE::verifyUserPermissionsCrud('orchestrator', 'presencial_vote'))
-                    <li class="menu-wrapper">
-                        <div class="@if($active=='registerInPersonVoting') menu-active @endif">
-                            <a href="{{ action("CbsVoteController@registerInPersonVoting", [$type, $cbKey, $voteKey]) }}">
-                                {{ trans('privateSidebar.registerInPersonVoting') }}
-                            </a>
-                        </div>
-                    </li>
-                @endif
-                @if(ONE::verifyUserPermissionsCrud('orchestrator', 'in_person_registration'))
-                    <li class="menu-wrapper">
-                        <div class="@if($active=='inPersonRegistration') menu-active @endif">
-                            <a href="{{ action("UsersController@inPersonRegistration", [$type, $cbKey, $voteKey]) }}">
-                                {{ trans('privateSidebar.inPersonRegistration') }}
-                            </a>
-                        </div>
-                    </li>
-                @endif
+                <li class="menu-wrapper">
+                    <div class="@if($active=='registerInPersonVoting') menu-active @endif">
+                        <a href="{{ action("CbsVoteController@registerInPersonVoting", [$type, $cbKey, $voteKey]) }}">
+                            {{ trans('privateSidebar.ballotVote') }}
+                        </a>
+                    </div>
+                </li>
+                <li class="menu-wrapper">
+                    <div class="@if($active=='inPersonRegistration') menu-active @endif">
+                        <a href="{{ action("UsersController@inPersonRegistration", [$type, $cbKey, $voteKey]) }}">
+                            {{ trans('privateSidebar.ballotRegistration') }}
+                        </a>
+                    </div>
+                </li>
+                <li class="menu-wrapper">
+                    <div class="@if($active=='voteList') menu-active @endif">
+                        <a href="{{ action("CbsVoteController@voteList", [$type, $cbKey, $voteKey]) }}">
+                            {{ trans('privateSidebar.voteList') }}
+                        </a>
+                    </div>
+                </li>
             </ul>
         </li>
     </ul>

@@ -80,7 +80,7 @@
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-4">
-                                        @forelse($parameters->beMenuElementParameters as $key => $parameter)
+                                        @forelse($parameters as $key => $parameter)
                                             <div data-key="{!! $parameter->key!!}" class="parameter-selector @if (isset($selectedParameters) && array_key_exists($parameter->key,$selectedParameters)) selected @endif">
                                                 {!! $parameter->name !!}
                                             </div>

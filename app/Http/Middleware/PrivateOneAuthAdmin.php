@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Ilidio Martins
- * Date: 10/10/2016
- * Time: 11:03
- */
-
 namespace App\Http\Middleware;
 
 use Closure;

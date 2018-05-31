@@ -48,7 +48,6 @@ class PublicUsersController extends Controller
     public function index()
     {
         try {
-
             $user = Auth::getUser();
 
             // ADDED TO VERIFY IF THE EMAIL IS FAKE
@@ -66,6 +65,7 @@ class PublicUsersController extends Controller
             $votesTimeLine = [];
             $sort = [];
             $timeline = [];
+            $profileSection = 'about';
 //            $userVotes = Vote::getVotesTimeLine();
 //            foreach ($userVotes as $key => $vote)
 //            {
@@ -112,7 +112,8 @@ class PublicUsersController extends Controller
 //            array_multisort($sort, SORT_DESC, $timeline);
 
 
-            return view('public.'.ONE::getEntityLayout().'.user.index', compact('user','timeline'));
+
+            return view('public.'.ONE::getEntityLayout().'.user.index', compact('user','timeline', 'profileSection'));
 
         }
         catch(Exception $e) {
@@ -199,7 +200,8 @@ class PublicUsersController extends Controller
                     'name'                      => $parameter->name,
                     'value'                     => isset($file) ? $file : $value,
                     'mandatory'                 => $parameter->mandatory,
-                    'parameter_user_options'    => $parameterOptions
+                    'parameter_user_options'    => $parameterOptions,
+                    'parameter_code'            => $parameter->code
                 ];
             }
             $userValidate = Orchestrator::getUserAuthValidate();
@@ -207,26 +209,9 @@ class PublicUsersController extends Controller
                 $registerCompleted = false;
             }
             $uploadKey = Files::getUploadKey();
-            $arrayVote=Vote::getEventLevelCbKey('t711bwqTXj3GSGiEVwa3li3YZDqvq4pL');
 
-            $differenceUserLevelsLoginVotes= Orchestrator::UserLoginLevelsVotes($user->user_key, 't711bwqTXj3GSGiEVwa3li3YZDqvq4pL', $arrayVote);
-            $i = 0;
-            foreach($differenceUserLevelsLoginVotes as $security){
-                if(!empty($security->parameterUserTypes)){
-
-                    /*if(!in_array('email_verification', $security->parameterUserTypes))
-                        $i++;
-                    elseif(in_array('email_verification', $security->parameterUserTypes) && $user->confirmed == 0)
-                        $i++;
-                    elseif(in_array('email_verification', $security->parameterUserTypes) && $user->confirmed == 1 && count($security->parameterUserTypes) > 1)*/
-                    $i++;
-                }
-
-            }
-
-            $missing_fields = $i>0 ? true : false;
-
-            return view('public.'.ONE::getEntityLayout().'.user.index', compact('registerParameters','user', 'registerCompleted','userParameters', 'uploadKey', 'missing_fields'));
+            $profileSection = 'about';
+            return view('public.' . ONE::getEntityLayout() . '.user.index', compact('registerParameters', 'user', 'registerCompleted', 'userParameters', 'uploadKey', 'missing_fields', 'profileSection'));
 
         }
         catch(Exception $e) {
@@ -297,9 +282,11 @@ class PublicUsersController extends Controller
                     'name'                      => $parameter->name,
                     'value'                     => isset($file) ? $file : $value,
                     'mandatory'                 => $parameter->mandatory,
-                    'parameter_user_options'    => $parameterOptions
+                    'parameter_user_options'    => $parameterOptions,
+                    'parameter_code'            => $parameter->code ?? ''
                 ];
             }
+            $profileSection = 'about';
             $userValidate = Orchestrator::getUserAuthValidate();
             if(!empty($userValidate->status) && $userValidate->status == 'registered'){
                 $registerCompleted = false;
@@ -307,10 +294,13 @@ class PublicUsersController extends Controller
             $uploadKey = Files::getUploadKey();
 
             if(isset($request->view)){
-                return view('public.'.ONE::getEntityLayout().'.user.completeFields', compact('registerParameters','user', 'registerCompleted','userParameters', 'uploadKey'));
+                return view('public.'.ONE::getEntityLayout().'.user.completeFields', compact('registerParameters','user', 'registerCompleted','userParameters', 'uploadKey', 'profileSection'));
             }
 
-            return view('public.'.ONE::getEntityLayout().'.user.user', compact('registerParameters','user', 'registerCompleted','userParameters', 'uploadKey'));
+            if(View::exists('public.'.ONE::getEntityLayout().'.user.user'))
+                return view('public.'.ONE::getEntityLayout().'.user.user', compact('registerParameters','user', 'registerCompleted','userParameters', 'uploadKey', 'missing_fields', 'profileSection'));
+            else
+                return view('public.'.ONE::getEntityLayout().'.user.index', compact('registerParameters','user', 'registerCompleted','userParameters', 'uploadKey', 'missing_fields', 'profileSection'));
 
         }catch (Exception $e){
             return redirect()->back()->withErrors([trans('publicUsers.editUserProfile') => $e->getMessage()]);
@@ -331,17 +321,90 @@ class PublicUsersController extends Controller
      * @param $user_key
      * @return PublicUsersController|\Illuminate\Http\RedirectResponse
      */
-    public function update(UserRequest $requestUser, $user_key)
+    public function update(Request $requestUser, $user_key)
     {
+        \Log::info("AUTH_REGISTER Update user [E: ".$requestUser->email."][N: ".$requestUser->name."] Update user");
         try{
+
+            $registerParametersResponse = Orchestrator::getEntityRegisterParameters();
+
+            $birthYearKey = "";
+            $birthdayKey = "";
+
+            foreach($registerParametersResponse as $parameter) {
+                if ($parameter->code == 'mobile' || $parameter->parameter_type->code == 'mobile') {
+                    $number = $parameter->parameter_user_type_key;
+                    if (isset($requestUser->$number) && strlen($requestUser->$number) > 0) {
+                        \Log::info("AUTH_REGISTER Update user [E: ".$requestUser->email."][N: ".$requestUser->name."] Phone: ".$requestUser->$number);
+                        $mobileNumber = trim($requestUser->$number, ' ');
+                        if (strpos($mobileNumber, '+351') < 0) {
+                            $mobileNumber = '+351' . $mobileNumber;
+                        } elseif (strpos($mobileNumber, '00351') >= 0) {
+                            $mobileNumber = str_replace('00', '+', $mobileNumber);
+                        }
+                        \Log::info("AUTH_REGISTER Update user [E: ".$requestUser->email."][N: ".$requestUser->name."] Phone Final: ".$requestUser->$number);
+                        $requestUser->merge([$parameter->parameter_user_type_key => $mobileNumber]);
+                    }
+                }
+
+                if($parameter->code == 'cc'){
+                    $cc = $parameter->parameter_user_type_key;
+                    \Log::info("AUTH_REGISTER Update user [E: ".$requestUser->email."][N: ".$requestUser->name."] CC: ".$requestUser->$cc);
+                    if(isset($requestUser->$cc)){
+                        if(strlen(trim(str_replace( ' ', '', $requestUser->$cc))) == 6) {
+                            \Log::info("AUTH_REGISTER Update user [E: ".$requestUser->email."][N: ".$requestUser->name."] CC RESIDENCIA_6: ".$requestUser->$cc);
+                        }elseif(strlen(trim(str_replace( ' ', '', $requestUser->$cc))) == 9) {
+                            \Log::info("AUTH_REGISTER Update user [E: ".$requestUser->email."][N: ".$requestUser->name."] CC RESIDENCIA_9: ".$requestUser->$cc);
+                        }else{
+                            $this->validateNumberCC($requestUser->$cc);
+
+                        }
+
+                        \Log::info("AUTH_REGISTER Update user [E: ".$requestUser->email."][N: ".$requestUser->name."] CC_OK - ".$requestUser->$cc);
+                        $cc = trim(str_replace( ' ', '', strtoupper($requestUser->$cc)));
+                        $requestUser->merge([$parameter->parameter_user_type_key => $cc]);
+                    }
+                }
+
+                if($parameter->external_validation == 1){
+                    $parameter_user_key = $parameter->parameter_user_type_key;
+                    $value = $requestUser[$parameter_user_key];
+                    $vatNumberExist = Orchestrator::validateVatNumber($value);
+                    if($vatNumberExist->vat_number != 1){
+                        return redirect()->back()->withErrors(["registerError" => ONE::transSite('register.register_'.$parameter->name.'_number_not_valid')])->withInput($requestUser->except('password'));
+                    }else{
+                        $vatNumber = $vatNumberExist->vat_number;
+                        $isUnique = Auth::verifyVatNumber($parameter_user_key,$value,$vatNumber);
+                        if($isUnique != 1){
+                            return redirect()->back()->withErrors(["registerError" => ONE::transSite('register.register_'.$parameter->name.'_already_exist')])->withInput($requestUser->except('password'));
+                        }
+                    }
+                }else{
+                    if($parameter->mandatory == 1 && $parameter->parameter_unique == 1){
+                        $parameter_user_key = $parameter->parameter_user_type_key;
+                        $value = $requestUser[$parameter_user_key];
+                        $isUnique = Auth::verifyVatNumber($parameter_user_key,$value);
+                        if($isUnique != 1){
+                            return redirect()->back()->withErrors(["registerError" => trans('register.register_parameter_unique_already_exist')])->withInput($requestUser->except($parameter_user_key));
+                        }
+                        if($parameter->code == 'nif') {
+                            if (!$this->validateNifFormat($value)){
+                                return redirect()->back()->withErrors(["registerError" => trans('register.register_parameter_unique_mal_formed')])->withInput($requestUser->except($parameter_user_key));
+                            }
+                        }
+                    }
+                }
+            }
+
             $this->clearCache();
             $userDetails = $requestUser->all();
 
             if(!empty($requestUser->password) && strlen($requestUser->password ) <= 2 )
                 return redirect()->back()->withErrors([trans('publicUsers.profileUpdatedNOK') => trans('publicUsers.passwordMin3Chars')]);
 
+
             $data['name'] = $requestUser->name;
-            $data['email'] = $requestUser->email;
+//            $data['email'] = $requestUser->email;
             $data['password'] = isset($requestUser->password) ? $requestUser->password : null;
             $data['identity_card'] = isset($requestUser->identity_card) ? $requestUser->identity_card : null;
             $data['vat_number'] = isset($requestUser->vat_number) ? $requestUser->vat_number : null;
@@ -371,6 +434,7 @@ class PublicUsersController extends Controller
 
             //          Update User Level
             $user = Auth::updateUser($user_key,$data,$userDetails);
+
 
             $user_parameter = [];
             if ( isset($user->user_parameters) ){
@@ -405,9 +469,68 @@ class PublicUsersController extends Controller
                 Notify::sendEmail($emailType, $tags, (array) $user);
             }
 
+            if ((ONE::getNextLevelSMSVerification() && empty(Session::get('sms_send')) && (empty(Session::get('user')->sms_token)))) {
+                if(Session::has("SITE-CONFIGURATION.sms_max_send") && $user->sms_sent < Session::get("SITE-CONFIGURATION.sms_max_send","")){
+                    if(isset($requestUser->showCode) and !$requestUser->showCode){
+                        $data['thirdStepActive'] = false;
+                        $data['secondStepActive'] = true;
+                        $data['firstStepActive'] = true;
+
+                        $cantSendSmsMessage = false;
+                        if(isset($user->sms_sent) && Session::has('SITE-CONFIGURATION.sms_max_send') && $user->sms_sent >= Session::get('SITE-CONFIGURATION.sms_max_send'))
+                            $cantSendSmsMessage = true;
+
+                        $data['cantSendSmsMessage'] = $cantSendSmsMessage;
+
+                        return view('public.'.ONE::getEntityLayout().'.auth.newStepper.verificationCode', $data);
+                    }
+
+                    $parameters = Orchestrator::getParameterUserTypes();
+                    foreach ($parameters as $parameter) {
+                        if (!empty($parameter->parameter_type->code) && $parameter->parameter_type->code == 'mobile') {
+                            $parameterKey = $parameter->parameter_user_type_key;
+                            if (!empty($user->user_parameters->{$parameterKey}[0])) {
+
+
+                                $smsToken = Auth::generateSMSToken();
+                                $mobileNumber = $user->user_parameters->{$parameterKey}[0]->value;
+                                $data['phone_number'] = $mobileNumber;
+
+
+                                if (!empty(Session::get("SITE-CONFIGURATION.sms_token_text",""))) {
+                                    $smsText = Session::get("SITE-CONFIGURATION.sms_token_text","");
+                                    if (!str_contains($smsText,"#code#"))
+                                        $smsText .= " " . "#code#";
+                                } else
+                                    $smsText = trans('auth.sms_message') . " #code#";
+
+                                $smsText = str_replace("#code#", $smsToken, $smsText);
+
+                                Notify::sendSMS($mobileNumber, $smsText);
+                                Auth::storeSmsAttempt();
+
+                                Session::put('sms_send', true);
+                                $user = Session::get('user');
+                                $user->sms_token = $smsToken;
+                                Session::put('user', $user);
+                            }else{
+                                Orchestrator::SmsUpdateLevel();
+                            }
+                        }
+                    }
+
+                } else if(Session::has("SITE-CONFIGURATION.sms_max_send" && $user->sms_sent >= Session::get("SITE-CONFIGURATION.sms_max_send",""))) {
+                    Session::put('sms_send', true);
+                    $user = Session::get('user');
+                    $user->sms_token = Auth::generateSMSToken();
+                    Session::put('user', $user);
+                }
+            }
             /** Check and update user Login Level*/
             $userLoginLevels = Orchestrator::checkAndUpdateUserLoginLevel($user_key);
             $user->user_login_levels = $userLoginLevels;
+
+            \Log::info("AUTH_REGISTER Update user [E: ".$requestUser->email."][N: ".$requestUser->name."] Success");
 
             /** ADDED BECAUSE OF THE JUSTIFICATION MESSAGE */
             if(!empty($requestUser->message)){
@@ -473,9 +596,10 @@ class PublicUsersController extends Controller
                 return redirect()->action('AuthController@stepperManager', ['step' => $requestUser->stepper, 'sms_confirmation_skip' => $requestUser->sms_verification_skip]);
 
             }
-//            dd($requestUser->stepper);
-            return redirect()->back();
+//          
+            return redirect()->action('PublicUsersController@show',$user_key);
         }catch (Exception $e){
+            \Log::info("AUTH_REGISTER Update user [E: ".$requestUser->email."][N: ".$requestUser->name."] Failed - ".$e->getMessage());
             return redirect()->back()->withErrors([trans('publicUsers.profileUpdatedNOK') => $e->getMessage()]);
         }
     }
@@ -498,6 +622,34 @@ class PublicUsersController extends Controller
 
 
             return action('FilesController@download', ['id' => $request->file_id, 'code' => $request->file_code, 1] ) ;
+        } catch(Exception $e) {
+            return "false";
+            return $e->getMessage();
+        }
+    }
+
+    /**
+     * Remove File to specific content.
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function removePhoto()
+    {
+        try{
+            Auth::unsetUserPhoto(Session::get('user')->user_key);
+
+            //after photo added saves it in user session
+            $userInformation = Auth::getUser();
+            Session::put('user', $userInformation);
+
+            $userKey = Session::get('user')->user_key;
+
+            if (View::exists('public.'.ONE::getEntityLayout().'.user.user')) {
+                //return view('public.'.ONE::getEntityLayout().'.user.user',  compact('userKey'));
+                return redirect()->action('PublicUsersController@show',['userKey' => $userKey]);
+            }
+
         } catch(Exception $e) {
             return "false";
             return $e->getMessage();
@@ -537,7 +689,7 @@ class PublicUsersController extends Controller
             $user = Auth::updateUserPassword($oldPassword,$password);
             Session::flash('message', trans('publicUsers.updatePasswordOk'));
 
-            return redirect()->action('PublicUsersController@edit',['userKey' => $userKey,'f' => 'user']);
+            return redirect()->action('PublicUsersController@show',['userKey' => $userKey]);
         }
         catch(Exception $e) {
             return redirect()->back()->withErrors([trans('publicUsers.updatePasswordNOk') => $e->getMessage()]);
@@ -900,10 +1052,10 @@ class PublicUsersController extends Controller
                 }
             }
 
-            $response = CB::getUserTopicsTimeline($user->user_key);
+            $response = CB::getUserTopicsTimeline($user->user_key,true);
             $topics = $response->topics;
 
-            return view('public.'.ONE::getEntityLayout().'.user.messages', compact('title','user','messages', 'topics'))->with(["profileSection"=>"messages"]);
+            return view('public.'.ONE::getEntityLayout().'.user.index', compact('title','user','messages', 'topics'))->with(["profileSection"=>"messages"]);
         }
         catch(Exception $e) {
             return redirect()->back()->withErrors(["public.user.show" => $e->getMessage()]);
@@ -929,64 +1081,106 @@ class PublicUsersController extends Controller
     public function sendMessage(Request $request)
     {
         $url = "http" . (($_SERVER['SERVER_PORT'] == 443) ? "s://" : "://") . $_SERVER['HTTP_HOST'];
-        $user = Auth::getUser();
-        try {
-            $tags = [
-                "name"      => $user->name,
-                "message"   => $request->message
-            ];
-            $response = Orchestrator::sendMessage($request,$tags);
-
-            if ($response && $request->send_email == 'true'){
+        if($request->dataToSend['register_message']){
+            $response = Orchestrator::sendMessageFromRegister($request->dataToSend);
+            
+            if ($response){
 
                 $entityKey = Session::get('X-ENTITY-KEY');
+                //get entity name
+                $entity = Orchestrator::getPublicEntity($entityKey);
 
-                if($request->send_to_group){
+                //Get Entity Managers to send message
+                $managers = Orchestrator::getAllManagersNoAuthNeeded();
+                $collectionManagers = Collection::make($managers);
+                $managersKeys = $collectionManagers->pluck('user_key');
+                $group = Auth::listUser($managersKeys);
 
-                    //get entity name
-                    $entity = Orchestrator::getPublicEntity($entityKey);
+                if(!empty($group)){
+                    $emailType = 'group_message_sent_notification';
+                    $tags = [
+                        "message"   => nl2br($request->message),
+                        "sender"    => $entity->name ?? null,
+                        "user_who_sent"    => $request->name ?? null,
+                        "link" => null,
+                    ];
+                    $response = Notify::sendEmailForMultipleUsers($emailType, $tags, $group);
+                }
+                
+                return response()->json(["success"], 200);
+            }else{
+                return response()->json(["error"], 500);
+            }
+            
 
-                    //Get Entity Managers to send message
-                    $managers = Orchestrator::getAllManagersNoAuthNeeded();
-                    $collectionManagers = Collection::make($managers);
-                    $managersKeys = $collectionManagers->pluck('user_key');
-                    $group = Auth::listUser($managersKeys);
+        }
+        else{
+            $user = Auth::getUser();
+            try {
 
-                    //logged userKey
-                    $user = Session::get('user');
+                $message = $request->message ?? null;
+                if ($message && (strlen($message) > 0 && strlen(trim($message)) > 0)) {
 
-                    //Notification for all Entity Managers
-                    if(!empty($group)){
-                        $emailType = 'group_message_sent_notification';
-                        $tags = [
-                            "message"   => $request->message,
-                            "sender"    => $entity->name ?? null,
-                            "user_who_sent"    => $user->name ?? null,
-                            "link" => $url,
-                        ];
-                        $response = Notify::sendEmailForMultipleUsers($emailType, $tags, $group);
-                    }
-
-                }else{
-                    $entity = is_null($entityKey) ? null : Orchestrator::getEntity($entityKey);
-
-                    $user = Auth::getUserByKey($request->to);
-
-                    $emailType = 'message_notification';
                     $tags = [
                         "name"      => $user->name,
-                        "message"   => $request->message,
-                        "sender"    => $entity->name ?? null,
-                        "link"      => $url
+                        "message"   => $request->message
                     ];
-                    Notify::sendEmail($emailType, $tags, (array) $user);
+                    $response = Orchestrator::sendMessage($request,$tags);
+
+                    if ($response && $request->send_email == 'true'){
+
+                        $entityKey = Session::get('X-ENTITY-KEY');
+
+                        if($request->send_to_group){
+
+                            //get entity name
+                            $entity = Orchestrator::getPublicEntity($entityKey);
+
+                            //Get Entity Managers to send message
+                            $managers = Orchestrator::getAllManagersNoAuthNeeded();
+                            $collectionManagers = Collection::make($managers);
+                            $managersKeys = $collectionManagers->pluck('user_key');
+                            $group = Auth::listUser($managersKeys);
+
+                            //logged userKey
+                            $user = Session::get('user');
+
+                            //Notification for all Entity Managers
+                            if(!empty($group)){
+                                $emailType = 'group_message_sent_notification';
+                                $tags = [
+                                    "message"   => nl2br($request->message),
+                                    "sender"    => $entity->name ?? null,
+                                    "user_who_sent"    => $user->name ?? null,
+                                    "link" => $url,
+                                ];
+                                $response = Notify::sendEmailForMultipleUsers($emailType, $tags, $group);
+                            }
+
+                        }else{
+                            $entity = is_null($entityKey) ? null : Orchestrator::getEntity($entityKey);
+
+                            $user = Auth::getUserByKey($request->to);
+
+                            $emailType = 'message_notification';
+                            $tags = [
+                                "name"      => $user->name,
+                                "message"   => nl2br($request->message),
+                                "sender"    => $entity->name ?? null,
+                                "link"      => $url
+                            ];
+                            Notify::sendEmail($emailType, $tags, (array) $user);
+                        }
+                    }
+
+                    return 'success';
+                } else {
+                    return 'error';
                 }
             }
-
-            return 'success';
-        }
-        catch(Exception $e) {
-            return 'error';
+            catch(Exception $e) {
+                return 'error';
+            }
         }
     }
 
@@ -1062,7 +1256,8 @@ class PublicUsersController extends Controller
                     'value'                     => isset($file) ? $file : $value,
                     'mandatory'                 => $parameter->mandatory,
                     'parameter_user_options'    => $parameterOptions,
-                    'public_parameter'          => isset($userParametersResponse[$parameter->parameter_user_type_key][0]) ? $userParametersResponse[$parameter->parameter_user_type_key][0]['public_parameter'] : 0
+                    'public_parameter'          => isset($userParametersResponse[$parameter->parameter_user_type_key][0]) ? $userParametersResponse[$parameter->parameter_user_type_key][0]['public_parameter'] : 0,
+                    'parameter_code'            => $parameter->code ?? ''
                 ];
             }
             return view('public.'.ONE::getEntityLayout().'.user.publicProfile', compact('user','registerParameters'));
@@ -1079,7 +1274,10 @@ class PublicUsersController extends Controller
             $user = Auth::getUser();
 
             if (!isset($request->ajax_call)) {
-                return view('public.' . ONE::getEntityLayout() . '.user.topics', compact('user'));
+                if(strtolower(ONE::getEntityLayout()) == 'default')
+                    return view('public.' . ONE::getEntityLayout() . '.user.index', compact('user'))->with(["profileSection"=>"topics"]);
+                else
+                    return view('public.' . ONE::getEntityLayout() . '.user.topics', compact('user'))->with(["profileSection"=>"topics"]);
             }
 
             $numberTopicToShow = $request->get("topics_to_show",$request->topics_to_show);
@@ -1088,7 +1286,6 @@ class PublicUsersController extends Controller
             $filterList = collect(($request->all() ?? []))->toArray();
 
             $publicMultiplePadsInformation = CB::getMultiplePadsInformation($request->get("page",null), $numberTopicToShow, $request->all());
-
             $topicsPerPage = 10;
             $topicsPagination = $publicMultiplePadsInformation->topics;
             $usersNames = $publicMultiplePadsInformation->users;
@@ -1098,16 +1295,16 @@ class PublicUsersController extends Controller
             $fileTypes["images"] = array("gif","jpg","png","bmp");
             $filesByType = [];
 
-            foreach ($topicsPagination as $topic){
-                if(!empty($topic->posts)){
-                    foreach ($topic->posts as $post){
-                        if(!empty($post->files)){
+            foreach ($topicsPagination as $topic) {
+                if (!empty($topic->posts)) {
+                    foreach ($topic->posts as $post) {
+                        if (!empty($post->files)) {
                             foreach ($post->files as $file) {
                                 $array = explode('.', $file->name);
                                 $extension = strtolower(end($array));
                                 foreach ($fileTypes as $value) {
                                     if (in_array($extension, $value)) {
-                                        $filesByType[$topic->topic_key] = json_decode(json_encode($file,JSON_FORCE_OBJECT));
+                                        $filesByType[$topic->topic_key] = json_decode(json_encode($file, JSON_FORCE_OBJECT));
                                         break;
                                     }
                                 }
@@ -1116,7 +1313,6 @@ class PublicUsersController extends Controller
                     }
                 }
             }
-
             $topicsPagination = new Paginator($topicsPagination, $numberTopicToShow, $request->page);
 
             // Prepare data to send to the view
@@ -1167,22 +1363,19 @@ class PublicUsersController extends Controller
             $data['filterList'] = $filterList;
             $data['numberTopicToShow'] = $numberTopicToShow;
 
-//            dd($filterList);
-
-
-
             return view('public.' . ONE::getEntityLayout() . '.user.topicsPads', $data)->with(['isAuth' => One::isAuth()]);
 
 
 
         } catch (Exception $exception) {
-            dd($exception->getMessage());
             return redirect()->back()->withErrors(["public.user.topics" => $exception->getMessage()]);
         }
     }
 
     public function userTopics(Request $request) {
         try {
+
+            return $this->userTopicsNewMethod($request);
 
             $currentPageItems = LengthAwarePaginator::resolveCurrentPage();
 
@@ -1219,6 +1412,7 @@ class PublicUsersController extends Controller
     public function saveInPersonRegistration(Request $request)
     {
         try{
+            $nif = $request['nif'];
             $attachToCode = true;
             if(isset($request['doNotAttachToCode'])){
                 $attachToCode = false;
@@ -1239,11 +1433,15 @@ class PublicUsersController extends Controller
                 $userBasicRegisterFields[$input['name']] = $input['value'];
             }
 
+            if(empty($userBasicRegisterFields['name'])){
+                $userBasicRegisterFields['name'] = 'inPerson_'.$nif;
+            }
+
             if(empty($userBasicRegisterFields['email'])){
                 if(!isset($userBasicRegisterFields['surname'])){
                     $userBasicRegisterFields['surname'] = '';
                 }
-                $userBasicRegisterFields['email'] = AuthController::generateFakeEmail($userBasicRegisterFields['name'],$userBasicRegisterFields['surname']);
+                $userBasicRegisterFields['email'] = AuthController::generateFakeEmail($userBasicRegisterFields['name'],$userBasicRegisterFields['surname'],$nif,$_SERVER['HTTP_HOST']);
             }
 
             //WE NEED TO GENERATE A PASSWORD
@@ -1253,12 +1451,21 @@ class PublicUsersController extends Controller
                 $userParameters[str_replace('parameter_','',$parameterField['name'])] = $parameterField['value'];
             }
 
+            if(!ONE::validateNifFormat($nif)){
+                return response()->json(["invalidnif" => trans('comModulesAuth.invalidNif')]);
+            }
+
             $storeUserResponse = $this->storeInPersonRegistration($userBasicRegisterFields, $userParameters);
 
             if(!$attachToCode){
                 if(!isset($storeUserResponse['error'])){
                     if(isset($storeUserResponse['existed'])){ //USER ALREADY REGISTERED, DENY PERMISSION TO VOTE
-                        return response()->json(["warning" => trans('comModulesAuth.userIsAlreadyRegistered')]);
+                        $alreadyVoted = Vote::getUserVotesForEvent($voteEventKey, $storeUserResponse['user_key']);
+                        if($alreadyVoted == 0){
+                            return response()->json(["success" => $storeUserResponse['user_key']]);
+                        }else{
+                            return response()->json(["warning" => trans('comModulesAuth.userIsAlreadyRegistered')]);
+                        }
                     }else{
                         return response()->json(["success" => $storeUserResponse['user_key']]);
                     }
@@ -1363,4 +1570,112 @@ class PublicUsersController extends Controller
 
         return view('public.'.ONE::getEntityLayout().'.auth.newStepper.verificationCode', compact('phoneNumber'));
     }
+
+    public function getNumberFromChar($letter) {
+        switch($letter)  {
+            case '0' : return 0;
+            case '1' : return 1;
+            case '2' : return 2;
+            case '3' : return 3;
+            case '4' : return 4;
+            case '5' : return 5;
+            case '6' : return 6;
+            case '7' : return 7;
+            case '8' : return 8;
+            case '9' : return 9;
+            case 'A' : return 10;
+            case 'B' : return 11;
+            case 'C' : return 12;
+            case 'D' : return 13;
+            case 'E' : return 14;
+            case 'F' : return 15;
+            case 'G' : return 16;
+            case 'H' : return 17;
+            case 'I' : return 18;
+            case 'J' : return 19;
+            case 'K' : return 20;
+            case 'L' : return 21;
+            case 'M' : return 22;
+            case 'N' : return 23;
+            case 'O' : return 24;
+            case 'P' : return 25;
+            case 'Q' : return 26;
+            case 'R' : return 27;
+            case 'S' : return 28;
+            case 'T' : return 29;
+            case 'U' : return 30;
+            case 'V' : return 31;
+            case 'W' : return 32;
+            case 'X' : return 33;
+            case 'Y' : return 34;
+            case 'Z' : return 35;
+        }
+
+        throw new Exception("Valor inválido no número de documento.");
+    }
+
+    public function validateNumberCC($ccNumber) {
+        $sum = 0;
+        $secondDigit = false;
+
+        $ccNumber = trim(str_replace( ' ', '', strtoupper($ccNumber)));
+
+        if(strlen($ccNumber) != 12)
+            throw new Exception("Tamanho inválido para número de documento.");
+
+        for ($i = strlen($ccNumber)-1; $i >= 0; --$i)  {
+
+
+            $valor = $this->getNumberFromChar($ccNumber[$i]);
+
+            if ($secondDigit)  {
+                $valor *= 2;
+
+                if ($valor > 9)
+                    $valor -= 9;
+            }
+
+            $sum += $valor;
+            $secondDigit = !$secondDigit;
+        }
+
+        return ($sum % 10) == 0;
+    }
+
+    function validateNifFormat($nif, $ignoreFirst=false) {
+        //Limpamos eventuais espaços a mais
+        $nif=trim($nif);
+        //Verificamos se é numérico e tem comprimento 9
+        if (!is_numeric($nif) || strlen($nif)!=9) {
+            return false;
+        } else {
+            $nifSplit=str_split($nif);
+            //O primeiro digíto tem de ser 1, 2, 5, 6, 8 ou 9
+            //Ou não, se optarmos por ignorar esta "regra"
+            if (
+                in_array($nifSplit[0], array(1, 2, 5, 6, 8, 9))
+                ||
+                $ignoreFirst
+            ) {
+                //Calculamos o dígito de controlo
+                $checkDigit=0;
+                for($i=0; $i<8; $i++) {
+                    $checkDigit+=$nifSplit[$i]*(10-$i-1);
+                }
+                $checkDigit=11-($checkDigit % 11);
+                //Se der 10 então o dígito de controlo tem de ser 0
+                if($checkDigit>=10) $checkDigit=0;
+                //Comparamos com o último dígito
+                if ($checkDigit==$nifSplit[8]) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+
+
 }

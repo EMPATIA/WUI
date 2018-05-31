@@ -271,6 +271,7 @@ class VoteMethodsController extends Controller
             ->addColumn('action', function ($voteMethod) {
                 return ONE::actionButtons($voteMethod->id, ['form'=> 'methods','edit' => 'VoteMethodsController@edit', 'delete' => 'VoteMethodsController@delete']);
             })
+            ->rawColumns(['title','action'])
             ->make(true);
 
     }

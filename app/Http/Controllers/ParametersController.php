@@ -195,6 +195,7 @@ class ParametersController extends Controller
             ->addColumn('action', function ($parameter) {
                 return ONE::actionButtons($parameter->id, ['edit' => 'ParametersController@edit', 'delete' => 'ParametersController@delete']);
             })
+            ->rawColumns(['parameter','action'])
             ->make(true);
     }
 }

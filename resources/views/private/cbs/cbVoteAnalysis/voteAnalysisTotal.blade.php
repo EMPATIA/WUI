@@ -3,9 +3,11 @@
 
 @endsection
 @section('content')
+    @include('private.cbs.cbVoteAnalysis.cbDetails')
     @if(!empty($voteEvents))
         <div class="row">
             <div class="col-12" style="padding-bottom: 20px">
+                <div><label>{{ trans('privateCbsVoteAnalysis.vote_event') }}</label></div>
                 <select id="voteEventSelect" name="voteEventSelect" class="voteEventSelect" style="width: 50%;">
                     <option value="">{{ trans('privateCbsVoteAnalysis.select_vote_event') }}</option>
                     @foreach($voteEvents as $key => $voteEvent)
@@ -15,6 +17,18 @@
             </div>
         </div>
     @endif
+
+
+    <div class="text-right margin-top-20 margin-bottom-10">
+        <div class="colors btn-group" data-toggle="buttons" style="pointer-events: none;cursor: default;opacity:0.8;">
+            <label class="btn btn-primary">
+                <input type="radio" name="view_submitted" value="1" autocomplete="off" disabled > {{ trans('privateUserAnalysis.view_submitted') }}
+            </label>
+            <label id="default-view-all" class="btn btn-primary btn-selected">
+                <input type="radio" name="view_submitted" value="0" autocomplete="off" checked> {{ trans('privateUserAnalysis.all') }}
+            </label>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-12 tabs-left" id="nav-analysis" hidden="hidden">
@@ -39,7 +53,11 @@
                                 <div class="col-md-12">
                                     <div class="box-info">
                                         <div class="box-header voteAnalysis-total">
-                                            <h3 class="box-title"><i class="fa"></i> {{trans('privateCbsVoteAnalysis.count_total_votes')}}</h3>
+                                            <div class="row">
+                                                <div class="col-12 col-xl-12">
+                                                    <h3 class="box-title"><i class="fa"></i> {{trans('privateCbsVoteAnalysis.count_total_votes')}}</h3>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="box-body">
                                             <div class="row">
@@ -122,9 +140,9 @@
                                                             <td>{{$topTopic->budget}}</td>
                                                             <td class=" text-center">
                                                                 @if($topTopic->balance >= 0 )
-                                                                    <span class="label bg-green"> {{$topTopic->balance}}</span>
+                                                                    <span> {{$topTopic->balance}}</span>
                                                                 @else
-                                                                    <span class="label bg-red"> {{$topTopic->balance}}</span>
+                                                                    <span> {{$topTopic->balance}}</span>
                                                                 @endif
                                                             </td>
                                                             <td class=" text-center">{{$topTopic->positives}}</td>
@@ -176,6 +194,12 @@
             </div>
         </div>
     </div>
+
+    @php
+        $voteEvent = Session::get("voteEvent");
+        // dd($voteEvent);
+    @endphp
+
 @endsection
 
 @section('scripts')
@@ -190,6 +214,10 @@
         $("#userParameterSelect").select2();
 
         $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
+            $("#tab_vote_analysis_total").hide();
+            $("#tab_vote_analysis_by_channel").hide();
+            $("#tab_voters_analysis_by_channel").hide();
+
             var id = $(this).attr('id');
             var voteEventKey = '{{$voteEventKey ?? null}}';
             if(voteEventKey.length == 0){
@@ -200,7 +228,7 @@
         });
 
         @if(empty($voteEvents))
-             $('#nav-analysis').removeAttr('hidden');
+        $('#nav-analysis').removeAttr('hidden');
         @endif
 
 
@@ -234,13 +262,14 @@
                     parameter_key: parameterKey,
                     cb_key: '{{$cbKey}}'
                 }, beforeSend: function () {
-                    var ajaxLoader = '<div class="chartLoader"><div><i class="fa fa-spinner fa-pulse fa-3x fa-fw default-color"></i><span class="sr-only">Loading...</span></div></div>';
+                    var ajaxLoader = '<div class="chartLoader"><div><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw default-color"></i><span class="sr-only">Loading...</span></div></div>';
                     $('#tab_'+id).html(ajaxLoader);
                 },
                 success: function (response) { // What to do if we succeed
                     if (response != 'false') {
                         $('#tab_'+id).empty();
                         $('#tab_'+id).append(response);
+                        $('#tab_'+id).show();
                         $('.chartLoader').remove();
                     } else {
                         $(".chartLoader").remove();
@@ -275,25 +304,25 @@
     @if(!empty($statisticsTotalData))
         <script>
             $( document ).ready(function() {
-                @php $k = 0; @endphp
+                        @php $k = 0; @endphp
                 var statistics_by_topic_data = [
-                    @foreach($statisticsTotalData as $topTopic)
-                    {
-                        "position": "{{ $loop->iteration }}",
-                        "{!! trans('privateCbsVoteAnalysis.topic_name') !!}": "{{ $topTopic->title }}",
-                        "type": "{!! trans('privateCbsVoteAnalysis.positives_votes') !!}",
-                        "{!! trans('privateCbsVoteAnalysis.total_votes') !!}": {{ $topTopic->positives ?? 0 }},
-                        "total_votes": {{ $topTopic->positives ?? 0 }}},
-                    {
-                        "position": "{{ $loop->iteration }}",
-                        "{!! trans('privateCbsVoteAnalysis.topic_name') !!}": "{{ $topTopic->title }}",
-                        "type": "{!! trans('privateCbsVoteAnalysis.negatives_votes') !!}",
-                        "{!! trans('privateCbsVoteAnalysis.total_votes') !!}": {{ $topTopic->negatives * -1 ?? 0 }},
-                        "total_votes": {{ $topTopic->negatives * -1 ?? 0 }}},
+                                @foreach($statisticsTotalData as $topTopic)
+                        {
+                            "position": "{{ $loop->iteration }}",
+                            "{!! trans('privateCbsVoteAnalysis.topic_name') !!}": "{{ $topTopic->title }}",
+                            "type": "{!! trans('privateCbsVoteAnalysis.positives_votes') !!}",
+                            "{!! trans('privateCbsVoteAnalysis.total_votes') !!}": {{ $topTopic->positives ?? 0 }},
+                            "total_votes": {{ $topTopic->positives ?? 0 }}},
+                        {
+                            "position": "{{ $loop->iteration }}",
+                            "{!! trans('privateCbsVoteAnalysis.topic_name') !!}": "{{ $topTopic->title }}",
+                            "type": "{!! trans('privateCbsVoteAnalysis.negatives_votes') !!}",
+                            "{!! trans('privateCbsVoteAnalysis.total_votes') !!}": {{ $topTopic->negatives * -1 ?? 0 }},
+                            "total_votes": {{ $topTopic->negatives * -1 ?? 0 }}},
 
-                        @php $k++; @endphp
-                    @endforeach
-                ];
+                            @php $k++; @endphp
+                            @endforeach
+                    ];
 
                 $("#statistics_by_topic").css("height", "{{ ($k <= 15) ? "400" : $k*20 }}px");
 
@@ -331,6 +360,9 @@
                 }
 
             });
+
+            @include('private.cbs.cbVoteAnalysis.cbDetailsScript')
+
         </script>
     @endif
 

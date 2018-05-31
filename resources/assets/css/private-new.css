@@ -179,6 +179,11 @@ h3.box-title{
     min-height: 350px;
 }
 
+.btn-selected {
+    background-color: #0069d9!important;
+    border-color: #0057ae !important;;
+}
+
 /** Defaults  ---------------------------------------------------------*/
 a {
     color: #1788af;
@@ -274,6 +279,14 @@ header{
 
 .select-entity-label{
     padding-top:8px;
+}
+
+.margin-top-30{
+    margin-top: 20px;
+}
+
+.margin-bottom-30{
+    margin-bottom: 20px;
 }
 
 .margin-top-20{
@@ -895,8 +908,10 @@ table.dataTable thead .sorting_asc::after, table.dataTable thead .sorting_desc::
     border: 1px dashed red;
 }
 
-.dashboard .ElementToDrag {
-    padding-right:15px!important;
+@media (min-width: 992px) {
+    .dashboard .ElementToDrag {
+        padding-right:15px!important;
+    }
 }
 
 .dashboard-box{
@@ -3623,4 +3638,17 @@ input.form-control[type^="color"] {
 .toggle-vis-label{
     padding-right:15px;
     margin-right:15px;
+}
+
+
+.box-filter{
+    border: 1px solid rgba(0,0,0,.15);
+    margin: 5px 0 0 0;
+    padding: 5px;
+}
+
+.box-filter-no-border{
+    border: 1px solid white;
+    margin: 5px 0 0 0;
+    padding: 5px;
 }

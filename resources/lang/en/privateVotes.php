@@ -1,1 +1,1 @@
-<?php return array (  'create_vote' => 'Create Vote',  'edit_vote' => 'Edit Vote',  'show_vote' => 'Show Vote',);
+<?php return array (  'select_vote_type' => 'Select vote type',  'create_vote' => 'Create Vote',  'edit_vote' => 'Edit Vote',  'show_vote' => 'Show Vote',);

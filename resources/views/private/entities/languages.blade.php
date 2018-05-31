@@ -1,58 +1,69 @@
 @extends('private._private.index')
 
 @section('content')
-    @php
-    $form = ONE::form('entityLoginLevels', trans('privateEntityLoginLevels.login_level_details'))
-        ->settings(["model" => $loginLevel ?? null, 'id' => $loginLevel->login_level_key ?? null])
-        ->show('EntityLoginLevelsController@edit', 'EntityLoginLevelsController@delete', ['levelKey' => $loginLevel->login_level_key ?? null, 'entityKey' => $entityKey ?? null], null)
-        ->create('EntityLoginLevelsController@store', null)
-        ->edit('EntityLoginLevelsController@update', null, ['levelKey' =>  $loginLevel->login_level_key ?? null, 'entityKey' => $entityKey ?? null])
-        ->open();
-    @endphp
-
-    {!! Form::hidden('entity_key', $entityKey ?? null) !!}
-    {!! Form::oneText('name', trans('privateEntityLoginLevels.login_level_name'), $loginLevel->name ?? null, ['class' => 'form-control', 'id' => 'name']) !!}
-    {!! Form::oneSwitch("manual_verification", trans('privateEntityLoginLevels.level_manual_verification'), $loginLevel->manual_verification ?? null) !!}
-    {!! Form::oneSwitch("sms_verification", trans('privateEntityLoginLevels.level_sms_verification'), $loginLevel->sms_verification ?? null) !!}
-
-    @if((!empty($loginLevelDependencies) && ONE::actionType('entityLoginLevels') == 'show' && !empty($loginLevel->login_level_dependencies)) ||
-            (!empty($loginLevelDependencies) && ONE::actionType('entityLoginLevels') != 'show' ))
-        <div class="row" style="padding-top: 20px">
-            <div class="col-12">
-                <label for="manual_verification">{{trans('privateEntityLoginLevels.dependencies')}}</label>
-                <select id="dependencies" name="dependencies[]" class="form-control" multiple="true" @if(ONE::actionType('entityLoginLevels') == 'show') disabled @endif>
-                    @foreach( $loginLevelDependencies as $loginLevelDependency)
-                        @if((ONE::actionType('entityLoginLevels') == 'create') || (isset($loginLevel) && $loginLevelDependency->login_level_key != $loginLevel->login_level_key))
-                            <option value="{{ $loginLevelDependency->login_level_key }}" {{ (isset($loginLevel) && array_key_exists($loginLevelDependency->login_level_key,$loginLevel->login_level_dependencies)? 'selected':'') }}  >{!! $loginLevelDependency->name !!}</option>
-                        @endif
-                    @endforeach
-                </select>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <h3 class="box-title"><i class="fa fa-language"></i> {{ trans('privateEntities.language_title') }}</h3>
+                </div>
+                <div class="box-body">
+                    <table id="languages_list" class="table table-striped dataTable no-footer">
+                        <thead>
+                        <tr>
+                            <th width="50%">{{ trans('privateEntities.languages') }}</th>
+                            <th width="40%">{{ trans('privateEntities.make_default') }}</th>
+                            <th width="10%">
+                                {!! ONE::actionButtons($entity->entity_key, ['add' => 'EntitiesController@addLanguage']) !!}
+                            </th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
             </div>
         </div>
-    @endif
-    {!! $form->make() !!}
+    </div>
 @endsection
 
 @section('scripts')
-    {{--@if(ONE::actionType('entityLoginLevels') != 'create')--}}
-    {{--<script>--}}
-    {{--$(function() {--}}
-    {{--var array = ["{{ $loginLevel->login_level_key ?? null}}","{{ $entityKey ?? null }}"];--}}
-    {{--getSidebar('{{ action("OneController@getSidebar") }}', 'details', array, 'entityLoginLevels');--}}
-    {{--});--}}
-    {{--</script>--}}
-    {{--@else--}}
-    {{--<script>--}}
-    {{--$(function() {--}}
-    {{--getSidebar('{{ action("OneController@getSidebar") }}', 'entityLevels', '{{  $entityKey ?? null }}', 'entity' );--}}
-    {{--})--}}
-    {{--</script>--}}
-    {{--@endif--}}
-
     <script>
-
-        $(document).ready(function(){
-            $("#dependencies").select2();
+        $(function () {
+            $('#languages_list').DataTable({
+                language: {
+                    url: '{!! asset('/datatableLang/'.Session::get('LANG_CODE').'.json') !!}'
+                },
+                processing: true,
+                serverSide: true,
+                ajax: '{!! action("EntitiesController@tableLanguagesEntity", $entity->entity_key) !!}',
+                columns: [
+                    { data: 'name', name: 'name' },
+                    { data: 'activateAction', name: 'action_activate', searchable: false, orderable: false, width: "5px" },
+                    { data: 'action', name: 'action', searchable: false, orderable: false },
+                ],
+                order: [['1', 'asc']]
+            });
         });
+        
+
+        function modal(id, languageId){
+            console.log(id, languageId);
+            var url = '{{action('EntitiesController@makeLangDefault',[":id",":languageId"])}}';
+            url = url.replace(':id', id);
+            url = url.replace(':languageId', languageId);
+            //TODO: Check if sucess or error!!!
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {_method: 'get', _token: '{{csrf_token()}}'},
+                success: function (action) {
+                    window.location = action;
+                },
+                error: function (data) {
+                    //TODO Deal with the error!
+                }
+            });
+            $(document.getElementById('activate-modal')).modal("hide");
+        }
+        
     </script>
 @endsection

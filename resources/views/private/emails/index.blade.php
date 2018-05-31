@@ -23,7 +23,7 @@
                     <th>{{ trans('privateEmails.sender_email') }}</th>
                     <th>{{ trans('privateEmails.created_at') }}</th>
                     <th>{{ trans('privateEmails.sent_at') }}</th>
-                    <th>@if(ONE::verifyUserPermissions('wui', 'email', 'create')) {!! ONE::actionButtons(null, ['send' => 'EmailsController@create']) !!} @endif</th>
+                    <th>{!! ONE::actionButtons(null, ['send' => 'EmailsController@create']) !!}</th>
                 </tr>
                 </thead>
             </table>
@@ -44,9 +44,9 @@
                 ajax: '{!! action('EmailsController@tableEmails') !!}',
                 columns: [
                     { data: 'recipient', name: 'recipient', searchable: true },
-                    { data: 'subject', name: 'subject', searchable: false, orderable: false },
+                    { data: 'subject', name: 'subject', searchable: true, orderable: false },
                     { data: 'sender_email', name: 'sender_email', searchable: true },
-                    { data: 'created_at', name: 'created_at', searchable: false, orderable: false, },
+                    { data: 'created_at', name: 'created_at', searchable: true, orderable: true },
                     { data: 'sent', name: 'sent', searchable: false },
                     { data: 'action', name: 'action', searchable: false, orderable: false, width: "30px" },
                 ],

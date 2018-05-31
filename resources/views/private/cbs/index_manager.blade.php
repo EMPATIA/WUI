@@ -5,6 +5,12 @@
         <div class="box-body">
             <div class="margin-bottom-20">
                 <div class="row">
+                    <div class="col-12 text-right" style="margin-bottom: 10px">
+                        <a type="" class="btn btn-flat empatia" href="{{action('CbsController@stepType')}}" style="margin: 5px"><i class="fa fa-plus"></i> {!! trans("privateCbs.create_cb") !!}</a>
+                        @if((Session::has('user_role') == 'admin'))
+                            <a type="" class="btn btn-flat empatia pull-right" onclick="waitingModal('{{Session::get('X-ENTITY-KEY')}}')" style="margin: 5px"><i class="fa fa-refresh"></i> {!! trans("privateCbs.update_vote_count") !!}</a>
+                        @endif
+                    </div>
                     <div class="col-12">
                         <h5 class="filterBy-title">{!! trans("privateCbs.filter_by") !!}</h5>
                     </div>
@@ -23,21 +29,35 @@
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-th"></i>
                             </span>
-                            <input class="form-control oneDatePicker" style="width:40%" id="end_date" placeholder="yyyy-mm-dd" data-date-format="yyyy-mm-dd" name="end_date" type="text" value="" onchange="selectDateFilter()" required>
+                            <input class="form-control oneDatePicker" style="width:40%" id="end_date" placeholder="yyyy-mm-dd" data-date-format="yyyy-mm-dd" name="end_date" type="text" value="" required>
                         </div>
                     </div>
-                    @if(Session::has('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('cb', $typeFilter))
-                        <div class="col-12 col-sm-12 col-md-6 text-right">
-                            <br>
-                            <a type="" class="btn btn-flat empatia" href="{{action('CbsController@create',$typeFilter)}}" style="margin: 5px"><i class="fa fa-plus"></i> {!! trans("privateCbs.create_".$typeFilter) !!}</a>
-                            <a type="" class="btn btn-flat empatia pull-right" onclick="waitingModal('{{Session::get('X-ENTITY-KEY')}}')" style="margin: 5px"><i class="fa fa-refresh"></i> {!! trans("privateCbs.update_vote_count") !!}</a>
+                    @if(empty($typeFilter))
+                        <div class="col-12 col-sm-6 col-md-3 form-group">
+                            <label for="cbType">{!! trans("privateCbs.filter_by_cb_type") !!}</label>
+                            <select name="cbType" id="cbType" class="form-control">
+                                <option value="">{{ trans("privateCbs.select_cb_type") }}</option>
+                                @foreach($allCbTypes as $cbType)
+                                    @if(ONE::verifyModuleAccess('cb',$cbType->code))
+                                        <option value="{{ $cbType->code }}">
+                                            {{ trans('privateCbs.' . $cbType->code) }}
+                                        </option>
+                                    @endif
+                                @endforeach
+                            </select>
                         </div>
+                    @else
+                        <input type="hidden" name="cbType" id="cbType" value="{{ $typeFilter }}"/>
                     @endif
+
                 </div>
             </div>
             <table id="all_cbs" class="table table-hover table-striped dataTable no-footer table-responsive">
                 <thead>
                 <tr>
+                    @if(empty($typeFilter))
+                        <th>{{ trans('privateCbs.cb_ype') }}</th>
+                    @endif
                     <th>{{ trans('privateCbs.name') }}</th>
                     <th>{{ trans('privateCbs.start_date') }}</th>
                     <th>{{ trans('privateCbs.end_date') }}</th>
@@ -59,7 +79,7 @@
                     <div class="text-center">
                         {{ trans("privateCbs.please_wait") }}
                         <br>
-                        <img src="{{ asset('images/bluePreLoader.gif') }}" alt="Loading" class="label-ajax-info-register-loader" style="width: 20px; padding-top:2px;"/>
+                        <img src="{{ asset('images/default/bluePreLoader.gif') }}" alt="Loading" class="label-ajax-info-register-loader" style="width: 20px; padding-top:2px;"/>
                     </div>
                 </div>
                 {{--<div class="modal-footer">--}}
@@ -74,82 +94,55 @@
 @section('scripts')
 
     <script>
-        showCbsDataTable();
+        var dataTable;
 
-        function showCbsDataTable(){
+        $(document).ready(function() {
+            dataTable = $('#all_cbs')
+                .DataTable({
+                    language: {
+                        url: '{!! asset('/datatableLang/'.Session::get('LANG_CODE').'.json') !!}',
+                        search: '<a class="btn searchBtn" id="searchBtn"><i class="fa fa-search"></i></a>'
+                    },
+                    responsive: true,
+                    processing: true,
+                    serverSide: true,
+                    bDestroy: true,
+                    ajax: {
+                        'url': '{!! action('CbsController@getActivePads', $start_date ?? null) !!}',
+                        "type": "POST",
+                        "data": function(d) {
+                            d.filter_types = $("#cbType").val();
 
-//            var filterTypes = $("#advancedFilter").val();
-            var filterTypes = ['{{ $typeFilter ?? null}}'];
+                            startDate = $('#start_date').val();
+                            endDate = $('#end_date').val();
+                            if (startDate !== "" && endDate !== "") {
+                                d.start_date = startDate;
+                                d.end_date = endDate;
+                            }
+                        }
+                    },
+                    columns: [
+                        @if(empty($typeFilter))
+                            {data: 'type', name: 'type'},
+                        @endif
+                        {data: 'title', name: 'title', "sType": "html"},
+                        {data: 'start_date', name: 'start_date'},
+                        {data: 'end_date', name: 'end_date'},
+                        {data: 'name', name: 'name'},
+                    ],
+                    order: [['1', 'desc']]
+                });
 
 
-            $('#all_cbs').DataTable({
-                language: {
-                    url: '{!! asset('/datatableLang/'.Session::get('LANG_CODE').'.json') !!}',
-                    search: '<a class="btn searchBtn" id="searchBtn"><i class="fa fa-search"></i></a>'
-                },
-                responsive: true,
-                processing: true,
-                serverSide: true,
-                bDestroy: true,
-                ajax: {
-                    'url': '{!! action('CbsController@getActivePads', $start_date ?? null) !!}',
-                    "type": "POST",
-                    "data": {
-                        "filter_types": '{{$typeFilter}}',
-                    }
-                },
-                columns: [
-                    {data: 'title', name: 'title'},
-                    {data: 'start_date', name: 'start_date'},
-                    {data: 'end_date', name: 'end_date'},
-                    {data: 'name', name: 'name'},
-                ],
-                order: [['1', 'desc']]
+            $("#start_date, #end_date").on("change",function() {
+                dataTable.ajax.reload();
             });
-
-        }
-
-        function selectDateFilter() {
-            var url = "{{action('CbsController@getActivePads')}}";
-
-            var start_date = '';
-            var end_date = '';
-
-            if ($('#start_date').val() != '' && $('#end_date').val() != '' ){
-
-                start_date = $('#start_date').val();
-                end_date=$('#end_date').val();
-
-                if ($('#start_date').val()< $('#end_date').val() ){
-
-                    url = url+'?start_date='+start_date+'?end_date='+end_date;
-
-                    var tableUsers = $('#all_cbs').DataTable({
-                        language: {
-                            url: '{!! asset('/datatableLang/'.Session::get('LANG_CODE').'.json') !!}'
-                        },
-                        processing: true,
-                        serverSide: true,
-                        bDestroy: true,
-                        ajax:
-                            {
-                                'url': url,
-                                "type": "POST",
-                                "data": {
-                                    "filter_types": '{{$typeFilter}}',
-                                }
-                            },
-                        columns: [
-                            {data: 'title', name: 'title'},
-                            {data: 'start_date', name: 'start_date'},
-                            {data: 'end_date', name: 'end_date'},
-                            {data: 'name', name: 'name'},
-                        ],
-                        order: [['1', 'asc']],
-                    });
-                }
-            }
-        }
+            @if(empty($typeFilter))
+                $("#cbType").on("change",function() {
+                    dataTable.ajax.reload();
+                });
+            @endif
+        });
 
         function waitingModal(entityKey) {
 

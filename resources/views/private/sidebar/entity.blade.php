@@ -23,8 +23,8 @@
                     </div>
                 </li>
                 <li class="menu-wrapper">
-                    <div class="@if($active=='layouts') menu-active @endif">
-                        <a href="{{ action("EntitiesDividedController@showLayouts") }}">{{ trans('privateSidebar.entity_layouts') }}</a>
+                    <div class="@if($active=='template') menu-active @endif">
+                        <a href="{{ action("EntitiesDividedController@showLayouts") }}">{{ trans('privateSidebar.entity_template') }}</a>
                     </div>
                 </li>
                 <li class="menu-wrapper">
@@ -45,12 +45,19 @@
                 @if(!empty($entityKey))
                     <li class="menu-wrapper">
                         <div class="@if($active=='notifications') menu-active @endif">
-                            <a href="{{action('EntitiesController@showNotifications', $entityKey)}}">{{ trans('privateSidebar.entity_notifications') }}</a>
+                            <a href="{{action('EntitiesController@showNotifications', $entityKey)}}">{{ trans('privateSidebar.notifications') }}</a>
+                        </div>
+                    </li>
+                    <li class="menu-wrapper">
+                        <div class="@if($active=='entityLevels') menu-active @endif">
+                            <a href="{{action('EntityLoginLevelsController@index', $entityKey)}}">{{ trans('privateSidebar.entity_login_levels') }}</a>
                         </div>
                     </li>
                 @endif
-                <li class="treeview">
-                    <div style="padding-top: 5px"><a @if($active=='entityLevels') style='color: black' @endif href="{{action('EntityLoginLevelsController@index', $entityKey)}}">{{ trans('privateSidebar.entity_login_levels') }}</a></div>
+                <li class="menu-wrapper">
+                    <div class="@if($active=='parameterUserTypes') menu-active @endif">
+                        <a href="{{ action("ParameterUserTypesController@index") }}" id="userTypeParams">{{ trans('privateSidebar.user_type_params') }}</a>
+                    </div>
                 </li>
             </ul>
         </li>

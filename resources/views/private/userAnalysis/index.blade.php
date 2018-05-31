@@ -197,7 +197,7 @@
                 <h3 class="dashboard-title margin-top-20">{{ trans("privateUserAnalysis.total_users") }}</h3>
                 <!-- Download -->
                 <div class="chart-download-wrapper-total_users">
-                    <a id="downloadCSV-total-users"  class="btn btn-flat btn-blue pull-right">
+                    <a id="downloadCSV-total-users"  class="btn btn-flat btn-blue pull-right" onclick="javascript:downloadCsvTotalUsers();">
                         <i class="fa fa-file-excel-o" aria-hidden="true"></i> {{ trans('privateCbsVoteAnalysis.download_csv') }}
                     </a>
                 </div>
@@ -209,7 +209,7 @@
                 <h3 class="dashboard-title margin-top-20">{{ trans("privateUserAnalysis.total_page_access") }}</h3>
                 <!-- Download -->
                 <div class="chart-download-wrapper-total_page_access">
-                    <a id="downloadCSV-total-page-access"  class="btn btn-flat btn-blue pull-right">
+                    <a id="downloadCSV-total-page-access"  class="btn btn-flat btn-blue pull-right" onclick="javascript:downloadCsvTotalPageAccess();">
                         <i class="fa fa-file-excel-o" aria-hidden="true"></i> {{ trans('privateCbsVoteAnalysis.download_csv') }}
                     </a>
                 </div>
@@ -241,6 +241,7 @@
         $('input[name="daterange"]').daterangepicker({
             startDate: '{{ $start }}',
             endDate: '{{  $start->addMinute(15) }}',
+            maxDate: new Date(),
             timePicker: true,
             timePicker24Hour: true,
             timePickerIncrement: 5,
@@ -250,6 +251,19 @@
         });
 
         // Funtions
+        function downloadCsvTotalUsers(){
+            var d = new Date();
+            var suffix_name = d.getFullYear()+"_"+(1+d.getMonth())+"_"+d.getDate()+"_"+d.getHours()+"_"+d.getMinutes()+"_"+d.getSeconds();
+            var filename = "total_users_"+suffix_name+".csv";
+            downloadCSV(window.chartTotalPageAccess,filename);
+        }
+        function downloadCsvTotalPageAccess(){
+            var d = new Date();
+            var suffix_name = d.getFullYear()+"_"+(1+d.getMonth())+"_"+d.getDate()+"_"+d.getHours()+"_"+d.getMinutes()+"_"+d.getSeconds();
+            var filename = "total_page_access_"+suffix_name+".csv";
+            downloadCSV(window.chartTotalPageAccess, filename);
+        }
+
         function requestCharts(){
             $("#vizTotalUsers").html("");
             $("#vizTotalPageAccess").html("");
@@ -306,6 +320,7 @@
                         .x("timelapse")          // key to use for x-axis
                         .font({"family": "Helvetica, Arial, sans-serif", "color": "#000"})
                         .resize(true)
+                        .time("timelapse")
                         .draw()             // finally, draw the visualization!
 
                     // Chart for «TotalPageAccess» ---------------------------------------------------------------------
@@ -328,13 +343,7 @@
                         toastr.warning(warningMessage);
                         $(".chart-download-wrapper-total_users").remove();
                     } else {
-                        // Export data for CSV (javascript)
-                        $( "#downloadCSV-total-users" ).click(function() {
-                            var d = new Date();
-                            var suffix_name = d.getFullYear()+"_"+(1+d.getMonth())+"_"+d.getDate()+"_"+d.getHours()+"_"+d.getMinutes()+"_"+d.getSeconds();
-                            var filename = "total_users_"+suffix_name+".csv";
-                            downloadCSV(chartTotalPageAccess,filename);
-                        });
+                        window.chartTotalPageAccess = chartTotalPageAccess;
                     }
 
 
@@ -352,6 +361,8 @@
                         .x("timelapse")          // key to use for x-axis
                         .font({"family": "Helvetica, Arial, sans-serif", "color": "#000"})
                         .resize(true)
+                        .time("timelapse")
+                        .timeline({"handles": false})
                         .draw()             // finally, draw the visualization!
 
                     // Error message if there are no results in Vote Analysis  :'(
@@ -361,13 +372,8 @@
                         toastr.warning(warningMessage);
                         $(".chart-download-wrapper-total_page_access").remove();
                     } else {
-                        // Export data for CSV (javascript)
-                        $( "#downloadCSV-total-page-access" ).click(function() {
-                            var d = new Date();
-                            var suffix_name = d.getFullYear()+"_"+(1+d.getMonth())+"_"+d.getDate()+"_"+d.getHours()+"_"+d.getMinutes()+"_"+d.getSeconds();
-                            var filename = "total_users_"+suffix_name+".csv";
-                            downloadCSV(chartTotalPageAccess,filename);
-                        });
+                        // data for CSV (javascript)
+                        window.chartTotalPageAccess = chartTotalPageAccess;
                     }
 
 
@@ -406,6 +412,8 @@
                             .x("timelapse")          // key to use for x-axis
                             .font({"family": "Helvetica, Arial, sans-serif", "color": "#000"})
                             .resize(true)
+                            .time("timelapse")
+                            .timeline({"handles": false})
                             .draw()             // finally, draw the visualization!
 
                     }
@@ -442,6 +450,8 @@
                             .x("timelapse")          // key to use for x-axis
                             .font({"family": "Helvetica, Arial, sans-serif", "color": "#000"})
                             .resize(true)
+                            .time("timelapse")
+                            .timeline({"handles": false})
                             .draw()             // finally, draw the visualization!
                     }
                 },

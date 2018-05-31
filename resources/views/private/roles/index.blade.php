@@ -12,7 +12,7 @@
                 <tr>
                     <th>{{ trans('privateRoles.name') }}</th>
                     <th>{{ trans('privateRoles.code') }}</th>
-                    <th>@if(ONE::verifyUserPermissions('orchestrator', 'role', 'create')){!! ONE::actionButtons(null, ['create' => 'RolesController@create']) !!}@endif</th>
+                    <th>{!! ONE::actionButtons(null, ['create' => 'RolesController@create']) !!}</th>
                 </tr>
                 </thead>
             </table>

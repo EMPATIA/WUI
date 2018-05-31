@@ -1,4 +1,4 @@
-@extends('public.cml._layouts.index')
+@extends('public.default._layouts.index')
 
 @section('header_scripts')
     <!-- Maps -->

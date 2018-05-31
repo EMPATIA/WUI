@@ -1,8 +1,10 @@
 {
-  "css/empatia.css": "css/empatia-26e1154e45.css",
-  "css/general.css": "css/general-48836f0e44.css",
-  "css/private.css": "css/private-8f9318a3bb.css",
-  "js/empatia.js": "js/empatia-12c5c41631.js",
-  "js/general.js": "js/general-a556733551.js",
-  "js/private.js": "js/private-49824b2886.js"
+  "css/demo/demo.css": "css/demo/demo-e33ede6bfc.css",
+  "css/empatia.css": "css/empatia-7f2473e6f7.css",
+  "css/general.css": "css/general-96c3810361.css",
+  "css/private.css": "css/private-37f57e1603.css",
+  "js/demo/demo.js": "js/demo/demo-3785771683.js",
+  "js/empatia.js": "js/empatia-3bd2c7ca22.js",
+  "js/general.js": "js/general-b653cb6d21.js",
+  "js/private.js": "js/private-4324d221fd.js",
 }

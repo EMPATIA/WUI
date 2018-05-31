@@ -182,6 +182,7 @@ class GeoAreasController extends Controller
             ->addColumn('action', function ($geoarea) {
                 return ONE::actionButtons($geoarea->geo_key, ['edit' => 'GeoAreasController@edit', 'delete' => 'GeoAreasController@delete']);
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 }

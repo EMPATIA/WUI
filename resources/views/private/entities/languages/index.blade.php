@@ -14,7 +14,7 @@
                             <th width="50%">{{ trans('privateEntities.languages') }}</th>
                             <th width="40%">{{ trans('privateEntities.makeDefault') }}</th>
                             <th width="10%">
-                                @if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('orchestrator', 'entity_language'))
+                                @if(Session::get('user_role') == 'admin')
                                     {!! ONE::actionButtons(null, ['add' => 'EntitiesDividedController@addLanguage']) !!}
                                 @endif
                             </th>

@@ -19,9 +19,8 @@
                 <i class="fa fa-spinner fa-spin fa-3x fa-fw" id="loader" style="display: none;"></i>
                 <span class="sr-only">Loading...</span>
             </div>
-
             <div class="form-group esenfc-no-padding">
-                <select id="modules" class="esenfc-select form-control" name="modules" style="width:50%;">
+                <select id="modules1" class="esenfc-select form-control" name="modules1" style="width:50%;">
                     <option value=""></option>
                     @foreach($modules as $module)
                         <option value="{{ $module }}">{{ $module }}</option>
@@ -29,7 +28,7 @@
                 </select>
             </div>
             <div class="form-group esenfc-no-padding">
-                <select id="groups" class="esenfc-select form-control" name="group" style="display: none; width:50%;">
+                <select id="groups1" class="esenfc-select form-control" name="group" style="display: none; width:50%;">
                     <option value=""></option>
                 </select>
             </div>
@@ -76,7 +75,7 @@
                     }
                 });
             } else {
-                if($('#modules').val() != '' && $('#groups').val() != '') {
+                if($('#modules1').val() != '' && $('#groups1').val() != '') {
                     reload();
                 }else{
                     // Empty translations list
@@ -89,15 +88,15 @@
         });
 
 
-        $("#modules").select2({
+        $("#modules1").select2({
             placeholder: '{{ trans("Translations::translation.selectModule") }}',
             cache: false,
         });
 
-        $('#modules').change(function() {
+        $('#modules1').change(function() {
             // Load translations list
             $('#keys-list').html('');
-            $('#groups').val([]);
+            $('#groups1').val([]);
             // Reload Hide Show langs
             reloadHideShowValues();
             storeHideShowLanguagesValues();
@@ -106,7 +105,7 @@
         });
 
         function initializeGroups() {
-            $("#groups").select2({
+            $("#groups1").select2({
                 placeholder: '{{ trans("Translations::translation.selectGroup") }}',
                 ajax: {
                     "url": '{!! action('\App\Modules\Translations\Controllers\TranslationsController@getGroups') !!}',
@@ -114,7 +113,7 @@
                     "data": function (term, page) {
                         return {
                             "_token": "{{ csrf_token() }}",
-                            "module": $('#modules').val(), // search term
+                            "module": $('#modules1').val(), // search term
                             "group": term,
                             "restrition": "{{ $restrition }}"
                         };
@@ -128,19 +127,19 @@
                     }
                 }
             });
-            $("#groups").show();
+            $("#groups1").show();
         }
 
 
 
-        $('#groups').change(function() {
+        $('#groups1').change(function() {
             $.ajax({
                 method: 'POST', // Type of response and matches what we said in the route
                 url: "{{action('\App\Modules\Translations\Controllers\TranslationsController@getKeys')}}", // This is the url we gave in the route
                 data: {
                     "_token": "{{ csrf_token() }}",
-                    'module':  $('#modules').val(),
-                    'group': $('#groups').val(),
+                    'module':  $('#modules1').val(),
+                    'group': $('#groups1').val(),
                     'states': buildSearchDataStates()
                 }, beforeSend: function () {
                     $("#loader").show();
@@ -160,7 +159,7 @@
 
         //Detect change in states filter
         $('input[type="checkbox"]').click(function(){
-            if($('#modules').val() != '' && $('#groups').val() != '')
+            if($('#modules1').val() != '' && $('#groups1').val() != '')
                 reload();
         });
 

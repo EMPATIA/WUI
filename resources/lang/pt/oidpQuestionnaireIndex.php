@@ -1,0 +1,1 @@
+<?php return array (  'back' => 'Voltar',  'share' => 'Partilhar',  'thankYouForParticipating' => 'Obrigado pela sua participação',  'viewMore' => 'Ver mais',);

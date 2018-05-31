@@ -1,6 +1,6 @@
 @extends('private._private.index')
 @section('header_styles')
-    <link href="{{ asset("css/jquery.scrollbar.css") }}" rel='stylesheet' type='text/css'>
+    <link href="{{ asset("css/default/jquery.scrollbar.css") }}" rel='stylesheet' type='text/css'>
 @endsection
 @section('content')
     <style>
@@ -43,6 +43,9 @@
             font-size: 100%;
             font-weight: bold;
         }
+       .height-fix{
+               height:12px;
+       }
 
     </style>
     <div class="row">
@@ -55,11 +58,17 @@
                             <div class="row margin-0" style="float:left; width:100%;">
                                 <div class="col-md-9 col-9 pad-0 margin-top-bottom-10 {{ $message->from == $user_key ? 'pull-right' : 'pull-left' }}">
                                     @if($message->from == $user_key)
-                                        <span class="message-author color-primary">{{ $message->from_username ?? trans("privateUsers.unknown_admin") }}</span>
+                                        <span class="message-author color-primary">
+                                            {{ $message->from_username ?? trans("privateUsers.unknown_admin") }}
+                                        </span>
                                     @else
-                                        <span class="message-author color-secundary-message">{{ $message->from_username }}</span>
+                                        <span class="message-author color-secundary-message">
+                                            {{ $message->from_username }}
+                                        </span>
                                     @endif
-                                    <div class="message {{ $message->from == $user_key ? 'my-message border-secundary' : 'other-message border-primary' }} "><span class="message-content">{!! $message->value !!}</span>
+                                    <div class="message {{ $message->from == $user_key ? 'my-message border-secundary' : 'other-message border-primary' }} "><span class="message-content">
+                                        {!! nl2br($message->value) !!}
+                                    </span>
                                         {{--<span class="delete-message" data-message-key="{{ $message->message_key }}"><small><i class="fa fa-times"></i></small></span>--}}
                                         @if(isset($message->link))
                                             <div  class="topic-link">
@@ -67,7 +76,7 @@
                                             </div>
                                         @endif
                                     </div>
-                                    <div class="col-12 text-left message-date pad-0 {{ $message->from == $user_key ? 'bg-secundary' : 'bg-primary' }}">
+                                    <div class="height-fix text-left message-date pad-0 {{ $message->from == $user_key ? 'bg-secundary' : 'bg-primary' }}">
                                         <small class="pull-left"><i class="fa fa-clock-o" aria-hidden="true"></i> {{ $message->created_at }}</small>
                                         @if($message->from != $user_key and $message->viewed)
                                             <small class="pull-right"><i class="fa fa-check" aria-hidden="true"></i></i> {{ trans("privateUsers.message_seen") }}</small>
@@ -102,7 +111,7 @@
                         <div class="helper-text">{{trans('privateUsers.notify_user_by_email')}}</div>
                         <div class="checkbox pull-left">
                             <label>
-                                <input id="send-email" type="checkbox" value="send-email">
+                                <input id="send-email" type="checkbox" value="send-email" checked>
                                 {{trans('privateUsers.send_email')}}
                             </label>
                         </div>
@@ -118,7 +127,7 @@
                     </div>
                     <div class="col-md-4 col-12 pad-0 text-right">
                         <a class="btn btn-flat empatia send-message pull-right">{{ trans("privateUsers.send_message") }}</a>
-                        <div class="loader pull-right" style="display: none;padding-top: 13px;margin-right: 10px;"><img src="{{ asset('images/bluePreLoader.gif') }}" alt="Loading"  style="width: 20px;"/></div>
+                        <div class="loader pull-right" style="display: none;padding-top: 13px;margin-right: 10px;"><img src="{{ asset('images/default/bluePreLoader.gif') }}" alt="Loading"  style="width: 20px;"/></div>
                     </div>
                 </div>
             </div>
@@ -128,13 +137,13 @@
     @if((isset($cbKey) && !empty($cbKey)) && (isset($topicKey) && !empty($topicKey)) && (isset($type) && !empty($type)))
         <a href="{{ action('TopicController@show',['type' => $type,'cbKey' => $cbKey,'topicKey' => isset($topicKey) ? $topicKey : null]) }}" class="btn btn-flat empatia"><i class="fa fa-arrow-left"></i> {{ trans('form.back') }}</a>
     @else
-        <a href="{{ action('UsersController@show',['userKey' => $user_key]) }}" class="btn btn-flat empatia"><i class="fa fa-arrow-left"></i> {{ trans('form.back') }}</a>
+        <a href="{{ action('UsersController@show',['userKey' => $user_key, 'role' => $user->role ?? ""]) }}" class="btn btn-flat empatia"><i class="fa fa-arrow-left"></i> {{ trans('form.back') }}</a>
     @endif
 @endsection
 
 
 @section('scripts')
-    <script type="text/javascript" src="{{ asset('js/jquery.scrollbar.js')}}"></script>
+    <script type="text/javascript" src="{{ asset('js/default/jquery.scrollbar.js')}}"></script>
     <script>
         toastr.options = {
             "closeButton": true,

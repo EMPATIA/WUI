@@ -25,8 +25,8 @@ class OperationSchedulesController extends Controller
     {
         {
             //Page title
-            $data['title'] = trans('privateOperationSchedules.list_operation_schedules');
-            Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'flags']);
+            $data['title'] = trans('privateOperationSchedules.schedules');
+            Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'operation_schedules']);
             Session::put('sidebars', [0 => 'private', 1=> 'padsType']);
 
             $data['sidebar'] = 'padsType';
@@ -76,10 +76,14 @@ class OperationSchedulesController extends Controller
     public function store(Request $request, $type, $cbKey)
     {
         try{
-            $data['cb_key'] = $request->input('cbKey');
-            $data['active'] = $request->input('active',0);
             $data['end_date'] = $request->input('endDate');
             $data['start_date'] = $request->input('startDate');
+            
+            if (!empty($data["end_date"]) && !Carbon::parse($data["end_date"])->gt(Carbon::parse($data["start_date"])))
+                return redirect()->back()->withErrors([trans("operationSchedules.end_date_must_be_greater_then_start_date")]);
+
+            $data['cb_key'] = $request->input('cbKey');
+            $data['active'] = $request->input('active',0);
             $data['operation_type_code'] = $request->input('operationTypeSelect');
             $data['operation_action_code'] = $request->input('operationActionSelect');
 
@@ -210,12 +214,16 @@ class OperationSchedulesController extends Controller
 
             //  Datatable with sent emails list
             return Datatables::of($operationSchedules)
+                ->setRowClass(function ($operationSchedules) {
+                    return $operationSchedules->active == 0 ? 'disabled' : null;
+                })
                 ->editColumn('action_name', function ($operationSchedules) use ($type, $cbKey) {
                     return "<a href='".action('OperationSchedulesController@show', ['type' => $type, 'cbKey' => $cbKey, 'key' => $operationSchedules->cb_operation_schedule_key])."'>".
-                        $operationSchedules->operation_action->name ?? null . "</a>";
+                        ($operationSchedules->operation_action->code ?? $operationSchedules->action_code)
+                        . "</a>";
                 })
                 ->editColumn('type_name', function ($operationSchedules) {
-                    return $operationSchedules->operation_type->name ?? null;
+                    return $operationSchedules->operation_type->code ?? $operationSchedules->type_code;
                 })
                 ->editColumn('start_date', function ($operationSchedules){
                     return $operationSchedules->start_date ?? null;
@@ -232,6 +240,7 @@ class OperationSchedulesController extends Controller
                 ->addColumn('action', function ($operationSchedules) use($type, $cbKey){
                     return ONE::actionButtons(['type' => $type, 'cbKey' => $cbKey, 'key' => $operationSchedules->cb_operation_schedule_key], ['form'=> 'operationSchedules','edit' => 'OperationSchedulesController@edit']);
                 })
+                ->rawColumns(['action_name','update_status','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["operationSchedules.getIndexTable" => $e->getMessage()]);

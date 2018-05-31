@@ -10,6 +10,10 @@
     <td>
         <b>{!! trans('privateQuestionnaire.name')!!}</b>
     </td>
+    <!-- Second Column Cell - Email -->
+    <td>
+        <b>{!! trans('privateQuestionnaire.email')!!}</b>
+    </td>
 
     @foreach ($questions as $i=>$question)
         <td>
@@ -38,6 +42,11 @@
                     <td>{!! $formReply[$key]["created_by_name"] !!}</td>
                 @else
                     <td>{!! trans('privateTopics.anonymous')!!}</td>
+                @endif
+                @if(isset($formReply[$key]["created_by_email"]) && !empty($formReply[$key]["created_by_email"]))
+                    <td>{!! $formReply[$key]["created_by_email"] !!}</td>
+                @else
+                    <td>{!! trans('privateTopics.no_email')!!}</td>
                 @endif
             @endif
              <td>

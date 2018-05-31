@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\One\One;
 
 class PasswordUpdateRequest extends Request
 {
@@ -36,8 +37,8 @@ class PasswordUpdateRequest extends Request
     public function messages()
     {
         return [
-            'required'  => trans('request.the').' :attribute '.trans('request.fieldIsRequired').'.',
-            'confirmed' => trans('request.the').' :attribute '.trans('request.confirmationDoesNotMatch').'.'
+            'required'  => ONE::transSite('the').' :attribute '.ONE::transSite('field_is_required').'.',
+            'confirmed' => ONE::transSite('the').' :attribute '.ONE::transSite('confirmation_does_not_match').'.'
         ];
     }
 }

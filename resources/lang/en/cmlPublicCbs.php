@@ -1,0 +1,1 @@
+<?php return array (  'noCommentsToDisplay' => 'No Comments to display',);

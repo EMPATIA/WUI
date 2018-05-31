@@ -15,7 +15,7 @@
     </div>
     <div class="box box-primary">
         <div class="box-body">
-            <div class="card-title">{{ trans('privateCbs.parameters') }}</div>
+            <div class="card-title">{{ trans('privateCbs.list') }}</div>
             <br>
 
             <table id="parameters_list" class="table table-hover table-striped dataTable no-footer table-responsive">
@@ -25,7 +25,7 @@
                     <th>{{ trans('privateCbs.parameter_author') }}</th>
                     <th>{{ trans('privateCbs.parameter_type') }}</th>
                     <th>{{ trans('privateCbs.parameter_code') }}</th>
-                    <th>@if(ONE::verifyUserPermissionsCreate('cb', 'pad_parameters') || Session::get('user_role') == 'admin'){!! ONE::actionButtons(['type'=>$type,'cbKey'=>$cb->cb_key], ['create' => 'CbsParametersController@create']) !!}@endif</th>
+                    <th>@if(Session::get('user_role') == 'admin'){!! ONE::actionButtons(['type'=>$type,'cbKey'=>$cb->cb_key], ['create' => 'CbsParametersController@create']) !!}@endif</th>
                 </tr>
                 </thead>
             </table>

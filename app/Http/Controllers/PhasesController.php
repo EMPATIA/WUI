@@ -174,6 +174,7 @@ class PhasesController extends Controller
             ->addColumn('action', function ($phase) {
                 return ONE::actionButtons($phase->id, ['edit' => 'PhasesController@edit', 'delete' => 'PhasesController@delete']);
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 }

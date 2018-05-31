@@ -1,1 +1,1 @@
-<?php return array (  'register' => 'User Registration',  'nameSurname' => 'User Name',  'email' => 'E-mail',  'password' => 'Password',  'confirm_password' => 'Confirm Password',  'terms_and_conditions' => 'Terms and Conditions',  'accept' => 'Accept',  'cancel' => 'Cancel',);
+<?php return array (  'register' => 'User Registration',  'nameSurname' => 'User Name',  'email' => 'E-mail',  'password' => 'Password',  'confirm_password' => 'Confirm Password',  'accept' => 'Accept',  'terms_and_conditions' => 'Terms and Conditions',  'cancel' => 'Cancel',);

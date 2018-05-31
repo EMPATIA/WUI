@@ -8,54 +8,68 @@
     <div class="card flat topic-data-header">
         <p><label for="contentStatusComment" style="margin-left:5px; margin-top:5px;">{{trans('privateCbs.pad')}}</label>  {{$cb_title}}<br></p>
         @if(!empty($cbAuthor))
-        <p><label for="contentStatusComment" style="margin-left:5px;">{{trans('privateCbs.author')}}</label>
-            <a href="{{action('UsersController@show', ['userKey' => $cbAuthor->user_key, 'role' => $cbAuthor->role ?? null])}}">{{$cbAuthor->name}}</a>
-            <br>
-        </p>
+            <p><label for="contentStatusComment" style="margin-left:5px;">{{trans('privateCbs.author')}}</label>
+                <a href="{{action('UsersController@show', ['userKey' => $cbAuthor->user_key, 'role' => $cbAuthor->role ?? null])}}">{{$cbAuthor->name}}</a>
+                <br>
+            </p>
         @endif
         <p><label for="contentStatusComment" style="margin-left:5px; margin-bottom:5px;">{{trans('privateCbs.start_date')}}</label>  {{$cb_start_date}}</p>
     </div>
     <div class="margin-top-20">
         <div class="row">
             <div class="col-md-12">
-                @if(isset($step))
-                    @php $form = ONE::form('parameters', trans('privateParameter.details'))
+            @if(isset($step))
+                @php $form = ONE::form('parameters', trans('privateParameter.details'))
                         ->settings(["model" => isset($parameter) ? $parameter : null,'id'=>isset($parameter) ? $parameter->id : null ])
                         ->show('CbsParametersController@edit', 'CbsParametersController@delete', ['type'=>$type,'cbKey' => $cbKey,'paramId' => isset($parameter) ? $parameter->id : null, 'step' => $step], 'CbsController@create', ['type'=>$type,'cbKey' => isset($cbKey) ? $cbKey : null, 'step' => $step])
                         ->create('CbsParametersController@store', 'CbsController@create', ['type'=>$type,'cbKey' => $cbKey, 'step' => $step])
                         ->edit('CbsParametersController@update', 'CbsParametersController@show', ['type'=>$type,'cbKey' => $cbKey,'id' => isset($parameter) ? $parameter->id : null])
                         ->open();
 
-                    @endphp
-                @else
-                    @php $form = ONE::form('parameters', trans('privateParameter.details'))
+                @endphp
+            @else
+                @php $form = ONE::form('parameters', trans('privateParameter.details'))
                         ->settings(["model" => isset($parameter) ? $parameter : null,'id'=>isset($parameter) ? $parameter->id : null ])
                         ->show('CbsParametersController@edit', 'CbsParametersController@delete', ['type'=>$type,'cbKey' => $cbKey,'paramId' => isset($parameter) ? $parameter->id : null], 'CbsController@showParameters', ['type'=>$type,'id' => isset($cbKey) ? $cbKey : null])
                         ->create('CbsParametersController@store', 'CbsController@showParameters', ['type'=>$type,'cbKey' => $cbKey])
                         ->edit('CbsParametersController@update', 'CbsParametersController@show', ['type'=>$type,'cbKey' => $cbKey,'id' => isset($parameter) ? $parameter->id : null])
                         ->open();
 
-                    @endphp
-                @endif
+                @endphp
+            @endif
 
-                @if(ONE::actionType('parameters') != 'create')
+            @if(ONE::actionType('parameters') != 'create')
 
-                    {!! Form::hidden('file_id', isset($file) ? $file->id : null, ['id' => 'file_id']) !!}
-                    {!! Form::hidden('parameterTypeId', isset($parameterType) ? $parameterType->id : null, ['id' => 'parameterTypeId']) !!}
-                    {!! Form::hidden('parameterCode', isset($parameter) ? $parameter->code : null, ['id' => 'parameterCode']) !!}
-                    {!! Form::oneText('parameterTypeName', array("name"=>trans('privateCbs.parameterTypeName'),"description"=>trans('privateCbs.parameterTypeNameDescription')), isset($parameterType) ? $parameterType->name : null, ['class' => 'form-control', 'id' => 'parameterTypeName' ,  'readonly']) !!}
-                    {!! Form::oneCheckbox('parameterMandatory', trans('privateCbs.parameterMandatory'), 1,isset($parameter)? $parameter->mandatory : null, ['id' => 'parameterMandatory' ]) !!}
-                    {!! Form::oneCheckbox('visible', trans('privateCbs.visible'), 1,isset($parameter)? $parameter->visible : null, ['id' => 'visible' ]) !!}
-                    {!! Form::oneCheckbox('visibleInList', trans('privateCbs.visibleInList'), 1,isset($parameter)? $parameter->visible_in_list : null, ['id' => 'visibleInList' ]) !!}
-                    {!! Form::oneCheckbox('use_filter', trans('privateCbs.parameterUseFilter'), 1,isset($parameter)? $parameter->use_filter : null, ['id' => 'use_filter' ]) !!}
-                    {!! Form::oneCheckbox('private', trans('privateCbs.parameterIsPrivate'), 1,isset($parameter)? $parameter->private : null, ['id' => 'private' ]) !!}
+                {!! Form::hidden('file_id', isset($file) ? $file->id : null, ['id' => 'file_id']) !!}
+                {!! Form::hidden('parameterTypeId', isset($parameterType) ? $parameterType->id : null, ['id' => 'parameterTypeId']) !!}
+                {!! Form::hidden('parameterCode', isset($parameter) ? $parameter->code : null, ['id' => 'parameterCode']) !!}
+                {!! Form::oneText('parameterTypeName', array("name"=>trans('privateCbs.parameterTypeName'),"description"=>trans('privateCbs.parameterTypeNameDescription')), isset($parameterType) ? $parameterType->name : null, ['class' => 'form-control', 'id' => 'parameterTypeName' ,  'readonly']) !!}
+                {!! Form::oneCheckbox('parameterMandatory', trans('privateCbs.parameterMandatory'), 1,isset($parameter)? $parameter->mandatory : null, ['id' => 'parameterMandatory' ]) !!}
+                {!! Form::oneCheckbox('visible', trans('privateCbs.visible'), 1,isset($parameter)? $parameter->visible : null, ['id' => 'visible' ]) !!}
+                {!! Form::oneCheckbox('visibleInList', trans('privateCbs.visibleInList'), 1,isset($parameter)? $parameter->visible_in_list : null, ['id' => 'visibleInList' ]) !!}
+                {!! Form::oneCheckbox('use_filter', trans('privateCbs.parameterUseFilter'), 1,isset($parameter)? $parameter->use_filter : null, ['id' => 'use_filter' ]) !!}
+                {!! Form::oneCheckbox('private', trans('privateCbs.parameterIsPrivate'), 1,isset($parameter)? $parameter->private : null, ['id' => 'private' ]) !!}
+                {!! Form::oneCheckbox('highlight', trans('privateCbs.parameterIsHighlighted'), 1,isset($parameter)? $parameter->highlight : null, ['id' => 'highlight' ]) !!}
+                {!! Form::oneCheckbox('side', trans('privateCbs.parameterSide'), 1,isset($parameter)? $parameter->side : null, ['id' => 'side' ]) !!}
+                {!! Form::oneCheckbox('blocked', trans('privateCbs.parameter_is_blocked'), 1,isset($parameter)? $parameter->private : null, ['id' => 'blocked' ]) !!}
+                {!! Form::oneCheckbox('topic_image', trans('privateCbs.parameter_is_topic_image'), 1, !empty($parameter) ? $parameter->topic_image : null, ['id' => 'topic_image' ]) !!}
 
-                    {!! Form::oneText('parameter_code', array("name" => trans('privateCbs.parameterCodeName'),"description" => trans('privateCbs.parameterCodeDescription')), $parameter->parameter_code ?? null, ['class' => 'form-control', 'id' => 'parameterCodeName' , ONE::actionType('parameters') == 'show' ? 'readonly' : null]) !!}
+                <div id="limit_number_wrapper" style="{{ !empty($parameter) && $parameter->topic_image==1 ? "display:none;" : "" }}">
+                    <div id="limit_number_of_files_checkbox_wrapper">
+                    {!! Form::oneCheckbox('max_number_files_flag', trans('privateCbs.max_number_files_flag'), 1, !empty($parameter) ? $parameter->max_number_files_flag : null, ['id' => 'max_number_files_flag' ]) !!}
+                    </div>
+                    <div id="limit_number_of_files_wrapper" style="{{ !empty($parameter) && $parameter->max_number_files_flag==1 ? "" : "display:none;" }}">
+                    {!! Form::oneNumber('max_number_files', trans('privateCbsParameters.max_number_files'), !empty($parameter) ? $parameter->max_number_files : null)  !!}
+                    </div>
+                </div>
 
-                    <!-- Plupload Javascript fix and bootstrap fix @ start -->
+
+                {!! Form::oneText('parameter_code', array("name" => trans('privateCbs.parameterCodeName'),"description" => trans('privateCbs.parameterCodeDescription')), $parameter->parameter_code ?? null, ['class' => 'form-control', 'id' => 'parameterCodeName' , ONE::actionType('parameters') == 'show' ? 'readonly' : null]) !!}
+
+                <!-- Plupload Javascript fix and bootstrap fix @ start -->
                     <link rel="stylesheet" href="/bootstrap/plupload-fix/bootstrap.css">
                     <script src="/bootstrap/plupload-fix/bootstrap.min.js"></script>
-                    <!-- Plupload Javascript fix and bootstrap fix @ End -->
+                <!-- Plupload Javascript fix and bootstrap fix @ End -->
                     <script src="{{ asset('vendor/jildertmiedema/laravel-plupload/js/plupload.full.min.js') }}"></script>
                     <div class="row">
                         <div class="col-12">
@@ -67,9 +81,9 @@
                                         {!! Form::oneText('parameterName_'.$languageItem->code, array("name"=>trans('privateCbs.parameterName'),"description"=>trans('privateCbs.parameterNameDescription')),
                                               (property_exists($parameter->translations,$languageItem->code) ? $parameter->translations->{$languageItem->code}->parameter : null),
                                             ['class' => 'form-control', 'id' => 'parameterName_'.$languageItem->code, (isset($languageItem->default) && $languageItem->default == true ? 'required' : null)]) !!}
-                                        {!! Form::oneTextArea('parameterDescription_'.$languageItem->code, array("name"=>trans('privateCbs.parameterDescription'),"description"=>trans('privateCbs.parameterDescriptionDescription')),
+                                        {!! Form::oneTextArea('parameterDescription_'.$languageItem->code, array("name"=>trans('privateCbs.parameterDescription'), "description"=>trans('privateCbs.parameterDescriptionDescription')),
                                         (property_exists($parameter->translations,$languageItem->code) ? $parameter->translations->{$languageItem->code}->description : null),
-                                        ['class' => 'form-control', 'id' => 'parameterDescription_'.$languageItem->code ,(isset($languageItem->default) && $languageItem->default == true ? 'required' : null)]) !!}
+                                        ['class' => 'form-control tinymce', 'id' => 'parameterDescription_'.$languageItem->code ,(isset($languageItem->default) && $languageItem->default == true ? 'required' : null)]) !!}
 
                                     </div>
                                     @if($parameterType->options == 1)
@@ -97,11 +111,11 @@
                                                             <div class="col-md-3 optSelect_{!! $option->id !!}" id="optSelect_{!! $option->id !!}">
                                                                 {{--                                                            {!! Form::hidden('optionsSelectIds[]', isset($option) ? $option->id : null, ['id' => 'optionsSelectIds']) !!}--}}
                                                                 <div class="input-group margin-bottom-10">
-                                                                {{-- {!! Form::oneText('optionsSelect['.$option->id.']['.$language->code.']','',
-                                                                         (property_exists($option->translations,$language->code) ? $option->translations->{$language->code}->label : null) ,
-                                                                          ['class' => 'form-control', 'id' => 'optionsSelect' , (isset($language->default) && $language->default == true ? 'required' : null)]) !!}--}}
-                                                                        <input class="form-control" id="optionsSelect" {{ (isset($languageItem->default) && $languageItem->default == true ? 'required' : '') }}
-                                                                               name="{{ 'optionsSelect['.$option->id.']['.$languageItem->code.']' }}" value="{{  (property_exists($option->translations,$languageItem->code) ? $option->translations->{$languageItem->code}->label : "")  }}" >
+                                                                    {{-- {!! Form::oneText('optionsSelect['.$option->id.']['.$language->code.']','',
+                                                                             (property_exists($option->translations,$language->code) ? $option->translations->{$language->code}->label : null) ,
+                                                                              ['class' => 'form-control', 'id' => 'optionsSelect' , (isset($language->default) && $language->default == true ? 'required' : null)]) !!}--}}
+                                                                    <input class="form-control" id="optionsSelect" {{ (isset($languageItem->default) && $languageItem->default == true ? 'required' : '') }}
+                                                                    name="{{ 'optionsSelect['.$option->id.']['.$languageItem->code.']' }}" value="{{  (property_exists($option->translations,$languageItem->code) ? $option->translations->{$languageItem->code}->label : "")  }}" >
                                                                     @if(ONE::actionType('parameters') != 'show')
                                                                         <a class="btn btn-flat btn-danger btn-sm" onclick="removeOptionSelect('{!! $option->id !!}')" data-original-title="Delete"><i class="fa fa-remove"></i></a>
                                                                     @endif
@@ -384,6 +398,27 @@
                                         <div class="form-group">
                                             {!! Form::oneCheckbox('private', trans('privateCbs.parameterIsPrivate'), 1,!empty($parameterTemplateChoosed) ? $parameterTemplateChoosed->private : null, ['id' => 'private' ]) !!}
                                         </div>
+                                        <div class="form-group">
+                                            {!! Form::oneCheckbox('highlight', trans('privateCbs.parameterIsHighlighted'), 1,!empty($parameterTemplateChoosed) ? $parameterTemplateChoosed->highlight : null, ['id' => 'highlight' ]) !!}
+                                        </div>
+                                        <div class="form-group">
+                                            {!! Form::oneCheckbox('side', trans('privateCbs.parameterSide'), 1,!empty($parameterTemplateChoosed) ? $parameterTemplateChoosed->side : null, ['id' => 'side' ]) !!}
+                                        </div>
+                                        <div class="form-group">
+                                            {!! Form::oneCheckbox('blocked', trans('privateCbs.parameter_is_blocked'), 1,isset($parameter)? $parameter->private : null, ['id' => 'blocked' ]) !!}
+                                        </div>
+                                        <div id="parameter_is_topic_image" class="form-group">
+                                            {!! Form::oneCheckbox('topic_image', trans('privateCbs.parameter_is_topic_image'), 1, !empty($parameterTemplateChoosed) ? $parameterTemplateChoosed->topic_image : null, ['id' => 'topic_image' ]) !!}
+                                        </div>
+                                        {{-- limit number of files --}}
+                                        <div id="limit_number_wrapper">
+                                            <div id="limit_number_of_files_checkbox_wrapper" class="form-group">
+                                                {!! Form::oneCheckbox('max_number_files_flag', trans('privateCbs.max_number_files_flag'), 1, !empty($parameterTemplateChoosed) ? $parameterTemplateChoosed->max_number_files_flag : null, ['id' => 'max_number_files_flag' ]) !!}
+                                            </div>
+                                            <div id="limit_number_of_files_wrapper" class="form-group">
+                                                {!! Form::oneNumber('max_number_files', trans('privateCbsParameters.max_number_files'), !empty($parameterTemplateChoosed) ? $parameterTemplateChoosed->max_number_files : null)  !!}
+                                            </div>
+                                        </div>
 
                                         {{--Insert Parameter Code Here--}}
                                         <div class="form-group">
@@ -399,8 +434,7 @@
                                                         <div>
                                                             {!! Form::oneText('parameterName_'.$languageItem->code, array("name"=>trans('privateCbs.parameterName'),"description"=>trans('privateCbs.parameterNameDescription')), null, ['class' => 'form-control', 'id' => 'parameterName_'.$languageItem->code,
                                                                 (isset($languageItem->default) && $languageItem->default == true ? 'required' : null)]) !!}
-                                                            {!! Form::oneTextArea('parameterDescription_'.$languageItem->code, array("name"=>trans('privateCbs.parameterDescription'),"description"=>trans('privateCbs.parameterDescriptionDescription')), null, ['class' => 'form-control', 'id' => 'parameterDescription_'.$languageItem->code ,
-                                                              (isset($languageItem->default) && $languageItem->default == true ? 'required' : null)]) !!}
+                                                            {!! Form::oneTextArea('parameterDescription_'.$languageItem->code, array("name"=>trans('privateCbs.parameterDescription'), "description"=>trans('privateCbs.parameterDescriptionDescription')), null, ['class' => 'form-control tinymce', 'id' => 'parameterDescription_'.$languageItem->code ,]) !!}
                                                         </div>
 
                                                         <div id="parameterOptionsDiv_{{$languageItem->code}}" class="card flat parameterOptionsDiv" hidden>
@@ -483,16 +517,39 @@
     <!-- Plupload Javascript fix and bootstrap fix @ End -->
     <script src="{{ asset('vendor/jildertmiedema/laravel-plupload/js/plupload.full.min.js') }}"></script>
     <script src="{{ asset("js/cropper.min.js") }}"></script>
+
+
+    <script src="{{ asset("js/tinymce/tinymce.min.js") }}"></script>
+    <script>
+        $(document).ready(function(){
+            {!! ONE::addTinyMCE(".tinymce", ['action' => action('ContentManagerController@getTinyMCE')]) !!}
+        });
+    </script>
+
     <!-- Helper Functions -->
     <script>
 
         $( document ).ready(function() {
             setTimeout(function(){
-
                 $('#parameters_add').css('display','none');
                 $('#uploadImageCb').css('display','none');
-
             }, 1);
+
+            $('#max_number_files_flag').change(function() {
+                if($(this).is(":checked")) {
+                    $("#limit_number_of_files_wrapper").show();
+                } else {
+                    $("#limit_number_of_files_wrapper").hide();
+                }
+            });
+
+            $('#topic_image').change(function() {
+                if($(this).is(":checked")) {
+                    $("#limit_number_wrapper").hide();
+                } else {
+                    $("#limit_number_wrapper").show();
+                }
+            });
         });
         @if((ONE::actionType('parameters') == 'create') and (isset($parameters)?count($parameters):0)==0)
            $("[type=submit]").hide();
@@ -527,6 +584,26 @@ addNewOption("{{ $opt->label }}");
             $(".fields").hide();
             $('.newOptionFieldsDiv').empty();
             $('.newOptionFieldsDiv').hide();
+
+            if(id == "images" || id == "files" ){
+                $("#limit_number_of_files_checkbox_wrapper").show();
+                $("#parameter_is_topic_image").show();
+            } else {
+                $("#limit_number_of_files_checkbox_wrapper").hide();
+                $("#parameter_is_topic_image").hide();
+            }
+
+            if( id == "images" ){
+                $("#parameter_is_topic_image").show();
+            } else {
+                $("#parameter_is_topic_image").hide();
+            }
+
+            if($("#limit_number_of_files").is(":checked")){
+                $("#limit_number_of_files_wrapper").show();
+            } else {
+                $("#limit_number_of_files_wrapper").hide();
+            }
 
             $.ajax({
                 method: 'POST', // Type of response and matches what we said in the route

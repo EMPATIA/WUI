@@ -29,7 +29,7 @@
 
             $form = ONE::form('users', trans('privateUser.details'), 'auth', $role)
                     ->settings(["model" => isset($user) ? $user : null, 'id' => isset($user) ? $user->user_key : null])
-                    ->show('UsersController@edit', 'UsersController@delete', ['id' => isset($user) ? $user->user_key : null,'role' => isset($inputRole) ? $inputRole : null], 'UsersController@index', ['id' => isset($user) ? $user->user_key : null,'role' => isset($inputRole) ? $inputRole : null])
+                    ->show('UsersController@edit', empty($user->anonymization) ? 'UsersController@delete' : null, ['id' => isset($user) ? $user->user_key : null,'role' => isset($inputRole) ? $inputRole : null], 'UsersController@index', ['id' => isset($user) ? $user->user_key : null,'role' => isset($inputRole) ? $inputRole : null])
                     ->create('UsersController@store', 'UsersController@index', ['id' => isset($user) ? $user->user_key : null,'role' => isset($inputRole) ? $inputRole : null])
                     ->edit('UsersController@update', 'UsersController@show', ['id' => isset($user) ? $user->user_key : null,'role' => isset($inputRole) ? $inputRole : null])
                     ->open();
@@ -39,7 +39,13 @@
             {!! Form::oneText('name', array("name"=>trans('privateEntities.name'),"description"=>trans('privateEntities.nameDescription')), isset($user) ? $user->name  : null, ['class' => 'form-control', 'id' => 'name']) !!}
             {!! Form::oneText('email', array("name"=>trans('privateEntities.email'),"description"=>trans('privateEntities.emailDescription')), isset($user) ? $user->email  : null, ['class' => 'form-control', 'id' => 'email']) !!}
 
-            @if(ONE::actionType('users') == "show" && $hasLoginLevels)
+            @if($inputRole == 1 || $inputRole == 'manager' || $inputRole = "admin")
+                @php
+                    $hasLoginLevels = false;
+                @endphp
+            @endif
+
+            @if(ONE::actionType('users') == "show" && $hasLoginLevels && $role != "admin")
                 <div class="login-levels">{{trans('user.loginLevels')}}</div>
                 <table id="user_login_levels" class="table table-striped dataTable no-footer table-responsive">
                     <thead>
@@ -191,6 +197,30 @@
 
         </div>
         <div class="col-12 {{(ONE::actionType('users') == "edit" ? 'col-sm-6' : 'col-sm-3') }} ">
+            @if(ONE::actionType("users")=="show" && !empty($user->anonymization))
+                <div class="card">
+                    <div class="card-header">
+                        <h4>
+                            {{ trans('privateUser.anonymization') }}
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="author">{{ trans("privateUsers.anonymizer") }}</label>
+                            <br>
+                            <a href="{{ action("UsersController@show",["userKey"=> $user->anonymization->anonymization_request->anonymizer->user_key,"role"=> "manager"]) }}">
+                                {{ $user->anonymization->anonymization_request->anonymizer->name }}
+                            </a>
+                            <hr style="margin: 10px 0 10px 0">
+                            <label for="author">{{ trans("privateUsers.anonymization_date") }}</label>
+                            <br>
+                            {{ $user->anonymization->created_at }}
+                            <hr style="margin: 10px 0 10px 0">
+                        </div>
+                    </div>
+                </div>
+                <br>
+            @endif
             <div class="card">
                 <div class="card-header card-header-blue">
                     <h4 class="no-margin">
@@ -221,6 +251,7 @@
                     </div>
                 </div>
             </div>
+            
     </div>
 
     @if(ONE::actionType('users') == "show" && $hasLoginLevels)

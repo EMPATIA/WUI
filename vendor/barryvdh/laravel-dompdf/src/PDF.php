@@ -2,9 +2,10 @@
 namespace Barryvdh\DomPDF;
 
 use Dompdf\Dompdf;
+use Dompdf\Options;
 use Exception;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\View\Factory as ViewFactory;
+use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Http\Response;
 
@@ -38,7 +39,7 @@ class PDF{
      * @param Dompdf $dompdf
      * @param \Illuminate\Contracts\Config\Repository $config
      * @param \Illuminate\Filesystem\Filesystem $files
-     * @param \Illuminate\View\Factory $view
+     * @param \Illuminate\Contracts\View\Factory $view
      */
     public function __construct(Dompdf $dompdf, ConfigRepository $config, Filesystem $files, ViewFactory $view){
         $this->dompdf = $dompdf;
@@ -121,6 +122,18 @@ class PDF{
     public function loadView($view, $data = array(), $mergeData = array(), $encoding = null){
         $html = $this->view->make($view, $data, $mergeData)->render();
         return $this->loadHTML($html, $encoding);
+    }
+
+    /**
+     * Set/Change an option in DomPdf
+     *
+     * @param array $options
+     * @return static
+     */
+    public function setOptions(array $options) {
+        $options = new Options($options);
+        $this->dompdf->setOptions($options);
+        return $this;
     }
 
     /**

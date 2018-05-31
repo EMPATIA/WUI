@@ -104,7 +104,7 @@
     <script src="{{ asset("js/tinymce/tinymce.min.js") }}"></script>
     <script>
         $( document ).ready(function() {
-            {!! ONE::addTinyMCE(".use_term", ['action' => action('ContentsController@getTinyMCE')]) !!}
+            {!! ONE::addTinyMCE(".use_term", ['action' => action('ContentManagerController@getTinyMCE')]) !!}
         });
     </script>
     <!-- Plupload Javascript fix and bootstrap fix @ start -->

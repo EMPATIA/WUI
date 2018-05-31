@@ -3,7 +3,7 @@
 @section('content')
     <div class="box box-primary">
         <div class="box-header">
-            <h3 class="box-title"><i class="fa"></i> {{ trans('private.CMSectionTypes') }}</h3>
+            <h3 class="box-title"><i class="fa"></i> {{ trans('private.list') }}</h3>
         </div>
 
         <div class="box-body">
@@ -38,10 +38,10 @@
                 ajax: '{!! action('CMSectionTypesController@getIndexTable') !!}',
                 columns: [
                     { data: 'code', name: 'code' },
-                    { data: 'value', name: 'title' },
+                    { data: 'value', name: 'title', searchable: false, orderable: false },
                     { data: 'action', name: 'action', searchable: false, orderable: false, width: "50px" },
                 ],
-                order: [['1', 'asc']]
+                order: [['0', 'asc']]
             });
 
         });

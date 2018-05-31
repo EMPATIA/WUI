@@ -3,7 +3,7 @@
 @section('content')
     <div class="box box-primary">
         <div class="box-header">
-            <h3 class="box-title"><i class="fa"></i> {{ trans('privateVoteMethods.title') }}</h3>
+            <h3 class="box-title"><i class="fa"></i> {{ trans('privateVoteMethods.list') }}</h3>
         </div>
 
         <div class="box-body">
@@ -12,7 +12,7 @@
                 <tr>
                     <th>{{ trans('privateVoteMethods.id') }}</th>
                     <th>{{ trans('privateVoteMethods.name') }}</th>
-                    <th>{!! ONE::actionButtons(null, ['create' => 'VoteMethodsController@create']) !!}</th>
+                    <th>{!! ONE::actionButtons(["f"=>"methods"], ['create' => 'VoteMethodsController@create']) !!}</th>
                 </tr>
                 </thead>
             </table>

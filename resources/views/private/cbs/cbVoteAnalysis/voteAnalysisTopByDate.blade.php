@@ -14,7 +14,7 @@
     var statistics_top_by_date_data = [
         @foreach($votesTopByDate->balance as $voteTop)
             @foreach($voteTop->votes as $date => $voteValue)
-                {'{!! trans('privateCbsVoteAnalysis.date') !!}': "{{ $date }}", "name":'{!! $voteTop->topic_name !!}', '{!! trans('privateCbsVoteAnalysis.votes') !!}': {{ number_format($voteValue, 3, '.', ',') }} },
+                {'{!! trans('privateCbsVoteAnalysis.date') !!}': "{{ $date }}", "name":'{!! $voteTop->topic_name !!}', '{!! trans('privateCbsVoteAnalysis.votes') !!}': {{ $voteValue }} },
             @endforeach
         @endforeach
     ];
@@ -64,3 +64,5 @@
     }
 
 </script>
+
+@include('private.cbs.cbVoteAnalysis.cbDetailsScript')

@@ -27,6 +27,9 @@ class TechnicalAnalysisProcessesController extends Controller
             $data['sidebar'] = 'padsType';
             $data['active'] = 'technicalAnalysisProcess';
 
+            Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'technicalAnalysisProcess']);
+            Session::put('sidebars', [0 => 'private', 1=> 'padsType']);
+
             $data['title'] = trans('privateSidebar.technical_analysis_process') . ' ' . (isset($data['cb']->title) ? $data['cb']->title : null);
 
             return view('private.cbs.questions', $data);
@@ -88,6 +91,7 @@ class TechnicalAnalysisProcessesController extends Controller
                 ->addColumn('action', function ($question) use ($type, $cbKey) {
                     return ONE::actionButtons(['type' => $type, 'cbKey' => $cbKey, $question->tech_analysis_question_key], ['form' => 'question', 'edit' => 'TechnicalAnalysisProcessesController@edit', 'delete' => 'TechnicalAnalysisProcessesController@delete']);
                 })
+                ->rawColumns(['question','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["cbs.getIndexTable" => $e->getMessage()]);

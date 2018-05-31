@@ -69,7 +69,7 @@
                         <div class="box-title">
                             {!! trans('questionnaire.QuestionGroups') !!}
                         </div>
-                        @if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('q', 'q'))
+                        @if(Session::get('user_role') == 'admin')
                             <div class="box-tools pull-right">
                                 {!! ONE::actionButtons($questionnaire->form_key, ['create' => 'QuestionGroupsController@create']) !!}
                             </div>

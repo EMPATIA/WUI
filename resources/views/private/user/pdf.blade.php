@@ -51,6 +51,21 @@
                                 <b>{{ trans("privateUsers.created_at") }}:</b>
                                 {{date('Y-m-d h:i:s', strtotime($user["created_at"])) }}
                             </td>
+                            <td style="width:50%;">
+                                <b>Topics:</b>
+                                {{ $user["topics"] }}
+                            </td>
+                            <td style="width:50%">
+                                &nbsp;
+                            </td>
+                            <td style="width:50%;">
+                                <b>Positive Votes:</b>
+                                {{ $user["positiveVotes"] }}
+                            </td>
+                            <td style="width:50%;">
+                                <b>Negative Votes:</b>
+                                {{ $user["negativeVotes"] }}
+                            </td>
                         </tr>
                         <tr><td><br></td></tr>
                         @foreach ($user["parameters"] as $userParameter)

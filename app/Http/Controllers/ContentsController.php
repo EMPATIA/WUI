@@ -30,9 +30,9 @@ class ContentsController extends Controller
 
         View::share('private.contents', trans('form.content'));
 
-        $this->typeId = Route::current()->getParameter('typeId');
+        $this->typeId = Route::current()->parameter('typeId');
         if($this->typeId != null){
-            Session::set('typeId', $this->typeId);
+            Session::put('typeId', $this->typeId);
         }
     }
 
@@ -79,7 +79,7 @@ class ContentsController extends Controller
                 $end_date=null;
 
             }
-            if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('cm', $type)){
+            if(Session::get('user_role') == 'admin'){
                 // Get orchestractor page list
                 $data = Orchestrator::getPageListByType($type, null, 1);
 
@@ -98,8 +98,8 @@ class ContentsController extends Controller
             }else
                 $collection = Collection::make([]);
 
-            $show = Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('cm', $type);
-            $delete = Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsDelete('cm', $type);
+            $show = Session::get('user_role') == 'admin';
+            $delete = Session::get('user_role') == 'admin';
 
             return Datatables::of($collection)
                 ->editColumn('title', function ($collection) {
@@ -122,6 +122,7 @@ class ContentsController extends Controller
                     else
                         return null;
                 })
+                ->rawColumns(['title','action'])
                 ->make(true);
 
 
@@ -153,9 +154,7 @@ class ContentsController extends Controller
             $type = $response->type;
 
             if(Session::get('user_role') != 'admin'){
-                if(!ONE::verifyUserPermissionsShow('cm', $type)) {
-                    return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-                }
+                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
             }
             //  GET CONTENT
             $content = CM::getContent($contentKey, $showVersion);
@@ -282,9 +281,7 @@ class ContentsController extends Controller
     {
 
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsCreate('cm', $type)) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         $languages = Orchestrator::getLanguageList();
@@ -372,9 +369,7 @@ class ContentsController extends Controller
     {
         if(isset($request->type)){
             if(Session::get('user_role') != 'admin'){
-                if(!ONE::verifyUserPermissionsUpdate('cm', $request->type)) {
-                    return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-                }
+                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
             }
         }
         $languages = Orchestrator::getLanguageList();
@@ -424,9 +419,7 @@ class ContentsController extends Controller
 
             //$type = Orchestrator::getPage()->type ?? "";
             if(Session::get('user_role') != 'admin'){
-                if(!ONE::verifyUserPermissionsUpdate('cm', $type)) {
-                    return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-                }
+                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
             }
 
             $languages = Orchestrator::getLanguageList();
@@ -549,21 +542,15 @@ class ContentsController extends Controller
 
             if( $content->type_id == 1){
                 if(Session::get('user_role') != 'admin'){
-                    if(!ONE::verifyUserPermissionsDelete('cm', 'pages')) {
-                        return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-                    }
+                    return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
                 }
             } else if( $content->type_id == 2){
                 if(Session::get('user_role') != 'admin'){
-                    if(!ONE::verifyUserPermissionsDelete('cm', 'news')) {
-                        return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-                    }
+                    return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
                 }
             } else if( $content->type_id == 3){
                 if(Session::get('user_role') != 'admin'){
-                    if(!ONE::verifyUserPermissionsDelete('cm', 'events')) {
-                        return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-                    }
+                    return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
                 }
             }
 
@@ -1202,6 +1189,7 @@ class ContentsController extends Controller
                     ->addColumn('action', function ($files) {
                         return '<a class="btn btn-flat btn-info btn-xs" href="javascript:addFileBrowserLink(\'' . 'files/' . $files->id .'/'. $files->code . '\')"><i class="fa fa-external-link"></i></a>';
                     })
+                    ->rawColumns(['action'])
                     ->make(true);
 
 
@@ -1216,6 +1204,7 @@ class ContentsController extends Controller
                     ->addColumn('action', function ($files) {
                         return '<a class="btn btn-flat btn-info btn-xs" href="javascript:addFileBrowserLink(\'' . 'files/' . $files->id .'/'. $files->code .'/'. 1 . '\')"><i class="fa fa-external-link"></i></a>';
                     })
+                    ->rawColumns(['action'])
                     ->make(true);
             }
         } elseif ($request['type'] > 0) {
@@ -1230,6 +1219,7 @@ class ContentsController extends Controller
                 ->addColumn('action', function ($contents) {
                     return '<a class="btn btn-flat btn-info btn-xs" href="javascript:addFileBrowserLink(\'' . URL::action('ContentsController@previewPage', $contents->content_key, false) . '\')"><i class="fa fa-external-link"></i></a>';
                 })
+                ->rawColumns(['action'])
                 ->make(true);
 
         }

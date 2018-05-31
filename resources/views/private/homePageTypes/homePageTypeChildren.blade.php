@@ -19,7 +19,7 @@
                         <th>{{ trans('homePageType.home_page_type_key') }}</th>
                         <th>{{ trans('homePageType.name') }}</th>
                         <th>parent_id</th>
-                        <th>@if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('cm', 'home_page_types_children')){!! ONE::actionButtons(['home_page_type_key' => isset($homePageType) ? $homePageType->home_page_type_key : ""], ['create' => 'HomePageTypesController@createGroupType']) !!}@endif</th>
+                        <th>@if(Session::get('user_role') == 'admin'){!! ONE::actionButtons(['home_page_type_key' => isset($homePageType) ? $homePageType->home_page_type_key : ""], ['create' => 'HomePageTypesController@createGroupType']) !!}@endif</th>
                     </tr>
                     </thead>
                 </table>

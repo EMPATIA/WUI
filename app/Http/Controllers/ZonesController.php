@@ -161,6 +161,7 @@ class ZonesController extends Controller
             ->addColumn('action', function ($zone) {
                 return ONE::actionButtons($zone->id, ['show' => 'ZonesController@show', 'delete' => 'ZonesController@destroy']);
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 }

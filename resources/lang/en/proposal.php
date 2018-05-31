@@ -1,1 +1,1 @@
-<?php return array (  'back' => 'Back',  'create' => 'Create',  'index' => 'Proposals',  'store' => 'Store',  'messages' => 'Proposal',  'proposal' => 'Proposal',);
+<?php return array (  'back' => 'Back',  'create' => 'Create',);

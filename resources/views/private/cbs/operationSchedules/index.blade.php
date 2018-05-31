@@ -1,24 +1,34 @@
 @extends('private._private.index')
 
+@section('header_styles')
+    <style>
+        .disabled {
+            background-color: lightgrey;
+        }
+    </style>
+@endsection
+
 @section('content')
     <div class="box box-primary">
         <div class="box-header">
             <h3 class="box-title"><i class="fa"></i> {{ trans('operationSchedules.list') }}</h3>
         </div>
         <div class="box-body">
-            <table id="operation_schedules_list" class="table table-striped dataTable no-footer table-responsive">
-                <thead>
-                <tr>
-                    <th>{{ trans('privateOperationSchedules.action_name') }}</th>
-                    <th>{{ trans('privateOperationSchedules.type_name') }}</th>
-                    <th>{{ trans('privateOperationSchedules.start_date') }}</th>
-                    <th>{{ trans('privateOperationSchedules.end_date') }}</th>
-                    <th>{{ trans('privateOperationSchedules.active') }}</th>
-                    <th></th>
-                    <th> {!! ONE::actionButtons(['type' => $type, 'cbKey' => $cbKey], ['create' => 'OperationSchedulesController@create']) !!}</th>
-                </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table id="operation_schedules_list" class="table dataTable no-footer table-responsive">
+                    <thead>
+                    <tr>
+                        <th>{{ trans('privateOperationSchedules.action_name') }}</th>
+                        <th>{{ trans('privateOperationSchedules.type_name') }}</th>
+                        <th>{{ trans('privateOperationSchedules.start_date') }}</th>
+                        <th>{{ trans('privateOperationSchedules.end_date') }}</th>
+                        <th>{{ trans('privateOperationSchedules.active') }}</th>
+                        <th></th>
+                        <th> {!! ONE::actionButtons(['type' => $type, 'cbKey' => $cbKey], ['create' => 'OperationSchedulesController@create']) !!}</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 @endsection
@@ -29,11 +39,12 @@
         var table = '';
 
         $(function () {
-             table = $('#operation_schedules_list').DataTable({
+            table = $('#operation_schedules_list').DataTable({
                 language: {
                     url: '{!! asset('/datatableLang/'.Session::get('LANG_CODE').'.json') !!}',
                     search: '<a class="btn searchBtn" id="searchBtn"><i class="fa fa-search"></i></a>'
                 },
+                responsive: true,
                 processing: true,
                 serverSide: true,
                 ajax: '{!! action('OperationSchedulesController@getIndexTable',[$type,$cbKey]) !!}',
@@ -46,7 +57,7 @@
                     { data: 'update_status', name: 'update_status', searchable: false, orderable: false },
                     { data: 'action', name: 'action', searchable: false, orderable: false, width: "60px" },
                 ],
-                order: [[ 0, 'asc' ]]
+                order: [[ 2, 'asc' ]]
             });
         });
 

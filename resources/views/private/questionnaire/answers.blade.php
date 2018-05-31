@@ -20,7 +20,7 @@
                 <div class="box-body">
                     <form role="form" action="{{action('PublicQController@store')}}" method="post" id="formQuestion" name="formQuestion" onsubmit="removeHistory()">
                         <input id="questionnaire_id" type="hidden" value="{{$formKey}}" name="questionnaire_id">
-                        @php $i =1@endphp
+                        @php $i =1; @endphp
                         @foreach ($questionsAll as $item)
                             <div class="row setup-content" id="step-{{$i}}">
                                 <div class="col-md-12">

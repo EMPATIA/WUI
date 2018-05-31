@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Collection;
 use Session;
-use Yajra\Datatables\Facades\Datatables;
+use Datatables;
 
 class EntityLoginLevelsController extends Controller
 {
@@ -53,7 +53,7 @@ class EntityLoginLevelsController extends Controller
             $sidebar = 'entityLoginLevels';
             $active = 'details';
 
-            Session::put('sidebarArguments', ['activeFirstMenu' => $active]);
+            Session::put('sidebarArguments', ['activeFirstMenu' => $active, 'entityKey' => $entityKey]);
 
             return view('private.entities.loginLevels.loginLevel', compact('loginLevel', 'entityKey','loginLevelDependencies','sidebar','active'));
         } catch (Exception $e) {
@@ -194,6 +194,7 @@ class EntityLoginLevelsController extends Controller
                 ->addColumn('action', function ($collection)use($entityKey){
                     return ONE::actionButtons(['login_level_key' => $collection->login_level_key,'entity_key' => $entityKey], ['form' => 'entityLoginLevels', 'edit' => 'EntityLoginLevelsController@edit', 'delete' => 'EntityLoginLevelsController@delete']);
                 })
+                ->rawColumns(['name','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors([trans("privateEntityLoginLevels.get_index_table_error") => $e->getMessage()]);
@@ -252,10 +253,7 @@ class EntityLoginLevelsController extends Controller
                     $button = Form::oneSwitch("parameter_".$collection->parameter_user_type_key,null, $collection->selected ,["readonly"=>false,"onchange"=>"updateLoginLevelParameter('".action('EntityLoginLevelsController@updateParameter',['parameterUserTypeKey' => $collection->parameter_user_type_key, 'loginLevelKey' => $loginLevelKey])."')"]);
                     return $button;
                 })
-                ->editColumn('selected', function ($collection) use ($loginLevelKey) {
-                    $button = Form::oneSwitch("parameter_".$collection->parameter_user_type_key,null, $collection->selected ,["readonly"=>false,"onchange"=>"updateLoginLevelParameter('".action('EntityLoginLevelsController@updateParameter',['parameterUserTypeKey' => $collection->parameter_user_type_key, 'loginLevelKey' => $loginLevelKey])."')"]);
-                    return $button;
-                })
+                ->rawColumns(['selected'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors([trans("privateLoginLevels.get_index_parameters_table_error") => $e->getMessage()]);

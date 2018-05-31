@@ -43,9 +43,6 @@ class CbsVoteController extends Controller
         try {
             $data = [];
 
-            if($request->has('step'))
-                $step = $request->step ?? null;
-
             $data['configurations'] = CB::getConfigurations();
             $data['genericConfigs'] = CB::getVotesConfigurations();
             $data['methodGroup'] = Vote::getListMethodGroups();
@@ -60,6 +57,7 @@ class CbsVoteController extends Controller
             $data['cb_title'] = $data['cbDetails']->title;
             $data['cb_start_date'] = $data['cbDetails']->start_date;
             $data['title'] = trans('privateVotes.create_vote');
+            $data["step"] = $request->get("step");
 
 
             $data['userLevels'] = Orchestrator::getAllEntityLoginLevels(Session::get('X-ENTITY-KEY'));
@@ -71,6 +69,8 @@ class CbsVoteController extends Controller
             $data['titleConfigurations'] ='Create Vote Levels';
             $data['type'] = $type;
             $data['cbKey'] = $cbKey;
+
+            // dd($data);
 
             return view('private.cbs.vote', $data);
         } catch (Exception $e) {
@@ -329,6 +329,231 @@ class CbsVoteController extends Controller
         return view("_layouts.deleteModal", $data);
     }
 
+
+    public function voteList($type, $cbKey, $voteKey)
+    {
+        try{
+            $module = 'cb';
+            $permissionType = 'vote_list';
+
+            $sidebar = 'vote';
+            $active = 'votes';
+            
+            return view('private.cbs.votesList',compact('type','cbKey','voteKey','sidebar','active','module','permissionType'));
+        }catch (Exception $e){
+            dd($e->getMessage());
+        }
+    }
+
+    public function getIndexTableVoteList(Request $request, $type, $cbKey, $voteKey)
+    {
+        try {
+            $module = 'cb';
+            $permissionType = 'vote_list';
+
+            $role = Session::get('user_role');
+
+            $filters = array(
+                "voteKey" => $request->eventKey ?? "",
+                "deleted" => !empty($request->get("deleted")) ? 1 : 0,
+                "submitted" => !empty($request->get("submitted")) ? 1 : 0,
+                "source" => $request->sources
+            );
+
+            if(Session::get('user_role') == 'admin'){
+
+                $cb = CB::getCbByKey($cbKey);
+                $topics = collect(CB::getTopicsByCbKey($cbKey))->keyBy('topic_key')->toArray();
+                $response = Vote::getVoteList($voteKey,$role,$filters,$request);
+                
+                $ids = [];
+                
+                $votesList = $response->votes;
+                $recordsTotal = $response->recordsTotal;
+                $recordsFiltered = $response->recordsFiltered;
+
+                $votesList = collect($votesList)->keyBy('id');
+
+                foreach($votesList as $vote){
+                    if(!empty($vote->user_key)){
+                        $user = Auth::getuserbykey($vote->user_key);
+                        $userId = $user->user_parameters[0]->user_id;
+                        $userName = $user->name;
+                        
+                        $vote->user_id = $userId;
+                        $vote->user_name = $userName;
+                        $vote->topic_name = $topics[$vote->vote_key]->title;
+                        if($request->userId != "" && $userId != $request->userId){
+                            // $ids[] = $vote->id;
+                            unset($votesList[$vote->id]);
+                        }
+                    }
+                }
+
+                $collection = $votesList;
+            }
+            else
+                return null;
+
+
+            
+            $edit = Session::get('user_role') == 'admin';
+            $delete = Session::get('user_role') == 'admin';
+
+            return Datatables::of($collection)
+                ->editColumn('select_votes', function ($collection) use ($type, $cbKey, $voteKey,$edit) {
+                    return '<input class="votes_id" type="checkbox" value="' . $collection->id . '" id="' . $collection->id . '" cbType="' . $type . '" cbKey="' . $cbKey . ' "voteKey="'.$voteKey.' " voteId="' . $collection->id . ' "/>';
+
+                })
+                ->editColumn('user_key', function ($collection) use ($type,$cbKey,$edit,$delete) {
+                    if($edit || $delete)
+                        return $collection->user_key;
+                    else
+                        return null;
+                })
+                ->editColumn('user_name', function ($collection) use ($type,$cbKey,$edit,$delete) {
+                    if($edit || $delete)
+                        return "<a href='" . action('UsersController@show', ['userKey' => $collection->user_key]) . "'>" . $collection->user_name . "</a>";
+                    else
+                        return null;
+                })
+                ->editColumn('vote_key', function ($collection) use ($type,$cbKey,$edit,$delete) {
+                    if($edit || $delete)
+                        return $collection->vote_key;
+                    else
+                        return null;
+                })
+                ->editColumn('topic_name', function ($collection) use ($type,$cbKey,$edit,$delete) {
+                    if($edit || $delete)
+                        return "<a href='" . action('TopicController@show', ['type' => $type, 'cbKey' => $cbKey, 'topicKey' => $collection->vote_key]) . "'>" . $collection->topic_name . "</a>";
+                    else
+                        return null;
+                })
+                ->editColumn('submitted', function ($collection) use ($type,$cbKey,$voteKey,$edit) {
+                    if($collection->submitted == 1)
+                        return trans('privateCbsVote.yes');
+                    else
+                        return trans('privateCbsVote.no');
+                })
+                ->addColumn('action', function ($collection) use ($type,$cbKey, $voteKey, $edit, $delete) {
+                    if($edit == true and $delete == true && $collection->submitted == 0)
+                        return ONE::actionButtons(['type' => $type, 'cbKey' => $cbKey, 'voteKey' => $voteKey, 'voteId' => $collection->id, 'submit' => 'submit'], ['form' => 'vote', 'activate' => 'CbsVoteController@submitVote', 'delete' => 'CbsVoteController@deleteVote']);
+                    elseif($edit == true and $delete == true && $collection->submitted == 1)
+                        return ONE::actionButtons(['type' => $type, 'cbKey' => $cbKey, 'voteKey' => $voteKey, 'voteId' => $collection->id, 'submit' => 'unsubmit'], ['form' => 'vote', 'activate' => 'CbsVoteController@submitVote', 'delete' => 'CbsVoteController@deleteVote']);
+                    elseif($edit == false and $delete == true)
+                        return ONE::actionButtons(['type' => $type, 'cbKey' => $cbKey, 'voteId' => $collection->id], ['form'=> 'vote', 'delete' => 'CbsVoteController@deleteVote']);
+                    elseif($edit == true && $delete == false)
+                        return ONE::actionButtons(['type' => $type, 'cbKey' => $cbKey, 'voteKey' => $voteKey, 'voteId' => $collection->id, 'submit' => 'unsubmit'], ['form' => 'vote', 'activate' => 'CbsVoteController@submitVote']);
+                    else
+                        return null;
+                })
+                ->with('filtered', $recordsFiltered ?? 0)
+                ->skipPaging()
+                ->setTotalRecords($recordsTotal ?? 0)
+                ->rawColumns(['select_votes','user_key','user_name','vote_key','topic_name','submitted','action'])
+                ->make(true);
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors(["groupTypes.tableGroupTypes" => $e->getMessage()]);
+        }
+
+    }
+
+    /**
+     * Remove the specified vote event from storage.
+     * @param $cbId
+     * @param $voteKey
+     * @return View
+     */
+    public function deleteVote(Request $request, $type, $cbKey, $voteKey)
+    {
+        $voteId = $request->voteId;
+        $data = array();
+        $data['action'] = action("CbsVoteController@deleteUserVote", ['type' => $type, 'cbKey' => $cbKey, 'voteKey' => $voteKey, 'voteId' => $voteId]);
+        $data['title'] = trans('privateCbsVote.delete');
+        $data['msg'] = trans('privateCbsVote.are_you_sure_you_want_to_delete').' ?';
+        $data['btn_ok'] = trans('privateCbsVote.delete');
+        $data['btn_ko'] = trans('privateCbsVote.cancel');
+
+        return view("_layouts.deleteModal", $data);
+    }
+
+    public function deleteUserVote(Request $request, $type, $cbKey, $voteKey, $voteId){
+        try {
+
+            if(!empty($request->multipleVotes) && $request->multipleVotes == 1){
+                Vote::deleteVotes($request->voteId);
+
+                Session::flash('message', trans('vote.delete_ok'));
+                return action('CbsVoteController@voteList', ['type' => $type, 'cbKey' => $cbKey, 'voteKey' => $voteKey]);
+            }
+            $cbVote = Vote::deleteUserVote($voteId);
+
+            Session::flash('message', trans('vote.delete_ok'));
+            return action('CbsVoteController@voteList', ['type' => $type, 'cbKey' => $cbKey, 'voteKey' => $voteKey]);
+
+        } catch (Exception $e) {
+            dd($e->getMessage());
+            return redirect()->back()->withErrors(["vote.destroyNok" => $e->getMessage()]);
+        }
+    }
+
+    public function submitVote(Request $request, $type, $cbKey, $voteKey)
+    {
+        $voteId = $request->voteId;
+        $submit = $request->submit;
+        $data = array();
+        $data['action'] = action("CbsVoteController@submitUserVote", ['type' => $type, 'cbKey' => $cbKey, 'voteKey' => $voteKey, 'voteId' => $voteId, 'submit' => $submit]);
+        if($submit == "submit"){
+            $data['title'] = trans('privateCbsVote.submit');
+            $data['msg'] = trans('privateCbsVote.are_you_sure_you_want_to_submit').' ?';
+            $data['btn_ok'] = trans('privateCbsVote.submit');
+        }else{
+            $data['title'] = trans('privateCbsVote.unsubmit');
+            $data['msg'] = trans('privateCbsVote.are_you_sure_you_want_to_unsubmit').' ?';
+            $data['btn_ok'] = trans('privateCbsVote.unsubmit');
+        }
+        $data['btn_ko'] = trans('privateCbsVote.cancel');
+        
+        return view("_layouts.submitVoteModal", $data);
+    }
+
+    public function submitUserVote(Request $request, $type, $cbKey, $voteKey, $voteId){
+        try {
+
+            if(empty($voteId)){
+                $voteId = $request->voteId;
+            }
+            if(!empty($request->submit) && $request->submit == "submit"){
+                try{
+                    Vote::submitUserVote($voteId, $request->submit);
+
+                    Session::flash('message', trans('vote.submitted_ok'));
+                    return action('CbsVoteController@voteList', ['type' => $type, 'cbKey' => $cbKey, 'voteKey' => $voteKey]);
+                }catch(Exception $e){                    
+                    return redirect()->back()->withErrors(["vote.submitted_nok" => $e->getMessage()]);
+                }
+            }
+            else{
+                try{
+                    Vote::submitUserVote($voteId, $request->submit);
+
+                    Session::flash('message', trans('vote.unsubmitted_ok'));
+                    return action('CbsVoteController@voteList', ['type' => $type, 'cbKey' => $cbKey, 'voteKey' => $voteKey]);
+                }catch(Exception $e){
+                    return redirect()->back()->withErrors(["vote.unsubmitted_nok" => $e->getMessage()]);
+                }
+            }
+            // $cbVote = Vote::submitUserVote($voteId);
+
+            // Session::flash('message', trans('vote.submitted_ok'));
+            // return action('CbsVoteController@voteList', ['type' => $type, 'cbKey' => $cbKey, 'voteKey' => $voteKey]);
+
+        } catch (Exception $e) {
+            dd($e->getMessage());
+            return redirect()->back()->withErrors(["vote.submitted_nok" => $e->getMessage()]);
+        }
+    }
+
     /** Get index's vote events
      * @param $type
      * @param $cbKey
@@ -340,29 +565,21 @@ class CbsVoteController extends Controller
 
         $module = 'cb';
         $permissionType = 'pad_votes';
-        if(Session::get('user_role') == 'admin' || Session::get('user_permissions')->$module->$permissionType->permission_show){
+        if(Session::get('user_role') == 'admin'){
             $parameters = [];
             $cbVotesList = CB::getListCbVotes($cbKey);
 
-            $cbVoteEvents = $cbVotesList;
+            $cbVotesList = collect($cbVotesList);
 
-            $cbVoteEventsData = [];
-            $cbVoteEventsNames = [];
-            foreach ($cbVoteEvents as $key => $cbVoteEvent) {
-                $cbVoteEventsData[] = $cbVoteEvent->vote_key;
-                $cbVoteEventsNames [$cbVoteEvent->vote_key] = $cbVoteEvent->name;
-            }
+            $cbVoteEventsData = $cbVotesList->pluck("vote_key")->toArray();
+            $cbVoteEventsNames = $cbVotesList->pluck("name","vote_key")->toArray();
 
-            $voteEvent = Vote::getVoteEventMethods($cbVoteEventsData);
-
-
-            // in case of json
-            $collection = Collection::make($voteEvent);
+            $collection = collect(Vote::getVoteEventMethods($cbVoteEventsData));
         }else
             return null;
 
-        $edit = Session::get('user_role') == 'admin' || Session::get('user_permissions')->$module->$type->permission_update;
-        $delete = Session::get('user_role') == 'admin' || Session::get('user_permissions')->$module->$type->permission_delete;
+        $edit = Session::get('user_role') == 'admin';
+        $delete = Session::get('user_role') == 'admin';
 
         return Datatables::of($collection)
             ->editColumn('name', function ($collection) use ($type,$cbKey,$cbVoteEventsNames) {
@@ -384,6 +601,7 @@ class CbsVoteController extends Controller
                 else
                     return null;
             })
+            ->rawColumns(['name','title','statistics','action'])
             ->make(true);
 
     }
@@ -417,6 +635,8 @@ class CbsVoteController extends Controller
 
             $html .= '<div class="row">';
             $i = 0;
+            // dd($response, $configurations);
+            
             foreach ($configurations as $config) {
 
                 $html .= '<div class="col-xs-12 col-md-6">';
@@ -434,14 +654,32 @@ class CbsVoteController extends Controller
                         $html .= '<div class="col-md-6">';
                         $html .= '<input id="inputYes'.$suffixId.$i.'" type="radio" name="'.($advancedConfig ? "advancedConfig_" : "config_").$suffixId.$config->id.'" value="1" style="margin-right:4px;'.$disabled.'"';
                         $html .= isset($config->pivot->value) ? ($config->pivot->value == '1' ? 'checked' : '') : 'checked';
-                        $html .= '><label for="inputYes'.$suffixId.$i.'" style="margin-right:40px;font-weight: normal" > ' . trans('voteEvent.yes') . '</label>';
+                        $html .= '><label for="inputYes'.$suffixId.$i.$disabled.'" style="margin-right:40px;font-weight: normal" > ' . trans('voteEvent.yes') . '</label>';
                         $html .= '</div>';
                         $html .= '<div class="col-md-6">';
                         $html .= '<input id="inputNo' . $i .$suffixId. '" type="radio" name="'.($advancedConfig ? "advancedConfig_" : "config_").$suffixId.$config->id.'" value="0" style="margin-right:4px;font-weight: normal;' . $disabled . '"';
                         $html .= isset($config->value) ? ($config->value == '0' ? 'checked' : '') : '';
-                        $html .= '><label for="inputNo' . $i .$suffixId. '" style="font-weight: normal" > ' . trans('voteEvent.no') . '</label>';
+                        $html .= '><label for="inputNo' . $i .$suffixId.$disabled. '" style="font-weight: normal" > ' . trans('voteEvent.no') . '</label>';
                         $html .= '</div>';
                         $html .= '</div>';
+                        if($response->code == 'multi_voting'){
+                            $html .= '<div class="row" style="margin-top:20px">';
+                            $html .= '<div class="col-12">';
+                            $html .= '<label class="input-group btn-group-vertical">'.trans('voteEvent.weightVote').'</label>';
+                            $html .= '<div class="row">';
+                            $html .= '<div class="col-6 h2">';
+                            $html .= '<div class="onoffswitch">';
+                            $html .= '<input id="weightTypeVote" name="weightTypeVote" type="checkbox" class="onoffswitch-checkbox" value="1" onclick="weightVote()">';
+                            $html .= '<label for="weightTypeVote" class="onoffswitch-label">';
+                            $html .= '<span class="onoffswitch-inner"></span>';
+                            $html .= '<span class="onoffswitch-switch"></span>';
+                            $html .= '</label>';
+                            $html .= '</div>';
+                            $html .= '</div>';
+                            $html .= '</div>';
+                            $html .= '</div>';
+                            $html .= '</div>';
+                        }
                         break;
                     case 'NUMERIC':
                         $html .= '<input class="form-control" type="number" name="'.($advancedConfig ? "advancedConfig_" : "config_").$suffixId.$config->id.'" min="0" placeholder="Number" value="' . (isset($config->value) ? $config->value : 0) . '" ' . $readonly . '>';
@@ -458,6 +696,20 @@ class CbsVoteController extends Controller
         }
 
         return $html;
+    }
+
+    public function weightVote(Request $request){
+        $languages = [];
+        $languages = Orchestrator::getLanguageList();
+
+        $weightId = $request->vezes;
+        $langs = [];
+        foreach($languages as $language){
+            $id = $weightId . '_' . $language->code;
+            $langs[$id] = ['title' => $language->name, 'html' => '<label for="text">Text</label><input class="form-control" type="text" name="text-'. $weightId .'-'.$language->code.'">'];
+        }
+
+        return view('private.cbs.weightVote', compact('langs','weightId'));
     }
 
     /*
@@ -770,6 +1022,29 @@ class CbsVoteController extends Controller
         }
     }
 
+    public function mapVotesToParameter($type, $cbKey, $voteKey) {
+        try {
+            $cbParameters = CB::getCbParameters($cbKey);
 
+            $sidebar = 'vote';
+            $active = 'votes';
+            
+            return view('private.cbs.mapVotesToParameter', compact('cbParameters','type','cbKey','voteKey','sidebar','active'));
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors(["private.cbs.mapVotesToParameter.create" => $e->getMessage()]);
+        }
+    }
+
+    public function mapVotesToParameterSubmit(Request $request, $type, $cbKey, $voteKey) {
+        try {
+            $parameterId = $request->get("parameter");
+            CB::exportVotesCountToParameter($cbKey, $parameterId, $voteKey);
+            
+            Session::flash('message', trans('mapVotesToParameter.submit_ok'));
+            return redirect()->action('CbsController@show', ['type' => $type, 'cbKey' => $cbKey]);
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors(["private.cbs.mapVotesToParameter.submit" => $e->getMessage()]);
+        }
+    }
 
 }

@@ -1,0 +1,1 @@
+<?php return array (  'yourName' => 'Enter Your Name',  'edit' => 'Edit',  'delete' => 'Delete',  'save' => 'Save',);

@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col-md-12">
             @php
-            $form = ONE::form('BEMenuElementParameters', trans('privateBEMenuElementParameters.details'))
+            $form = ONE::form('BEMenuElementConfigurations', trans('privateBEMenuElementParameters.details'))
                 ->settings(["model" => isset($parameter) ? $parameter : null, 'id' => isset($parameter) ? $parameter->key : null])
                 ->show('BEMenuElementParametersController@edit','BEMenuElementParametersController@delete', ['key' => isset($parameter) ? $parameter->key : null],'BEMenuElementParametersController@index')
                 ->create('BEMenuElementParametersController@store', 'BEMenuElementParametersController@show', ['key' => isset($parameter) ? $parameter->key : null])

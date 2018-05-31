@@ -6,8 +6,11 @@
 
 @section('content')
     @if(!$isEntityInSession)
+    
+
         @include('_layouts.dashboard')
     @else
+
         <!-- Plupload Javascript fix and bootstrap fix -->
         <script src="/bootstrap/plupload-fix/bootstrap.js"></script>
 
@@ -245,6 +248,17 @@
                         console.log(error);
                     }
                 })
+                $.ajax({
+                    'url': '{{ action('DashboardController@votes') }}',
+                    'method': 'get',
+                    success: function(response) {
+                        console.log('votes: ' + response);
+                        $(".votes").html(response);
+                    },
+                    error: function(error){
+                        console.log(error);
+                    }
+                });
             });
 
             var type;

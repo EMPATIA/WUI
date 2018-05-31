@@ -61,6 +61,7 @@
                                             <div class="col-sm-6 col-md-3">
                                                 <div class="box box-secundary">
                                                     <div class="box-body">
+                                                        <div class="BP-thumbIcon"><img src="http://t-l.it/default/prova/image/ico-ambiente.png" alt="Ambiente" class="img-responsive"></div>
                                                         <div class="BP-breadCrumbs">
                                                             <div class="BP-property">
                                                                 {{ $topic['title'] }}<span>»</span>
@@ -98,6 +99,7 @@
                                             <div class="col-sm-6 col-md-3">
                                                 <div class="box box-secundary">
                                                     <div class="box-body">
+                                                        <div class="BP-thumbIcon"><img src="http://t-l.it/default/prova/image/ico-ambiente.png" alt="Ambiente" class="img-responsive"></div>
                                                         <div class="BP-breadCrumbs">
                                                             <div class="BP-property">
                                                                 {{ $topic['title'] }}<span>»</span>
@@ -135,6 +137,7 @@
                                             <div class="col-sm-6 col-md-3">
                                                 <div class="box box-secundary">
                                                     <div class="box-body">
+                                                        <div class="BP-thumbIcon"><img src="http://t-l.it/default/prova/image/ico-ambiente.png" alt="Ambiente" class="img-responsive"></div>
                                                         <div class="BP-breadCrumbs">
                                                             <div class="BP-property">
                                                                 {{ $topic['title'] }}<span>»</span>

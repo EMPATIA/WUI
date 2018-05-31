@@ -15,7 +15,7 @@
                     <tr>
                         <th>{{ trans('privateCbs.questions') }}</th>
                         <th>
-                            @if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('cb', 'questions'))
+                            @if(Session::get('user_role') == 'admin')
                                 {!! ONE::actionButtons(['type'=>$type,'cbKey'=>$cb->cb_key], ['create' => 'TechnicalAnalysisProcessesController@create']) !!}
                             @endif
                         </th>

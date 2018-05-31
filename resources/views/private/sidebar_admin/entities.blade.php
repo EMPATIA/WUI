@@ -12,7 +12,7 @@
                 </li>
                 <li class="menu-wrapper">
                     <div @if($active=='layouts') class="menu-active" @endif>
-                        <a href="{{ action("EntitiesController@showLayouts", $entityKey) }}">{{ trans('privateSidebar.entity_layouts') }}</a>
+                        <a href="{{ action("EntitiesController@showLayouts", $entityKey) }}">{{ trans('privateSidebar.templates') }}</a>
                     </div>
                 </li>
                 <li class="menu-wrapper">
@@ -37,7 +37,7 @@
                 </li>
                 <li class="menu-wrapper">
                     <div @if($active=='modules') class="menu-active" @endif>
-                        <a href="{{ action("EntitiesController@showModules", $entityKey) }}">{{ trans('privateSidebar.entity_modules') }}</a>
+                        <a href="{{ action("EntitiesController@addEntityModule", $entityKey) }}">{{ trans('privateSidebar.entity_modules') }}</a>
                     </div>
                 </li>
             </ul>

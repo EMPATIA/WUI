@@ -33,7 +33,8 @@ class CountriesController extends Controller
      */
     public function index()
     {
-        return view('private.countries.index');
+        $title = trans('privateCountries.countries');
+        return view('private.countries.index', compact('title'));
     }
 
     /**
@@ -158,20 +159,25 @@ class CountriesController extends Controller
      *
      *
      */
-    public function tableCountries()
+    public function tableCountries(Request $request)
     {
-        $manage = Orchestrator::getCountryList();
-
+        $manage = Orchestrator::getCountryList($request);
         // in case of json
-        $country = Collection::make($manage->data);
+        $countries = collect($manage->countries);
+        $recordsTotal = $manage->recordsTotal;
+        $recordsFiltered = $manage->recordsFiltered;
 
-        return Datatables::of($country)
+        return Datatables::of($countries)
             ->editColumn('name', function ($country) {
                 return "<a href='".action('CountriesController@show', $country->id)."'>".$country->name."</a>";
             })
             ->addColumn('action', function ($country) {
-                return ONE::actionButtons($country->id, ['edit' => 'CountriesController@edit', 'delete' => 'CountriesController@delete']);
+                return ONE::actionButtons($country->id, ['edit' => 'CountriesController@edit', 'delete' => 'CountriesController@delete', 'form' => 'countries']);
             })
+            ->rawColumns(['name','action'])
+            ->with('filtered', $recordsFiltered ?? 0)
+            ->skipPaging()
+            ->setTotalRecords($recordsTotal ?? 0)
             ->make(true);
     }
 }

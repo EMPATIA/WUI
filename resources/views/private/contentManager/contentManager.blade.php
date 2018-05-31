@@ -250,7 +250,7 @@
                                     appendSectionToEnd(response);
 
                                 tinyMCE.remove();
-                                {!! ONE::addTinyMCE(".mceEdit", ['action' => action('ContentsController@getTinyMCE')]) !!}
+                                {!! ONE::addTinyMCE(".mceEdit", ['action' => action('ContentManagerController@getTinyMCE')]) !!}
                                 $("a.translatable-status-toggler").off("click").on("click",toggleTranslatableStatus);
                                 calculateIndexes();
                                 $("#sectionsDiv").parent().find(".loader").addClass("hidden");
@@ -267,7 +267,7 @@
                     });
                     $("a.translatable-status-toggler").on("click",toggleTranslatableStatus);
 
-                    {!! ONE::addTinyMCE(".mceEdit", ['action' => action('ContentsController@getTinyMCE')]) !!}
+                    {!! ONE::addTinyMCE(".mceEdit", ['action' => action('ContentManagerController@getTinyMCE')]) !!}
                     calculateIndexes();
 
                     @if (ONE::actionType("ContentManager")=="create" && ($contentType=="news" || $contentType=="events"))

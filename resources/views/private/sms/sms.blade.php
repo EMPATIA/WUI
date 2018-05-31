@@ -31,13 +31,3 @@
     </div>
 
 @endsection
-
-@section('scripts')
-
-    <script type="text/javascript">
-
-        $(function() {
-            getSidebar('{{ action("OneController@getSidebar") }}', 'sms', null, 'sms' );
-        });
-    </script>
-@endsection

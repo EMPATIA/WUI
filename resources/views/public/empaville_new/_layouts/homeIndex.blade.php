@@ -40,7 +40,7 @@
     <script type="text/javascript"  src="{{ asset('js/cookieconsent/cookieconsent.min.js')}}"></script>
     <!-- End Cookie Consent plugin -->
     <!-- Dot Dot Dot -->
-    <script type="text/javascript" src="{{ asset('js/cml/jquery.dotdotdot.js')}}"></script>
+    <script type="text/javascript" src="{{ asset('js/default/jquery.dotdotdot.js')}}"></script>
 
     <!-- Parallax -->
     <script type="text/javascript" src="{{ asset('js/empatia/parallax.js')}}"></script>

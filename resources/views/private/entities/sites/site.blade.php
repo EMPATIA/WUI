@@ -17,7 +17,7 @@
 
     {!! Form::oneText('name', trans('privateEntitiesDivided.siteName'), isset($site) ? $site->name  : null, ['class' => 'form-control', 'id' => 'name','required']) !!}
     {!! Form::oneTextArea('description', trans('privateEntitiesDivided.description'), isset($site) ? $site->description : null, ['class' => 'form-control', 'id' => 'contents', 'size' => '30x2', 'style' => 'resize: vertical']) !!}
-    {!! Form::oneSelect('layout_key', trans('privateEntitiesDivided.layout'), isset($layouts) ? $layouts : null, isset($site->layout->layout_key) ? $site->layout->layout_key : null, isset($site->layout->name) ? $site->layout->name : null, ['class' => 'form-control', 'id' => 'layout_key', '']) !!}
+    {!! Form::oneSelect('layout_key', trans('privateEntitiesDivided.template'), isset($layouts) ? $layouts : null, isset($site->layout->layout_key) ? $site->layout->layout_key : null, isset($site->layout->name) ? $site->layout->name : null, ['class' => 'form-control', 'id' => 'layout_key', '']) !!}
     {!! Form::oneText('link', trans('privateEntitiesDivided.siteLink'), isset($site) ? $site->link  : null, ['class' => 'form-control', 'id' => 'link','required']) !!}
     {!! Form::oneText('no_reply_email', trans('privateEntitiesDivided.no_reply_email'), isset($site) ? $site->no_reply_email  : null, ['class' => 'form-control', 'id' => 'no_reply_email','required']) !!}
     {!! Form::oneCheckbox('active', trans('privateEntitiesDivided.siteActive'), 1, isset($site) ? $site->active : 1, ['id' => 'active']) !!}
@@ -68,7 +68,7 @@
             <tr>
                 <th width="90%">{{ trans('privateEntities.siteAdditionalLinks') }}</th>
                 <th width="10%">
-                    @if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('orchestrator', 'entity_site'))
+                    @if(Session::get('user_role') == 'admin')
                         {!! ONE::actionButtons(['site_key' => $site->key], ['create' => 'SiteAdditionalUrlsController@create']) !!}
                     @endif
                 </th>
@@ -158,7 +158,7 @@
     <script src="{{ asset("js/tinymce/tinymce.min.js") }}"></script>
     <script>
         $( document ).ready(function() {
-            {!! ONE::addTinyMCE(".use_term", ['action' => action('ContentsController@getTinyMCE')]) !!}
+            {!! ONE::addTinyMCE(".use_term", ['action' => action('ContentManagerController@getTinyMCE')]) !!}
         });
     </script>
     <!-- Plupload Javascript fix and bootstrap fix @ start -->

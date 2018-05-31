@@ -18,7 +18,7 @@
                     <th>{{ trans('privateLoginLevels.level_sms_verification') }}</th>
                     <th>{{ trans('privateLoginLevels.level_show_in_registration') }}</th>
                     <th>
-                        @if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('orchestrator', 'site_login_levels'))
+                        @if(Session::get('user_role') == 'admin')
                             <a href="{{ action('LoginLevelsController@create', ['siteKey' => isset($siteKey) ? $siteKey : null])}}" class="btn btn-flat btn-success btn-sm" data-toggle="tooltip" data-delay="{&quot;show&quot;:&quot;1000&quot;}" title="" data-original-title="Criar"><i class="fa fa-plus"></i></a>
                         @endif
                     </th>

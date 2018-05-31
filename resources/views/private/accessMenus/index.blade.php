@@ -29,12 +29,10 @@
 
                             <th>{{ trans('privateAccessMenu.name') }}</th>
                             <th>{{ trans('privateAccessMenu.link') }}</th>
-                            <th></th>
                             <th>{{ trans('privateAccessMenu.active') }}</th>
+                            <th>{{ trans('privateAccessMenu.code') }}</th>
                             <th>
-                                @if(ONE::verifyUserPermissionsCreate('cm', 'menu') || Session::has('user_permissions') == false)
-                                    {!! ONE::actionButtons(null, ['create' => 'AccessMenusController@create']) !!}
-                                @endif
+                                {!! ONE::actionButtons(null, ['create' => 'AccessMenusController@create']) !!}
                             </th>
                         </tr>
                         </thead>
@@ -65,9 +63,9 @@
                 columns: [
 
                     { data: 'name', name: 'name' },
-                    { data: 'siteLink', name: 'site.link' },
-                    { data: 'activeAction', name: 'action_activate', searchable: false, orderable: false, width: "5px" },
+                    { data: 'siteLink', name: 'siteLink' },
                     { data: 'active', name: 'active' , searchable: false},
+                    { data: 'code', name: 'code' , searchable: false},
                     { data: 'action', name: 'action', searchable: false, orderable: false, width: "55px" },
                 ],
                 order: [['1', 'asc']]

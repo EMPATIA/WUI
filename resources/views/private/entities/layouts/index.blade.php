@@ -6,15 +6,15 @@
         <div class="col-md-12">
             <div class="box box-primary">
                 <div class="box-header">
-                    <h3 class="box-title"><i class="fa fa-file-text-o"></i> {{ trans('privateEntities.layouts') }}</h3>
+                    <h3 class="box-title"><i class="fa fa-file-text-o"></i> {{ trans('privateEntities.templates') }}</h3>
                 </div>
                 <div class="box-body">
                     <table id="layouts_list" class="table table-striped dataTable no-footer table-responsive">
                         <thead>
                         <tr>
-                            <th width="90%">{{ trans('privateEntities.layoutName') }}</th>
+                            <th width="90%">{{ trans('privateEntities.templateName') }}</th>
                             <th width="10%">
-                                @if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('orchestrator', 'entity_layout'))
+                                @if(Session::get('user_role') == 'admin')
                                     {!! ONE::actionButtons(null, ['add' => 'EntitiesDividedController@addLayout']) !!}
                                 @endif
                             </th>

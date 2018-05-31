@@ -42,6 +42,8 @@ class CB {
             'TOPIC-AS-PRIV-QUESTIONNAIRE' => 'topic_as_private_questionnaire',
             'TOPIC-AS-PUBLIC-QUESTIONNAIRE' => 'topic_as_public_questionnaire',
             'ALLOW-ALLIANCE' => 'allow_alliance',
+            'SHOW-STATUS' => 'show_status',
+            'ALLOW-FILTER-STATUS' => 'allow_filter_status',
 
             'TAB-ORDER-RANDOM'  => 'tab_random',
             'TAB-ORDER-RECENT'  => 'tab_recent',
@@ -220,6 +222,20 @@ class CB {
         return $response->json();
     }
 
+    public static function getCbByKey($cbKey) {
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api' => 'cb',
+            'api_attribute' => $cbKey,
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesCB.failedToGetCbByKey"));
+        }
+
+        return $response->json();
+    }
+
     public static function getListCBs($list) {
 
         $listCb = [];
@@ -236,6 +252,7 @@ class CB {
             ]
         ]);
 
+// !is_null($response->json()) ? dd('remote/DD',$response->json()) : die('remote/ECHO' .$response->content());
         if($response->statusCode() != 200){
             throw new Exception(trans("comModulesCB.failedToGetListOfCbs"));
         }
@@ -343,7 +360,7 @@ class CB {
         return $response->json();
     }
 
-    public static function topicsWithLastPost($request, $cbKey){
+    public static function topicsWithLastPost($request, $cbKey, $showWithFlags = false){
         $parameters = $request->parameters ?? null;
         $filters_static = $request->filters_static ?? null;
 
@@ -354,6 +371,7 @@ class CB {
             'method'        => 'topicsWithLastPost',
             'params'        => [
                 'parameters'        => $parameters,
+                'withFlags'      => $showWithFlags,
                 'filters_static'    => $filters_static,
                 'tableData'         => One::tableData($request),
             ]
@@ -579,6 +597,34 @@ class CB {
         return $response->json();
     }
 
+    public static function getTopics($cbKey){
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api' => 'cb',
+            'api_attribute' => $cbKey,
+            'method' => 'getAllTopics',
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesCB.failedToGetTopics"));
+        }
+        return $response->json();
+    }
+
+    public static function getTopicsList($cbKey){
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api' => 'cb',
+            'api_attribute' => $cbKey,
+            'method' => 'getTopicsList',
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesCB.failedToGetTopics"));
+        }
+        return $response->json();
+    }
+
     public static function getCBAndTopicsWithPagination($cbKey, $pageToken = null, $numberOfTopicsToShow = 6, $filterList = []){
         $response = ONE::post([
             'component' => 'empatia',
@@ -598,13 +644,16 @@ class CB {
         return $response->json();
     }
 
-    public static function getTopicParameters($topicKey, $topicVersion = ""){
+    public static function getTopicParameters($topicKey, $topicVersion = "", $publicCall = false){
 
         if($topicVersion == ""){
-            $params = [];
+            $params =  [
+                'publicCall' => $publicCall,
+            ];
         } else{
             $params =  [
                 'topicVersion' => $topicVersion,
+                'publicCall' => $publicCall,
             ];
         }
 
@@ -615,6 +664,7 @@ class CB {
             'api_attribute' => $topicKey,
             'params' => $params
         ]);
+
         if($response->statusCode() != 200){
             if($response->statusCode() == 401){
                 throw new Exception(trans('privateCbs.permission_message'));
@@ -921,7 +971,24 @@ class CB {
                 'title' => $requestCB["title"],
                 'contents' => $requestCB["description"],
                 'start_date' => $requestCB["start_date"],
-                'end_date' => $requestCB["end_date"]
+                'end_date' => $requestCB["end_date"],
+                'start_topic' => $requestCB["start_topic"],
+                'end_topic' => $requestCB["end_topic"],
+                'start_topic_edit' => $requestCB["start_topic_edit"],
+                'end_topic_edit' => $requestCB["end_topic_edit"],
+                'start_submit_proposal' => $requestCB["start_submit_proposal"],
+                'end_submit_proposal' => $requestCB["end_submit_proposal"],
+                'start_technical_analysis' => $requestCB["start_technical_analysis"],
+                'end_technical_analysis' => $requestCB["end_technical_analysis"],
+                'start_complaint' => $requestCB["start_complaint"],
+                'end_complaint' => $requestCB["end_complaint"],
+                'start_show_results' => $requestCB["start_show_results"],
+                'end_show_results' => $requestCB["end_show_results"],
+                'start_vote' => $requestCB["start_vote"],
+                'end_vote' => $requestCB["end_vote"],
+                'template' => $requestCB["template"],
+                'filters' => $requestCB["filters"],
+                'page_key' => $requestCB["page_key"]
             ]
         ]);
 
@@ -952,6 +1019,7 @@ class CB {
             //  'method' => 'create',
             'params' => $data
         ]);
+
 
         if($response->statusCode() != 201){
             throw new Exception(trans("comModulesCB.failedToCreateCbChild"));
@@ -1118,13 +1186,13 @@ class CB {
             'params' => [
                 'private' => $isPrivate ?? false,
                 'title' => $requestTopic["title"],
-                'contents' => $requestTopic["contents"] ?? '',
-                'summary' => $requestTopic["summary"] ?? '',
-                'created_on_behalf' => $requestTopic["created_on_behalf"] ?? null,
-                'start_date' => array_key_exists("start_date",$requestTopic) ? $requestTopic["start_date"] : null,
-                'end_date' =>  array_key_exists("end_date",$requestTopic) ? $requestTopic["end_date"] : null,
-                'parent_topic_key' => $requestTopic["parent_topic_key"] ?? null,
-                'topic_creator' => $requestTopic["topic_creator"] ?? null,
+                'contents' => $requestTopic["contents"],
+                'summary' => $requestTopic["summary"],
+                'created_on_behalf' => $requestTopic["created_on_behalf"],
+                'start_date' => array_key_exists("start_date",$requestTopic) ? $requestTopic["start_date"] : '',
+                'end_date' =>  array_key_exists("end_date",$requestTopic) ? $requestTopic["end_date"] : '',
+                'parent_topic_key' => $requestTopic["parent_topic_key"] ? $requestTopic["parent_topic_key"] : '',
+                'topic_creator' => $requestTopic["topic_creator"] ? $requestTopic["topic_creator"] : '',
                 'cb_key' => $cbKey,
                 'parameters' => $parametersToSend
             ]
@@ -1163,7 +1231,6 @@ class CB {
                 'description' => !empty($file->description) ? $file->description : 'description',
                 'file_code' => $file->file_code
             ]
-
         ]);
 
         if($response->statusCode()!= 201){
@@ -1172,6 +1239,44 @@ class CB {
 
         return $response;
     }
+
+    public static function setFilesArrayForTopic($post_key, $files){
+        $response = ONE::post([
+            'component' => 'empatia',
+            'api' => 'post',
+            'api_attribute' => $post_key,
+            'method' => 'addFiles',
+            'params' => [
+                "files" => $files
+            ]
+        ]);
+
+        if($response->statusCode()!= 201){
+            throw new Exception(trans("comModulesCB.failedToSetFilesForTopic"));
+        }
+
+        return $response;
+    }
+
+
+    public static function updateFilesArrayForTopic($post_key, $files){
+        $response = ONE::put([
+            'component' => 'empatia',
+            'api' => 'post',
+            'api_attribute' => $post_key,
+            'method' => 'updateFiles',
+            'params' => [
+                "files" => $files
+            ]
+        ]);
+
+        if($response->statusCode()!= 201){
+            throw new Exception(trans("comModulesCB.failedToSetFilesForTopic"));
+        }
+
+        return $response;
+    }
+
 
     public static function getFilesOfTopics($topics){
 
@@ -1207,7 +1312,24 @@ class CB {
                 'contents' => $requestCB["description"],
                 'start_date' => $requestCB["start_date"],
                 'end_date' => $requestCB["end_date"],
+                'start_topic' => $requestCB["start_topic"],
+                'end_topic' => $requestCB["end_topic"],
+                'start_topic_edit' => $requestCB["start_topic_edit"],
+                'end_topic_edit' => $requestCB["end_topic_edit"],
+                'start_submit_proposal' => $requestCB["start_submit_proposal"],
+                'end_submit_proposal' => $requestCB["end_submit_proposal"],
+                'start_technical_analysis' => $requestCB["start_technical_analysis"],
+                'end_technical_analysis' => $requestCB["end_technical_analysis"],
+                'start_complaint' => $requestCB["start_complaint"],
+                'end_complaint' => $requestCB["end_complaint"],
+                'start_show_results' => $requestCB["start_show_results"],
+                'end_show_results' => $requestCB["end_show_results"],
+                'start_vote' => $requestCB["start_vote"],
+                'end_vote' => $requestCB["end_vote"],
+                'filters' => $requestCB["filters"],
                 'tag' =>  (isset($requestCB["tag"]))?$requestCB["tag"]:'',
+                'template' => $requestCB["template"],
+                'page_key' => $requestCB["page_key"],
                 'parent_cb_id' => $requestCB["parent_cb_id"]
             ],
             'attribute' => $cbKey
@@ -1250,11 +1372,11 @@ class CB {
                 'end_date'          => !empty($requestTopic["end_date"]) ? $requestTopic["end_date"] : null,
                 'site'              => $site,
                 'topic_key'         => $topicKey,
-                'link'              => $requestTopic['link'] ?? null
+                'link'              => $requestTopic['link'] ?? null,
+                'cb_key'             => $requestTopic['cbKey'] ?? null
             ],
 
         ]);
-
         if ($response->statusCode() != 200) {
             throw new Exception(trans("comModulesCB.failedToUpdateTopic"));
         }
@@ -1772,77 +1894,6 @@ class CB {
         return $response->json();
     }
 
-    public static function getParametersTemplates($parameterKeys){
-
-        $response = ONE::post([
-            'component' => 'empatia',
-            'api' => 'parameterTemplates',
-            'method' => 'listWithOptions',
-            'params' => [
-                'parameter_template_keys' => $parameterKeys
-            ]
-        ]);
-
-        if($response->statusCode() != 200){
-            throw new Exception(trans("comModulesCB.failedToGetCbParametersTemplates"));
-        }
-        return $response->json()->data;
-    }
-
-    public static function setParametersTemplate($data)
-    {
-        $response = ONE::post([
-            'component' => 'empatia',
-            'api' => 'parameterTemplates',
-            'params' => $data
-        ]);
-
-        if($response->statusCode() != 201){
-            throw new Exception(trans("comModulesCB.failedToSetNewParamterTemplate"));
-        }
-        return $response->json();
-    }
-
-    public static function getParameterTemplateOptions($key)
-    {
-        $response = ONE::get([
-            'component' => 'empatia',
-            'api' => 'parameterTemplates',
-            'api_attribute' => $key
-        ]);
-        if($response->statusCode() != 200){
-            throw new Exception(trans("comModulesCB.failedToSetNewParamterTemplate"));
-        }
-        return $response->json();
-    }
-
-    public static function updateParameterTemplate($key, $data)
-    {
-        $response = ONE::put([
-            'component' => 'empatia',
-            'api' => 'parameterTemplates',
-            'api_attribute' => $key,
-            'params' => $data
-        ]);
-
-        if($response->statusCode() != 200){
-            throw new Exception(trans("comModulesCB.failedToUpdateParameterTemplate"));
-        }
-        return $response->json();
-    }
-
-    public static function deleteParameterTemplate($key)
-    {
-        $response = ONE::delete([
-            'component' => 'empatia',
-            'api' => 'parameterTemplates',
-            'api_attribute' => $key
-        ]);
-        if($response->statusCode() != 200){
-            throw new Exception(trans("comModulesCB.failedToDeleteParameterTemplate"));
-        }
-    }
-
     public static function getStatusTypes()
     {
         $response = ONE::get([
@@ -1859,6 +1910,8 @@ class CB {
 
     public static function updateTopicStatus($request)
     {
+        $topicKey = $request->topicKey ?? $request['topicKey'];
+        $status_type_code = $request->status_type_code ?? $request['status_type_code'];
         $siteComplete = Orchestrator::getSite(Session::get('X-SITE-KEY'));
 
         $site = [];
@@ -1869,8 +1922,8 @@ class CB {
             'component' => 'empatia',
             'api'       => 'status',
             'params'    => [
-                'topic_key' => $request->topicKey,
-                'code'      => $request->status_type_code,
+                'topic_key' => $topicKey,
+                'code'      => $status_type_code,
                 'site'      => $site,
                 'comment'   => [
                     'content'   => isset($request->contentStatusComment) ? $request->contentStatusComment : '',
@@ -2331,13 +2384,16 @@ class CB {
         return $response->json();
     }
 
-    public static function getUserTopicsTimeline($userKey) {
+    public static function getUserTopicsTimeline($userKey, $noConsultations = false) {
         $response = ONE::get([
             'component'     => 'empatia',
             'api'           => 'topic',
             'api_attribute' => 'user',
             'method'        => $userKey,
-            'attribute'     => 'timeline'
+            'attribute'     => 'timeline',
+            'params' => [
+                "noConsultations" => $noConsultations
+            ]
         ]);
 
         if($response->statusCode() != 200){
@@ -2629,6 +2685,7 @@ class CB {
      */
     public static function getTopic($topicKey, $publicCall = false)
     {
+
         $response = ONE::get([
             'component' => 'empatia',
             'api' => 'topic',
@@ -2710,6 +2767,7 @@ class CB {
                 'numberOfPostsToShow' => $request['numberOfPostsToShow'] ?? 6,
                 'numberOfRepliesToShow' => $request['numberOfRepliesToShow'] ?? 6,
                 'postToLoadRepliesFrom' => $request['postToLoadRepliesFrom'] ?? null,
+                'publicCall' => true
             ]
         ]);
 
@@ -3196,17 +3254,13 @@ class CB {
      * @return mixed
      * @throws Exception
      */
-    public static function attachFlag($request, $translations, $attachmentCode)
+    public static function attachFlag($request)
     {
         $response = ONE::post([
             'component' => 'empatia',
             'api'       => 'flags',
             'method'    => 'attachFlag',
-            'params'    => [
-                'attributes'     => $request->all(),
-                'translations'   => $translations,
-                'attachmentCode' => $attachmentCode,
-            ]
+            'params'    => $request->all()
         ]);
 
         if($response->statusCode() != 200){
@@ -3455,7 +3509,7 @@ class CB {
         if($response->statusCode() != 200){
             throw new Exception(trans("comModulesCB.failedToGetCbTranslations"));
         }
-        return $response->json();
+        return $response->json()->data;
     }
 
     /**
@@ -3618,6 +3672,7 @@ class CB {
      * @throws Exception
      */
     public static function getPublicPadParticipation($cbKey, $pageToken = null, $numberOfTopicsToShow = 6, $filterList = []){
+
         $response = ONE::post([
             'component' => 'empatia',
             'api' => 'cb',
@@ -3629,9 +3684,18 @@ class CB {
                 'numberOfTopicsToShow' => $numberOfTopicsToShow
             ]
         ]);
+
         if($response->statusCode() != 200){
             throw new Exception(trans("comModulesCB.failedToGetAllTopicsWithPagination"));
         }
+
+        /*
+        if(!empty($response->json())){
+            return $response->json();
+        } else {
+            return json_decode($response->content());
+        }
+        */
         return $response->json();
     }
 
@@ -3646,6 +3710,7 @@ class CB {
                 'numberOfTopicsToShow' => $numberOfTopicsToShow
             ]
         ]);
+
         if($response->statusCode() != 200){
             throw new Exception(trans("comModulesCB.failedToGetAllTopicsWithPagination"));
         }
@@ -3860,7 +3925,7 @@ class CB {
      * @return mixed
      * @throws Exception
      */
-    public static function getVerificationIfTechnicalAnalysisExist($topicKey){
+    public static function getVerificationIfTechnicalAnalysisExist($topicKey, $noException = false){
 
         $response = ONE::get([
             'component'     => 'empatia',
@@ -3870,8 +3935,11 @@ class CB {
         ]);
 
         if($response->statusCode() != 200){
-            throw new Exception(trans("comModulesCB.failedToVerifyIfTechnicalAnalysisExists"));
-        }
+            if ($noException) 
+                return [];
+            else
+                throw new Exception(trans("comModulesCB.failedToVerifyIfTechnicalAnalysisExists"));
+        } 
         return $response->json();
     }
 
@@ -3881,7 +3949,7 @@ class CB {
      * @return mixed
      * @throws Exception
      */
-    public static function getQuestionsAndExistenceOfTechnicalAnalysis($cbKey, $topicKey)
+    public static function getQuestionsAndExistenceOfTechnicalAnalysis($cbKey, $topicKey, $noException = false)
     {
         $response = ONE::get([
             'component' => 'empatia',
@@ -3894,7 +3962,10 @@ class CB {
         ]);
 
         if ($response->statusCode() != 200) {
-            throw new Exception(trans("comModulesCB.failedToGetTechnicalAnalysisQuestionsAndExistenceOfTechnicalAnalysis"));
+            if ($noException)
+                return [];
+            else
+                throw new Exception(trans("comModulesCB.failedToGetTechnicalAnalysisQuestionsAndExistenceOfTechnicalAnalysis"));
         }
         return $response->json();
     }
@@ -4124,19 +4195,31 @@ class CB {
     }
 
 
-    public static function getDashBoardElementConfigurationsList()
+    public static function getDashBoardElementConfigurationsList($request)
     {
         $response = ONE::get([
             'component' => 'empatia',
             'api' => 'dashBoardElementConfigurations',
-            'method'     => 'list'
-
+            'method'     => 'list',
+            'params' => [
+                'tableData' => ONE::tableData($request)
+            ]
         ]);
 
         if($response->statusCode() != 200){
             throw new Exception(trans("comModulesCB.failedToGetDashBoardElementConfigurationsList"));
         }
         return $response->json()->data;
+    }
+    public static function deleteDashBoardElementConfiguration($id)
+    {
+        $response = ONE::delete([
+            'component' => 'empatia',
+            'api' => 'dashBoardElementConfigurations',
+            'attribute' => $id
+
+        ]);
+        return $response->json();
     }
 
     public static function setDashBoardElementConfiguration($request, $translations)
@@ -5124,15 +5207,15 @@ class CB {
         return $response->json()->data;
     }
 
-    public static function publishTechnicalAnalysisResults($cbKey, $questionKey, $parameterId, $passedStatusKey, $failedStatusKey, $simulate = true) {
+    public static function publishTechnicalAnalysisResults($cbKey, $questionKeys, $parameterIds, $passedStatusKey, $failedStatusKey, $simulate = true) {
         $response = ONE::post([
             'component' => 'empatia',
             'api' => 'cb',
             'api_attribute' => $cbKey,
             'method' => 'publishTechnicalAnalysisResults',
             'params' => [
-                "question" => $questionKey,
-                "parameter" => $parameterId,
+                "questions" => $questionKeys,
+                "parameters" => $parameterIds,
                 "passed" => $passedStatusKey,
                 "failed" => $failedStatusKey,
                 "simulate" => $simulate
@@ -5161,6 +5244,222 @@ class CB {
         }
 
         return $response->json()->data;
+    }
+
+    public static function toggleFlagActiveStatus($status, $elementKey, $relationId, $attachmentCode) {
+        $response = ONE::post([
+            'component' => 'empatia',
+            'api' => 'flags',
+            'method'    => 'toggleActiveStatus',
+            'params'    => [
+                'relationId'     => $relationId,
+                'elementKey'     => $elementKey,
+                'status'         => $status,
+                'attachmentCode' => $attachmentCode,
+            ]
+        ]);
+        
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesCB.failedToToggleFlagActiveStatus"));
+        }
+        return $response->json();
+    }
+    public static function getUserLoginLevels($cbKey)
+    {
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api' => 'cb',
+            'api_attribute' => $cbKey,
+            'method' => 'getPadActionsThatRequireLoginLevelsAccordingToUser',
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesCB.failed_to_get_user_login_levels"));
+        }
+
+        return $response->json()->data;
+    }
+
+    public static function exportVotesCountToParameter($cbKey, $parameterId, $eventKey)
+    {
+        $response = ONE::post([
+            'component' => 'empatia',
+            'api' => 'cb',
+            'api_attribute' => $cbKey,
+            'method' => 'exportVotesCountToParameter',
+            'params' => [
+                'parameter_id' => $parameterId,
+                'event_key'    => $eventKey
+            ]
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesCB.failed_to_export_votes_count_to_parameter"));
+        }
+
+        return $response->json();
+    }
+
+    public static function getActivePads()
+    {
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api' => 'cb',
+            'method' => 'getActivePads',
+        ]);
+        
+        if($response->statusCode() != 200){
+            return [];
+        }
+        
+        return $response->json()->data;
+    }
+
+    public static function setTranslation($id = null, $code, $translation = null, $lang_code = "", $cbKey = "", $siteKey=""){
+
+        $response = ONE::post([
+            'component' => 'empatia',
+            'api' => 'translation',
+            'params' => [
+                'id' => $id,
+                'cb_key' => $cbKey,
+                'site_key' => $siteKey,
+                'code' => $code,
+                'language_code' => $lang_code,
+                'translation' => $translation
+            ]
+        ]);
+
+        return $response->json();
+    }
+
+    public static function getCBSTranslations($siteKey = null, $cbKey = null){
+
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api' => 'translation',
+            'method' => 'list',
+            'params' => [
+                'site_key' => $siteKey,
+                'cb_key' => $cbKey
+            ]
+        ]);
+
+        return $response->json();
+    }
+
+    
+    public static function deleteTranslation($code, $id, $siteKey = null, $cbKey = null){
+
+        $response = ONE::delete([
+            'component' => 'empatia',
+            'api' => 'translation',
+            'method' => 'deleteLines',
+            'params' => [
+                'id' => $id,
+                'code' => $code,
+                'cb_key' => $cbKey,
+                'site_key' => $siteKey
+            ]
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesCB.failedToDeleteTranslation"));
+        }
+        return $response;
+        
+    }
+
+    public static function getTranslation($code, $lang_code = "",  $siteKey="", $cbKey = ""){
+
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api' => 'translation',
+            'method' => 'getTranslation',
+            'params' => [
+                'cb_key' => $cbKey,
+                'site_key' => $siteKey,
+                'code' => $code,
+                'language_code' => $lang_code
+            ]
+        ]);
+
+
+        return $response->json();
+    }
+
+
+    public static function getPad($cbKey)
+    {
+        $response = ONE::post([
+            'component' => 'empatia',
+            'api' => 'cb',
+            'api_attribute' => $cbKey,
+            'method' => 'getPad',
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesCB.failedToGetPad"));
+        }
+
+        return $response->json()->data;
+
+    }
+
+    public static function getPadTopics($cbKey)
+    {
+        $response = ONE::post([
+            'url' => 'http://luismonteiro.empatia-dev.onesource.pt:5015',
+            'component' => 'empatia',
+            'api' => 'cb',
+            'api_attribute' => $cbKey,
+            'method' => 'getPadTopics',
+        ]);
+        
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesCB.failedToGetPadTopics"));
+        }
+
+        return $response->json()->data;
+
+    }
+
+
+    public static function displayTopic($topicKey)
+    {
+        $response = ONE::post([
+            //'url' => 'http://luismonteiro.empatia-dev.onesource.pt:5015',
+            'component' => 'empatia',
+            'api' => 'topic',
+            'api_attribute' => $topicKey,
+            'method' => 'getTopic',
+        ]);
+//        !is_null($response->json()) ? dd("remote DD",$response->json()) : die("remote ECHO" .$response->content());
+
+        if ($response->statusCode() != 200) {
+            throw new Exception(trans("comModulesCB.failedToGetTopic"));
+        }
+
+        return $response->json()->data;
+    }
+    public static function getCbFilters($cbKey)
+    {
+
+        $response = ONE::get([
+            'component' => 'empatia',
+            'api' => 'cb',
+            'method' => 'getCbFilters',
+            'params' => [
+                'cbKey' => $cbKey,
+            ]
+        ]);
+
+        if($response->statusCode()!= 200) {
+            throw new Exception(trans("comModulesOrchestrator.error_getting_filters"));
+        }
+
+        return $response->json()->data;
+
     }
 
 }

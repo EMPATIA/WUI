@@ -3,6 +3,18 @@
 @section('content')
     @php
     $selectedConfigs = array(
+        '3gN7rsyzMvZrxBhZPiaFonMBpt9BcWZF' => array(
+            'idea' => array(
+                'security_public_access',
+                'security_anonymous_comments',
+                'security_create_topics',
+                'topic_options_allow_pictures',
+                'topic_options_allow_share',
+                'topic_options_allow_follow',
+                'topic_comments_allow_comments',
+                'topic_comments_normal'
+            )
+        ),
     );
 
     $entityKey = Session::get('X-ENTITY-KEY');

@@ -30,7 +30,7 @@
     <div class="col-12">
         <div class="box box-info">
             <div class="box-header">
-                <h3 class="box-title">{{ trans('private.posts_moderation') }}</h3>
+                <h3 class="box-title">{{ trans('private.list') }}</h3>
 
                 <div class="box-tools pull-right">
                     <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>

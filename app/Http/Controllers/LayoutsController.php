@@ -18,7 +18,7 @@ class LayoutsController extends Controller
 
     public function __construct()
     {
-        View::share('title', trans('privateLayouts.title'));
+        View::share('title', trans('privateLayouts.templates'));
 
 
     }
@@ -76,7 +76,15 @@ class LayoutsController extends Controller
         try {
             $layout = Orchestrator::getLayout($layoutKey);
 
-            return view('private.layouts.layout', compact('layout'));
+            $entityKey = ONE::getEntityKey();
+            $sidebar = 'entity';
+            $active = 'layouts';
+            
+            if(!empty($entityKey))
+                return view('private.layouts.layout', compact('layout','sidebar','active','entityKey'));
+            
+            else
+                return view('private.layouts.layout', compact('layout'));
         }
         catch(Exception $e) {
             return redirect()->back()->withErrors([ trans('privateLayouts.show') => $e->getMessage()]);
@@ -102,7 +110,7 @@ class LayoutsController extends Controller
 
             Session::put('sidebarArguments', ['activeFirstMenu' => 'layouts']);
             $entityKey = One::getEntityKey();
-            if($entityKey == null)
+            if(empty($entityKey))
                 return view('private.layouts.layout', compact('layout'));
 
             return view('private.layouts.layout', compact('layout','entityKey', 'sidebar', 'active'));
@@ -194,8 +202,9 @@ class LayoutsController extends Controller
                 return "<a href='".action('LayoutsController@show', $collection->layout_key)."'>".$collection->name."</a>";
             })
             ->addColumn('action', function ($collection) {
-                return ONE::actionButtons($collection->layout_key, ['edit' => 'LayoutsController@edit', 'delete' => 'LayoutsController@delete']);
+                return ONE::actionButtons([$collection->layout_key,"f" => "layout"], ['edit' => 'LayoutsController@edit', 'delete' => 'LayoutsController@delete']);
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 

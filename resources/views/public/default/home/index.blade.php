@@ -1,44 +1,79 @@
-@extends('public.default._layouts.homeIndex')
+<?php
+$isHome=true;
+$homeContentSections = \App\Http\Controllers\PublicContentManagerController::getSections("homepage");
+
+$bannerLeft = collect($homeContentSections)->where('code', '=', 'html_banner_left_column')->first();
+$bannerMid = collect($homeContentSections)->where('code', '=', 'html_banner_mid_column')->first();
+$bannerRight = collect($homeContentSections)->where('code', '=', 'html_banner_right_column')->first();
+
+$homePageItemSections = collect($homeContentSections)->where("section_type.code","=","homepageItemSection")->values();
+?>
+@extends('public.default._layouts.index')
+
 @section('content')
-    <!-- MAIN -->
-    {{--<section>
-        <div class="know-more-container">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-9 col-xs-12">
-                        <h4>{{trans('defaultHome.empatia_description')}}</h4>
-                    </div>
-                    <div class="col-md-3 col-xs-12 know-more-button-div">
-                            <a href="https://demo.empatia-project.eu/content/fUMJSCC2s5keySE8j1jNXOk0Ww3P493u">{{trans('defaultHome.about')}}</a>
+    
+    @if(env("DEMO_MODE",false)==true)
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+            {{trans("wizard.create")}}
+        </button> 
+    @endif
+
+    <div class="container-fluid">
+        <div class="row primary-color">
+            <div class="col-12 no-padding">
+                <div class="container page-items-container">
+                    <div class="row no-gutters">
+                        @if(!empty($homePageItemSections[0]))
+                            @include("public.default.sections.homePageItemSection",["section" => $homePageItemSections[0]])
+                        @endif
+                        @if(!empty($homePageItemSections[1]))
+                            @include("public.default.sections.homePageItemSection",["section" => $homePageItemSections[1]])
+                        @endif
+                        @if(!empty($homePageItemSections[2]))
+                            @include("public.default.sections.homePageItemSection",["section" => $homePageItemSections[2]])
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
-    </section>--}}
-    @include('public.default._layouts.registrationSection')
+    </div>
 
-
-    {{--<div class="container">--}}
-        {{--<div class="row">--}}
-            {{--<div class="home-middle text-center">--}}
-                {{--<h2 class="photoBannerTitle">{{trans("defaultHome.middle_page_title")}}</h2>--}}
-                {{--<h4 class="photoBannerDescription">{{trans("defaultHome.middle_page_description")}}</h4>--}}
-            {{--</div>--}}
-        {{--</div>--}}
-    {{--</div>--}}
     @include('public.default.home.lastNews')
-{{--    @include('public.default.home.questionnaire')--}}
+    {{--  @include('public.demo.home.lastEvents')  --}}
+    @if(Session::get("can-show-start-modal",true))
+        @include("public.default.home.popup")
+    @endif
+
+    
+    <!-- Modal -->
+    <div class="modal fade bd-example-modal-xl" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="exampleModalLabel">{{trans("wizard.title")}}</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @include('public.default.wizard.createEntity')
+            </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
-@section('scripts')
+@section("scripts")
     <script>
-        $.each([$(".news-content-box")], function (index, value) {
-            $(document).ready(function () {
+        $(document).ready(function() {
+            $.each([$(".news-group-wrapper .news-title-link")], function (index, value) {
                 value.dotdotdot({
                     ellipsis: '... ',
                     wrap: 'word',
                     aft: null,
-                    watch: 'window'
+                    height: 70,
+                    watch: "window"
                 });
             });
         });

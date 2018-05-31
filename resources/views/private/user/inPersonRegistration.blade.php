@@ -107,7 +107,7 @@
                         }, beforeSend: function () {
                             element.parent('.fields').find("input").prop("disabled", true);
                             element.parent('.fields').find("select").prop("disabled", true);
-                            element.append('<img src="{{ asset('images/bluePreLoader.gif') }}" alt="Loading" class="loader pull-right" style="width: 20px; padding-top:2px;"/>');
+                            element.append('<img src="{{ asset('images/default/bluePreLoader.gif') }}" alt="Loading" class="loader pull-right" style="width: 20px; padding-top:2px;"/>');
                             $('.translations-table').find('tbody').append(
                                 '<tr class="fields">' +
                                 '<td><input type="text" name="code" class="form-control"></td>' +

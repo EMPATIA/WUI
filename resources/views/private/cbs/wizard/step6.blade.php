@@ -71,35 +71,35 @@
 
     function moderatorsView(){
         @if(isset($cbKey))
-        $.ajax({
-            url: '{{action("CbsController@moderateRouting", ['type' => $type, 'action' => 'create', 'step' => 'moderators'])}}',
-            method: 'get',
-            data: {
-                cbKey: '{{ $cbKey }}',
-                _token: "{{ csrf_token()}}"
-            },
-            success: function(response){
-                window.location.href = response;
-            },
-            error: function(msg){
-                console.log(msg);
-            }
-        });
+            $.ajax({
+                url: '{{action("CbsController@moderateRouting", ['type' => $type, 'action' => 'create', 'step' => 'moderators'])}}',
+                method: 'get',
+                data: {
+                    cbKey: '{{ $cbKey }}',
+                    _token: "{{ csrf_token()}}"
+                },
+                success: function(response){
+                    window.location.href = response;
+                },
+                error: function(msg){
+                    console.log(msg);
+                }
+            });
         @else
-$.ajax({
-            url: '{{action("CbsController@moderateRouting", ['type' => $type, 'action' => 'create', 'step' => 'moderators'])}}',
-            method: 'get',
-            data: {
-                cbKey: $("#cb_key").text(),
-                _token: "{{ csrf_token()}}"
-            },
-            success: function(response){
-                window.location.href = response;
-            },
-            error: function(msg){
-                console.log(msg);
-            }
-        });
+            $.ajax({
+                url: '{{action("CbsController@moderateRouting", ['type' => $type, 'action' => 'create', 'step' => 'moderators'])}}',
+                method: 'get',
+                data: {
+                    cbKey: $("#cb_key").text(),
+                    _token: "{{ csrf_token()}}"
+                },
+                success: function(response){
+                    window.location.href = response;
+                },
+                error: function(msg){
+                    console.log(msg);
+                }
+            });
         @endif
     }
 

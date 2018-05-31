@@ -22,7 +22,7 @@ class CMSectionTypeParametersController extends Controller
      */
     public function index()
     {
-        $title = trans('privateCMSectionTypeParameters.list_title');
+        $title = trans('privateCMSectionTypeParameters.sectionTypeParameters');
         return view('private.CMSectionTypeParameters.index', compact('title'));
     }
 
@@ -175,21 +175,27 @@ class CMSectionTypeParametersController extends Controller
      * @return mixed
      */
 
-    public function getIndexTable(){
+    public function getIndexTable(Request $request){
         // Request for Data List
-        $sectionTypesList = CM::getSectionTypeParameters();
 
+        $sectionTypesList = CM::getSectionTypeParameters($request);
         // JSON data collection
-        $collection = Collection::make($sectionTypesList);
+        $collection = collect($sectionTypesList->sectionTypeParameters);
+        $recordsTotal = $sectionTypesList->recordsTotal;
+        $recordsFiltered = $sectionTypesList->recordsFiltered;
 
         // Render Datatable
         return Datatables::of($collection)
-            ->addColumn('key', function ($sectionType) {
-                return "<a href='".action('CMSectionTypeParametersController@show', $sectionType->section_type_parameter_key)."'>".$sectionType->section_type_parameter_key."</a>";
+            ->addColumn('key', function ($collection) {
+                return "<a href='".action('CMSectionTypeParametersController@show', $collection->section_type_parameter_key)."'>".$collection->section_type_parameter_key."</a>";
             })
-            ->addColumn('action', function ($sectionType) {
-                return ONE::actionButtons($sectionType->section_type_parameter_key, ['form' => 'CMSectionTypeParameters','edit' => 'CMSectionTypeParametersController@edit', 'delete' => 'CMSectionTypeParametersController@delete'] );
+            ->addColumn('action', function ($collection) {
+                return ONE::actionButtons($collection->section_type_parameter_key, ['form' => 'CMSectionTypeParameters','edit' => 'CMSectionTypeParametersController@edit', 'delete' => 'CMSectionTypeParametersController@delete'] );
             })
+            ->rawColumns(['key','action'])
+            ->with('filtered', $recordsFiltered ?? 0)
+            ->skipPaging()
+            ->setTotalRecords($recordsTotal ?? 0)
             ->make(true);
     }
 }

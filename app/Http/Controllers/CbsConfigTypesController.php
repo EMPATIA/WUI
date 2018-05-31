@@ -17,7 +17,7 @@ class CbsConfigTypesController extends Controller
 {
     public function __construct()
     {
-        View::share('title', trans('cbConfigs.title'));
+        View::share('title', trans('cbConfigs.participatoryConfigurationSections'));
 
     }
 
@@ -228,6 +228,7 @@ class CbsConfigTypesController extends Controller
                 ->addColumn('action', function ($collection){
                     return ONE::actionButtons(['id' => $collection->id], ['form' => 'cbConfigType','edit' => 'CbsConfigTypesController@edit', 'delete' => 'CbsConfigTypesController@delete']);
                 })
+                ->rawColumns(['title','action'])
                 ->make(true);
 
         } catch (Exception $e) {

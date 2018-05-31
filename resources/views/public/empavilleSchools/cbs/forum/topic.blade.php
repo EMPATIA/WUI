@@ -42,7 +42,7 @@
                             <img style="width: 100%" class="img-circle"  src="{{URL::action('FilesController@download',[$usersNames[$topic->created_by]['photo_id'], $usersNames[$topic->created_by]['photo_code'], 1])}}">
 
                         @else
-                            <img style="width: 100%" class="img-circle" src="{{ asset('images/cml/icon-user-default-160x160.png') }}">
+                            <img style="width: 100%" class="img-circle" src="{{ asset('images/default/icon-user-default-160x160.png') }}">
                         @endif
                     </div>
                     <div class="user">
@@ -150,7 +150,7 @@
                                             <img style="width: 100%" class="img-circle"  src="{{URL::action('FilesController@download',[$usersNames[$message->created_by]['photo_id'], $usersNames[$message->created_by]['photo_code'], 1])}}">
 
                                         @else
-                                            <img style="width: 100%" class="img-circle" src="{{ asset('images/cml/icon-user-default-160x160.png') }}">
+                                            <img style="width: 100%" class="img-circle" src="{{ asset('images/default/icon-user-default-160x160.png') }}">
                                         @endif
                                     </div>
 
@@ -240,7 +240,7 @@
                                         <img style="width: 100%" class="img-circle"
                                              src="{{URL::action('FilesController@download',[Session::get('user')->photo_id, Session::get('user')->photo_code, 1])}}">
                                     @else
-                                        <img style="width: 100%" class="img-circle" src="{{ asset('images/cml/icon-user-default-160x160.png') }}">
+                                        <img style="width: 100%" class="img-circle" src="{{ asset('images/default/icon-user-default-160x160.png') }}">
                                     @endif
                                 </div>
                                 <div class="user">

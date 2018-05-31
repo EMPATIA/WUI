@@ -18,7 +18,7 @@
             @endif
         @endforeach
     @endif
-    @if(ONE::actionType('inPersonRegistration') == "show" and ONE::verifyUserPermissions('vote', 'presencial_vote', 'create'))
+    @if(ONE::actionType('inPersonRegistration') == "show")
         <a href="{{ action("InPersonRegistrationController@voteInPerson",['userKey' => $user->user_key,'type' => 'proposal']) }}" class="btn btn-flat empatia" target="_blank">{{trans('inPersonRegistration.voteInPerson')}}</a>
     @endif
 

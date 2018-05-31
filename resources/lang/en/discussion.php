@@ -1,1 +1,1 @@
-<?php return array (  'create' => 'Create',  'title' => 'Title',  'contents' => 'Contents',  'index' => 'Index',  'store' => 'Store',  'store_ok' => 'Store ok',  'update_ok' => 'Update ok',  'delete_ok' => 'Delete ok',  'edit' => 'Edit',  'show' => 'Show',  'update' => 'Update',  'discussion' => 'Discussion',);
+<?php return array (  'title' => 'Title',  'contents' => 'Contents',  'create' => 'Create',);

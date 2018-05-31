@@ -23,21 +23,30 @@
                         </select>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-sm-6 col-12">
+                        <div class="form-group input-group">
+                            <span class="input-group-addon"><i class="fa fa-arrow-up" aria-hidden="true"></i> {{ trans('privateCbsVote.total_topics') }}</span>
+                            <input id="top_topics" type="number" class="form-control" name="top_topics" value="10">
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-12">
+                        <div class="form-group input-group">
+                            <span class="input-group-addon"><i class="fa fa-thumbs-up" aria-hidden="true"></i> {{ trans('privateCbsVote.min_votes') }}</span>
+                            <input id="min_votes" type="number" class="form-control" name="min_votes" value="0">
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group input-group">
+                            <span class="input-group-addon"><i class="fa fa-arrow-up" aria-hidden="true"></i> {{ trans('privateCbsVote.total_topics') }}</span>
+                            <input id="top_topics" type="number" class="form-control" name="top_topics" value="10">
+                        </div>
+                    </div>
+                </div>
             @endif
-            <div class="row">
-                <div class="col-sm-6 col-12">
-                    <div class="form-group input-group">
-                        <span class="input-group-addon"><i class="fa fa-arrow-up" aria-hidden="true"></i> {{ trans('privateCbsVote.total_topics') }}</span>
-                        <input id="top_topics" type="number" class="form-control" name="top_topics" value="10">
-                    </div>
-                </div>
-                <div class="col-sm-6 col-12">
-                    <div class="form-group input-group">
-                        <span class="input-group-addon"><i class="fa fa-thumbs-up" aria-hidden="true"></i> {{ trans('privateCbsVote.min_votes') }}</span>
-                        <input id="min_votes" type="number" class="form-control" name="min_votes" value="0">
-                    </div>
-                </div>
-            </div>
             <div class="row">
                 <div class="col-12">
                     <div class="form-group">
@@ -108,9 +117,11 @@
             <table id="topics_list" class="table table-bordered table-hover table-striped ">
                 <thead>
                 <tr>
+                    <th><input type="checkbox" id="checkAll"/></th>
                     <th>{{ trans('privateCbs.topic_title') }}</th>
                     <th>{{ trans('privateCbs.topic_created_by') }}</th>
                     <th>{{ trans('privateCbs.total_votes') }}</th>
+                    <th>{{ trans('privateCbs.active_status') }}</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -178,6 +189,9 @@
         });
 
 
+        $('#checkAll').click(function () {
+            $('#topics_list input:checkbox').prop('checked', this.checked);
+        });
         $("#voteEventSelect").select2({
             placeholder: '{{ trans("privateCbs.select_the_vote_event") }}'
         });
@@ -216,10 +230,11 @@
                     }
                 },
                 columns: [
+                    { data: 'action', name: 'action', searchable: false, orderable: false, className: "text-center"},
                     { data: 'title', name: 'title', width: "65%" },
                     { data: 'created_by', name: 'created_by' },
                     { data: 'total_votes', name: 'total_votes',className: "text-center" },
-                    { data: 'action', name: 'action', searchable: false, orderable: false, className: "text-center"},
+                    { data: 'status', name: 'status' }
                 ],
                 order: [['2', 'desc']]
             });

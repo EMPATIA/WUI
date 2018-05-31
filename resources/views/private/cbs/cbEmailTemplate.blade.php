@@ -31,7 +31,7 @@
             {{ method_field('PUT') }}
         @endif
 
-        @if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('cb', 'notifications'))
+        @if(Session::get('user_role') == 'admin')
             @if(count($languages) > 0)
                 @foreach($languages as $language)
                     @php $form->openTabs('tab-translation-'.$config_code.'-' . $language->code, $language->name); @endphp
@@ -57,7 +57,7 @@
     <script>
         @if(ONE::actionType('notificationTemplate') != "show")
         $(document).ready(function(){
-            {!! ONE::addTinyMCE(".mcEdit", ['action' => action('ContentsController@getTinyMCE')]) !!}
+            {!! ONE::addTinyMCE(".mcEdit", ['action' => action('ContentManagerController@getTinyMCE')]) !!}
         });
         @endif
     </script>

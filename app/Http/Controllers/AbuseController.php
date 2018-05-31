@@ -188,6 +188,7 @@ class AbuseController extends Controller
             ->addColumn('action', function ($collection) {
                 return ONE::actionButtons($collection->id, ['show' => 'AbuseController@edit', 'delete' => 'AbuseController@destroy']);
             })
+            ->rawColumns(["id","type","processed","action"])
             ->make(true);
     }
 
@@ -214,6 +215,7 @@ class AbuseController extends Controller
 
                 return "<a href='" . action('AbuseController@show', $collection->id) . "'>" . $processed . "</a>";
             })
+            ->rawColumns(["processed"])
             ->make(true);
     }
 
@@ -248,6 +250,7 @@ class AbuseController extends Controller
 
                 return "<a href='" . action('AbuseController@show', $collection->id) . "'>" . $processed . "</a>";
             })
+            ->rawColumns(["postId","comment","abuses","processed"])
             ->make(true);
     }
 

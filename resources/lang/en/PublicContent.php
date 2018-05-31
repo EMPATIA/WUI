@@ -1,1 +1,1 @@
-<?php return array (  'continueReading' => 'continue reading',  'news' => 'news',  'events' => 'events',  'files' => 'files',  'summary' => 'summary',  'pageTitle' => 'title',  'previous' => 'previous',  'next' => 'next',);
+<?php return array (  'pageTitle' => 'title',  'files' => 'files',  'previous' => 'previous',  'next' => 'next',  'news' => 'news',  'events' => 'events',  'summary' => 'summary',  'continueReading' => 'continue reading',);

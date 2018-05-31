@@ -1,1 +1,1 @@
-<?php return array (  'language' => 'Language',);
+<?php return array (  'language' => 'Language',  'languages' => 'Languages',);

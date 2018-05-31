@@ -1,1 +1,1 @@
-<?php return array (  'accessPages' => 'Access Pages',  'id' => 'Id',  'name' => 'Name',  'accessTypeId' => 'Access Type Id',  'active' => 'Active',  'accessType' => 'Access Type',  'description' => 'Description',  'entityId' => 'Entity Id',);
+<?php return array (  'accessType' => 'Access Type',  'name' => 'Name',  'description' => 'Description',  'active' => 'Active',  'entityId' => 'Entity Id',  'accessPages' => 'Access Pages',  'id' => 'Id',  'accessTypeId' => 'Access Type Id',);

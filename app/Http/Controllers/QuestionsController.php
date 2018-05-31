@@ -105,6 +105,8 @@ class QuestionsController extends Controller
             $questionOptions = Questionnaire::getQuestionOptions($key);
             $dependencies = Questionnaire::getQuestionDependencies($key);
 
+
+
             $questionOptionDependencies = [];
             foreach($questionOptions as $questionOption){
                 $questionoption = Questionnaire::getQuestionOption($questionOption->question_option_key);

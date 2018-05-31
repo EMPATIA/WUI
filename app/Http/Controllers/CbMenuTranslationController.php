@@ -26,6 +26,8 @@ class CbMenuTranslationController extends Controller
             "vote_analysis",
             "notifications",
             "empaville_analytics",
+            "manageSecondCycle",
+            "manageSecondCycleCb",
             "export_topics",
             "pads_security_configurations",
             "cb_group_permissions",
@@ -74,6 +76,9 @@ class CbMenuTranslationController extends Controller
             $sidebar = 'padsType';
             $active = 'getCbMenuTranslation';
             $title = trans('privateCbsMenuTranslations.cbMenuTranslation');
+
+            Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'getCbMenuTranslation']);
+            Session::put('sidebars', [0 => 'private', 1=> 'padsType']);
 
             return view('private.cbsMenuTranslations.cbMenuTranslation', compact('title', 'cbMenuTranslations', 'languages', 'type', 'cbKey', 'sidebar', 'active', 'entities', 'cbsEntity', 'user'));
         } catch (Exception $e) {

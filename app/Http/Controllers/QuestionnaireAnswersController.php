@@ -245,28 +245,33 @@ class QuestionnaireAnswersController extends Controller
                     }
 
                     //Get User Names
-                    $userKeys = collect($question->form_replies)->pluck('created_by');
-                    $usersKeysNames = Collect(Auth::getUserNames($userKeys))->pluck('name', 'user_key');
+                    if (!empty($question->form_replies)){
+                        $userKeys = collect($question->form_replies??[])->pluck('created_by');
+                        $usersData = collect(Auth::getUserNames($userKeys));
+                        $usersKeysNames = $usersData->pluck('name', 'user_key');
+                        $usersKeysEmails = $usersData->pluck('email', 'user_key');
 
-                    // Form replies
-                    foreach ($question->form_replies as $formReply) {
+                        // Form replies
+                        foreach ($question->form_replies as $formReply) {
 
-                        $data[$formReply->form_reply_id][$formReply->question_id]["question"] = $question->question;
-                        $data[$formReply->form_reply_id][$formReply->question_id]["question_type"] =  !empty($question->question_type->name) ? $question->question_type->name : "";
-                        if(!empty($formReply->question_option_id) &&  array_key_exists($formReply->question_option_id,$options2)){
-                            $data[$formReply->form_reply_id][$formReply->question_id]["question_option"] = $options2[(integer) $formReply->question_option_id];
-                        } else if(!empty($formReply->answer) &&  array_key_exists($formReply->answer,$options2) ) {
-                            $data[$formReply->form_reply_id][$formReply->question_id]["question_option"] = $options2[(integer) $formReply->answer];
-                        } else {
-                            $data[$formReply->form_reply_id][$formReply->question_id]["question_option"] = $formReply->answer;
+                            $data[$formReply->form_reply_id][$formReply->question_id]["question"] = $question->question;
+                            $data[$formReply->form_reply_id][$formReply->question_id]["question_type"] =  !empty($question->question_type->name) ? $question->question_type->name : "";
+                            if(!empty($formReply->question_option_id) &&  array_key_exists($formReply->question_option_id,$options2)){
+                                $data[$formReply->form_reply_id][$formReply->question_id]["question_option"] = $options2[(integer) $formReply->question_option_id];
+                            } else if(!empty($formReply->answer) &&  array_key_exists($formReply->answer,$options2) ) {
+                                $data[$formReply->form_reply_id][$formReply->question_id]["question_option"] = $options2[(integer) $formReply->answer];
+                            } else {
+                                $data[$formReply->form_reply_id][$formReply->question_id]["question_option"] = $formReply->answer;
+                            }
+                            //Insert UserKeu and User Name - who answered the question
+                            $data[$formReply->form_reply_id][$formReply->question_id]["created_by"] = $formReply->created_by ?? null;
+                            $data[$formReply->form_reply_id][$formReply->question_id]["created_by_name"] =  $usersKeysNames[$formReply->created_by] ?? null;
+                            $data[$formReply->form_reply_id][$formReply->question_id]["created_by_email"] =  $usersKeysEmails[$formReply->created_by] ?? null;
                         }
-                        //Insert UserKeu and User Name - who answered the question
-                        $data[$formReply->form_reply_id][$formReply->question_id]["created_by"] = $formReply->created_by ?? null;
-                        $data[$formReply->form_reply_id][$formReply->question_id]["created_by_name"] =  $usersKeysNames[$formReply->created_by] ?? null;
                     }
 
                     // Questions
-                    $questions[$formReply->question_id] = $question->question;
+                    $questions[$question->id] = $question->question;
                 }
             }
 
@@ -280,7 +285,7 @@ class QuestionnaireAnswersController extends Controller
                     $locations[$key]["lat"] = $obj->lat;
                 }
             }
-
+            
             Excel::create('QuestionnaireAnswers', function($excel)  use ($questionnaire,$data,$questions,$locations) {
 
                 $excel->sheet("Data", function ($sheet) use ($data,$questions,$locations) {

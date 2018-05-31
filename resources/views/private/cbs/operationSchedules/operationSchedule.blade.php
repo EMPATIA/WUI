@@ -35,7 +35,7 @@
                     <label for="operationActionSelect">{{trans('privateOperationSchedules.action')}}</label>
                     <span class="help-block oneform-help-block" style="margin:-4px 0;font-size:10px;">{{trans('privateOperationSchedules.action_description')}}</span>
                     <br>
-                    <select id="operationActionSelect" name="operationActionSelect" class="select2-searchable" required @if(ONE::actionType('operationSchedules') != 'create') disabled @endif>
+                    <select style="min-width: 300px" id="operationActionSelect" name="operationActionSelect" class="select2-searchable" required @if(ONE::actionType('operationSchedules') != 'create') disabled @endif>
                         <option value="">{{ trans('privateOperationSchedules.select_action') }}</option>
                         @foreach($operationActions as $operationAction)
                             <option value="{!! $operationAction->code !!}" @if(isset($operationSchedule) && ($operationAction->id == $operationSchedule->operation_action_id)) selected @endif>{!! $operationAction->name !!} </option>
@@ -50,7 +50,7 @@
                     <label for="operationActionSelect">{{trans('privateOperationSchedules.type')}}</label>
                     <span class="help-block oneform-help-block" style="margin:-4px 0;font-size:10px;">{{trans('privateOperationSchedules.type_description')}}</span>
                     <br>
-                    <select id="operationTypeSelect" name="operationTypeSelect" class="select2-searchable" required @if(ONE::actionType('operationSchedules') != 'create') disabled @endif >
+                    <select style="min-width: 300px" id="operationTypeSelect" name="operationTypeSelect" class="select2-searchable" required @if(ONE::actionType('operationSchedules') != 'create') disabled @endif >
                         <option value="">{{ trans('privateOperationSchedules.select_type') }}</option>
                         @foreach($operationTypes as $operationType)
                             <option value="{!! $operationType->code !!}" @if(isset($operationSchedule) && ($operationType->id == $operationSchedule->operation_type_id)) selected @endif>{!! $operationType->name !!}</option>
@@ -64,7 +64,7 @@
                 <span class="help-block oneform-help-block" style="margin:-4px 0;font-size:10px;">{{trans('privateOperationSchedules.start_date_time_description')}}</span>
                 <br>
                 <div class="form-group">
-                    <div class='input-group date' id='startDate'>
+                    <div class='input-group date' id='startDate' style="max-width: 300px">
                         <input type='text' class="form-control" name="startDate" @if(isset($operationSchedule)) value="{{$operationSchedule->start_date}}" @endif required @if(ONE::actionType('operationSchedules') == 'show') disabled @endif/>
                         <span class="input-group-addon">
                                 <span class="glyphicon glyphicon-calendar">
@@ -79,7 +79,7 @@
                 <span class="help-block oneform-help-block" style="margin:-4px 0;font-size:10px;">{{trans('privateOperationSchedules.end_date_time_description')}}</span>
                 <br>
                 <div class="form-group">
-                    <div class='input-group date' id='endDate'>
+                    <div class='input-group date' id='endDate' style="max-width: 300px">
                         <input type='text' class="form-control" name="endDate" @if(isset($operationSchedule)) value="{{$operationSchedule->end_date}}" @endif required @if(ONE::actionType('operationSchedules') == 'show') disabled @endif/>
                         <span class="input-group-addon">
                                 <span class="glyphicon glyphicon-calendar">
@@ -100,10 +100,14 @@
 
 @section('scripts')
     <script>
-        $("#operationActionSelect").select2();
-        $("#operationTypeSelect").select2();
-
         $(function () {
+            $("#operationActionSelect").select2({
+                tags: true
+            });
+            $("#operationTypeSelect").select2({
+                tags: true
+            });
+
             $('.date').datetimepicker({
                 format: 'YYYY-MM-D HH:mm'
             });

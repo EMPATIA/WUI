@@ -11,32 +11,57 @@
             <div class="box box-primary">
                 <div class="box-header">
                     <div class="col-sm-2">
-                        <span>{{trans('privateTopicReviews.creator')}}</span>
-                        <span><h5 style="font-weight: bold">{{$review->creator_name}}</h5></span>
+                        <span class="mt-3 d-block">{{trans('privateTopicReviews.creator')}}</span>
+                        <span><h5 class="font-weight-bold" >{{$review->creator_name}}</h5></span>
                     </div>
 
                     <div class="col-sm-2" style="margin-top: 1%"><h5 style="margin-right:20px">{{trans('privateTopicReviews.reviewers')}}</h5></div>
                     @foreach($review->topic_review_reviewers as $reviewers)
-                        <div class="col-sm-2" style="margin-top: 1%">
-
+                        <div class="col-sm-2" ">
                             <h6>{{isset($reviewers->reviewer_name) ? $reviewers->reviewer_name : ""}}</h6>
                         </div>
                     @endforeach
                 </div>
 
                 <div class="box-body">
-
-                    <div class="row" style="margin-left: 20px">
-
-                        {!! Form::oneText('subject', trans('privateTopicReviews.subject'), isset($review) ? $review->subject : null, ['class' => 'form-control', 'id' => 'description', 'required']) !!}
-                        {!! Form::oneTextArea('description', trans('privateTopicReviews.description'), isset($review) ? $review->description : null, ['class' => 'form-control', 'id' => 'description', 'required']) !!}
-                        @if(!empty($review->topic_review_replies))
-                            <button class="pull-right btn btn-success" type="button" data-toggle="collapse" data-target="#{{$review->topic_review_key}}" aria-expanded="false" aria-controls="{{$review->topic_review_key}}">{{trans('privateTopicReviews.replies')}}</button>
-                        @else
-                            <button class="pull-right btn btn-success" type="button" data-toggle="collapse" data-target="#{{$review->topic_review_key}}" disabled aria-expanded="false" aria-controls="{{$review->topic_review_key}}">{{trans('privateTopicReviews.replies')}}</button>
-                        @endif
+                    <div>
+                        <dl class="dl-horizontal">
+                            <dt>
+                                {!! Form::oneText('subject', trans('privateTopicReviews.subject'),
+                                isset($review) ? $review->subject : null,
+                                ['class' => 'form-control',
+                                'id' => 'description',
+                                'required']) !!}
+                            </dt>
+                            <dd>
+                                {!! Form::oneTextArea('description',
+                                trans('privateTopicReviews.description'),
+                                isset($review) ? $review->description : null,
+                                ['class' => 'form-control',
+                                'id' => 'description',
+                                'required']) !!}
+                            </dd>
+                        </dl>
                     </div>
-
+                    @if(!empty($review->topic_review_replies))
+                        <button
+                                class="pull-left btn btn-flat empatia btnReplies"
+                                type="button" data-toggle="collapse"
+                                data-target="#{{$review->topic_review_key}}"
+                                aria-expanded="false"
+                                aria-controls="{{$review->topic_review_key}}">
+                            {{trans('privateTopicReviews.replies')}}
+                        </button>
+                    @else
+                        <button
+                                class="pull-left btn btn-flat empatia btnReplies"
+                                type="button" data-toggle="collapse"
+                                data-target="#{{$review->topic_review_key}}"
+                                disabled aria-expanded="false"
+                                aria-controls="{{$review->topic_review_key}}" ">
+                            {{trans('privateTopicReviews.replies')}}
+                        </button>
+                    @endif
                 </div>
             </div>
             @if(!empty($review->topic_review_replies))
@@ -57,7 +82,10 @@
 
                                     <div class="row" style="margin-left: 20px">
 
-                                        {!! Form::oneTextArea('description', trans('privateTopicReviews.description'), isset($replies) ? $replies->content : null, ['class' => 'form-control', 'id' => 'description', 'required']) !!}
+                                        {!! Form::oneTextArea('description', trans('privateTopicReviews.description'),
+                                         isset($replies) ? $replies->content : null,
+                                          ['class' => 'form-control', 'id' => 'description',
+                                           'required']) !!}
 
                                     </div>
 
@@ -72,6 +100,7 @@
     </div>
 @endsection
 
+<div   commentedCode   >
 {{--@section('content')--}}
 {{--<div class="box box-primary">--}}
 
@@ -114,7 +143,7 @@
 {{--</div>--}}
 {{--</div>--}}
 {{--@endsection--}}
-
+</div>
 
 @section('scripts')
 

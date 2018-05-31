@@ -1,1 +1,1 @@
-<?php return array (  'list_kiosks' => 'Kiosks List',  'createKiosk' => 'Create a Kiosk',  'details' => 'Details',);
+<?php return array (  'details' => 'Details',  'list_kiosks' => 'Kiosks List',  'createKiosk' => 'Create a Kiosk',  'kiosks' => 'Kiosks',);

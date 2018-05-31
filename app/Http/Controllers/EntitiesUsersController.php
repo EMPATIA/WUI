@@ -188,6 +188,7 @@ class EntitiesUsersController extends Controller
             ->addColumn('action', function ($user) {
                 return ONE::actionButtons($user->user_key, ['show' => 'EntitiesUsersController@show', 'add' => 'EntitiesUsersController@edit']);
             })
+            ->rawColumns(['action'])
             ->make(true);
     }
 }

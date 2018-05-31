@@ -7,6 +7,7 @@ use App\ComModules\Files;
 use App\ComModules\Notify;
 use App\ComModules\Orchestrator;
 use App\ComModules\CB;
+use App\ComModules\EMPATIA;
 use App\Http\Requests\EntitySiteRequest;
 use Carbon\Carbon;
 use Exception;
@@ -42,9 +43,6 @@ class EntitiesDividedController extends Controller
 
     public function edit($entityKey)
     {
-        if(!ONE::verifyUserPermissions('orchestrator', 'entity', 'update')){
-            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-        }
 
         $carbon = Carbon::now();
         $data = [];
@@ -81,6 +79,7 @@ class EntitiesDividedController extends Controller
                 $currency_name[$curr->id] = $curr->currency;
             }
             $data['entity'] = $entity;
+            $data['entityKey'] = $entityKey;
             $data['language'] = $lang_name;
             $data['country'] = $country_name;
             $data['timezone'] = $timezone_name;
@@ -109,10 +108,6 @@ class EntitiesDividedController extends Controller
      */
     public function update(EntityRequest $request)
     {
-        if(!ONE::verifyUserPermissions('orchestrator', 'entity', 'update')){
-            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-        }
-
         try {
 
             $entityKey = ONE::getEntityKey();
@@ -134,10 +129,6 @@ class EntitiesDividedController extends Controller
      */
     public function showEntity()
     {
-        if(!ONE::verifyUserPermissions('orchestrator', 'entity', 'show')){
-            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-        }
-
         if(One::isEntity()){
             try {
                 $entityKey = ONE::getEntityKey();
@@ -148,8 +139,11 @@ class EntitiesDividedController extends Controller
                 $active = 'details';
 
                 Session::put('sidebarArguments', ['activeFirstMenu' => 'details']);
+                $entityKey = Orchestrator::getSiteEntity($_SERVER["HTTP_HOST"])->entity_id;
 
-                return view('private.entities.entity.index', compact('title', 'entity','entityKey', 'sidebar', 'active'));
+                $checklists = EMPATIA::getCbChecklist($entityKey,null);
+
+                return view('private.entities.entity.index', compact('title', 'entity','entityKey', 'sidebar', 'active','checklists','entityKey'));
 
             } catch (Exception $e) {
                 return redirect()->back()->withErrors(["entities.show" => $e->getMessage()]);
@@ -166,10 +160,6 @@ class EntitiesDividedController extends Controller
      */
     public function showEntityDomainsList()
     {
-        if(!ONE::verifyUserPermissions('orchestrator', 'entity', 'show')){
-            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-        }
-
         if(One::isEntity()){
             try {
                 $entityKey = ONE::getEntityKey();
@@ -253,10 +243,6 @@ class EntitiesDividedController extends Controller
      */
     public function storeEntitySite(EntitySiteRequest $request)
     {
-        if(!ONE::verifyUserPermissions('orchestrator', 'entity', 'create')){
-            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-        }
-
         try {
             $entityKey = ONE::getEntityKey();
             $languages = Orchestrator::getLanguages($entityKey);
@@ -392,6 +378,7 @@ class EntitiesDividedController extends Controller
                 })->addColumn('action',function($collection) use ($siteKey){
                     return ONE::actionButtons(['templateKey' => $collection->email_template_key], ['form' => 'emailTemplate', 'edit' => 'EmailTemplatesController@edit','delete' => 'EmailTemplatesController@delete']);
                 })
+                ->rawColumns(['templateSubject','action'])
                 ->make(true);
         }catch (Exception $e){
             return redirect()->back()->withErrors(["entities.tableSiteEmailsManagers" => $e->getMessage()]);
@@ -403,19 +390,15 @@ class EntitiesDividedController extends Controller
      */
     public function showLayouts()
     {
-        if(!ONE::verifyUserPermissions('orchestrator', 'entity_layout', 'show')){
-            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-        }
-
         if (ONE::isEntity()) {
             $entity = Orchestrator::getEntity(ONE::getEntityKey());
             $entityKey = $entity->entity_key;
-            $title = trans('privateEntitiesDivided.show_layouts_index');
+            $title = trans('privateEntitiesDivided.show_template');
 
             $sidebar = 'entity';
-            $active = 'layouts';
+            $active = 'template';
 
-            Session::put('sidebarArguments', ['activeFirstMenu' => 'layouts']);
+            Session::put('sidebarArguments', ['activeFirstMenu' => 'template']);
 
             return view('private.entities.layouts.index', compact('title', 'entity', 'entityKey','sidebar', 'active'));
         } else {
@@ -430,16 +413,13 @@ class EntitiesDividedController extends Controller
     {
 
         try {
-            if(ONE::verifyUserPermissions('orchestrator', 'entity_layout', 'show')){
-                $entityKey = One::getEntityKey();
-                $entity = Orchestrator:: getEntity($entityKey);
+            $entityKey = One::getEntityKey();
+            $entity = Orchestrator:: getEntity($entityKey);
 
-                // in case of json
-                $layouts = Collection::make($entity->layouts);
-            }else
-                $layouts = Collection::make([]);
+            // in case of json
+            $layouts = Collection::make($entity->layouts);
 
-            $delete = ONE::verifyUserPermissions('orchestrator', 'entity_layout', 'delete');
+            $delete = true;
 
             return Datatables::of($layouts)
                 ->editColumn('name', function ($layouts) {
@@ -451,6 +431,7 @@ class EntitiesDividedController extends Controller
                     else
                         return null;
                 })
+                ->rawColumns(['name','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors([trans('privateEntities.tableLayoutsEntity') => $e->getMessage()]);
@@ -483,32 +464,27 @@ class EntitiesDividedController extends Controller
     public function tableAddLayout()
     {
         try {
+            $layouts = Orchestrator::getLayouts();
+            $entity = Orchestrator::getEntity(ONE::getEntityKey());
 
-            if(ONE::verifyUserPermissions('orchestrator', 'entity_layout', 'show')){
-                $layouts = Orchestrator::getLayouts();
-                $entity = Orchestrator::getEntity(ONE::getEntityKey());
+            // Getting layouts reference to an array
+            $layoutsReferences = [];
+            foreach ($entity->layouts as $item) {
+                $layoutsReferences[] = $item->reference;
+            }
 
-                // Getting layouts reference to an array
-                $layoutsReferences = [];
-                foreach ($entity->layouts as $item) {
-                    $layoutsReferences[] = $item->reference;
+            // Rebuild an array with all languages that aren't in entity
+            $layoutsList = [];
+            foreach ($layouts as $layout) {
+                if (!in_array($layout->reference, $layoutsReferences)) {
+                    $layoutsList[] = $layout;
                 }
+            }
 
-                // Rebuild an array with all languages that aren't in entity
-                $layoutsList = [];
-                foreach ($layouts as $layout) {
-                    if (!in_array($layout->reference, $layoutsReferences)) {
-                        $layoutsList[] = $layout;
-                    }
-                }
+            // in case of json
+            $collection = Collection::make($layoutsList);
 
-                // in case of json
-                $collection = Collection::make($layoutsList);
-
-            }else
-                $collection = Collection::make([]);
-
-            $create = ONE::verifyUserPermissions('orchestrator', 'entity_layout', 'create');
+            $create = true;
             return Datatables::of($collection)
                 ->editColumn('name', function ($collection) {
                     return $collection->name;
@@ -519,6 +495,7 @@ class EntitiesDividedController extends Controller
                     else
                         return null;
                 })
+                ->rawColumns(['action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors([trans('privateEntities.tableAddLayout') => $e->getMessage()]);
@@ -578,10 +555,6 @@ class EntitiesDividedController extends Controller
      */
     public function showLanguages()
     {
-        if(!ONE::verifyUserPermissions('orchestrator', 'entity_language', 'show')){
-            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-        }
-
         if (ONE::isEntity()) {
             $entity = Orchestrator::getEntity(ONE::getEntityKey());
             $entityKey = $entity->entity_key;
@@ -658,6 +631,7 @@ class EntitiesDividedController extends Controller
                 ->addColumn('action', function ($language) use ($entityKey) {
                     return ONE::actionButtons([$language->id], ['add' => 'EntitiesDividedController@addLanguageAction']);
                 })
+                ->rawColumns(['action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["entities.tableAddLanguageEntity" => $e->getMessage()]);
@@ -688,21 +662,15 @@ class EntitiesDividedController extends Controller
      */
     public function tableLanguagesEntity()
     {
-
         try {
-            if(ONE::verifyUserPermissions('orchestrator', 'entity_language', 'show')){
+            $entityKey = One::getEntityKey();
 
-                $entityKey = One::getEntityKey();
+            $entity = Orchestrator:: getEntity($entityKey);
 
-                $entity = Orchestrator:: getEntity($entityKey);
+            // in case of json
+            $language = Collection::make($entity->languages);
 
-                // in case of json
-                $language = Collection::make($entity->languages);
-
-            }else
-                $language = Collection::make([]);
-
-            $delete = ONE::verifyUserPermissions('orchestrator', 'entity_language', 'delete');
+            $delete = true;
 
             return Datatables::of($language)
                 ->editColumn('name', function ($language) {
@@ -717,6 +685,7 @@ class EntitiesDividedController extends Controller
                     else
                         return null;
                 })
+                ->rawColumns(['name','activateAction','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["entities.tableLanguagesEntity" => $e->getMessage()]);
@@ -868,6 +837,7 @@ class EntitiesDividedController extends Controller
 
                     return ONE::actionButtons([$user->user_key], ['form' => 'entitiesDivided', 'edit' => 'EntitiesDividedController@editManager', 'delete' => 'EntitiesDividedController@deleteUserConfirm']);
                 })
+                ->rawColumns(['action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["entity.tableUsersEntity" => $e->getMessage()]);
@@ -994,10 +964,6 @@ class EntitiesDividedController extends Controller
      */
     public function showAuthMethods()
     {
-        if(!ONE::verifyUserPermissions('orchestrator', 'entity_auth_method', 'show')){
-            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-        }
-
         if (ONE::isEntity()) {
             $title = trans('privateEntitiesDivided.show_authMethods');
             $entity = Orchestrator::getEntity(ONE::getEntityKey());
@@ -1019,18 +985,13 @@ class EntitiesDividedController extends Controller
     public function tableAuthMethod()
     {
         try {
+            $entityKey = ONE::getEntityKey();
+            $authMethodsList = Orchestrator::getEntityAuthMethods($entityKey);
 
-            if (ONE::verifyUserPermissions('orchestrator', 'entity_auth_method', 'show')){
-                $entityKey = ONE::getEntityKey();
-                $authMethodsList = Orchestrator::getEntityAuthMethods($entityKey);
+            // in case of json
+            $authMethods = Collection::make($authMethodsList);
 
-                // in case of json
-                $authMethods = Collection::make($authMethodsList);
-            }else
-                $authMethods = Collection::make([]);
-
-            $delete = ONE::verifyUserPermissions('orchestrator', 'entity_auth_method', 'delete');
-
+            $delete = true;
 
             return Datatables::of($authMethods)
                 ->addColumn('action', function ($authMethods) use($delete){
@@ -1039,6 +1000,7 @@ class EntitiesDividedController extends Controller
                     else
                         return null;
                 })
+                ->rawColumns(['action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["entities.tableAuthMethodEntity" => $e->getMessage()]);
@@ -1080,6 +1042,7 @@ class EntitiesDividedController extends Controller
                 ->addColumn('action', function ($authMethods) {
                     return ONE::actionButtons([$authMethods->auth_method_key], ['add' => 'EntitiesDividedController@addAuthMethodAction']);
                 })
+                ->rawColumns(['action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["entities.tableAuthMethodEntity" => $e->getMessage()]);
@@ -1228,9 +1191,6 @@ class EntitiesDividedController extends Controller
      */
     public function showEntityRegistrationValues($type)
     {
-        if(!ONE::verifyUserPermissions('orchestrator', 'entity', 'show')){
-            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-        }
         if(One::isEntity()){
             try {
                 $entityKey = ONE::getEntityKey();
@@ -1261,11 +1221,6 @@ class EntitiesDividedController extends Controller
      */
     public function getEntityRegistrationValues(Request $request, $entityKey,$type)
     {
-
-        if(!ONE::verifyUserPermissions('orchestrator', 'entity', 'show')){
-            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-        }
-
         if(One::isEntity()){
             try {
                 $registrationValues = Orchestrator::getEntityRegistrationValues($request, $entityKey,$type);
@@ -1278,6 +1233,7 @@ class EntitiesDividedController extends Controller
                     })
                     ->skipPaging()
                     ->setTotalRecords($recordsTotal)
+                    ->rawColumns(['action'])
                     ->make(true);
 
 
@@ -1453,10 +1409,15 @@ class EntitiesDividedController extends Controller
 
         try {
             if (ONE::isEntity()) {
+                $entityKey = ONE::getEntityKey();
                 $entity = CB::getEntityDashBoardElements();
                 $availableDashBoardElements = $entity->availableDashBoardElements;
+                $entityKey = ONE::getEntityKey();
+                
+                $sidebar = 'entity';
+                $active = 'dashboard';
 
-                return view('private.entities.manageDashboardElements', compact('entity', 'availableDashBoardElements'));
+                return view('private.entities.manageDashboardElements', compact('entity', 'availableDashBoardElements','sidebar','active','entityKey'));
             }
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["entities.manageDashBoardElements" => $e->getMessage()]);

@@ -231,13 +231,14 @@ class Auth {
 
     public static function updateUser($userKey,$data,$userDetails, $withSms = false)
     {
+		\Log::info(">>>> **** ERROR: JORGE 0".json_encode($userDetails));
         $response = ONE::put([
             'component' => 'empatia',
             'api'       => 'auth',
             'attribute' => $userKey,
             'params'    => [
                 'name'       => isset($data['name']) ? $data['name'] : null,
-                'email'      => isset($data['email']) ? $data['email'] : null,
+//                'email'      => isset($data['email']) ? $data['email'] : null,
                 'password'   => isset($data['password']) ? $data['password'] : null,
                 'identity_card'   => isset($data['identity_card']) ? $data['identity_card'] : null,
                 'vat_number'   => isset($data['vat_number']) ? $data['vat_number'] : null,
@@ -248,8 +249,12 @@ class Auth {
 
         if($response->statusCode() != 200){
             if($response->statusCode() == 409){
-                throw new Exception(trans("comModulesAuth.errorIdNumberOrEmailAlreadyExists"));
+                \Log::info(">>>> **** ERROR: JORGE 2".json_encode($response->json()));
+
+		throw new Exception(trans("comModulesAuth.errorIdNumberOrEmailAlreadyExists"));
             } else {
+		
+		\Log::info(">>>> **** ERROR: JORGE 1".json_encode($response->json()));
                 throw new Exception(trans("comModulesAuth.errorInUpdateUser"));
             }
         }
@@ -429,7 +434,7 @@ class Auth {
 
     }
 
-    public static function verifyVatNumber($parameter_user_key,$value) {
+    public static function verifyVatNumber($parameter_user_key,$value, $vatNumber = null) {
 
         $response = ONE::post([
             'component' => 'empatia',
@@ -438,6 +443,7 @@ class Auth {
             'params'    => [
                 'parameter_user_key' => $parameter_user_key,
                 'value' => $value,
+                'vatNumber' => $vatNumber
             ]
         ]);
         if($response->statusCode() != 200){
@@ -486,7 +492,7 @@ class Auth {
      * @return mixed
      * @throws Exception
      */
-    public static function getUserList($request)
+    public static function getUserList($request, $anonymized=false)
     {
         $response = ONE::post([
             'component' => 'empatia',
@@ -495,6 +501,7 @@ class Auth {
             'params'    => [
                 'tableData' => One::tableData($request),
                 'role' => empty($request->role) ? null : $request->role,
+                'anonymized' => $anonymized
             ]
         ]);
 
@@ -534,7 +541,7 @@ class Auth {
      * @return mixed
      * @throws Exception
      */
-    public static function usersToModerate($request, $siteKey)
+    public static function usersToModerate($request, $siteKey, $status = "")
     {
         $response = ONE::post([
             'component' => 'empatia',
@@ -543,9 +550,9 @@ class Auth {
             'params' => [
                 'table_data' => ONE::tableData($request),
                 'site_key' => $siteKey,
+                'status' => $status
             ],
         ]);
-
         if($response->statusCode() != 200){
             throw new Exception(trans("comModulesAuth.failed_to_get_users_to_moderate_list"));
         }
@@ -753,6 +760,23 @@ class Auth {
             'params'    => [
                 'photo_id'  => $fileId,
                 'photo_code'  => $fileCode
+            ],
+        ]);
+
+        if($response->statusCode() != 200){
+            throw new Exception(trans("comModulesAuth.failed_to_set_user_photo"));
+        }
+        return $response->json();
+    }
+
+    public static function unsetUserPhoto($userKey) {
+        $response = ONE::put([
+            'component' => 'empatia',
+            'api'       => 'auth',
+            'attribute' => $userKey,
+            'params'    => [
+                'photo_id'  => 0,
+                'photo_code'  => ""
             ],
         ]);
 

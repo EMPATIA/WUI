@@ -8,3 +8,4 @@ Homestead.json
 /node_modules/
 .remote-sync.json
 app/ComModules/CB.php.orig
+.scannerwork/

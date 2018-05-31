@@ -16,9 +16,7 @@
                         <th>{{ trans('privateEntityGroups.name') }}</th>
                         <th>{{ trans('privateEntityGroups.email') }}</th>
                         <th width="10%">
-                            @if(ONE::verifyUserPermissions('wui', 'entity_groups_users', 'create'))
-                                <a href="#" class="btn btn-flat btn-add-small " data-toggle="modal" data-target="#managersModal" title="" data-original-title="Adicionar"><i class="fa fa-plus"></i></a>
-                            @endif
+                            <a href="#" class="btn btn-flat btn-add-small " data-toggle="modal" data-target="#managersModal" title="" data-original-title="Adicionar"><i class="fa fa-plus"></i></a>
                         </th>
                     </tr>
                     </thead>

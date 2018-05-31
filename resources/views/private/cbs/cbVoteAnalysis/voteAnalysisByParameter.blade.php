@@ -579,3 +579,5 @@
     });
 
 </script>
+
+@include('private.cbs.cbVoteAnalysis.cbDetailsScript')

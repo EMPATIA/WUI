@@ -22,7 +22,7 @@ function oneActivate(action) {
     $.get(action, function (data) {
         $('<div id="activate-modal" class="modal fade">' + data + '</div>').modal();
         $(window).on('shown.bs.modal', function() {
-            $("#delete-modal").find("script").each(function(i) {
+            $("#activate-modal").find("script").each(function(i) {
                 eval($(this).text());
             });
             console.log("oneActivate @ shown.bs.modal");
@@ -100,6 +100,14 @@ function convertTimezone(){
         }
         $(this).html(writeDate+'  GMT '+ signal +' '+ Math.abs(diference));
     });
+}
+
+function addZero(i) {
+    i = parseInt(i);
+    if (i < 10) {
+        i = "0" + i;
+    }
+    return i;
 }
 
 // Load date and Time Pickers

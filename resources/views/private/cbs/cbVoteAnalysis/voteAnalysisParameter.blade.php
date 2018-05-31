@@ -1,9 +1,12 @@
 @extends('private._private.index')
 
 @section('content')
-        @if(!empty($voteEvents))
+    @include('private.cbs.cbVoteAnalysis.cbDetails')
+
+    @if(!empty($voteEvents))
             <div class="row">
                 <div class="col-12" style="padding-bottom: 20px">
+                    <div><label>{{ trans('privateCbsVoteAnalysis.vote_event') }}</label></div>
                     <select id="voteEventSelect" name="voteEventSelect" class="voteEventSelect" style="width: 50%;">
                         <option value="">{{ trans('privateCbsVoteAnalysis.select_vote_event') }}</option>
                         @foreach($voteEvents as $key => $voteEvent)
@@ -171,7 +174,7 @@
                 vote_event_key: voteEventKey,
                 parameter_key: id
             }, beforeSend: function () {
-                var ajaxLoader = '<div class="chartLoader"><div><i class="fa fa-spinner fa-pulse fa-3x fa-fw default-color"></i><span class="sr-only">Loading...</span></div></div>';
+                var ajaxLoader = '<div class="chartLoader"><div><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw default-color"></i><span class="sr-only">Loading...</span></div></div>';
                 $('#tab_'+id).html(ajaxLoader);
             },
             success: function (response) { // What to do if we succeed

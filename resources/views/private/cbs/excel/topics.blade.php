@@ -1,5 +1,6 @@
 <table>
     <tr>
+        <td><b>{!! trans('topic.topicID') !!}</b></td>
         <td><b>{!! trans('topic.topicNumber') !!}</b></td>
         <td><b>{!! trans('topic.title') !!}</b></td>
         <td><b>{!! trans('topic.summary') !!}</b></td>
@@ -12,14 +13,49 @@
         <td><b>{!! trans('topic.createdBy') !!}</b></td>
         <td><b>{!! trans('topic.link') !!}</b></td>
         @if($availableVoteEvents)
-            @foreach($availableVoteEvents as $voteEvent)
-                <td><b>{{$voteEvent}}</b></td>
+            @foreach($availableVoteEvents as $voteEventMethod => $voteEvent)
+                <?php 
+                    $colspan = 3;
+                    if (!empty($voteAnalysisData[$voteEventMethod]["totalOptionsCount"]))
+                        $colspan += $voteAnalysisData[$voteEventMethod]["totalOptionsCount"]*3;
+                ?>
+                <td colspan="{{ $colspan }}"><b>{{$voteEvent}}</b></td>
             @endforeach
         @endif
     </tr>
+    @if($availableVoteEvents)
+        <tr>
+            <td colspan="{{ 8 + count($parametersTitle??[]) }}">&nbsp;</td>
+            @foreach($availableVoteEvents as $voteEventMethod => $voteEvent)
+                <td colspan="3">&nbsp;</td>
+                @foreach($voteAnalysisData[$voteEventMethod]["parameters"]??[] as $parameter) 
+                    <?php $colspan = (3*count($parameter["parametersOptions"])); ?>
+                    <td colspan="{{ $colspan }}">
+                        {{ $parameter["parameterName"] }}
+                    </td>
+                @endforeach
+            @endforeach
+        </tr>
+        <tr>
+            <td colspan="{{ 8 + count($parametersTitle??[]) }}">&nbsp;</td>
+            @foreach($availableVoteEvents as $voteEventMethod => $voteEvent)
+                <td colspan="3">&nbsp;</td>
+                @foreach($voteAnalysisData[$voteEventMethod]["parameters"]??[] as $parameter) 
+                    @foreach($parameter["parametersOptions"] as $parameterOption)
+                        <td colspan="3">
+                            {{ $parameterOption }}
+                        </td>
+                    @endforeach
+                @endforeach
+            @endforeach
+        </tr>
+    @endif
 
-    @foreach ($topics as $topic) {
+    @foreach ($topics as $topic)
     <tr>
+        <td>
+            {{ $topic->topic_key }}
+        </td>
         <td>
             {!! !empty($topic->topic_number) ? $topic->topic_number : "" !!}
         </td>
@@ -32,7 +68,7 @@
         </td>
         @foreach($parametersTitle as $parameterCode => $title)
             <td>
-                @if(!empty($parametersData[$topic->topic_key][$parameterCode]["value"]))
+                @if(isset($parameterCode) && !empty($parametersData[$topic->topic_key][$parameterCode]["value"]) && is_string($parametersData[$topic->topic_key][$parameterCode]["value"]))
                     {!!  $parametersData[$topic->topic_key][$parameterCode]["value"] !!}
                 @endif
             </td>
@@ -49,11 +85,19 @@
                 <a href="{{ action('PublicTopicController@show', ['cbKey' => $cbKey, 'topicKey' => $topic->topic_key, 'type' => $type]) }}">{!! trans('topic.link_to_topic') !!}</a>
             @endif
         </td>
-        @if(isset($topic->voteData))
-            @foreach($topic->voteData as $voteData)
-                <td>
-                    {{$voteData->votes}}
-                </td>
+            @if($availableVoteEvents)
+                @foreach($availableVoteEvents as $voteEventMethod => $voteEvent)
+                    <td> {{ $topic->voteData->{ $voteEventMethod }->votes??0 }}</td>
+                    <td> {{ $topic->voteData->{ $voteEventMethod }->positive??0 }}</td>
+                    <td> {{ $topic->voteData->{ $voteEventMethod }->negative??0 }}</td>
+                    
+                    @foreach($voteAnalysisData[$voteEventMethod]["parameters"]??[] as $parameter)
+                    @foreach($parameter["parametersOptions"] as $parameterOption)
+                        <td>{{ $parameter["votesByTopicParameter"][$topic->topic_key]->parameter_options->{ $parameterOption }->balance??0 }}</td>
+                        <td>+{{ $parameter["votesByTopicParameter"][$topic->topic_key]->parameter_options->{ $parameterOption }->positive??0 }}</td>
+                        <td>-{{ $parameter["votesByTopicParameter"][$topic->topic_key]->parameter_options->{ $parameterOption }->negative??0 }}</td>
+                    @endforeach
+                @endforeach
             @endforeach
         @endif
     </tr>

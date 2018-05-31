@@ -283,12 +283,15 @@ class CM {
 
 
     /* Section Types */
-    public static function getSectionTypes()
+    public static function getSectionTypes($request=null)
     {
         $response = ONE::get([
             'component' => 'empatia',
             'api'       => 'sectionType',
-            'api_attribute' => 'list'
+            'api_attribute' => 'list',
+            'params' => [
+                'tableData' => ONE::tableData($request)
+            ]
         ]);
 
         if($response->statusCode() != 200){
@@ -348,12 +351,15 @@ class CM {
     }
 
     /* Section Type Parameters */
-    public static function getSectionTypeParameters()
+    public static function getSectionTypeParameters($request = null)
     {
         $response = ONE::get([
             'component' => 'empatia',
             'api'       => 'sectionTypeParameter',
-            'api_attribute' => 'list'
+            'api_attribute' => 'list',
+            'params' => [
+                'tableData' => ONE::tableData($request)
+            ]
         ]);
         if($response->statusCode() != 200){
             throw new Exception(trans("comModulesCM.failed_to_Get_section_type_parameters"));
@@ -512,13 +518,13 @@ class CM {
         }
         return $response->json();
     }
-    public static function getNewContentForPublic($contentType, $contentKey) {
+    public static function getNewContentForPublic($contentKey) {
         $response = ONE::get([
             'component' => 'empatia',
-            'api'       => 'publicNewContent',
-            'api_attribute' => $contentType,
-            'method'    => $contentKey
+            'api' => 'newContent',
+            'api_attribute' => $contentKey
         ]);
+
         if($response->statusCode() != 200){
             throw new Exception(trans("comModulesCM.failed_to_get_content_for_public"));
         }
@@ -610,7 +616,7 @@ class CM {
     public static function createBEMenuElementParameters($configuration){
         $response = ONE::post([
             'component' => 'empatia',
-            'api'       => 'beMenuElementConfigurations',
+            'api'       => 'beMenuElementParameters',
             'params'    => $configuration
         ]);
 

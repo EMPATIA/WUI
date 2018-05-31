@@ -15,7 +15,7 @@
                         <th>{{ trans('privateContentTypeTypes.type') }}</th>
                         <th>{{ trans('privateContentTypeTypes.color') }}</th>
                         <th>{{ trans('privateContentTypeTypes.text_color') }}</th>
-                        <th>@if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('cm', 'content_subtypes')){!! ONE::actionButtons(null, ['create' => 'ContentTypeTypesController@create']) !!}@endif</th>
+                        <th>@if(Session::get('user_role') == 'admin'){!! ONE::actionButtons(null, ['create' => 'ContentTypeTypesController@create']) !!}@endif</th>
                     </tr>
                 </thead>
             </table>

@@ -12,7 +12,7 @@
                     <th>{{ trans('user.createdAt') }}</th>
                     <th>{{ trans('user.identifierNumber') }}</th>
                     <th>{{ trans('user.name') }}</th>
-                    <th>@if(ONE::verifyUserPermissions('auth', 'in_person_registration', 'create')){!! ONE::actionButtons(null, ['create' => 'InPersonRegistrationController@create']) !!}@endif</th>
+                    <th>{!! ONE::actionButtons(null, ['create' => 'InPersonRegistrationController@create']) !!}</th>
                 </tr>
                 </thead>
             </table>

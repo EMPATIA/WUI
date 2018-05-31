@@ -14,6 +14,7 @@
     {!! Form::oneText('description', array("name"=>trans('privateAccessMenu.description'),"description"=>trans('privateAccessMenu.descriptionDescription')), isset($accessMenu) ? $accessMenu->description : null, ['class' => 'form-control', 'id' => 'description']) !!}
     {!! Form::oneSelect('site_key',  array("name"=>trans('privateAccessMenu.site'),"description"=>trans('privateAccessMenu.siteDescription')), isset($sites) ? $sites : null, !empty($accessMenu->site->key) ? $accessMenu->site->key : null, null, ['class' => 'form-control', 'id' => 'site_key']) !!}
     {!! Form::oneCheckbox('active', trans('privateAccessMenu.active'), 1, isset($accessMenu->active) ? $accessMenu->active : null, ['id' => 'active']) !!}
+    {!! Form::oneText('code', array("name"=>trans('privateAccessMenu.code'),"description"=>trans('privateAccessMenu.codeDescription')), isset($accessMenu) ? $accessMenu->code : null, ['class' => 'form-control', 'id' => 'code']) !!}
 
     {!! $form->make() !!}
 

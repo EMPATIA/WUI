@@ -98,6 +98,12 @@ class SiteEthicsController extends Controller
             $data['languages'] = $languages;
             $data['siteKey'] = $siteKey;
             $data['type'] = $type;
+
+            if (!empty(One::getEntityKey())) {
+                $data['sidebar'] = 'site';
+                $data['active'] = $type;
+            }
+
             return view('private.entities.sites.siteEthic', $data);
         } catch (Exception $e) {
             return redirect()->back()->withErrors([trans('privateSiteEthics.edit_error') => $e->getMessage()]);
@@ -207,6 +213,7 @@ class SiteEthicsController extends Controller
             $langCode = Session::get('LANG_CODE');
             $langCodeDefault = Session::get('LANG_CODE_DEFAULT');
             $data = [];
+            $data["type"] = $type;
             if(isset($siteEthics)&& isset($siteEthics->{$type}) && (isset($langCode) || isset($langCodeDefault))){
                 $contentTranslation = $siteEthics->{$type}->{$langCode} ?? null;
                 $contentTranslationDefault = $siteEthics->{$type}->{$langCodeDefault} ?? null;
@@ -217,7 +224,7 @@ class SiteEthicsController extends Controller
                 $data['title'] = $title ?? null;
                 $data['siteEthic'] = $siteEthic ?? null;
             }
-            return view('public.'.ONE::getEntityLayout().'.siteEthics.siteEthic',$data);
+            return view('public.'.ONE::getEntityLayout().'.siteEthics.default',$data);
 
         } catch (Exception $e) {
             return redirect()->back()->withErrors([trans('privateSiteEthics.show_public_site_ethic_error') => $e->getMessage()]);

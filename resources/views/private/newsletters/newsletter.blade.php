@@ -18,7 +18,7 @@
                         {{trans('privateNewsletters.testNewsletter')}}
                     </a>&nbsp;
                     @if($newsletter->tested=='1')
-                        <a class="btn btn-flat btn-danger active" data-toggle="modal" data-target="#sendNewsletterConfirmation">
+                        <a class="btn btn-flat btn-danger active text-white" data-toggle="modal" data-target="#sendNewsletterConfirmation">
                             <i class="fa fa-share"></i>
                             {{ trans('privateNewsletters.sendNewsletter') }}
                         </a>
@@ -28,6 +28,7 @@
                             {{trans('privateNewsletters.sendNewsletter')}}
                         </a>
                     @endif
+
                 </div>
             @endif
 

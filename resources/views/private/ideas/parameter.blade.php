@@ -60,8 +60,8 @@
 @section('scripts')
 
     {{--<script>--}}
-    {{--{!! ONE::addTinyMCE("#content_en", "en_GB", action('ContentsController@getTinyMCE')) !!}--}}
-    {{--{!! ONE::addTinyMCE("#content_pt", "pt_PT", action('ContentsController@getTinyMCE')) !!}--}}
+    {{--{!! ONE::addTinyMCE("#content_en", "en_GB", action('ContentManagerController@getTinyMCE')) !!}--}}
+    {{--{!! ONE::addTinyMCE("#content_pt", "pt_PT", action('ContentManagerController@getTinyMCE')) !!}--}}
     {{--</script>--}}
     <!-- Plupload Javascript fix and bootstrap fix @ start -->
     <link rel="stylesheet" href="/bootstrap/plupload-fix/bootstrap.css">

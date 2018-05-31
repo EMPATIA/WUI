@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\ComModules\CM;
 use App\One\One;
 use Exception;
+use App\ComModules\LogsRequest;
 use Illuminate\Http\Request;
 use View;
 use Session;
@@ -12,14 +13,13 @@ use Session;
 
 class PublicContentManagerController extends Controller {
     public function index(Request $request, $contentType) {
-        $contentsPerPage = 6;
+        $contentsPerPage = 100;
 
         try {
             if (View::exists('public.' . ONE::getEntityLayout() . '.cms.lists.' . $contentType)) {
                 $page = $request->get("page", 0);
 
                 $componentData = CM::getNewContentListForPublic($contentType, $page, $contentsPerPage);
-
                 $data["contents"] = $componentData->contents;
                 $data["contentsCount"] = $componentData->contentsCount;
                 $data["contentType"] = $contentType;
@@ -27,7 +27,7 @@ class PublicContentManagerController extends Controller {
 
                 $data["previousPage"] = ($page>0) ? $page-1 : null;
 
-                if ($data["contentsCount"]>($contentsPerPage*$page))
+                if ($data["contentsCount"]>($contentsPerPage*($page+1)))
                     $data["nextPage"] = $page+1;
                 else
                     $data["nextPage"] = null;
@@ -45,11 +45,38 @@ class PublicContentManagerController extends Controller {
     }
 
     public function show(Request $request, $contentType, $contentKey) {
+
+        return redirect()->action(
+            'PublicContentManagerController@showC', ['contentKey' => $contentKey]
+        );
+
+    }
+
+    public function showC(Request $request, $contentKey) {
+        $content = [];
         try {
-            $data["content"] = CM::getNewContentForPublic($contentType,$contentKey);
-            $data["type"] = $contentType;
-            return view('public.' . ONE::getEntityLayout() . '.cms.index', $data);
-        } catch (Exception $e) {
+            $data = [];
+
+            $time_1 = microtime(true);
+
+            $content = CM::getNewContentForPublic($contentKey);
+
+            $time_2 = microtime(true);
+
+            $data["content"] = $content;
+            LogsRequest::setAccess('content_show',true, null,$contentKey,null,null,null,null,null, 'content type: '.$content->content_type->code, Session::has('user') ? Session::get('user')->user_key : null );
+
+            $time_3 = microtime(true);
+
+            $tmp = view('public.' . ONE::getEntityLayout() . '.cms.index', $data);
+            $time_4 = microtime(true);
+           //dd("CM: ".($time_2-$time_1)." Log: ".($time_3-$time_2)." View: ".($time_4-$time_3));
+            return $tmp;
+
+        } catch (Exception $e){
+            dd($e->getMessage());
+            $jsonObj = json_encode(array('error' => "Failure: ".$e->getMessage() ,'ContentType' => json_encode($content)));
+            LogsRequest::setAccess('content_show',false, null,$contentKey,null,null,null,null, $jsonObj, null, Session::has('user') ? Session::get('user')->user_key : null);
             return redirect()->back()->withErrors(["public.contentManager.show"]);
         }
     }
@@ -63,6 +90,17 @@ class PublicContentManagerController extends Controller {
             return view('public.' . ONE::getEntityLayout() . '.cms.embedded', $data);
         } catch (Exception $e) {
             return false;
+        }
+    }
+
+
+    static function showContent($contentType, $contentKey) {
+        try {
+            $contents = CM::getNewContentForPublic($contentKey);
+            // $data["type"] = $contentType;
+            return $contents;
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors(["public.contentManager.show"]);
         }
     }
 
@@ -92,7 +130,16 @@ class PublicContentManagerController extends Controller {
 
     static public function getSections($contentCode) {
         try {
-			$contents = CM::getNewContentByCode($contentCode);
+            // dd(Session::all());
+            // if(!empty(Session::get("content_" . $contentCode,""))) {
+
+            //     $contents = json_decode(Session::get("content_" . $contentCode));
+            // } else {
+                $contents = CM::getNewContentByCode($contentCode);
+
+                Session::put("content_" . $contentCode, json_encode($contents));
+            // }
+
             if (is_array($contentCode)) {
                 $sections = array();
                 foreach ($contents as $contentKey => $content) {
@@ -128,4 +175,11 @@ class PublicContentManagerController extends Controller {
         }
     }
 
+    static public function getSectionFromContent($contentSections, $sectionCode) {
+        try {
+            return collect($contentSections)->where('code','=',$sectionCode)->first() ?? false;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
 }

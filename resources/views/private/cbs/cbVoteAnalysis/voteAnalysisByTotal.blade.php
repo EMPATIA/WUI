@@ -1,3 +1,4 @@
+{{dd(1)}}
 @if(empty($statisticsTotalData) && empty($statisticsTotalSummary))
     <div class="row">
         <div class="col-12 text-center">
@@ -10,7 +11,11 @@
         <div class="col-md-12 voteAnalysis-total">
             <div class="">
                 <div class="box-header">
-                    <h3 class="box-title"><i class="fa"></i> {{trans('privateCbsVoteAnalysis.count_total_votes')}}</h3>
+                    <div class="row">
+                        <div class="col-12 col-lg-12">
+                            <h3 class="box-title"><i class="fa"></i> {{trans('privateCbsVoteAnalysis.count_total_votes')}}</h3>
+                        </div>
+                    </div>
                 </div>
                 <div class="row box-body">
                     <div class="col-lg-3 col-md-6 col-sm-6 col-12 text-center">
@@ -88,9 +93,9 @@
                                     <td>{{$topTopic->budget}}</td>
                                     <td class=" text-center">
                                         @if($topTopic->balance >= 0 )
-                                            <span class="label bg-green"> {{$topTopic->balance}}</span>
+                                            <span> {{$topTopic->balance}}</span>
                                         @else
-                                            <span class="label bg-red"> {{$topTopic->balance}}</span>
+                                            <span> {{$topTopic->balance}}</span>
                                         @endif
                                     </td>
                                     <td class="text-center">{{$topTopic->positives}}</td>
@@ -124,7 +129,7 @@
                             <i class="fa fa-file-excel-o" aria-hidden="true"></i> {{ trans('privateCbsVoteAnalysis.download_csv') }}
                         </a>
                     </div>
-                    <div id="statistics_by_topic" style="min-height: 300px;width: 100%;"></div>
+                    <div id="statistics_by_topic" style="min-height: 300px;width:100%;"></div>
                 </div>
             </div>
         </div>
@@ -144,22 +149,24 @@
 
         $("#statistics_by_topic").css("height", "{{ ($k <= 15) ? "400" : $k*20 }}px");
 
-        var visualization = d3plus.viz()
-            .container("#statistics_by_topic")  // container DIV to hold the visualization
-            .data(statistics_by_topic_data)  // data to use with the visualization
-            .type("bar")// visualization type
-            .id("type")
-            .y("{!! trans('privateCbsVoteAnalysis.topic_name') !!}")         // key to use for y-axis
-            .y({"scale": "discrete"}) // Manually set Y-axis to be discrete
-            .x({"stacked": true}) // Manually set Y-axis to be discrete
-            .x( "{!! trans('privateCbsVoteAnalysis.total_votes') !!}")// key to use for x-axis
-            .order("position")
-            .color(function(d){
-                return d.total_votes > 0 ? "#07A614" : "#A61106";
-            })
-            .font({"family": "Helvetica, Arial, sans-serif", "color": "#000"})
-            .resize(true)
-            .draw();
+
+        setTimeout(function(){
+            var visualization = d3plus.viz()
+                .container("#statistics_by_topic")  // container DIV to hold the visualization
+                .data(statistics_by_topic_data)  // data to use with the visualization
+                .type("bar")// visualization type
+                .id("type")
+                .y("{!! trans('privateCbsVoteAnalysis.topic_name') !!}")         // key to use for y-axis
+                .y({"scale": "discrete"}) // Manually set Y-axis to be discrete
+                .x({"stacked": true}) // Manually set Y-axis to be discrete
+                .x( "{!! trans('privateCbsVoteAnalysis.total_votes') !!}")// key to use for x-axis
+                .order("position")
+                .color(function(d){
+                    return d.total_votes > 0 ? "#07A614" : "#A61106";
+                })
+                .font({"family": "Helvetica, Arial, sans-serif", "color": "#000"})
+                .resize(true)
+                .draw();
 
             // Export data for CSV (javascript)
             $( "#statisticsByTopicDownloadCSV" ).click(function() {
@@ -168,6 +175,7 @@
                 var filename = "statistics_by_topic_"+suffix_name+".csv";
                 downloadCSV(statistics_by_topic_data,filename);
             });
+        }, 500);
     </script>
 @else
     <script>
@@ -176,6 +184,12 @@
         // toastr.warning(warningMessage);
         $("#statistics_by_topic_downloads_wrapper").remove();
         $("#statistics_by_topic").css("min-height","100px");
+        $("#statistics_by_topic").css("width","100%");
+        // chartMessage
         $(".chartMessage").css("min-height","100px");
+        $(".chartMessage").css("width","100%");
     </script>
 @endif
+
+
+@include('private.cbs.cbVoteAnalysis.cbDetailsScript')

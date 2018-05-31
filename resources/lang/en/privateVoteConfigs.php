@@ -1,1 +1,1 @@
-<?php return array (  'title' => 'Title',);
+<?php return array (  'title' => 'Title',  'show_vote_configuration' => 'Show',  'edit_vote_configuration' => 'Edit',  'list' => 'List',  'Vote' => 'Vote',  'voteConfigurations' => 'Vote Configurations',);

@@ -34,7 +34,7 @@
     </style>
     <div class="row">
         @if(ONE::actionType('users') == "edit")
-            @if(isset($user->moderated) && ($user->moderated = false))
+            @if(isset($user->moderated) && ($user->moderated == false))
                 <div class="col-12 text-right" style="padding-bottom: 20px">
                     @foreach ($data->{$user->user_key}->login_levels as $login_level)
                         <span href='{{action('UsersController@manualCheckLoginLevel',['userKey' => $user->user_key, 'login_level_key' => $login_level->key])}}' class='manual-login-level btn btn-success btn-sm right'><i class='glyphicon glyphicon-thumbs-up'></i>{{$login_level->name}}</span>
@@ -87,11 +87,11 @@
                 </div>
             </div>
         @endif
-        <div class="{{((ONE::actionType('users') == "edit") ? 'col-12 col-md-6' : 'col-12 col-sm-9')}}">
+        <div class="{{((ONE::actionType('users') == "edit") ? 'col-12 col-md-6' : 'col-12 col-lg-5')}}">
             @php
                 $form = ONE::form('users', trans('privateUser.details'))
                     ->settings(["model" => isset($user) ? $user : null, 'id' => isset($user) ? $user->user_key : null])
-                    ->show('UsersController@edit', 'UsersController@delete', ['userKer' => isset($user) ? $user->user_key : null,'role' => isset($inputRole) ? $inputRole : null], (empty($moderation)? 'UsersController@index' : 'UsersController@indexCompleted'), ['role' => isset($inputRole) ? $inputRole : null])
+                    ->show('UsersController@edit', empty($user->anonymization) ? 'UsersController@delete' : null, ['userKer' => isset($user) ? $user->user_key : null,'role' => isset($inputRole) ? $inputRole : null], (empty($moderation)? 'UsersController@index' : 'UsersController@indexCompleted'), ['role' => isset($inputRole) ? $inputRole : null])
                     ->create('UsersController@store', 'UsersController@index', ['userKer' => isset($user) ? $user->user_key : null,'role' => isset($inputRole) ? $inputRole : null])
                     ->edit('UsersController@update', 'UsersController@show', ['userKer' => isset($user) ? $user->user_key : null,'inputRole' => isset($inputRole) ? $inputRole : null])
                     ->open();
@@ -117,22 +117,6 @@
         <!-- User details -->
             {!! Form::oneText('name', trans('user.name'), isset($user) ? $user->name  : null, ['class' => 'form-control', 'id' => 'name']) !!}
             {!! Form::oneText('email', trans('user.email'), isset($user) ? $user->email  : null, ['class' => 'form-control', 'id' => 'email']) !!}
-
-            @if(ONE::actionType('users') == "show" && isset($hasLoginLevels) && !empty($hasLoginLevels))
-                <div class="login-levels">{{trans('user.loginLevels')}}</div>
-                <table id="user_login_levels" class="table table-striped dataTable no-footer table-responsive">
-                    <thead>
-                    <tr>
-                        <th>{{ trans('privateUsers.login_level_name') }}</th>
-                        <th>{{ trans('privateUsers.login_level_created_at') }}</th>
-                    </tr>
-                    </thead>
-                </table>
-            @endif
-
-            @if(!empty($levels))
-                {!! Form::oneSelect('user_level', trans('user.user_level'), isset($levels) ? $levels : null, $user->user_level->position ?? null, isset($user->user_level->name) ? $user->user_level->name : null, ['class' => 'form-control', 'id' => 'status']) !!}
-            @endif
 
             @if(ONE::actionType('users') == "create")
             <!-- Change password -->
@@ -165,8 +149,8 @@
                                 @php
                                     //$key = array_search(true, array_column($parameter['parameter_user_options'], 'selected'));
                                 @endphp
-
-                                @if(array_search(true, array_column($parameter['parameter_user_options'], 'selected')))
+                                    
+                                @if(!empty(array_search(true, array_column($parameter['parameter_user_options'], 'selected'))) || ($parameter['parameter_user_options'][0]['selected']??false))
                                     <div class="form-group">
                                         <label for="{{$parameter['parameter_user_type_key']}}">{{ $parameter['name'] }}:@if($parameter['mandatory']) <span class="required-symbol">*</span> @endif</label>
                                         @foreach($parameter['parameter_user_options'] as $option)
@@ -179,6 +163,7 @@
                                 @endif
 
                             @else
+                                <?php if ($parameter["parameter_user_type_key"]=="7epGjHEV5wXPPKUrLXncMXZEKhGJfR8y") dd($parameter); ?>
                                 <div class="form-group">
                                     <label for="{{$parameter['parameter_user_type_key']}}">{{ $parameter['name'] }}:@if($parameter['mandatory']) <span class="required-symbol">*</span> @endif</label>
                                     @foreach($parameter['parameter_user_options'] as $option)
@@ -195,7 +180,7 @@
                     @elseif($parameter['parameter_type_code'] == 'check_box')
                         @if(count($parameter['parameter_user_options'])> 0)
                             @if(ONE::actionType('users') == "show")
-                                @if(array_search(true, array_column($parameter['parameter_user_options'], 'selected')))
+                            @if(!empty(array_search(true, array_column($parameter['parameter_user_options'], 'selected'))) || ($parameter['parameter_user_options'][0]['selected']??false))
                                     <div class="form-group">
                                         <label for="{{$parameter['parameter_user_type_key']}}">{{ $parameter['name'] }}:@if($parameter['mandatory']) <span class="required-symbol">*</span> @endif</label>
                                         @foreach($parameter['parameter_user_options'] as $option)
@@ -222,7 +207,7 @@
                         @endif
                     @elseif($parameter['parameter_type_code'] == 'dropdown')
                         @if(ONE::actionType('users') == "show")
-                            @if(array_search(true, array_column($parameter['parameter_user_options'], 'selected')))
+                            @if(!empty(array_search(true, array_column($parameter['parameter_user_options'], 'selected'))) || ($parameter['parameter_user_options'][0]['selected']??false))
                                 <div class="form-group">
                                     <label for="{{$parameter['parameter_user_type_key']}}">{{ $parameter['name'] }}: @if($parameter['mandatory']) <span class="required-symbol">*</span> @endif</label>
                                     @foreach($parameter['parameter_user_options'] as $option)
@@ -287,6 +272,29 @@
                 {!! Form::hidden('confirmed', 1, ['id' => 'confirmed']) !!}
             @endif
 
+            @if(ONE::actionType("users")=="show")
+                <div class="form-group">
+                    <label for="#">
+                        {{ trans("privateUsers.created_at")}}
+                    </label>
+                    <dd>{{ $user->created_at }}</dd>
+                </div>
+                <hr>
+                <div class="form-group">
+                    <label for="#">
+                        {{ trans("privateUsers.updated_at")}}
+                    </label>
+                    <dd>{{ $user->last_profile_update }}</dd>
+                </div>
+                <hr>
+                <div class="form-group">
+                    <label for="#">
+                        {{ trans("privateUsers.status")}}
+                    </label>
+                    <dd>{{ $status??trans("privateUsers.no_status") }}</dd>
+                </div>
+            @endif
+
             {!! $form->make() !!}
         </div>
 
@@ -311,7 +319,29 @@
             </div>
         @endif
 
-        <div class="col-12 {{(ONE::actionType('users') == "edit" ? 'col-sm-6' : 'col-sm-3') }} ">
+        <div class="col-12 {{(ONE::actionType('users') == "edit" ? 'col-sm-6' : 'col-lg-7') }} ">
+            @if(ONE::actionType("users")=="show" && !empty($user->anonymization))
+                <div class="card">
+                    <div class="card-header">
+                        <h4>
+                            {{ trans('privateUser.anonymization') }}
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="author">{{ trans("privateUsers.anonymizer") }}</label>
+                            <br>
+                            <a href="{{ action("UsersController@show",["userKey"=> $user->anonymization->anonymization_request->anonymizer->user_key,"role"=> "manager"]) }}">
+                                {{ $user->anonymization->anonymization_request->anonymizer->name }}
+                            </a>
+                            <br>
+                            {{ $user->anonymization->created_at }}
+                            <hr style="margin: 10px 0 10px 0">
+                        </div>
+                    </div>
+                </div>
+                <br>
+            @endif
             <div class="card">
                 <div class="card-header">
                     <h4>
@@ -338,21 +368,60 @@
                                 <a id='manual-sms-confirmation' class="btn btn-sm btn-flat btn-success btn-user-profile">{{trans("privateUsers.manual_sms_confirmation")}}</a>
                             @endif
                         </div>
-                        @if(ONE::actionType('users') == "show" && isset($hasLoginLevels) && !empty($hasLoginLevels))
-                            <button type="button" class="btn btn-sm btn-flat btn-warning btn-user-profile" data-toggle="modal" data-target="#login-levels-modal">
-                                <i class="fa fa-unlock-alt" aria-hidden="true"></i>
-                                {{trans('privateUsers.manage_login_levels')}}
-                            </button>
-                            <div class="automatic-update-login-levels">
-                                <a id='automatic-update-login-levels' class="btn btn-sm btn-flat btn-warning btn-user-profile" onclick="updateLoginLevels()"><i class="fa fa-refresh" aria-hidden="true"></i> {{trans("privateUsers.automatic_update_login_levels")}}</a>
-                            </div>
-                        @endif
                         @if(ONE::actionType('users') == 'show' && Session::has('SITE-CONFIGURATION.sms_max_send') && isset($user->sms_sent) && $user->sms_sent >= Session::get('SITE-CONFIGURATION.sms_max_send'))
                             <a id="reset_sms_sent" class="btn btn-xs btn-flat btn-warning btn-user-profile">{{trans("privateUsers.reset_sms_sent")}}</a>
                         @endif
                     @endif
                 </div>
             </div>
+            @if(ONE::actionType("users")=="show")
+                <div class="card" style="margin-top: 15px">
+                    <div class="card-header">
+                        <h4>
+                            {{trans('gamification.gamification')}}
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        {!! Form::label('gamification', trans('gamification.points').': 8') !!}
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 15px">
+                    <div class="card-header">
+                        <h4>
+                            {{trans('user.loginLevels')}}
+                        </h4>
+                    </div>
+                    <div class="card-body text-center">
+                        <div style="margin-bottom: 15px">
+                            @if(isset($user))
+                                @if(ONE::actionType('users') == "show" && isset($hasLoginLevels) && !empty($hasLoginLevels))
+                                    <button type="button" class="btn btn-sm btn-flat btn-warning btn-user-profile" data-toggle="modal" data-target="#login-levels-modal">
+                                        <i class="fa fa-unlock-alt" aria-hidden="true"></i>
+                                        {{trans('privateUsers.manage_login_levels')}}
+                                    </button>
+                                    <div class="automatic-update-login-levels">
+                                        <a id='automatic-update-login-levels' class="btn btn-sm btn-flat btn-warning btn-user-profile" onclick="updateLoginLevels()"><i class="fa fa-refresh" aria-hidden="true"></i> {{trans("privateUsers.automatic_update_login_levels")}}</a>
+                                    </div>
+                                @endif
+                            @endif
+                        </div>
+                        @if(ONE::actionType('users') == "show" && isset($hasLoginLevels) && !empty($hasLoginLevels))
+                            <table id="user_login_levels" class="table table-striped dataTable no-footer table-responsive" >
+                                <thead>
+                                <tr>
+                                    <th>{{ trans('privateUsers.login_level_name') }}</th>
+                                    <th>{{ trans('privateUsers.login_level_created_at') }}</th>
+                                </tr>
+                                </thead>
+                            </table>
+                        @endif
+
+                        @if(!empty($levels))
+                            {!! Form::oneSelect('user_level', trans('user.user_level'), isset($levels) ? $levels : null, $user->user_level->position ?? null, isset($user->user_level->name) ? $user->user_level->name : null, ['class' => 'form-control', 'id' => 'status']) !!}
+                        @endif
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
     </div>
@@ -377,7 +446,7 @@
                         </table>
                     </div>
                     <div class="modal-footer">
-                        {{--Empty--}}
+                        <button type="button" data-dismiss="modal">{{ trans('privateUsers.cancel') }}</button>
                     </div>
                 </div>
 

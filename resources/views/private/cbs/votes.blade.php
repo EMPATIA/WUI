@@ -17,14 +17,14 @@
         <div class="box-body">
             <div style="margin-bottom:50px">
                 <div class="pull-right">
-                    @if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('cb', 'pad_votes'))
+                    @if(Session::get('user_role') == 'admin')
                         <a href="{{ action('CbsVoteController@create', ['type'=>$type,'cbKey'=>$cb->cb_key]) }}" class="btn btn-flat empatia">
                             <i class="fa fa-plus"></i>
                             {{ trans('privateCbs.create') }}
                         </a>
                     @endif
                 </div>
-                <div class="card-title">{{ trans('privateCbs.votes') }}</div>
+                <div class="card-title">{{ trans('privateCbs.list') }}</div>
 
             </div>
 

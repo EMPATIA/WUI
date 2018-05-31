@@ -1,4 +1,4 @@
-@extends('public.empavilleSchools._layouts.index')
+@extends('public.default._layouts.index')
 
 @section('content')
     <div class="row top-4 blue margin-0 text-center">

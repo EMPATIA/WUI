@@ -40,6 +40,6 @@ class TranslationsExport extends Command
         if (!empty($success))
             $this->info($success);
 
-        $this->info("Consumed " . $consumedTime . " seconds");
+        $this->info("Consumed " . $consumedTime . " seconds / " . (memory_get_peak_usage(true)/1024/1024). " MB");
     }
 }

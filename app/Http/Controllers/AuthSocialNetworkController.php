@@ -12,13 +12,14 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\One\One;
 use App\One\OneLog;
+use App\ComModules\LogsRequest;
 //use Facebook\Exceptions\FacebookSDKException;
 use Cache;
 use Facebook\Facebook\Exceptions\FacebookSDKException;
 use Faker\Provider\Image;
 use HttpClient;
 use Illuminate\Http\File;
-use Illuminate\Support\Facades\Auth;
+use App\ComModules\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Mail;
@@ -31,6 +32,7 @@ use Exception;
 use Laravel\Socialite\Facades\Socialite;
 use SammyK\LaravelFacebookSdk\LaravelFacebookSdk;
 use Facebook\Facebook;
+use App\ComModules\Notify;
 
 
 
@@ -55,7 +57,7 @@ class AuthSocialNetworkController extends Controller
         $fb = new Facebook([
             'app_id' => $facebook_id,
             'app_secret' => $facebook_secret,
-            'default_graph_version' => 'v2.5',
+            'default_graph_version' => 'v2.12',
         ]);
 
         $helper = $fb->getRedirectLoginHelper();
@@ -80,41 +82,69 @@ class AuthSocialNetworkController extends Controller
         $fb = new Facebook([
             'app_id' => $facebook_id,
             'app_secret' => $facebook_secret,
-            'default_graph_version' => 'v2.5',
+            'default_graph_version' => 'v2.12',
         ]);
 
         try{
             $helper = $fb->getRedirectLoginHelper();
 
         }catch(Exception $e){
-            return redirect()->action("AuthController@login")->withErrors(["login.facebook" => trans("authSocialNetwork.facebook_nok_connect")]);
+            $jsonObj = json_encode(array('error' => "Failure: ".$e->getMessage() ));
+            LogsRequest::setAccess('login_facebook',false, null,null,null,null,null,null, $jsonObj, 'authSocialNetwork.facebook_nok_connect',Session::has('user') ? Session::get('user')->user_key : 'anonymous');
+
+            if (View::exists('public.'.ONE::getEntityLayout().'.auth.login')) {
+                return redirect()->action("AuthController@login")->withErrors(["login.facebook" => "facebook_nok_connect"]);
+            } else {
+                return redirect()->action('PublicController@index')->withErrors(["errorAuth" => "facebook_nok_connect"]);
+            }
         }
 
         try {
-            $accessToken = $helper->getAccessToken();
+            $accessToken = $helper->getAccessToken(action("AuthSocialNetworkController@handleFacebookCallback") );
         } catch(FacebookResponseException $e) {
             // When Graph returns an error
-            return redirect()->action("AuthController@login")->withErrors(["login.facebook" => trans("authSocialNetwork.facebook_nok_connect")]);
+            $jsonObj = json_encode(array('error' => "Failure: ".$e->getMessage() ));
+            LogsRequest::setAccess('login_facebook',false, null,null,null,null,null,null, $jsonObj, 'authSocialNetwork.facebook_nok_connect',Session::has('user') ? Session::get('user')->user_key : 'anonymous');
+
+            return redirect()->action("AuthController@login")->withErrors(["login.facebook" => "facebook_nok_connect"]);
         } catch(FacebookSDKException $e) {
             // When validation fails or other local issues
-            return redirect()->action("AuthController@login")->withErrors(["login.facebook" => trans("authSocialNetwork.facebook_nok_connect")]);
+            $jsonObj = json_encode(array('error' => "Failure: ".$e->getMessage() ));
+            LogsRequest::setAccess('login_facebook',false, null,null,null,null,null,null, $jsonObj, 'authSocialNetwork.facebook_nok_connect',Session::has('user') ? Session::get('user')->user_key : 'anonymous');
+
+            if (View::exists('public.'.ONE::getEntityLayout().'.auth.login')) {
+                return redirect()->action("AuthController@login")->withErrors(["login.facebook" => "facebook_nok_connect"]);
+            } else {
+                return redirect()->action('PublicController@index')->withErrors(["errorAuth" => "facebook_nok_connect"]);
+            }
         }
 
         if (isset($accessToken)) {
             // Logged in!
             $_SESSION['facebook_access_token'] = (string) $accessToken;
-
             // Now you can redirect to another page and use the
             // access token from $_SESSION['facebook_access_token']
+        } else {
+            if (View::exists('public.'.ONE::getEntityLayout().'.auth.login')) {
+                return redirect()->action("AuthController@login")->withErrors(["facebook" => "facebook_no_access_token"]);
+            } else {
+                return redirect()->action('PublicController@index')->withErrors(["errorAuth" => "facebook_no_access_token"]);
+            }
         }
 
         // Sets the default fallback access token so we don't have to pass it to each request
-        try{
+        try {
             $fb->setDefaultAccessToken($accessToken);
         } catch(FacebookResponseException $e) {
             // When Graph returns an error
+            $jsonObj = json_encode(array('error' => "Failure: ".$e->getMessage() ));
+            LogsRequest::setAccess('login_facebook',false, null,null,null,null,null,null, $jsonObj, 'authSocialNetwork.facebook_nok_connect',Session::has('user') ? Session::get('user')->user_key : 'anonymous');
 
-            return redirect()->action("AuthController@login")->withErrors(["facebook" => trans("authSocialNetwork.facebook_nok_connect")]);
+            if (View::exists('public.'.ONE::getEntityLayout().'.auth.login')) {
+                return redirect()->action("AuthController@login")->withErrors(["facebook" => "facebook_nok_connect"]);
+            } else {
+                return redirect()->action('PublicController@index')->withErrors(["errorAuth" => "facebook_nok_connect"]);
+            }
         }
 
         try {
@@ -125,17 +155,39 @@ class AuthSocialNetworkController extends Controller
         } catch(FacebookResponseException $e) {
 
             // When Graph returns an error
-            return redirect()->action("AuthController@login")->withErrors(["login" => trans("authSocialNetwork.facebook_nok_connect")]);
+            $jsonObj = json_encode(array('error' => "Failure: ".$e->getMessage() ));
+            LogsRequest::setAccess('login_facebook',false, null,null,null,null,null,null, $jsonObj, 'authSocialNetwork.facebook_nok_connect',Session::has('user') ? Session::get('user')->user_key : 'anonymous');
+
+            if (View::exists('public.'.ONE::getEntityLayout().'.auth.login')) {
+                return redirect()->action("AuthController@login")->withErrors(["login" => "facebook_nok_connect"]);
+            } else {
+                return redirect()->action('PublicController@index')->withErrors(["errorAuth" => "facebook_nok_connect"]);
+            }
+
         } catch(FacebookSDKException $e) {
 
             // When validation fails or other local issues
-            return redirect()->action("AuthController@login")->withErrors(["login" => trans("authSocialNetwork.facebook_nok_connect")]);
+            $jsonObj = json_encode(array('error' => "Failure: ".$e->getMessage() ));
+            LogsRequest::setAccess('login_facebook',false, null,null,null,null,null,null, $jsonObj, 'authSocialNetwork.facebook_nok_connect',Session::has('user') ? Session::get('user')->user_key : 'anonymous');
+
+            if (View::exists('public.'.ONE::getEntityLayout().'.auth.login')) {
+                return redirect()->action("AuthController@login")->withErrors(["login" => "facebook_nok_connect"]);
+            } else {
+                return redirect()->action('PublicController@index')->withErrors(["errorAuth" => "facebook_nok_connect"]);
+            }
         }
         $userNode->accessToken = $accessToken->getValue();
         if(empty($userNode->getEmail())){
             ONE::clearSession();
             OneLog::error("Could not Verify Email");
-            return redirect()->action("AuthController@login")->withErrors(["login" => trans("authSocialNetwork.email_permission")]);
+            $jsonObj = json_encode(array('error' => "Failure: Could not Verify Email" ));
+            LogsRequest::setAccess('login_facebook',false, null,null,null,null,null,null, $jsonObj, "authSocialNetwork.email_permission",Session::has('user') ? Session::get('user')->user_key : 'anonymous');
+
+            if (View::exists('public.'.ONE::getEntityLayout().'.auth.login')) {
+                return redirect()->action("AuthController@login")->withErrors(["login" => "email_permission"]);
+            } else {
+                return redirect()->action('PublicController@index')->withErrors(["errorAuth" => "email_permission"]);
+            }
         }
 
         ONE::forceEntityKeyFromURL();
@@ -145,10 +197,23 @@ class AuthSocialNetworkController extends Controller
             try {
                 $user = Session::get('user');
                 $login = Social::storeSocialUser($userNode, $user, $facebook_secret, $facebook_id);
+                /*
+                $email = $userNode->getEmail();
+                $emailType = 'registry_facebook';
+                $tags = [
+                    "#name" => $user->name
+                ];
+                $response = Notify::sendEmail($emailType, $tags, (array)$user);
+                */
+                LogsRequest::setAccess('store_social_user',true, null,null,null,null,null,null, null, 'authSocialNetwork.store_ok',Session::has('user') ? Session::get('user')->user_key : 'anonymous');
 
                 Session::flash('message', trans('authSocialNetwork.store_ok'));
-                return redirect()->action('PublicUsersController@edit',['userKey' => Session::get('user')->user_key,'f' => 'user']);
+                // return redirect()->action('PublicUsersController@edit',['userKey' => Session::get('user')->user_key,'f' => 'user']);
+                return redirect()->action('PublicUsersController@show',['userKey' => Session::get('user')->user_key]);
             }catch(Exception $e){
+                $jsonObj = json_encode(array('error' => "Failure: ".$e->getMessage() ));
+                LogsRequest::setAccess('login_facebook',false, null,null,null,null,null,null, $jsonObj, null,Session::has('user') ? Session::get('user')->user_key : 'anonymous');
+
                 return redirect()->back()->withErrors(['authSocialNetwork' => $e->getMessage()]);
             }
 
@@ -172,7 +237,14 @@ class AuthSocialNetworkController extends Controller
 
             }else{
                 OneLog::error("Verify Login: ".$login->json()->error);
-                return redirect()->action("AuthController@login")->withErrors('authSocialNetwork.message_email_already_exists');
+                $jsonObj = json_encode(array('error' => "Failure: ".$login->json()->error ));
+                LogsRequest::setAccess('login_facebook',false, null,null,null,null,null,null,$jsonObj, 'authSocialNetwork.message_email_already_exists', Session::has('user') ? Session::get('user')->user_key : 'anonymous');
+
+                if (View::exists('public.'.ONE::getEntityLayout().'.auth.login')) {
+                    return redirect()->action("AuthController@login")->withErrors(["login" => "message_email_already_exists"]);
+                } else {
+                    return redirect()->action('PublicController@index')->withErrors(["errorAuth" => "message_email_already_exists"]);
+                }
             }
         }
     }
@@ -219,11 +291,13 @@ class AuthSocialNetworkController extends Controller
 
                 switch ($userValidate->status) {
                     case 'needsEntityMigration':
-                        Session::flash("X-AUTH-TOKEN-MIGRATE", Session::get("X-AUTH-TOKEN"));
+                        // Session::flash("X-AUTH-TOKEN-MIGRATE", Session::get("X-AUTH-TOKEN"));
+                        Session::put("X-AUTH-TOKEN-MIGRATE", Session::get("X-AUTH-TOKEN"));
                         Session::remove("X-AUTH-TOKEN");
 
                         Session::put('AUTH', true);
                         Session::put('USER-STATUS', $userValidate->status);
+
                         return redirect()->action('AuthController@migrateUserToEntityConfirmation');
                         break;
                     default:
@@ -242,7 +316,6 @@ class AuthSocialNetworkController extends Controller
                         if (!empty(Session::get("SITE-CONFIGURATION.boolean_basic_registration_only"))){
                             return redirect()->action('AuthController@showSuccess');
                         }
-
                         /** Verify previous URL and redirect user*/
                         if(Session::has('url_previous')){
                             $url = Session::get('url_previous');
@@ -254,6 +327,10 @@ class AuthSocialNetworkController extends Controller
                 }
             }
             OneLog::info("Login done USER[".$role."]: ".$user->email);
+
+            LogsRequest::setAccess('login_facebook',true, null,null,null,null,null,null,null, null, $user->user_key);
+
+
             if($private == 1){
 
                 /** Verify previous URL and redirect user*/
@@ -283,6 +360,8 @@ class AuthSocialNetworkController extends Controller
             ONE::clearSession();
 
             OneLog::error("Login [checkRoleUser]".$e->getMessage());
+            $jsonObj = json_encode(array('error' => "Failure: ".$e->getMessage() ));
+            LogsRequest::setAccess('login_facebook',false, null,null,null,null,null,null,$jsonObj, null, $user->user_key);
             return redirect()->back()->withErrors(["auth.role" => $e->getMessage()]);
         }
     }

@@ -5,7 +5,6 @@
 [![Build Status](https://img.shields.io/travis/spatie/laravel-cookie-consent/master.svg?style=flat-square)](https://travis-ci.org/spatie/laravel-cookie-consent)
 [![SensioLabsInsight](https://img.shields.io/sensiolabs/i/a3d7dae9-73fc-4a7d-9b6a-9a252233652c.svg?style=flat-square)](https://insight.sensiolabs.com/projects/a3d7dae9-73fc-4a7d-9b6a-9a252233652c)
 [![Quality Score](https://img.shields.io/scrutinizer/g/spatie/laravel-cookie-consent.svg?style=flat-square)](https://scrutinizer-ci.com/g/spatie/laravel-cookie-consent)
-[![StyleCI](https://styleci.io/repos/62055265/shield)](https://styleci.io/repos/62055265)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-cookie-consent.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-cookie-consent)
 
 All sites owned by EU citizens or targeted towards EU citizens must comply to a crazy EU law. This law requires a dialog to be displayed to inform the users of your websites how cookies are being used. You can read more info on the legislation on [the site of the European Commission](http://ec.europa.eu/ipg/basics/legal/cookies/index_en.htm#section_2).
@@ -13,14 +12,6 @@ All sites owned by EU citizens or targeted towards EU citizens must comply to a 
 This package provides an easily configurable view to display the message. Also included is JavaScript code to set a cookie when a user agrees with the cookie policy. The package will not display the dialog when that cookie has been set.
 
 Spatie is a webdesign agency based in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).
-
-## Postcardware
-
-You're free to use this package (it's [MIT-licensed](LICENSE.md)), but if it makes it to your production environment you are required to send us a postcard from your hometown, mentioning which of our package(s) you are using.
-
-Our address is: Spatie, Samberstraat 69D, 2060 Antwerp, Belgium.
-
-The best postcards will get published on the open source page on our website.
 
 ## Installation
 
@@ -67,7 +58,7 @@ return [
 
 ## Usage
 
-To display the dialog all you have to do is include this view in your template:
+To display the dialog all you have to do is include a view in your template
 
 ```php
 //in your blade template
@@ -90,7 +81,7 @@ If you want to modify the text shown in the dialog you can publish the lang-file
 php artisan vendor:publish --provider="Spatie\CookieConsent\CookieConsentServiceProvider" --tag="lang"
 ```
 
-This will publish this file to `resources/lang/vendor/cookieConsent/en/texts.php`.
+This will publish this file to `resources/lang/vendor/laravel-cookie-consent/en/texts.php`.
 
  ```php
  
@@ -100,7 +91,7 @@ This will publish this file to `resources/lang/vendor/cookieConsent/en/texts.php
  ];
  ```
  
- If you want to translate the values to for example french, just copy that file over to `resources/lang/vendor/cookieConsent/fr/texts.php` and fill in the French translations.
+ If you want to translate the values to for example french, just copy that file over to `resources/lang/vendor/laravel-cookie-consent/fr/texts.php` and fill in the French translations.
  
 ### Customising the dialog contents
 
@@ -110,27 +101,7 @@ If you need full control over the contents of the dialog. You can publish the vi
 php artisan vendor:publish --provider="Spatie\CookieConsent\CookieConsentServiceProvider" --tag="views"
 ```
 
-This will copy the `index` and `dialogContents` view files over to `resources/views/vendor/cookieConsent`. You probably only want to modify the `dialogContents` view. If you need to modify the JavaScript code of this package you can do so in the `index` view file.
-
-## Using the middleware
-
-Instead of including `cookieConsent::index` in your view you could opt to add the `Spatie\CookieConsent\CookieConsentMiddleware` to your kernel:
-
-```php
-// app/Http/Kernel.php
-
-class Kernel extends HttpKernel
-{
-    protected $middleware = [
-        // ...
-        \Spatie\CookieConsent\CookieConsentMiddleware::class,
-    ];
-
-    // ...
-}
-```
-
-This will automatically add `cookieConsent::index` to the content of your response right before the closing body tag.
+This will copy the `index` and `dialogContents` view files over to `resources/views/vendor/laravel-cookie-consent`. You probably only want to modify the `dialogContents` view. If you need to modify the JavaScript code of this package you can do so in the `index` view file.
 
 ## Notice
 The legislation is pretty very vague on how to display the warning, which texts are necessary, and what options you need to provide. This package will go a long way towards compliance, but if you want to be 100% sure that your website is ok, you should consult a legal expert.

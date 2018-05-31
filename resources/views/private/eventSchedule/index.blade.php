@@ -3,7 +3,7 @@
 @section('content')
     <div class="box box-primary">
         <div class="box-header">
-            <h3 class="box-title"><i class="fa"></i> {{ trans('title.eventSchedules') }}</h3>
+            <h3 class="box-title"><i class="fa"></i> {{ trans('eventSchedule.list') }}</h3>
         </div>
 
         <div class="box-body">
@@ -12,7 +12,7 @@
                 <thead>
                 <tr>
                     <th>{{ trans('eventSchedule.title') }}</th>
-                    <th>@if(ONE::verifyUserPermissions('q', 'poll', 'create')){!! ONE::actionButtons(null, ['create' => 'EventSchedulesController@create']) !!}@endif</th>
+                    <th>{!! ONE::actionButtons(null, ['create' => 'EventSchedulesController@create']) !!}</th>
                 </tr>
                 </thead>
             </table>

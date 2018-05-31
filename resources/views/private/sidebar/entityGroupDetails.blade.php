@@ -11,16 +11,12 @@
                 <li class="treeview">
                     <div class="menu-wrapper"><a @if($active=='entity_group_details') class="menu-active"  @endif href="{{ action("EntityGroupsController@show", ["entityGroupKey" => $entityGroupKey] ) }}">{{ trans('privateSidebar.entity_groups_details') }}</a></div>
                 </li>
-                @if(ONE::verifyUserPermissionsCrud('wui', 'entity_groups_users'))
-                    <li class="treeview">
-                        <div class="menu-wrapper"><a @if($active=='entity_group_users') class="menu-active"  @endif href="{{ action("EntityGroupsController@showUsers", ["entityGroupKey" => $entityGroupKey]) }}">{{ trans('privateSidebar.entity_group_users') }}</a></div>
-                    </li>
-                @endif
-                @if(ONE::verifyUserPermissionsCrud('wui', 'entity_groups_permissions'))
-                    <li class="treeview">
-                        <div class="menu-wrapper"><a @if($active=='entity_group_permissions') class="menu-active"  @endif href="{{ action("EntityGroupsController@showPermissions", ["entityGroupKey" => $entityGroupKey, "groupTypeKey" => $groupTypeKey]) }}">{{ trans('privateSidebar.entity_group_permissions') }}</a></div>
-                    </li>
-                @endif
+                <li class="treeview">
+                    <div class="menu-wrapper"><a @if($active=='entity_group_users') class="menu-active"  @endif href="{{ action("EntityGroupsController@showUsers", ["entityGroupKey" => $entityGroupKey]) }}">{{ trans('privateSidebar.entity_group_users') }}</a></div>
+                </li>
+                <li class="treeview">
+                    <div class="menu-wrapper"><a @if($active=='groupPermissions') class="menu-active"  @endif href="{{ action("PermissionsController@indexGroups", ["entityGroupKey" => $entityGroupKey]) }}">{{ trans('privateSidebar.entity_group_permissions') }}</a></div>
+                </li>
             </ul>
         </li>
     </ul>

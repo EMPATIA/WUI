@@ -3,7 +3,7 @@
 @section('content')
     <div class="box box-primary">
         <div class="box-header">
-            <h3 class="box-title"><i class="fa"></i> {{ trans('privateNewsletterSubscriptions.sent_emails') }}</h3>
+            <h3 class="box-title"><i class="fa"></i> {{ trans('privateNewsletterSubscriptions.list') }}</h3>
         </div>
         <div class="box-body">
             <table id="subscriptions_list" class="table table-striped dataTable no-footer table-responsive">

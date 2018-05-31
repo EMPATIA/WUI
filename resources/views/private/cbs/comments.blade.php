@@ -26,7 +26,7 @@
 
     <div class="box-private">
         <div class="box-header">
-            <h3 class="box-title">{{ trans('privateCbs.comments') }}</h3>
+            <h3 class="box-title">{{ trans('privateCbs.list') }}</h3>
         </div>
         <div class="box-body">
 
@@ -37,6 +37,7 @@
                     <th>{{ trans('private.created_by') }}</th>
                     <th>{{ trans('private.created_at') }}</th>
                     <th>{{ trans('private.content') }}</th>
+                    <th>{{ trans('private.abuses') }}</th>
                     <th>{{ trans('private.flag') }}</th>
                 </tr>
                 </thead>
@@ -46,92 +47,81 @@
             </table>
     </div>
 
-    <!-- attach flag modal -->
-    <div class="modal fade" tabindex="-1" role="dialog" id="flagAttachmentModal" >
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="card-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">{{trans("privateCbs.flag_attachment")}}</h4>
-                </div>
-                <div style="margin-left:20px;">
-
-                    <h5>{{trans('privateCbs.pad')}} : {{$cb->title}}</h5>
-
-                </div>
-                <div class="modal-body">
-                    <div class="card flat">
+    @if(!empty($cb->flags))
+        <!-- attach flag modal -->
+        <div class="modal fade" tabindex="-1" role="dialog" id="flagAttachmentModal" >
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="card-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">{{trans("privateCbs.flag_attachment")}}</h4>
+                    </div>
+                    <div class="modal-body">
                         {!! Form::hidden('postKey','', ['id' => 'postKey']) !!}
-                        <div class="card-header">{{trans('privateCbs.select_option')}}</div>
-                        <div class="card-body">
-                            <div class="form-group ">
-                                <label for="flags">{{trans('privateCbs.flags')}}</label>
-                                <div for="flags"  style="font-size:x-small">{{trans('privateCbs.flags_description')}}</div>
-
-                                <select id="flag_id" class="form-control" name="flag_id">
-                                    <option selected="selected" value="">{{trans('privateCbs.select_value')}}</option>
-                                    @foreach($cb->flags as $key => $flag)
-                                        <option value="{{$flag->id}}">{{$flag->title}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="card" style="border-radius: 0">
-                                <div class="card-body">
-                                    @php $i = 0; @endphp
+                        <div class="row">
+                            @foreach($cb->flags as $key => $flag)
+                                <div class="col-12 col-md-8">
+                                    {{ $flag->title }}
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    {!! Form::oneSwitch("flag[".$flag->id."][status]",null, null,["readonly"=>false]) !!}
+                                </div>
+                                <div class="col-12" id="flag-translations-{{ $flag->id }}">
                                     <ul class="nav nav-tabs" role="tablist">
                                         @foreach($languages as $language)
-                                            <li role="presentation {{ $i==0 ? 'active' : '' }}" class="{{ $i==0 ? 'active' : '' }}"><a href="#tab-translation-{{ $language->code }}" aria-controls="affa" role="tab" data-toggle="tab" class="{{ $i==0 ? 'active' : '' }}">{{ $language->name }}</a></li>
-                                            @php $i++; @endphp
+                                            <li role="presentation @if($loop->first) active @endif" class="@if($loop->first) active @endif">
+                                                <a href="#tab-translation-{{ $flag->id }}-{{ $language->code }}" aria-controls="affa" role="tab" data-toggle="tab" class="@if($loop->first) active @endif">
+                                                    {{ $language->name }}
+                                                </a>
+                                            </li>
                                         @endforeach
                                     </ul>
-                                    <div class="tab-content">
-                                    @php $i = 0; @endphp
-                                    @foreach($languages as $language)
-                                        <div role="tabpanel" class="tab-pane {{ $i==0 ? 'active' : '' }}" id="tab-translation-{{ $language->code }}">
-                                             <div class="form-group  ">
-                                                <label for="flagAttachmentDescription_{{ $language->code }}">{{trans('privateCbs.flag_attachment_description')}}</label>
-                                                <textarea class="form-control" id="flagAttachmentDescription_{{ $language->code }}" name="flagAttachmentDescription_{{ $language->code }}" value=""></textarea>
+                                    <div class="tab-content" style="min-height:auto;">
+                                        @foreach($languages as $language)
+                                            <div role="tabpanel" class="tab-pane @if($loop->first) active @endif" id="tab-translation-{{ $flag->id }}-{{ $language->code }}">
+                                                <div class="form-group">
+                                                    <label for="flag[{{ $flag->id }}][translation][{{ $language->code }}]">
+                                                        {{trans('privateCbs.flag_attachment_description')}}
+                                                    </label>
+                                                    <input class="form-control" type="text" name="flag[{{ $flag->id }}][translation][{{ $language->code }}]" id="flag[{{ $flag->id }}][translation][{{ $language->code }}]">
+                                                </div>
                                             </div>
-                                            @php $i++; @endphp
-                                        </div>
-                                    @endforeach
+                                        @endforeach
                                     </div>
                                 </div>
-                            </div>
-
+                            @endforeach
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="closeFlagAttachmentModal">{{trans("privateCbs.close")}}</button>
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <button type="button" class="btn btn-primary" id="attachFlagSave">{{trans("privateCbs.save_changes")}}</button>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="closeFlagAttachmentModal">{{trans("privateCbs.close")}}</button>
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <button type="button" class="btn btn-primary" id="attachFlagSave">{{trans("privateCbs.save_changes")}}</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
 
+        <!-- flag history modal -->
+        <div class="modal fade" tabindex="-1" role="dialog" id="flagHistoryModal" >
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="card-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">{{trans('privateCbs.flag_history')}}</h4>
+                    </div>
+                    <div class="modal-body" style="overflow-y: scroll;max-height: 50vh;">
+                        <div id="flagHistory">
 
-    <!-- flag history modal -->
-    <div class="modal fade" tabindex="-1" role="dialog" id="flagHistoryModal" >
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="card-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">{{trans('privateCbs.flag_history')}}</h4>
-                </div>
-                <div class="modal-body" style="overflow-y: scroll;max-height: 50vh;">
-                    <div id="flagHistory">
+                        </div>
 
                     </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{trans("privateCbs.close")}}</button>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{trans("privateCbs.close")}}</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+    @endif
 @endsection
 
 @section('scripts')
@@ -149,7 +139,8 @@
                 success: function (response) { // What to do if we succeed
                     if(response != 'false'){
                         $('#flagHistory').html(response);
-                        $('#flagHistoryModal').modal('show');
+                        if (!$('#flagHistoryModal').is(":visible"))
+                            $('#flagHistoryModal').modal('show');
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) { // What to do if we fail
@@ -183,6 +174,7 @@
                     { data: 'created_by', name: 'created_by','searchable': false },
                     { data: 'created_at', name: 'created_at','searchable': false },
                     { data: 'contents', name: 'contents'},
+                    { data: 'abuses_count', name: 'abuses_count'},
                     { data: 'flag', name: 'flag','searchable': false},
                     { data: 'action', name: 'action', searchable: false, orderable: false}
                 ],
@@ -203,68 +195,36 @@
                 var allVals = {};
                 var isValid = true;
 
-                //get inputs to update status
-                allVals['postKey'] = $('#postKey').val();
+                $.each($('#flagAttachmentModal :input').serializeArray(), function (key, value) {
+                    allVals[value.name] = value.value;
+                });
+                
+                allVals.attachmentCode = 'POST';
+                $.ajax({
+                    method: 'POST', // Type of response and matches what we said in the route
+                    url: "{{action('FlagsController@attachFlag')}}", // This is the url we gave in the route
+                    data: allVals, // a JSON object to send back
+                    success: function (response) { // What to do if we succeed
 
-                $('#flagAttachmentModal textarea').each(function () {
-                    if($(this).val().length > 0){
-                        allVals[$(this).attr('name')] = $(this).val();
+                        $('#flagAttachmentModal').modal('hide');
+                        reloadTable();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) { // What to do if we fail
+                        $('#flagAttachmentModal').modal('hide');
+                        toastr.error('{{ trans('privateCbs.error_updating_state_or_sending_email_to_user') }}', '', {timeOut: 3000,positionClass: "toast-bottom-right"});
+
                     }
                 });
-                $('#flagAttachmentModal select').each(function () {
-                    if($(this).val().length > 0){
-                        $(this).closest('.form-group').removeClass('has-error');
-                        allVals[$(this).attr('name')] = $(this).val();
-                    }else{
-                        $(this).closest('.form-group').addClass('has-error');
-                        isValid = false;
-                    }
-                });
-
-
-                //all values ok to update
-                if (isValid) {
-                    $('#flagAttachmentModal input:text').each(function () {
-                        $(this).val('');
-                    });
-                    $('#flagAttachmentModal textarea').each(function () {
-                        $(this).val('');
-                    });
-                    $('#flagAttachmentModal select').each(function () {
-                        $(this).closest('.form-group').removeClass('has-error');
-                        $(this).val('');
-                    });
-
-                    allVals.attachmentCode = 'POST';
-                    $.ajax({
-                        method: 'POST', // Type of response and matches what we said in the route
-                        url: "{{action('FlagsController@attachFlag')}}", // This is the url we gave in the route
-                        data: allVals, // a JSON object to send back
-                        success: function (response) { // What to do if we succeed
-
-                            $('#flagAttachmentModal').modal('hide');
-                            reloadTable();
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) { // What to do if we fail
-                            $('#flagAttachmentModal').modal('hide');
-                            toastr.error('{{ trans('privateCbs.error_updating_state_or_sending_email_to_user') }}', '', {timeOut: 3000,positionClass: "toast-bottom-right"});
-
-                        }
-                    });
-                }
             });
             //clear inputs and close update status modal
             $('#closeFlagAttachmentModal').on('click', function (evt) {
                 $('#flagAttachmentModal input:text').each(function () {
                     $(this).val('');
                 });
-                $('#flagAttachmentModal textarea').each(function () {
-                    $(this).val('');
+                $('#flagAttachmentModal input:checkbox').each(function () {
+                    $(this).prop("checked","");
                 });
-                $('#flagAttachmentModal select').each(function () {
-                    $(this).val('');
-                });
-
+                
                 $('#flagAttachmentModal').modal('hide');
             });
             {{--{!! session()->get('LANG_CODE').'json' !!}--}}

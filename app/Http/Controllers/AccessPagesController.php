@@ -34,9 +34,7 @@ class AccessPagesController extends Controller
     public function index()
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsShow('cm', 'page')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         return view('private.accessPages.index');
@@ -50,9 +48,7 @@ class AccessPagesController extends Controller
     public function create()
     {
         if(Session::get('user_role') != 'admin'){
-            if(ONE::verifyUserPermissionsCreate('cm', 'page')){
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         $carbon = Carbon::now();
@@ -87,9 +83,7 @@ class AccessPagesController extends Controller
     public function store(AccessPageRequest $request)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsCreate('cm', 'page')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         try {
@@ -112,9 +106,7 @@ class AccessPagesController extends Controller
     public function show($id)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsShow('cm', 'page')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         $data = [];
@@ -155,9 +147,7 @@ class AccessPagesController extends Controller
     public function edit($id)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsUpdate('cm', 'page')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         $carbon = Carbon::now();
@@ -194,9 +184,7 @@ class AccessPagesController extends Controller
     public function update(AccessPageRequest $request, $id)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsUpdate('cm', 'page')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         try {
@@ -219,9 +207,7 @@ class AccessPagesController extends Controller
     public function destroy($id)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsDelete('cm', 'page')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         try {
@@ -266,6 +252,7 @@ class AccessPagesController extends Controller
             ->addColumn('action', function ($accessPage) {
                 return ONE::actionButtons($accessPage->id, ['edit' => 'AccessPagesController@edit', 'delete' => 'AccessPagesController@delete']);
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 }

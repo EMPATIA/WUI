@@ -56,7 +56,6 @@
 </style>
 
 @section('content')
-
     <div class="card flat topic-data-header" >
         <p><label for="contentStatusComment">{{trans('privateCbs.pad')}}</label> {{$cb->title}}</p>
         @if(!empty($cbAuthor))
@@ -135,6 +134,9 @@
                 $('#buttonSubmit').off();
 
                 var allVals = [];
+                var cbKeyVal = '{{$cbKey ?? null}}';
+                var typeVal = '{{$type ?? null}}';
+
                 $('#cooperatorModal input:checked').each(function () {
                     allVals.push($(this).val());
                 });
@@ -144,7 +146,9 @@
                         method: 'post',
                         url: "{{action('TopicController@addCooperator',['topicKey'=> $topicKey])}}",
                         data: {
-                            cooperatorsKey: allVals
+                            cooperatorsKey: allVals,
+                            cbKey: cbKeyVal,
+                            type: typeVal
                         },
                         success: function (response) {
                             if (response == 'Ok') {

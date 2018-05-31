@@ -164,10 +164,10 @@ class PublicContentsController extends Controller
      *
      * @return list of Last 5 News.
      */
-    public function getLastNews()
+    public static function getLastNews()
     {
         // Get news list
-        $dataNews = Orchestrator::getPageListByType("news",5);
+        $dataNews = Orchestrator::getPageListByType("news",3);
         $lastNews = [];
         if(!empty($dataNews)) {
             $lastNews = CM::getVariousContents($dataNews);

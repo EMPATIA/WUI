@@ -1,0 +1,1 @@
+<?php return array (  'news' => 'Nachrichten',  'latest_news' => 'Neuesten Nachrichten',);

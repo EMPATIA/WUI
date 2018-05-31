@@ -11,6 +11,8 @@ use App\ComModules\Auth;
 use App\ComModules\CB;
 use App\ComModules\Questionnaire;
 use App\ComModules\Orchestrator;
+use App\ComModules\EMPATIA;
+use App\ComModules\CM;
 use App\Http\Requests\CbTopicsExportRequest;
 use App\Http\Requests\PostRequest;
 use Carbon\Carbon;
@@ -132,12 +134,13 @@ class CbsController extends Controller
         try{
             $typeFilter = $request->typeFilter;
             $title = trans('privateIdeas.list_ideas');
+            $allCbTypes = Orchestrator::getCbTypesList();
 
             if($typeFilter=='idea')
-                return view('private.cbs.index_manager', compact('typeFilter', 'title'));
+                return view('private.cbs.index_manager', compact('typeFilter', 'allCbTypes', 'title'));
             else {
                 $title = trans('privateCbs.lastest_pads');
-                return view('private.cbs.index_manager', compact('typeFilter'));
+                return view('private.cbs.index_manager', compact('typeFilter', 'allCbTypes'));
             }
         }catch (Exception $e){
 
@@ -228,6 +231,16 @@ class CbsController extends Controller
                     break;
             }
 
+            $siteKey = Session::get('X-SITE-KEY');
+            $contentList = CM::getNewContents('pages',$siteKey);
+
+            $contentListType = [];
+
+            foreach($contentList as $content){
+                $contentListType[$content->content_key] = $content->name;
+            }
+            $data['contentListType'] = $contentListType;
+
             if($request->has('step')){
                 $cb = CB::getCb($request->cbKey);
                 $cbConfigurations = collect($cb->configurations)->pluck('id')->toArray();
@@ -244,6 +257,7 @@ class CbsController extends Controller
                 $data["moderators"] = $moderators;
             }
 
+
             return view('private.cbs.create', $data);
 
         } catch (Exception $e) {
@@ -251,6 +265,19 @@ class CbsController extends Controller
         }
     }
 
+    public function categoryFilter(Request $request)
+    {
+        //Get Status Types List
+
+        $statusTypes = CB::getStatusTypes();
+
+        //Get Status Name for Notification
+        foreach ($statusTypes as $statusType) {
+            $status[] = $statusType;
+        }
+
+        return view('private.cbs.categoryFilter', compact('statusTypes') );
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -259,7 +286,7 @@ class CbsController extends Controller
      * @param Request $requestCB
      * @return $this|array
      */
-    public function store($type, Request $requestCB)
+    public function store($type, Request $requestCB, $configurationsToSave = null)
     {
         try {
             $parentCbKey = $requestCB->input('parentCbKey',null);
@@ -272,6 +299,8 @@ class CbsController extends Controller
                     'end_date' => $requestCB["end_date"],
                     "parent_cb_id" => $parent->id,
                     "tag" => $requestCB["tag"],
+                    "template" => $requestCB["template"],
+                    "page_key" => $requestCB["page_key"]
                 ));
             }else{
                 $cb = CB::setNewCb($requestCB);
@@ -284,16 +313,21 @@ class CbsController extends Controller
 
                 }
             }
-            $configurationsToSave = [];
-            foreach ($requestCB->all() as $key => $value) {
-                if (strpos($key, 'configuration_') !== false) {
-                    $id = str_replace("configuration_", "", $key);
-                    $configurationsToSave[] = $id;
-                    unset($cbConfigurations[array_search($id, $cbConfigurations)]);
+            if (empty($configurationsToSave)){
+                $configurationsToSave = [];
+                foreach ($requestCB->all() as $key => $value) {
+                    if (strpos($key, 'configuration_') !== false) {
+                        $id = str_replace("configuration_", "", $key);
+                        $configurationsToSave[] = $id;
+                        unset($cbConfigurations[array_search($id, $cbConfigurations)]);
+                    }
                 }
+                CB::setCbConfigurations($cb->cb_key, $configurationsToSave, null, null, 0);
+            }
+            else{
+                CB::setCbConfigurations($cb->cb_key, $configurationsToSave, null, null, 0);
             }
 
-            CB::setCbConfigurations($cb->cb_key, $configurationsToSave, null, null, 0);
 
             if(is_null($parentCbKey)){
                 $api = $this->getApiByType($type);
@@ -304,6 +338,9 @@ class CbsController extends Controller
             $cbKey = $cb->cb_key;
             if (Session::get("firstInstallWizardStarted",false)) {
                 Session::put("firstInstallWizardCBName",$cb->title);
+                if(Session::get('participatory', true)){
+                    return redirect()->action("CbsController@createWizard");
+                }
                 return redirect()->action("QuickAccessController@firstInstallWizard");
             } else if($requestCB->input('flagNewCb')){
                 return redirect()->action('CbsController@show', ['type' => $type,'cbKey' => $cbKey]);
@@ -452,62 +489,96 @@ class CbsController extends Controller
             foreach ($cb->configurations as $config) {
                 $cbConfigurations[] = $config->id;
             }
+            $statusAvailable = CB::getStatusTypes();
+            $statusTypes = [];
+            foreach ($statusAvailable as $status) {
+                $statusTypes[$status->code] = $status->name;
+            }
 
+            $cbFilters = CB::getCbFilters($cbKey);
+
+            if (!empty($cbFilters))
+            {
+                    $cbFilter = [];
+                foreach ($cbFilters as $filter) {
+                    foreach ($statusAvailable as $status) {
+                        if ($filter == $status->code) {
+
+                            $filterCode = $status->code;
+                            $filter = $status->name;
+                            $cbFilter[$filterCode] = $filter;
+                        }
+                    }
+                }
+            }
             $subpad = ($cb->parent_cb_id != 0);
             $rootCbKey = ($subpad)?\App\Unimi\NestedCbs::getRootCbKey($cb->id):$cb->cb_key;
+
+            $siteKey = Session::get('X-SITE-KEY');
+            $contentList = CM::getNewContents('pages',$siteKey);
+
+            $contentListType = [];
+
+            foreach($contentList as $content){
+                $contentListType[$content->content_key] = $content->name;
+            }
 
             switch ($type) {
                 case $type == "idea":
                     $title = trans('privateIdeas.update_ideas');
-                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey'));
+                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey', 'contentListType'));
+                    break;
+                case $type == "events":
+                    $title = trans('privateEvents.update_events');
+                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey', 'contentListType'));
                     break;
                 case $type == "forum":
                     $title = trans('privateForums.update_forums');
-                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey'));
+                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey', 'contentListType'));
                     break;
                 case $type == "discussion":
                     $title = trans('privateDiscussions.update_discussions');
-                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey'));
+                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey', 'contentListType'));
                     break;
                 case $type == "proposal":
                     $title = trans('privateProposals.update_proposals');
-                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey'));
+                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type','statusTypes','cbFilter', 'title','subpad','rootCbKey', 'contentListType'));
                     break;
                 case $type == "project_2c":
                     $title = trans('privateProject2Cs.update_project_2cs').' '.(isset($cb->title) ? $cb->title : null);
-                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey'));
+                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey', 'contentListType'));
                     break;
                 case $type == "publicConsultation":
                     $title = trans('privatePublicConsultations.update_public_consultations');
-                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey'));
+                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey', 'contentListType'));
                     break;
                 case $type == "tematicConsultation":
                     $title = trans('privateTematicConsultations.update_tematic_consultations');
-                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey'));
+                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey', 'contentListType'));
                     break;
                 case $type == "survey":
                     $title = trans('privateSurveys.update_surveys');
-                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey'));
+                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey', 'contentListType'));
                     break;
                 case $type == "project":
                     $title = trans('privateProjects.update_project');
-                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey'));
+                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey', 'contentListType'));
                     break;
                 case $type == "phase1":
                     $title = trans('privatePhaseOne.update_phase1');
-                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey'));
+                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey', 'contentListType'));
                     break;
                 case $type == "phase2":
                     $title = trans('privatePhaseTwo.update_phase2');
-                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey'));
+                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey', 'contentListType'));
                     break;
                 case $type == "phase3":
                     $title = trans('privatePhaseThree.update_phase3');
-                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey'));
+                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey', 'contentListType'));
                     break;
                 case $type == "qa":
                     $title = trans('privatePhaseThree.update_qa');
-                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey'));
+                    return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'type', 'title','subpad','rootCbKey', 'contentListType'));
                     break;
             }
         }
@@ -527,10 +598,6 @@ class CbsController extends Controller
     public function update($type,$cbKey,CbsRequest $requestCB)
     {
         try {
-            if(!ONE::verifyUserPermissions('cb', $type, 'update')){
-                return redirect()->back()->withErrors(["cb.show" => trans('privateCbs.permission_message')]);
-            }
-
             $title = $type;
             $configurations = CB::getConfigurations();
 
@@ -541,7 +608,48 @@ class CbsController extends Controller
                     $configGroups[$optionGroup[0]][] = $optionGroup[1];
                 }
             }
+            if(!empty($requestCB->start_topic)) {
+                if (!empty($requestCB->end_topic)) {
+                    if ($requestCB->start_topic > $requestCB->end_topic) {
+                        return redirect()->back()->withErrors(["cb.update" => trans('privateCbs.start_topic_after_end_topic')]);
+                    }
+                    if (!empty($requestCB->end_date)) {
+                        if ($requestCB->start_topic > $requestCB->end_date) {
+                            return redirect()->back()->withErrors(["cb.update" => trans('privateCbs.start_topic_after_end_date')]);
+                        }
+                        if ($requestCB->end_topic > $requestCB->end_date) {
+                            return redirect()->back()->withErrors(["cb.update" => trans('privateCbs.end_topic_after_end_date')]);
+                        }
 
+                    }
+                }
+                if (!empty($requestCB->start_topic_edit)) {
+                    if ($requestCB->start_topic > $requestCB->start_topic_edit) {
+                        return redirect()->back()->withErrors(["cb.update" => trans('privateCbs.start_topic_after_start_topic_edit')]);
+                    }
+                    if (!empty($requestCB->end_topic_edit)) {
+                        if ($requestCB->start_topic_edit > $requestCB->end_topic_edit) {
+                            return redirect()->back()->withErrors(["cb.update" => trans('privateCbs.start_topic_edit_after_end_topic_edit')]);
+                        }
+                    }
+                }
+                if (!empty($requestCB->start_vote)) {
+                    if (!empty($requestCB->end_vote)) {
+                        if ($requestCB->start_vote > $requestCB->end_vote) {
+                            return redirect()->back()->withErrors(["cb.update" => trans('privateCbs.start_vote_after_end_vote')]);
+                        }
+                        if (!empty($requestCB->end_date)) {
+                            if ($requestCB->start_vote > $requestCB->end_date) {
+                                return redirect()->back()->withErrors(["cb.update" => trans('privateCbs.start_vote_after_end_date')]);
+                            }
+                            if ($requestCB->end_vote > $requestCB->end_date) {
+                                return redirect()->back()->withErrors(["cb.update" => trans('privateCbs.end_vote_after_end_date')]);
+                            }
+
+                        }
+                    }
+                }
+            }
             $cb = CB::updateCB($cbKey,$requestCB);
             if($type == "project_2c") \App\Unimi\NestedCbs::clearAllRedisCache($cbKey);
 
@@ -917,7 +1025,7 @@ class CbsController extends Controller
      * @param $type
      * @param $cbKey
      * @return View
-     */
+     **/
     public function show(Request $request, $type,$cbKey)
     {
         try {
@@ -951,6 +1059,26 @@ class CbsController extends Controller
                 $statusTypes[$status->code] = $status->name;
             }
 
+            $cbFilters = CB::getCbFilters($cbKey) ?? [];
+
+
+            $cbFilter = [];
+            foreach ($cbFilters as $filter)
+            {
+                $cbFilter = [];
+                foreach ($cbFilters as $filter)
+                {
+                    foreach ($statusAvailable as $status){
+                        if ($filter == $status->code)
+                        {
+
+                            $filterCode = $status->code;
+                            $filter = $status->name;
+                            $cbFilter[$filterCode] = $filter;
+                        }
+                    }
+                }
+            }
 
             $hasTechnicalAnalysis = !empty(CB::getCbQuestions($cbKey));
 
@@ -1012,13 +1140,32 @@ class CbsController extends Controller
                 $rootCbKey = $cbKey;
             }
             $active = 'details';
+            $entityKey = Orchestrator::getSiteEntity($_SERVER["HTTP_HOST"])->entity_id;
 
-            return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'moderators','title','type','statusTypes','languages', 'sidebar', 'active','subpad','rootCbKey','hasTechnicalAnalysis'));
+            $siteKey = Session::get('X-SITE-KEY');
+            $contentList = CM::getNewContents('pages',$siteKey);
+
+            $contentListType = [];
+
+            foreach($contentList as $content){
+                $contentListType[$content->content_key] = $content->name;
+            }
+
+            $pageName = null;
+            if(!empty($cb->page_key)){
+                $response = CM::getNewContent($cb->page_key);
+                $pageName = $response->name;
+            }
+
+            $checklists = EMPATIA::getCbChecklist($entityKey,$cbKey);
+
+            return view('private.cbs.cb', compact('cb', 'configurations', 'cbConfigurations', 'moderators','title','cbFilters','cbFilter','statusTypes','type','languages', 'sidebar', 'active','subpad','rootCbKey','hasTechnicalAnalysis','checklists','entityKey','cbKey', 'contentListType', 'pageName'));
         }
         catch(Exception $e) {
             return redirect()->back()->withErrors(["cb.show" => $e->getMessage()]);
         }
     }
+
 
     /**
      * @param $type
@@ -1030,6 +1177,10 @@ class CbsController extends Controller
         try{
             $cb = CB::getCbConfigurations($cbKey);
             $cbVotes = CB::getCbVotes($cbKey);
+            if (ONE::verifyModuleAccess('cb','flags')) {
+                $cb->flags = CB::getCbWithFlags($cbKey,"TOPICS")->flags??[];
+            }
+            $languages = Orchestrator::getLanguageList();
             $statusAvailable = CB::getStatusTypes();
             $statusTypes = [];
             foreach ($statusAvailable as $status){
@@ -1131,7 +1282,7 @@ class CbsController extends Controller
 
             $configurations = $cb->configurations;
 
-            return view('private.cbs.topics', compact('title', 'cb', 'cbVotes','type', 'statusTypes', 'sidebar', 'cbAuthor', 'active','authors','parameters', 'configurations'));
+            return view('private.cbs.topics', compact('title', 'cb', 'cbVotes','type', 'statusTypes', 'sidebar', 'cbAuthor', 'active','authors','parameters', 'configurations','languages'));
         }catch (Exception $e){
             return redirect()->back()->withErrors(["cb.showTopics" => $e->getMessage()]);
         }
@@ -1188,11 +1339,11 @@ class CbsController extends Controller
 
 
             // Sidebar
-            Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'votes']);
+            Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'parameters']);
             Session::put('sidebars', [0 => 'private', 1=> 'padsType']);
 
             $sidebar = 'padsType';
-            $active = 'votes';
+            $active = 'parameters';
 
             /*
             $subpad = $cb->parent_cb_id != 0;
@@ -1208,8 +1359,6 @@ class CbsController extends Controller
             else
                 Session::put('sidebars', [0 => 'private', 1=> 'padsType']);
             */
-
-            $active = 'parameters';
 
             $cbAuthor = Auth::getUserByKey($cb->created_by);
 
@@ -1812,6 +1961,7 @@ class CbsController extends Controller
                 ->addColumn('action', function ($collection) use($type) {
                     return ONE::actionButtons(['type' => $type,'cbKey' => $collection->cb_key], ['form' => 'cbs','edit' => 'CbsController@edit', 'delete' => 'CbsController@delete']);
                 })
+                ->rawColumns(['title','action'])
                 ->make(true);
 
         } catch (Exception $e) {
@@ -1869,32 +2019,27 @@ class CbsController extends Controller
     public function getActivePads(Request $request)
     {
         try {
-            if ($request->start_date!=null){
-                $dates=explode("?end_date=",$request->start_date);
-                $start_date=$dates[0];
-                $end_date=$dates[1];
-            }else{
-                $start_date=null;
-                $end_date=null;
+            $start_date = $request->get("start_date");
+            $end_date = $request->get("end_date");
 
-            }
             $cbs = [];
 
             $module = 'cb';
             $type = $request->filter_types ?? "";
 
-            if(Session::get('user_role') == 'admin' ||  Session::get('user_permissions')->$module->$type->permission_show){
+            if(Session::get('user_role') == 'admin' || Session::get('user_role') == 'manager'){
                 $filterTypes = !empty($request->filter_types) ? $request->filter_types :[];
                 $cbs = collect(Orchestrator::getAllCbs())->toArray();
-                $cbs = collect($cbs)->filter(function($cb) use($filterTypes){
-                    return $cb->cb_type->code == $filterTypes;
-                })->toArray();
+                if (!empty($filterTypes)) {
+                    $cbs = collect($cbs)->filter(function($cb) use($filterTypes){
+                        return $cb->cb_type->code == $filterTypes;
+                    })->toArray();
+                }
 
                 $cbsDetails = CB::getListCBs($cbs);
 
                 foreach ($cbsDetails as $cbsDetail) {
-                    $auth=Auth::getUser($cbsDetail->created_by);
-                    $cbsDetail->name=$auth->name;
+                    $cbsDetail->name = Auth::getUser($cbsDetail->created_by)->name ?? $cbsDetail->created_by;
 
                 }
                 if ($start_date!=null && $end_date!=null) {
@@ -1918,6 +2063,7 @@ class CbsController extends Controller
                 ->addColumn('type', function($newList) use($cbs){
                     return trans('privateCbs.' . $cbs[$newList->cb_key]->cb_type->code);
                 })
+               ->rawColumns(['title', 'action'])
                 ->make(true);
         } catch (Exception $e) {
             return  $e->getMessage();
@@ -1936,8 +2082,8 @@ class CbsController extends Controller
     {
         try {
             CB::deleteModerator($cbKey,$idModerator);
-            return action('CbsController@show', ['type'=>$type,'cbKey'=>$cbKey]);
 
+            return action('CbsController@showModerators', ["type" => $type, "cbKey" => $cbKey]);
         } catch (Exception $e) {
             //TODO: save inputs and show error-...
             return action('CbsController@show', ['type'=>$type,'cbKey'=>$cbKey]);
@@ -1961,7 +2107,7 @@ class CbsController extends Controller
             $data['btn_ok'] = "Delete";
             $data['btn_ko'] = "Cancel";
 
-            return view("_layouts.modal", $data);
+            return view("_layouts.deleteModal", $data);
         } catch (Exception $e) {
 
         }
@@ -1984,7 +2130,11 @@ class CbsController extends Controller
                 $moderators[] = array('cb_key' => $request->cbKey, 'user_key' => $key,'type_id' => 1, );
             }
             CB::setCbModerators($cbKey,$moderators);
-            return action('CbsController@showModerators', ['type'=>$type,'cbKey' =>$cbKey]);
+
+            if(!empty($request->get("step")))
+                return action('CbsController@showModerators', ['type'=>$type,'cbKey' =>$cbKey, 'step' => $request->get("step")]);
+            else
+                return action('CbsController@showModerators', ['type'=>$type,'cbKey' =>$cbKey]);
 
         } catch (Exception $e) {
             return "false";
@@ -2092,6 +2242,7 @@ class CbsController extends Controller
                 ->addColumn('action', function () {
                     return "";
                 })
+                ->rawColumns(['moderadorCheckbox','action'])
                 ->make(true);
         } catch (Exception $e) {
 
@@ -2384,7 +2535,8 @@ class CbsController extends Controller
     public function voteAnalysis(Request $request,$type, $cbKey)
     {
         try {
-            $statisticsType = 'total_votes';
+            $statisticsType = 'total_votes2';
+
             if(!empty($request->statistics_type)){
                 $statisticsType = $request->statistics_type;
             }
@@ -2394,18 +2546,20 @@ class CbsController extends Controller
             $data['type'] = $type;
             $data['cbKey'] = $cbKey;
             $data['statisticsType'] = $statisticsType;
+            $voteEventObj = null;
 
             $voteEventsList = CB::getCbVotes($cbKey);
 
             $voteEvents = collect($voteEventsList)->pluck('name','vote_key')->toArray();
 
             $voteEventKey = null;
-            if(count($voteEvents) == 0){
-                Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'voteAnalysis']);
-                Session::put('sidebars', [0 => 'private', 1=> 'padsType']);
+            Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'voteAnalysis2']);
+            Session::put('sidebars', [0 => 'private', 1=> 'padsType']);
 
-                $data['sidebar'] = 'padsType';
-                $data['active'] = 'voteAnalysis';
+            $data['sidebar'] = 'padsType';
+            $data['active'] = 'voteAnalysis2';
+            if(count($voteEvents) == 0){
+
                 return view('private.cbs.cbVoteAnalysis.withoutVoteEvent', $data);
             }elseif(count($voteEvents) == 1){
                 $voteEventKey = reset($voteEventsList)->vote_key;
@@ -2414,17 +2568,35 @@ class CbsController extends Controller
                 $data["voteEvents"] = $voteEvents;
             }
 
+            if($voteEventKey == null){
+                $voteEventKey = Session::get("voteEventKey");
+                $data['voteEventKey'] = $voteEventKey;
+            }
+
+            $result = Vote::getAllShowEvents($voteEventKey);
+            if(!empty($result[0])){
+                $voteEventObj = $result[0];
+            }
+
             $view = '';
             switch ($statisticsType){
                 case 'data_vote_analysis_by_channel':
-                    $statisticsByChannel= Analytics::getVoteStatisticsByChannel($voteEventKey);
-                    $channels = ['kiosk','pc','mobile','tablet','other','in_person'];
+                    $channels = ['kiosk','pc','mobile','tablet','other','in_person','sms'];
+                    $data["channels"] = $channels;
 
+                    $statisticsByChannel= Analytics::getVoteStatisticsByChannel($voteEventKey);
                     $data["votesByChannel"] = $statisticsByChannel->votes_by_channel ?? [];
                     $data["countByChannel"] = $statisticsByChannel->count_by_channel ?? [];
                     $data["firstByChannel"] = $statisticsByChannel->first_by_channel ?? [];
                     $data["secondByChannel"] = $statisticsByChannel->second_by_channel ?? [];
-                    $data["channels"] = $channels;
+
+                    $statsOptions["view_submitted"] = 1;
+                    $statisticsByChannel= Analytics::getVoteStatisticsByChannel($voteEventKey, $statsOptions);
+                    $data["votesByChannelSubmitted"] = $statisticsByChannel->votes_by_channel ?? [];
+                    $data["countByChannelSubmitted"] = $statisticsByChannel->count_by_channel ?? [];
+                    $data["firstByChannelSubmitted"] = $statisticsByChannel->first_by_channel ?? [];
+                    $data["secondByChannelSubmitted"] = $statisticsByChannel->second_by_channel ?? [];
+                    $data["viewSubmitted"] = $statsOptions["view_submitted"];
 
                     $view = 'private.cbs.cbVoteAnalysis.dataVoteAnalysisByChannel';
                     break;
@@ -2508,7 +2680,9 @@ class CbsController extends Controller
                 case 'total_votes':
                     if(count($voteEvents) == 1) {
                         $top = 8;
-                        $statisticsTotal = Analytics::getVoteStatisticsTotal($voteEventKey,$top);
+                        $statsOptions["top"] = $top;
+                        $statsOptions["view_submitted"] = !empty($request->view_submitted) ? $request->view_submitted: 0;
+                        $statisticsTotal = Analytics::getVoteStatisticsTotal($voteEventKey,$statsOptions);
                         $statisticsTotalData = $statisticsTotal->data ?? [];
                         $statisticsTotalSummary = $statisticsTotal->summary ?? [];
 
@@ -2517,7 +2691,6 @@ class CbsController extends Controller
                     }
                     $view = 'private.cbs.cbVoteAnalysis.voteAnalysisTotal';
                     break;
-
                 case 'voters_per_day':
                     if(count($voteEvents) == 1) {
                         $votersPerDate = Analytics::getVoteStatisticsVotersPerDate($voteEventKey);
@@ -2525,17 +2698,17 @@ class CbsController extends Controller
                     }
                     $view = 'private.cbs.cbVoteAnalysis.voteAnalysisVotersPerDay';
                     break;
-
                 case 'votes_summary':
                     if(count($voteEvents)==1){
-                        $statisticsTotal = Analytics::getVoteStatisticsVotesSummary($voteEventKey);
+                        $field = $request->field;
+                        $statsOptions["view_submitted"] = !empty($request["view_submitted"]) ? $request["view_submitted"]: 0;
+                        $statisticsTotal = Analytics::getVoteStatisticsVotesSummary($voteEventKey,$statsOptions);
                         $statisticsTotalData = $statisticsTotal->data ?? [];
-
                         $data["statisticsTotalData"] = $statisticsTotalData;
+                        $data["viewSubmitted"] = $statsOptions["view_submitted"];
                     }
                     $view = 'private.cbs.cbVoteAnalysis.voteAnalysisVotesSummary';
                     break;
-
                 case 'votes_topic_parameters':
                     $parameters = CB::getCbParametersOptions($cbKey); //get parameters
                     $test= CB::getParametersTypes();
@@ -2567,11 +2740,174 @@ class CbsController extends Controller
                     $data['parametersFiltered'] = $parametersFiltered;
                     $view = 'private.cbs.cbVoteAnalysis.voteAnalysisTopicParameters';
                     break;
+                // Analytics v2.0
+                case 'votes_by_date2':
+                    $startDate  = $request->start_date;
+                    $endDate    = $request->end_date;
+                    $statsOptions["start_date"] = $startDate;
+                    $statsOptions["end_date"] = $endDate;
+                    $statsOptions["view_submitted"] = !empty($request->view_submitted) ? $request->view_submitted: 0;
+                    if(count($voteEvents) == 1) {
+                        $voteAnalysisByDate = Analytics::getVoteStatisticsByDateRange($voteEventKey, $statsOptions);
+                        $data["votesByDate"] = $voteAnalysisByDate;
+                    }
+                    /*
+                    $response = CB::getCBAndTopics($cbKey);
+                    $topics = $response->topics;
+                    $data["topics"] = $topics;
+                    */
+                    $response = CB::getTopicsList($cbKey);
+                    $topics = $response->data;
+                    $data["topics"] = $topics;
+                    $view = 'private.cbs.cbVoteAnalysis2.voteAnalysisDate';
+                    break;
+                case 'total_votes2':
+                    if(count($voteEvents) == 1) {
+                        $top = 10;
+                        $statsOptions["top"] = $top;
+                        $statsOptions["view_submitted"] = !empty($request->view_submitted) ? $request->view_submitted: 0;
+                        $statisticsTotal = Analytics::getVoteStatisticsTotal($voteEventKey,$statsOptions);
+                        $statisticsTotalData = $statisticsTotal->data ?? [];
+                        $statisticsTotalSummary = $statisticsTotal->summary ?? [];
+                        $data["statisticsTotalData"] = $statisticsTotalData;
+                        $data["statisticsTotalSummary"] = $statisticsTotalSummary;
+                        $data["top"] = $top;
+                        $data["viewSubmitted"] = $statsOptions["view_submitted"];
+                    }
+                    $view = 'private.cbs.cbVoteAnalysis2.voteAnalysisTotal';
+                    break;
+                case 'total_votes_detail2':
+                    if(count($voteEvents) == 1) {
+                        $top = null;
+                        $statsOptions["top"] = $top;
+                        $statsOptions["view_submitted"] = !empty($request->view_submitted) ? $request->view_submitted: 0;
+                        $statisticsTotal = Analytics::getVoteStatisticsTotal($voteEventKey,$statsOptions);
+                        $statisticsTotalData = $statisticsTotal->data ?? [];
+                        $statisticsTotalSummary = $statisticsTotal->summary ?? [];
+                        $data["statisticsTotalData"] = $statisticsTotalData;
+                        $data["statisticsTotalSummary"] = $statisticsTotalSummary;
+                        $data["top"] = $top;
+                        $data["viewSubmitted"] = $statsOptions["view_submitted"];
+                    }
+                    $view = 'private.cbs.cbVoteAnalysis2.voteAnalysisTotalDetail';
+                    break;
+                case 'votes_by_user_parameters2':
+                    /** @collection $entityUserParameters - Get entity user parameters and filter by type */
+                    $entityUserParameters = collect(Orchestrator::getEntityRegisterParameters())->filter(function($parameter){
+                        return ($parameter->parameter_type->code == 'birthday' ||
+                            $parameter->parameter_type->code == 'gender' ||
+                            $parameter->parameter_type->code == 'check_box' ||
+                            $parameter->parameter_type->code == 'radio_buttons' ||
+                            $parameter->parameter_type->code == 'dropdown' ||
+                            $parameter->parameter_type->code == 'neighborhood' ||
+                            $parameter->parameter_type->code == 'google_maps'
+                        );
+                    });
+
+
+                    $ageValue = 90;
+                    $data["ageInterval"] = '+'.$ageValue;
+
+                    /*
+                    $neighborhoodKey = null;
+                    if($entityUserParameters->keyBy('parameter_type.code')->has('neighborhood')){
+                        $neighborhoodParam = $entityUserParameters->keyBy('parameter_type.code')->get('neighborhood');
+                        $neighborhoodKey = $neighborhoodParam->parameter_user_type_key;
+                        $neighborhoodName = $neighborhoodParam->name ?? '';
+                        $data["secondParameterName"] = $neighborhoodName;
+                    }
+                    $genderKey = null;
+                    if($entityUserParameters->keyBy('parameter_type.code')->has('gender')){
+                        $genderParam = $entityUserParameters->keyBy('parameter_type.code')->get('gender');
+                        $genderKey = $genderParam->parameter_user_type_key;
+                        $genderName = $genderParam->name ?? '';
+                        $data["thirdParameterName"] = $genderName;
+                    }
+                    */
+
+                    $userParameters = $entityUserParameters->pluck('name','parameter_user_type_key');
+                    $data["userParameters"] = $userParameters->toArray();
+
+                    /*
+                    if(count($voteEvents) == 1) {
+                        $firstParameterKey = collect($userParameters)->keys()->first();
+                        $parameterName = $userParameters->get($firstParameterKey);
+                        $parameterCode = $entityUserParameters->keyBy('parameter_user_type_key')->get($firstParameterKey)->parameter_type->code;
+
+                        if($parameterCode == 'neighborhood'){
+                            $neighborhoodKey = null;
+                            $genderKey = null;
+                        }
+
+                        $statisticsByParameter = Analytics::getVoteStatisticsByParameter($voteEventKey,$firstParameterKey,$neighborhoodKey,$genderKey,$ageValue);
+                        $data["votesByParameter"] = $statisticsByParameter->statistics_by_parameter;
+                        $data["votesByTopicParameter"] = $statisticsByParameter->statistics_by_topic ?? [];
+                        $data["countByParameter"] = $statisticsByParameter->count_by_parameter ?? [];
+                        $data["firstByParameter"] = $statisticsByParameter->first_by_parameter ?? [];
+                        $data["secondByParameter"] = $statisticsByParameter->second_by_parameter ?? [];
+                        $data["parametersOptions"] = $statisticsByParameter->parameters_options ?? [];
+
+                        // Statistics by age and two params
+                        $data["statisticsByAgeTwoParams"] = $statisticsByParameter->statistics_by_age_two_params ?? [];
+                        $data["secondParametersOptions"] = $statisticsByParameter->second_parameters_options ?? [];
+                        $data["thirdParametersOptions"] = $statisticsByParameter->third_parameters_options ?? [];
+
+                        $data["commutersStatistics"] = $statisticsByParameter->commuters_statistics ?? [];
+
+                        $data["votePopulation"] = $statisticsByParameter->vote_population ?? [];
+                        $data["votePopulationTwoParameters"] = $statisticsByParameter->vote_population_two_parameters ?? [];
+                        $data["parameterKey"] = $firstParameterKey;
+                        $data["parameterName"] = $parameterName;
+                        $data["parameterCode"] = $parameterCode;
+                    }
+                    */
+                    $view = 'private.cbs.cbVoteAnalysis2.voteAnalysisUserParameters';
+                    break;
+                case 'votes_by_topic_parameters2':
+                    $parameters = CB::getCbParametersOptions($cbKey); //get parameters
+                    $parametersTypes = CB::getParametersTypes();
+                    $parametersWithOptions = [];
+                    //parameters where option in parameter_type like 1
+                    foreach (!empty($parametersTypes) ? $parametersTypes : [] as $parametersType){
+                        if($parametersType->options == 1 || $parametersType->code == "google_maps"){
+                            $parametersWithOptions[] = $parametersType;
+                        }
+                    }
+                    $parametersFiltered = [];
+                    $aux = [];
+                    // filter parameters
+                    foreach (!empty($parameters->parameters) ? $parameters->parameters : []  as $parameter){
+                        foreach (!empty($parametersWithOptions) ? $parametersWithOptions : [] as $parametersWithOption){
+                            if($parameter->parameter_type_id == $parametersWithOption->id){
+                                $parametersFiltered[$parameter->id]  = $parameter->parameter;
+                                $aux [] = $parameter;
+                            }
+                        }
+                    }
+
+                    /*
+                    if(!empty($voteEvents) && count($voteEvents) == 1){
+                        $firstParameter = collect($aux)->first();
+                        $firstParameterId = $firstParameter->id;
+                        $topicParameters = Analytics::getVoteStatisticsTopicParameters($voteEventKey,$firstParameterId);
+                        $data['topicParameters'] = $topicParameters;
+                    }
+                    */
+
+                    $data["voteEventKey"] = $voteEventKey;
+                    $data['parametersFiltered'] = $parametersFiltered;
+
+                    $view = 'private.cbs.cbVoteAnalysis2.voteAnalysisTopicParameters';
+                    break;
             }
 
             Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'voteAnalysis'/*, 'topicKey' => $topicKey*/]);
             Session::put('sidebarArguments.activeSecondMenu', $statisticsType);
 
+            $cb = CB::getCbConfigurations($cbKey);
+
+            $data['voteEventObj'] = $voteEventObj;
+            $data['cb'] = $cb;
             $data['sidebar'] = 'voteAnalysis';
             $data['active'] = $statisticsType;
             return view($view, $data);
@@ -2589,15 +2925,32 @@ class CbsController extends Controller
     public function getVoteAnalysis(Request $request)
     {
         try {
+            $cbKey = $request->cb_key;
             $statisticsType = $request->statistics_type;
-
             $voteEventKey = $request->vote_event_key;
             $parameterKey = $request->parameter_key;
-            $cbKey = $request->cb_key;
+            $parameterId = $request->parameter_id;
+            $options["start_date"]  = $request->start_date;
+            $options["end_date"]  = $request->end_date;
+            $options["total"]  = $request->total;
+            $options["positive"]  = $request->positive;
+            $options["negative"]  = $request->negative;
+            $options["balance"]  = $request->balance;
+            $options["topic_key"]  = $request->topic_key;
+            $options["view_submitted"]  = $request->view_submitted;
+
             $data = [];
             $view = '';
+            $voteEventObj = null;
 
             Session::put("voteEventKey", $voteEventKey);
+
+            $result = Vote::getAllShowEvents($voteEventKey);
+            if(!empty($result[0])){
+                $voteEventObj = $result[0];
+            }
+            $voteEventStatus = Vote::getVoteStatus($voteEventKey);
+            Session::put("voteEventStatus", $voteEventStatus);
 
             if(empty($statisticsType) || empty($voteEventKey)){
                 return 'false';
@@ -2677,7 +3030,9 @@ class CbsController extends Controller
                     break;
                 case 'vote_analysis_total':
                     $top = 8;
-                    $statisticsTotal = Analytics::getVoteStatisticsTotal($voteEventKey,$top);
+                    $statsOptions["top"] = $top;
+                    $statsOptions["view_submitted"] = !empty($request->view_submitted) ? $request->view_submitted: 0;
+                    $statisticsTotal = Analytics::getVoteStatisticsTotal($voteEventKey,$statsOptions);
                     $statisticsTotalData = $statisticsTotal->data ?? [];
                     $statisticsTotalSummary = $statisticsTotal->summary ?? [];
 
@@ -2687,7 +3042,7 @@ class CbsController extends Controller
                     break;
                 case 'vote_analysis_by_channel':
                     $statisticsByChannel= Analytics::getVoteStatisticsByChannel($voteEventKey);
-                    $channels = ['kiosk','pc','mobile','tablet','other','in_person'];
+                    $channels = ['kiosk','pc','mobile','tablet','other','in_person','sms'];
 
                     $data["votesByChannel"] = $statisticsByChannel->votes_by_channel ?? [];
                     $data["countByChannel"] = $statisticsByChannel->count_by_channel ?? [];
@@ -2746,15 +3101,308 @@ class CbsController extends Controller
                     $data['voteEventKey'] = $voteEventKey;
                     $view = 'private.cbs.cbVoteAnalysis.voteAnalysisByTopicParameters';
                     break;
+                // Analytics v2.0
+                    // votes_by_date2 - Tabs
+                case 'vote_analysis_date2':
+                    $statsOptions["view_submitted"] = !empty($request->view_submitted) ? $request->view_submitted: 0;
+                    $statisticsTotal = Analytics::getVoteStatisticsTotal($voteEventKey, $statsOptions);
+                    $statisticsTotalSummary = $statisticsTotal->summary ?? [];
+
+                    $votesByDate = Analytics::getVoteStatisticsByDateRange($voteEventKey, $options);
+                    $data["votesByDate"] = $votesByDate;
+                    $data["statisticsTotalSummary"] = $statisticsTotalSummary;
+                    $data["voteEventObj"] = $voteEventObj;
+                    $data["voteEventKey"] = $voteEventKey;
+                    $view = 'private.cbs.cbVoteAnalysis2.tabVoteAnalysisDate.voteAnalysisByDate';
+                    break;
+                case 'vote_analysis_hour2':
+                    $votesByDate = Analytics::getVoteStatisticsByHour($voteEventKey, $options);
+                    $data["votesByDate"] = $votesByDate;
+                    $data["voteEventObj"] = $voteEventObj;
+                    $data["voteEventKey"] = $voteEventKey;
+                    $view = 'private.cbs.cbVoteAnalysis2.tabVoteAnalysisDate.voteAnalysisByHour';
+                    break;
+                case 'vote_analysis_total2':
+                    $top = 10;
+                    $statsOptions["top"] = $top;
+                    $statsOptions["view_submitted"] = !empty($request->view_submitted) ? $request->view_submitted: 0;
+
+                    $statisticsTotal = Analytics::getVoteStatisticsTotal($voteEventKey,$statsOptions);
+                    $statisticsTotalData = $statisticsTotal->data ?? [];
+                    $statisticsTotalSummary = $statisticsTotal->summary ?? [];
+                    $data["statisticsTotalData"] = $statisticsTotalData;
+                    $data["statisticsTotalSummary"] = $statisticsTotalSummary;
+                    $data["top"] = $top;
+                    $data["viewSubmitted"] = $statsOptions["view_submitted"];
+                    $view = 'private.cbs.cbVoteAnalysis2.tabVoteAnalysisTotal.voteAnalysisByTotal';
+                    break;
+                case 'vote_analysis_by_channel2':
+                    $top = 10;
+                    $statsOptions["top"] = $top;
+                    $statsOptions["view_submitted"] = !empty($request->view_submitted) ? $request->view_submitted: 0;
+                    $statisticsTotal = Analytics::getVoteStatisticsTotal($voteEventKey,$statsOptions);
+                    $statisticsTotalSummary = $statisticsTotal->summary ?? [];
+                    $channels = ['kiosk','pc','mobile','tablet','other','in_person','sms'];
+                    $statisticsTotal = Analytics::getVoteStatisticsTotalByChannel($voteEventKey,$statsOptions);
+                    $data["statisticsTotalByChannel"] = $statisticsTotal;
+                    //dd($statisticsTotal);
+                    $data["statisticsTotalSummary"] = $statisticsTotalSummary;
+
+                    $data["channels"] = $channels;
+                    $data["top"] = $top;
+                    $data["viewSubmitted"] = $statsOptions["view_submitted"];
+                    $view = 'private.cbs.cbVoteAnalysis2.tabVoteAnalysisTotal.voteAnalysisByChannel';
+                    break;
+                case 'vote_analysis_total_detail2':
+                    $statsOptions["view_submitted"] = !empty($request->view_submitted) ? $request->view_submitted: 0;
+                    $statisticsTotal = Analytics::getVoteStatisticsTotal($voteEventKey, $statsOptions);
+                    $statisticsTotalData = $statisticsTotal->data ?? [];
+                    $statisticsTotalSummary = $statisticsTotal->summary ?? [];
+                    $data["statisticsTotalData"] = $statisticsTotalData;
+                    $data["statisticsTotalSummary"] = $statisticsTotalSummary;
+                    $data["viewSubmitted"] = $statsOptions["view_submitted"];
+                    $view = 'private.cbs.cbVoteAnalysis2.tabVoteAnalysisTotal.voteAnalysisByTotal';
+                    break;
+                case 'vote_analysis_by_channel_detail2':
+                    $statsOptions["view_submitted"] = !empty($request->view_submitted) ? $request->view_submitted: 0;
+                    $statisticsTotal = Analytics::getVoteStatisticsTotal($voteEventKey, $statsOptions);
+                    $statisticsTotalSummary = $statisticsTotal->summary ?? [];
+                    $channels = ['kiosk','pc','mobile','tablet','other','in_person','sms'];
+                    $statsOptions["view_submitted"] = !empty($request->view_submitted) ? $request->view_submitted: 0;
+                    $statisticsTotal = Analytics::getVoteStatisticsTotalByChannel($voteEventKey,$statsOptions);
+                    $data["statisticsTotalByChannel"] = $statisticsTotal;
+                    $data["statisticsTotalSummary"] = $statisticsTotalSummary;
+                    $data["channels"] = $channels;
+                    $data["viewSubmitted"] = $statsOptions["view_submitted"];
+                    $view = 'private.cbs.cbVoteAnalysis2.tabVoteAnalysisTotal.voteAnalysisByChannel';
+                    break;
+                case 'vote_analysis_table_by_channel_detail2':
+                    $statsOptions["view_submitted"] = !empty($request->view_submitted) ? $request->view_submitted: 0;
+                    $statisticsByChannel= Analytics::getVoteStatisticsByChannel($voteEventKey,$statsOptions);
+                    $channels = ['kiosk','pc','mobile','tablet','other','in_person','sms'];
+                    $data["votesByChannel"] = $statisticsByChannel->votes_by_channel ?? [];
+                    $data["countByChannel"] = $statisticsByChannel->count_by_channel ?? [];
+                    $data["firstByChannel"] = $statisticsByChannel->first_by_channel ?? [];
+                    $data["secondByChannel"] = $statisticsByChannel->second_by_channel ?? [];
+                    $data["channels"] = $channels;
+                    // dd($statisticsByChannel);
+                    $data["viewSubmitted"] = $statsOptions["view_submitted"];
+
+                    $view = 'private.cbs.cbVoteAnalysis2.tabVoteAnalysisTotal.voteAnalysisTableByChannel';
+                    break;
+                case 'votes_by_user_parameters2':
+                    $viewSubmitted = !empty($request->view_submitted) ? $request->view_submitted: 0;
+                    $ageValue = 90;
+                    // Default view
+                    $view = 'private.cbs.cbVoteAnalysis2.tabVoteAnalysisUserParameters.textfield';
+
+                    /** @collection $userParameters - Get entity user parameters */
+                    $userParameters = collect(Orchestrator::getEntityRegisterParameters());
+                    $userParametersByKey = $userParameters->keyBy('parameter_user_type_key');
+
+                    if($userParametersByKey->count()!= 0) {
+                        $parameterName = $userParametersByKey->get($parameterKey)->name;
+                        $parameterCode = $userParametersByKey->get($parameterKey)->parameter_type->code;
+
+                        if( $parameterCode == "dropdown" || $parameterCode == "check_box" || $parameterCode == "radio_buttons"
+                            || $parameterCode == "category" ||  $parameterCode == "budget"){
+                            $neighborhoodKey = null;
+                            if ($parameterCode != 'neighborhood' && $userParameters->keyBy('parameter_type.code')->has('neighborhood')) {
+                                $neighborhoodParam = $userParameters->keyBy('parameter_type.code')->get('neighborhood');
+                                $neighborhoodKey = $neighborhoodParam->parameter_user_type_key;
+                                $neighborhoodName = $neighborhoodParam->name ?? '';
+                                $data["secondParameterName"] = $neighborhoodName;
+                            }
+
+                            $genderKey = null;
+                            if ($parameterCode != 'gender' && $userParameters->keyBy('parameter_type.code')->has('gender')) {
+                                $genderParam = $userParameters->keyBy('parameter_type.code')->get('gender');
+                                $genderKey = $genderParam->parameter_user_type_key;
+                                $genderName = $genderParam->name ?? '';
+                                $data["thirdParameterName"] = $genderName;
+                            }
+
+
+                            $options["start_date"]  = $request->start_date;
+                            $options["end_date"]  = $request->end_date;
+                            $votesByDate = Analytics::getVoteStatisticsByParameterChannelDateRange($voteEventKey, $parameterKey,
+                                ["start_date" => !empty($request->start_date) ? $request->start_date : $voteEventObj->start_date,
+                                    "end_date" => !empty($request->end_date) ? $request->end_date : $voteEventObj->end_date,
+                                    'parameter_key' => $parameterKey,
+                                    'view_submitted' => $viewSubmitted
+                                ]);
+
+                            $statisticsByParameterChannel= Analytics::getVoteStatisticsByParameterChannel($voteEventKey,$parameterKey,$neighborhoodKey,$genderKey,$ageValue,$viewSubmitted);
+                            $data["statisticsByParameterChannel"] = $statisticsByParameterChannel;
+
+                            $data["ageInterval"] = '+'.$ageValue;
+                            $statisticsByParameter = Analytics::getVoteStatisticsByParameter($voteEventKey,$parameterKey,$neighborhoodKey,$genderKey,$ageValue,$viewSubmitted);
+
+                            $data["votesByParameter"] = $statisticsByParameter->statistics_by_parameter;
+                            $data["votesByTopicParameter"] = $statisticsByParameter->statistics_by_topic ?? [];
+                            $data["countByParameter"] = $statisticsByParameter->count_by_parameter ?? [];
+                            $data["firstByParameter"] = $statisticsByParameter->first_by_parameter ?? [];
+                            $data["secondByParameter"] = $statisticsByParameter->second_by_parameter ?? [];
+                            $data["parametersOptions"] = $statisticsByParameter->parameters_options;
+
+                            // Statistics by age and two params
+                            $data["statisticsByAgeTwoParams"] = $statisticsByParameter->statistics_by_age_two_params ?? [];
+                            $data["secondParametersOptions"] = $statisticsByParameter->second_parameters_options ?? [];
+                            $data["thirdParametersOptions"] = $statisticsByParameter->third_parameters_options ?? [];
+
+                            $data["commutersStatistics"] = $statisticsByParameter->commuters_statistics ?? [];
+
+                            $data["votePopulation"] = $statisticsByParameter->vote_population ?? [];
+                            $data["votePopulationTwoParameters"] = $statisticsByParameter->vote_population_two_parameters ?? [];
+                            $data["parameterName"] = $parameterName;
+                            $data["parameterCode"] = $parameterCode;
+                            $data["parameterKey"] = $parameterKey;
+
+                            $data["votesByDate"] = $votesByDate;
+                            $data["voteEventKey"] = $voteEventKey;
+                            $view = 'private.cbs.cbVoteAnalysis2.tabVoteAnalysisUserParameters.itemList';
+                        } else if( $parameterCode == "number" ){
+                            $view = 'private.cbs.cbVoteAnalysis2.tabVoteAnalysisUserParameters.number';
+                        } else if( $parameterCode == "google_maps" ){
+                            $options = ["parameter_key" => $parameterKey, "view_submitted"=>  !empty($request->view_submitted) ? $request->view_submitted: 0];
+                            $voteStatistics = Analytics::getVoteStatisticsByUser($voteEventKey, $options);
+                            $geoLocations = $voteStatistics->data;
+                            $data["parameterKey"] = $parameterKey;
+                            $data["geoLocations"] = $geoLocations;
+                            $view = 'private.cbs.cbVoteAnalysis2.tabVoteAnalysisUserParameters.geolocation';
+                        }
+                    }
+                    break;
+                case 'votes_by_topic_parameters2':
+                    $viewSubmitted = !empty($request->view_submitted) ? $request->view_submitted: 0;
+                    $data["viewSubmitted"] = $viewSubmitted;
+                    $ageValue = 90;
+
+                    // Default view
+                    $view = 'private.cbs.cbVoteAnalysis2.tabVoteAnalysisUserParameters.itemList';
+
+                    // Getting Parameter details
+                    $param =  CB::getParameterOptions($parameterId);
+                    $parameterCode = !empty($param->code) ? $param->code :"";
+
+                    if( $parameterCode == "dropdown" || $parameterCode == "check_box" || $parameterCode == "radio_buttons"
+                        || $parameterCode == "category" ||  $parameterCode == "budget" ){
+                        $data["parameterName"] = !empty($param->parameter) ? $param->parameter : "";
+
+                        $parameters = CB::getCbParametersOptions($cbKey); //get parameters
+                        $parametersTypes = CB::getParametersTypes();
+                        $parametersWithOptions = [];
+
+                        //parameters where option in parameter_type like 1
+                        foreach (!empty($parametersTypes) ? $parametersTypes : [] as $parametersType){
+                            if($parametersType->options == 1){
+                                $parametersWithOptions[] = $parametersType;
+                            }
+                        }
+                        $parametersFiltered = [];
+                        // filter parameters
+                        foreach (!empty($parameters->parameters) ? $parameters->parameters : []  as $parameter){
+                            foreach (!empty($parametersWithOptions) ? $parametersWithOptions : [] as $parametersWithOption){
+                                if($parameter->parameter_type_id == $parametersWithOption->id){
+                                    $parametersFiltered[$parameter->id] = $parameter->code;
+                                    $aux [$parameter->id] = $parameter;
+                                }
+                            }
+                        }
+
+                        //  Vote Statistics By Topic Parameter
+                        $neighborhoodKey  = null; // Please review this!?
+                        $genderKey = null;        // Please review this!?
+                        $statisticsByParameter = Analytics::getVoteStatisticsByTopicParameter($voteEventKey, $cbKey,$parameterId,$neighborhoodKey,$genderKey,$ageValue,$viewSubmitted);
+
+                        // statistics By parameter channel  ------- -------
+                        $statisticsByParameterChannel= Analytics::getVoteStatisticsByTopicParameterChannel($voteEventKey, $cbKey,$parameterId,$neighborhoodKey,$genderKey,$ageValue,$viewSubmitted);
+                        $data["statisticsByParameterChannel"] = $statisticsByParameterChannel;
+                        $votesByDate = Analytics::getVoteStatisticsByTopicParameterChannelDateRange($voteEventKey ,$parameterId,
+                            ["start_date" => !empty($request->start_date) ? $request->start_date : $voteEventObj->start_date,
+                                "end_date" => !empty($request->end_date) ? $request->end_date : $voteEventObj->end_date,
+                                'parameter_id' => $parameterId,
+                                'cb_key' =>$cbKey,
+                                'view_submitted' => $viewSubmitted
+                            ]);
+
+                        // Data to send to view
+                        $data["selectLineToView"] = $request->selectLineToView;
+                        $data["votesByDate"] = $votesByDate;
+                        $data["parameterId"] = $parameterId;
+                        $data["voteEventKey"] = $voteEventKey;
+                        $data["cbKey"] = $cbKey;
+                        $data["votesByParameter"] = $statisticsByParameter->statistics_by_parameter;
+                        $data["votesByTopicParameter"] = $statisticsByParameter->statistics_by_topic ?? [];
+                        $data["parametersOptions"] = $statisticsByParameter->parameters_options;
+                        $data["parameterCode"] = $parameterCode;
+                        $data["ageInterval"] = '+'.$ageValue;
+                        $view = 'private.cbs.cbVoteAnalysis2.tabVoteAnalysisTopicParameters.itemList';
+                    } else if( $parameterCode == "number" ){
+                        $view = 'private.cbs.cbVoteAnalysis2.tabVoteAnalysisTopicParameters.number';
+                    } else if( $parameterCode == "google_maps" ){
+                        //  Vote Statistics By Topic Parameter
+                        // $statisticsByParameter = Analytics::getVoteGeoStats($voteEventKey, $cbKey, $parameterId);
+                        $options = ["cb_key" => $cbKey , "parameter_id" => $parameterId, "view_submitted"=>  !empty($request->view_submitted) ? $request->view_submitted: 0];
+                        $voteStatistics = Analytics::getVoteStatisticsByTopic($voteEventKey, $options);
+                        $geoLocations = $voteStatistics->data;
+                        $data["parameterId"] = $parameterId;
+                        $data["geoLocations"] = $geoLocations;
+                        $view = 'private.cbs.cbVoteAnalysis2.tabVoteAnalysisTopicParameters.geolocation';
+                    }
+
+                    break;
+                case 'votes_by_user_parameters2_chartdates_only':
+                    $ageValue = 90;
+                    $options["start_date"]  = $request->start_date;
+                    $options["end_date"]  = $request->end_date;
+                    $votesByDate = Analytics::getVoteStatisticsByParameterChannelDateRange($voteEventKey, $parameterKey,
+                        ["start_date" => !empty($request->start_date) ? $request->start_date : $voteEventObj->start_date,
+                            "end_date" => !empty($request->end_date) ? $request->end_date : $voteEventObj->end_date,
+                            'parameter_key' => $parameterKey,
+                            "view_submitted"=>  !empty($request->view_submitted) ? $request->view_submitted: 0]);
+                    $data["votesByDate"] = $votesByDate;
+                    $data["parameterKey"] = $parameterKey;
+                    $data["votesByDate"] = $votesByDate;
+                    $data["voteEventKey"] = $voteEventKey;
+                    $data["selectLineToView"] = $request->selectLineToView;
+
+
+                    $view = 'private.cbs.cbVoteAnalysis2.tabVoteAnalysisUserParameters._requestDateChart';
+                break;
+                case 'votes_by_topic_parameters2_chartdates_only':
+                    $ageValue = 90;
+                    $options["start_date"]  = $request->start_date;
+                    $options["end_date"]  = $request->end_date;
+                    $votesByDate = Analytics::getVoteStatisticsByTopicParameterChannelDateRange($voteEventKey ,$parameterId,
+                        ["start_date" => !empty($request->start_date) ? $request->start_date : $voteEventObj->start_date,
+                            "end_date" => !empty($request->end_date) ? $request->end_date : $voteEventObj->end_date,
+                            'parameter_id' => $parameterId,
+                            'cb_key' =>$cbKey,
+                            "view_submitted"=>  !empty($request->view_submitted) ? $request->view_submitted: 0
+                        ]);
+
+                    // dd($votesByDate);
+                    $data["votesByDate"] = $votesByDate;
+                    $data["parameterId"] = $parameterId;
+                    $data["votesByDate"] = $votesByDate;
+                    $data["voteEventKey"] = $voteEventKey;
+                    $data["selectLineToView"] = $request->selectLineToView;
+
+
+                    $view = 'private.cbs.cbVoteAnalysis2.tabVoteAnalysisTopicParameters._requestDateChart';
+                    break;
             }
+
             if(empty($data)){
                 return 'false';
             }
 
+            $data['voteEventObj'] = $voteEventObj;
             return view($view, $data);
 
         }catch (Exception $e){
-            return 'false';
+            return $e->getMessage();
         }
     }
 
@@ -2767,9 +3415,15 @@ class CbsController extends Controller
     public function getVotesSummaryTable(Request $request, $type, $cbKey){
         try{
             $voteEventKey = $request->vote_event_key;
-            $statisticsTotal = Analytics::getVoteStatisticsVotesSummary($voteEventKey);
+            // $field = $request->field;
+            // options: ["field" => $field]
+            $statsOptions["view_submitted"] = !empty($request["view_submitted"]) ? $request["view_submitted"]: 0;
+            $data["viewSubmitted"] = $statsOptions["view_submitted"];
+
+            $statisticsTotal = Analytics::getVoteStatisticsVotesSummary($voteEventKey, $statsOptions);
             $statisticsTotalData = $statisticsTotal->data ?? [];
             $collection = Collection::make($statisticsTotalData);
+            // dd($collection);
             return Datatables::of($collection)
                 ->make(true);
         }catch(Exception $e){
@@ -2856,8 +3510,8 @@ class CbsController extends Controller
 
             $sidebar = 'padsType';
             $active = 'empavilleAnalysis';
-
-            return view('private.cbs.empavilleAnalysis.index', compact('cbKey','voteSession', 'type', 'sidebar', 'active'));
+            $title = trans('privateCbs.empaville');
+            return view('private.cbs.empavilleAnalysis.index', compact('cbKey','voteSession', 'type', 'sidebar', 'active','title'));
         }catch(Exception $e) {
             return redirect()->back()->withErrors(["empavilleDashboard.proposals.error" => $e->getMessage()]);
         }
@@ -2916,8 +3570,8 @@ class CbsController extends Controller
 
             $sidebar = 'padsType';
             $active = 'permissions';
-
-            return view('private.cbs.indexPermissions', compact('type', 'cbKey', 'active', 'sidebar'));
+            $title = trans("privateCbsPermissions.permissions") ;
+            return view('private.cbs.indexPermissions', compact('type', 'cbKey', 'active', 'sidebar','title'));
         } catch (Exception $e) {
 
         }
@@ -2932,36 +3586,37 @@ class CbsController extends Controller
     public function getGroupsPads(Request $request, $type, $cbKey)
     {
         try{
-            if (empty($request->filterType) || count($request->filterType) == 2) {
-                $groups = Orchestrator::getEntityGroups();
-                $managers = Orchestrator::getAllManagers();
+            $filters = $request->get("filterType",[]);
+            $data = [];
 
-                $collectionGroups = Collection::make($groups);
-                $collectionManagers = Collection::make($managers);
-                $managersKeys = $collectionManagers->pluck('user_key');
-                $managersNamesCollection = Auth::getUserNames($managersKeys);
+            if(empty($filters) || in_array("users",$filters)) {
+                $managersKeys = collect(Orchestrator::getAllManagers())->pluck("user_key");
+                $managers = collect(Auth::getUserNames($managersKeys))->toArray();
 
-                $collection = $collectionGroups->merge($managersNamesCollection);
-            }elseif($request->filterType == 'groups'){
-                $groups = Orchestrator::getEntityGroups();
+                foreach ($managers as $manager) {
+                    $manager->type = trans("privateCbs.manager");
+                }
 
-                $collection = Collection::make($groups);
-
-            }else{
-                $managers = Orchestrator::getAllManagers();
-                $collectionManagers = Collection::make($managers);
-                $managersKeys = $collectionManagers->pluck('user_key');
-                $managersNamesCollection = Auth::getUserNames($managersKeys);
-                $collection = Collection::make($managersNamesCollection);
+                $data = array_merge($data,$managers);
             }
 
-            return Datatables::of($collection)
+            if(empty($filters) || in_array("groups",$filters)) {
+                $groups = collect(Orchestrator::getEntityGroups())->toArray();
+
+                foreach ($groups as $group){
+                    $group->type = trans("privateCbs.group");
+                }
+                $data = array_merge($data,$groups);
+            }
+
+            return Datatables::of(collect($data))
                 ->editColumn('title', function ($collection) use($type, $cbKey){
-                    return "<a href='" . action('CbsController@showPermissions', ['type' => $type, 'cbKey'=>$cbKey, 'groupKey' => $collection->entity_group_key ?? "", 'userKey' => $collection->user_key ?? ""]) . "'>" . $collection->name . "</a>";
+                    return "<a href='" . action('CbsController@permissions', ['type' => $type, 'cbKey'=>$cbKey, 'groupKey' => $collection->entity_group_key ?? "", 'userKey' => $collection->user_key ?? ""]) . "'>" . $collection->name . "</a>";
                 })
+                ->rawColumns(['title'])
                 ->make(true);
         } catch (Exception $e) {
-
+            return [$e->getMessage(),$e->getLine()];
         }
     }
 
@@ -3067,9 +3722,10 @@ class CbsController extends Controller
 
             CB::storeCbPermission($cbKey, $permissions, $groupKey, $userKey, $optionsIds);
 
-            return redirect()->action('CbsController@showPermissions', compact('type', 'cbKey', 'groupKey', 'userKey'));
+            Session::flash('message', trans('privateCbs.permissions_stored'));
+            return redirect()->action('CbsController@showGroupPermissions', compact('type', 'cbKey'));
         } catch (Exception $e) {
-
+            return redirect()->back()->withErrors([trans('privateCbs.failed_to_store_permissions') => $e->getMessage()]);
         }
     }
 
@@ -3096,10 +3752,9 @@ class CbsController extends Controller
     public function topicsToExport(Request $request, $type, $padKey)
     {
         try{
-            $topics = [];
-            if(ONE::verifyUserPermissions('cb', 'topics', 'show')) {
 
-                $voteEventKey = $request->vote_event_key ?? null;
+            $voteEventKey = $request->vote_event_key ?? null;
+            if (!empty($voteEventKey)) {
                 $top = $request->top_topics ?? null;
                 $minVotes = $request->min_votes ?? 0;
                 try{
@@ -3107,13 +3762,24 @@ class CbsController extends Controller
                 }catch (Exception $e){
                     $topics = [];
                 }
-
-                $users = Collect($topics)->pluck('created_by');
-                $usersKeysNames = [];
-                if(!$users->isEmpty()){
-                    $usersKeysNames = Collect(Auth::getUserNames($users))->pluck('name', 'user_key');
+            } else {
+                try {
+                    $topics = CB::getTopicsByCbKey($padKey);
+                    foreach ($topics as $topic) {
+                        $topic->topic_name = $topic->title;
+                        $topic->total_votes = "-";
+                    }
+                } catch(Exception $e) {
+                    $topics = [];
                 }
             }
+
+            $users = Collect($topics)->pluck('created_by');
+            $usersKeysNames = [];
+            if(!$users->isEmpty()){
+                $usersKeysNames = Collect(Auth::getUserNames($users))->pluck('name', 'user_key');
+            }
+
             $collection = Collection::make($topics);
 
             return Datatables::of($collection)
@@ -3126,11 +3792,15 @@ class CbsController extends Controller
                     else
                         return "<a href='" . action('UsersController@show', [$collection->created_by]) . "'>" . $usersKeysNames[$collection->created_by] . "</a>";
                 })
+                ->addColumn("status",function($collection) {
+                    return $collection->active_status->status_type->code??"No status";
+                })
                 ->addColumn('action', function ($collection) {
 
-                    $button = "<input type='checkbox' name='topics[]' id='topic_".$collection->topic_key."' class='css-checkbox' value='".$collection->topic_key."' /><label for='topic_".$collection->topic_key."' class='css-label'></label>";
+                    $button = "<input type='checkbox' name='topics[]' id='topic_".$collection->topic_key."' class='' value='".$collection->topic_key."' /><label for='topic_".$collection->topic_key."' class='css-label'></label>";
                     return $button;
                 })
+                ->rawColumns(['title','created_by','action'])
                 ->make(true);
         } catch (Exception $e) {
 
@@ -3161,12 +3831,13 @@ class CbsController extends Controller
             $data['cbKey'] = $cbKey;
 
             if(count($voteEvents) == 0){
-                return view('private.cbs.exportTopics.withoutVoteEvent', $data);
+                $data["voteEvents"] = null;
             }elseif(count($voteEvents) == 1){
                 $data["voteEventKey"] = reset($voteEventsList)->vote_key;
             }else{
                 $data["voteEvents"] = $voteEvents;
             }
+
             return view('private.cbs.exportTopics.exportTopics', $data);
         } catch (Exception $e) {
 
@@ -3340,6 +4011,9 @@ class CbsController extends Controller
                 case $type == "qa":
                     $title = trans('privateQA.show_securityconfigurations');
                     break;
+                case $type == "project":
+                    $title = trans('privateProject.show_securityconfigurations');
+                    break;
             }
 
             $userLevels = Orchestrator::getAllEntityLoginLevels(Session::get('X-ENTITY-KEY'));
@@ -3348,7 +4022,7 @@ class CbsController extends Controller
                 $userLevels = collect($userLevels)->keyBy('login_level_key')->toArray();
             };
 
-            Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'configurations']);
+            Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'security_configurations']);
             Session::put('sidebars', [0 => 'private', 1=> 'padsType']);
 
             $sidebar = 'padsType';
@@ -3440,6 +4114,9 @@ class CbsController extends Controller
                 case $type == "qa":
                     $title = trans('privateQA.show_configurations');
                     break;
+                case $type == "project":
+                    $title = trans('privateProject.show_securityconfigurations');
+                    break;
             }
 
             $userLevels = Orchestrator::getAllEntityLoginLevels(Session::get('X-ENTITY-KEY'));
@@ -3515,8 +4192,14 @@ class CbsController extends Controller
                     Vote::storeEventLevel($cbKey, $values);
 
                 } else {
-                    Vote::updateEventLevel($cbKey, null);
+                    Vote::updateEventLevel($cbKey, $values);
                 }
+            }
+
+            if(is_null($request->vote['vote'])){
+                $values = [];
+                $eventLevel = Vote::getEventLevels();
+                Vote::updateEventLevel($cbKey, $values);
             }
 
             Session::flash('message', trans('cbs.updateConfigurationPermissions'));
@@ -3542,8 +4225,8 @@ class CbsController extends Controller
 
             $sidebar = 'padsType';
             $active = 'comments';
-
-            return view('private.cbs.comments', compact('type', 'cbKey','cb','languages','sidebar','active'));
+            $title = trans('privateCbs.comments');
+            return view('private.cbs.comments', compact('type', 'cbKey','cb','languages','sidebar','active','title'));
 
         } catch (Exception $e) {
 
@@ -3598,7 +4281,6 @@ class CbsController extends Controller
                     if(!empty($collection->flags)){
                         return collect($collection->flags)->sortByDesc('pivot.updated_at')->first()->title;
                     }
-
                 })
                 ->addColumn('action', function ($collection) use($cbKey,$commentsNeedAuthorization,$type){
                     $html = '';
@@ -3613,14 +4295,18 @@ class CbsController extends Controller
                     else
                         $html .= '<a href="'. action('PostController@blocked', [$type, $cbKey, $collection->topic->topic_key,$collection->post_key, 1, 'comments']) .'" class="btn btn-flat btn-danger btn-xs" data-toggle="tooltip" data-original-title="disapprove"><i class="glyphicon glyphicon-thumbs-down"></i> </a>';
 
-                    $html .='<a href="javascript:attachFlag(\'' . $collection->post_key . '\')">' . '<span class="btn btn-flat btn-info btn-xs" title="'.trans("privateCbs.attach_flag").'"><i class="fa fa-flag" aria-hidden="true"></i></span>' . '</a>';
-                    $html .='<a href="javascript:seeFlagHistory(\'' . $collection->post_key . '\')">' . '<span class="btn btn-flat btn-xs bg-yellow" title="'.trans("privateCbs.show_flag_history").'"><i class="fa fa-binoculars" aria-hidden="true"></i></i></span>' . '</a>';
+                    if( ONE::verifyModuleAccess('cb','flags') && !empty($collection->flags)) {
+                        $html .= '<a class="attachFlag" href="javascript:attachFlag(\'' . $collection->post_key . '\')">' . '<span class="btn btn-flat btn-info btn-xs" title="' . trans("privateCbs.attach_flag") . '"><i class="fa fa-flag" aria-hidden="true"></i></span>' . '</a>';
+                        $html .= '<a href="javascript:seeFlagHistory(\'' . $collection->post_key . '\')">' . '<span class="btn btn-flat btn-xs bg-yellow" title="' . trans("privateCbs.show_flag_history") . '"><i class="fa fa-binoculars" aria-hidden="true"></i></i></span>' . '</a>';
+                    }
+
                     return $html;
                 })
                 /* Makes DataTable not reordering the data again - was messing up with dates */
                 ->order(function(){})
                 ->skipPaging()
                 ->setTotalRecords($totalRecords)
+                ->rawColumns(['topic.title','contents','action'])
                 ->make(true);
         } catch (Exception $e) {
 
@@ -3683,7 +4369,7 @@ class CbsController extends Controller
                     break;
             }
 
-            Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'configurations']);
+            Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'questionnaires']);
             Session::put('sidebars', [0 => 'private', 1=> 'padsType']);
 
 
@@ -3785,7 +4471,6 @@ class CbsController extends Controller
             $active = 'questionnaires';
 
             $author = Auth::getUser($cb->created_by);
-            $author = $author->name;
 
             $actions=CB::getActions();
 
@@ -4091,7 +4776,7 @@ class CbsController extends Controller
                     $cbModuleType = collect($cbModule->module_types)->where("code", "=", $type)->first() ?? [];
 
                     if (!empty($cbModuleType)) {
-                        Orchestrator::setModuleTypeForCurrentEntity($cbModule->module_key, $cbModuleType->module_type_key);
+                        Orchestrator::setModuleTypeForEntity($cbModule->module_key, $cbModuleType->module_type_key);
                         \Cache::forget('entityModulesActive_' . ONE::getEntityKey());
                     }
                 }
@@ -4157,41 +4842,41 @@ class CbsController extends Controller
                         "use_filter" => "0",
                         "value" => null,
                         "options" => array(
-                          array(
-                            "translations" => array(
-                              0 => array(
-                                "language_code" => "pt",
-                                "label" => "100"
-                              )
+                            array(
+                                "translations" => array(
+                                    0 => array(
+                                        "language_code" => "pt",
+                                        "label" => "100"
+                                    )
+                                ),
+                                "optionFields" => [],
+                                "code" => ""
                             ),
-                            "optionFields" => [],
-                            "code" => ""
-                          ),
-                          array(
-                            "translations" => array(
-                              array(
-                                "language_code" => "pt",
-                                "label" => "50",
-                              )
+                            array(
+                                "translations" => array(
+                                    array(
+                                        "language_code" => "pt",
+                                        "label" => "50",
+                                    )
+                                ),
+                                "optionFields" => [],
+                                "code" => ""
                             ),
-                            "optionFields" => [],
-                            "code" => ""
-                          ),
-                          array(
-                            "translations" => array(
-                              array(
-                                "language_code" => "pt",
-                                "label" => "25"
-                              )
-                            ),
-                            "optionFields" => [],
-                            "code" => ""
-                          )
+                            array(
+                                "translations" => array(
+                                    array(
+                                        "language_code" => "pt",
+                                        "label" => "25"
+                                    )
+                                ),
+                                "optionFields" => [],
+                                "code" => ""
+                            )
                         ),
                         "fields" => []
                     );
                     CB::setParameters($parameterBudget);
-                    
+
                     $parameterImageMap = array(
                         "parameter_type_id" => 8,
                         "cb_key" => $cbKey,
@@ -4250,12 +4935,63 @@ class CbsController extends Controller
                     $newVoteEvent = Vote::setVoteEvent($voteEventRequest, $configurations);
                     $voteNew = CB::setCbVote($voteEventRequest, $newVoteEvent);
 
-                    return redirect()->action("CbsController@show",["type" => "idea", "cbKey" => $cbKey]);
+                    
+                        return redirect()->action("CbsController@show",["type" => "idea", "cbKey" => $cbKey]);
+                    
                 } catch(Exception $e) {
                     return redirect()->back()->withErrors(["cbs.store" => $e->getMessage()]);
                 }
-            } else
-                return $this->store($type, $requestCB);
+            } else{
+                if ($type == 'proposal' || $type == 'project')
+                {
+                    if (empty(Session::get('participatory')))
+                    {
+                        Session::put('participatory', $type);
+                    }
+                    else{
+                        Session::put('participatory_second', $type);
+                    }
+                }
+                $configurations = CB::getConfigurations();
+                foreach ($configurations as $configuration) {
+                    foreach ($configuration->configurations as $options) {
+                        if ($options->code == 'security_create_topics'){
+                            if ($type == 'proposal' || $type == 'idea' || $type == 'fix_my_street'){
+                                $configurationsToSave[] = $options->id ;
+                            }
+                        }
+                        if ($options->code == 'security_comment_authorization'){
+                            if ($type == 'proposal' || $type == 'project'){
+                                $configurationsToSave[] = $options->id ;
+                            }
+                        }
+                        if ($options->code == 'topic_need_moderation'){
+                            if ($type == 'proposal' || $type == 'idea' || $type == 'fix_my_street'){
+                                $configurationsToSave[] = $options->id ;
+                            }
+                        }
+                        if ($options->code == 'security_allow_report_abuses'){
+                            if ($type == 'idea' || $type == 'consultation' || $type == 'fix_my_street'){
+                                $configurationsToSave[] = $options->id ;
+                            }
+                        }
+                        if ($options->code == 'topic_comments_allow_comments' || $options->code == 'disable_comments_functionality'){
+                            if ($type == 'proposal' || $type == 'idea' || $type == 'consultation' || $type == 'fix_my_street'){
+                                $configurationsToSave[] = $options->id ;
+                            }
+                        }
+                        if ($options->code == 'show_status' || $options->code == 'allow_filter_status'){
+                            if ($type == 'proposal' || $type == 'project' || $type == 'idea' || $type == 'fix_my_street'){
+                                $configurationsToSave[] = $options->id ;
+                            }
+                        }
+                        if ($options->code == 'security_public_access' || $options-> code == 'topic_options_allow_share'){
+                                $configurationsToSave[] = $options->id ;
+                        }
+                    }
+                }
+                return $this->store($type, $requestCB, $configurationsToSave);
+            }
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["cbs.store" => $e->getMessage()]);
         }
@@ -4265,6 +5001,7 @@ class CbsController extends Controller
     public function publishTechnicalAnalysisForm(Request $request,$type,$cbKey) {
         try {
             $technicalAnalysisQuestions = CB::getCbQuestions($cbKey);
+            $cb = CB::getCb($cbKey);
             $cbParameters = CB::getCbParameters($cbKey);
             $cbStatusTypes = CB::getStatusTypes();
 
@@ -4274,19 +5011,19 @@ class CbsController extends Controller
             $sidebar = 'padsType';
             $active = 'details';
 
-            return view('private.cbs.publishTechnicalAnalysis.index', compact('technicalAnalysisQuestions','cbParameters','cbStatusTypes','sidebar','type','cbKey','active'));
+            return view('private.cbs.publishTechnicalAnalysis.index', compact('technicalAnalysisQuestions','cbParameters','cbStatusTypes','sidebar','type','cbKey','active','cb'));
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["private.cbs.publishTechnicalAnalysis.create" => $e->getMessage()]);
         }
     }
     public function publishTechnicalAnalysisConfirmation(Request $request, $type, $cbKey) {
         try {
-            $questionKey = $request->get("description-question");
-            $parameterId = $request->get("description-parameter");
+            $questionKeys = $request->get("description-question");
+            $parameterIds = $request->get("description-parameter");
             $passedStatusKey = $request->get("status-passed");
             $failedStatusKey = $request->get("status-failed");
 
-            $result = CB::publishTechnicalAnalysisResults($cbKey,$questionKey,$parameterId, $passedStatusKey, $failedStatusKey, true);
+            $result = CB::publishTechnicalAnalysisResults($cbKey,$questionKeys,$parameterIds, $passedStatusKey, $failedStatusKey, true);
 
             if (!empty($result->errors))
                 return redirect()->back()->withInput()->with("exportTechnicalAnalysisErrors",$result->errors);
@@ -4294,18 +5031,19 @@ class CbsController extends Controller
             $data = array(
                 "type" => $type,
                 "cbKey" => $cbKey,
-                "question" => $result->data->question,
-                "parameter" => $result->data->parameter,
+                "questions" => $result->data->questions,
+                "parameters" => $result->data->parameters,
                 "passing" => $result->data->passing,
                 "failing" => $result->data->failing,
+                "noDecision" => $result->data->noDecision,
                 "noAnalysis" => $result->data->noAnalysis,
 
-                "questionKey" => $questionKey,
-                "parameterId" => $parameterId,
                 "passedStatusKey" => $passedStatusKey,
-                "failedStatusKey" => $failedStatusKey
+                "failedStatusKey" => $failedStatusKey,
+
+                "cb" => CB::getCb($cbKey)
             );
-            
+
             return view('private.cbs.publishTechnicalAnalysis.confirmation', $data);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["private.cbs.publishTechnicalAnalysis.confirm" => $e->getMessage()]);
@@ -4313,12 +5051,12 @@ class CbsController extends Controller
     }
     public function publishTechnicalAnalysisSubmit(Request $request, $type, $cbKey) {
         try {
-            $questionKey = $request->get("questionKey");
-            $parameterId = $request->get("parameterId");
+            $questionKeys = $request->get("questionKeys");
+            $parameterIds = $request->get("parameterIds");
             $passedStatusKey = $request->get("passedStatusKey");
             $failedStatusKey = $request->get("failedStatusKey");
 
-            $result = CB::publishTechnicalAnalysisResults($cbKey,$questionKey,$parameterId, $passedStatusKey, $failedStatusKey, false);
+            $result = CB::publishTechnicalAnalysisResults($cbKey,$questionKeys,$parameterIds, $passedStatusKey, $failedStatusKey, false);
 
             if (!empty($result->errors))
                 return redirect()->back()->withInput()->with("exportTechnicalAnalysisErrors",$result->errors);
@@ -4326,18 +5064,18 @@ class CbsController extends Controller
             $data = array(
                 "type" => $type,
                 "cbKey" => $cbKey,
-                "question" => $result->data->question,
-                "parameter" => $result->data->parameter,
+                "questions" => $result->data->questions,
+                "parameters" => $result->data->parameters,
                 "passing" => $result->data->passing,
                 "failing" => $result->data->failing,
                 "noAnalysis" => $result->data->noAnalysis,
 
-                "questionKey" => $questionKey,
-                "parameterId" => $parameterId,
                 "passedStatusKey" => $passedStatusKey,
                 "failedStatusKey" => $failedStatusKey,
 
-                "publishResult" => $result->result
+                "publishResult" => $result->result,
+
+                "cb" => CB::getCb($cbKey)
             );
 
             return view('private.cbs.publishTechnicalAnalysis.result', $data);
@@ -4364,4 +5102,131 @@ class CbsController extends Controller
             return redirect()->back()->withErrors(["cbs.getUsers" => $e->getMessage()]);
         }
     }
+
+    public function stepType(Request $request){
+
+        try{
+
+            $typesList = Orchestrator::getCbTypesList();
+            $configurations = CB::getConfigurations();
+
+            $data = [];
+
+            $data["typesList"] = $typesList;
+            $data["title"] = trans('privateCbs.selectCbType');
+            $data["configurations"] = $configurations;
+
+            return view('private.cbs.wizard.step0', $data);
+
+        }catch (Exception $e){
+            return redirect()->back();
+        }
+    }
+
+    /**
+     * Show the form for creating a new cb check list.
+     *
+     * @return Response
+     */
+    public function addCheckList(Request $request)
+    {
+        try {
+
+            return view('private.cbs.addCheckList', compact('name'));
+
+        } catch (Exception $e) {
+
+        }
+        return redirect()->back()->withErrors(["privateCbs.addCheckList" => $e->getMessage()]);
+    }
+    /**
+     * Update the specified resource in cb check list.
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function updateChecklistItem(Request $request)
+    {
+        try {
+
+            EMPATIA::updateChecklistItem($request);
+
+        } catch (Exception $e) {
+
+        }
+        return redirect()->back()->withErrors(["privateCbs.updateCheckList" => $e->getMessage()]);
+    }
+
+    /**
+     * Show the form for creating a new cb check list.
+     *
+     * @return Response
+     */
+    public function createChecklistItem(Request $request)
+    {
+        try {
+
+            EMPATIA::createChecklistItem($request);
+
+        } catch (Exception $e) {
+
+        }
+        return redirect()->back()->withErrors(["privateCbs.createCheckList" => $e->getMessage()]);
+    }
+
+    public function removeCheckListItem(Request $request)
+    {
+        try {
+
+            EMPATIA::removeCheckListItem($request->checklist_key);
+
+        } catch (Exception $e) {
+
+        }
+        return redirect()->back()->withErrors(["privateCbs.removeCheckList" => $e->getMessage()]);
+    }
+
+    /**
+     * Display a listing of cbs permissions.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function permissions(Request $request, $type, $cbKey)
+    {
+        $title =  trans('privateCbs.permissions');
+        $groupKey = $request->input('groupKey') ?? null;
+        $userKey = $request->input('userKey') ?? null;
+
+        $entityKey = Orchestrator::getSiteEntity($_SERVER["HTTP_HOST"])->entity_id;
+        $permissions = EMPATIA::getCBPermissions($cbKey,$groupKey, $userKey,$entityKey);
+
+        // sidebar info
+        Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'permissions']);
+        Session::put('sidebarActive', 'padsType');
+        $sidebar = 'padsType';
+        $rootCbKey = $cbKey;
+        $active = 'permissions';
+
+        return view('private.cbs.cbsPermission', compact('permissions','type','cbKey','title','active','sidebar','rootCbKey'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  $code, $userId, $groupId,
+     * @return \Illuminate\Http\Response
+     */
+    public function updatePermission(Request $request, $type, $cbKey)
+    {
+        $entityKey = Orchestrator::getSiteEntity($_SERVER["HTTP_HOST"])->entity_id;
+
+        if($request->permission){
+            EMPATIA::updateCBPermissions($cbKey,$request->code,$request->userId,$request->groupId,0,$entityKey);
+        }
+        else{
+            EMPATIA::updateCBPermissions($cbKey,$request->code,$request->userId,$request->groupId,1,$entityKey);
+        }
+    }
+
 }

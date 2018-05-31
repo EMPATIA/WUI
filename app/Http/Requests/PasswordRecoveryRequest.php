@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\One\One;
 
 class PasswordRecoveryRequest extends Request
 {
@@ -31,8 +32,8 @@ class PasswordRecoveryRequest extends Request
     public function messages()
     {
         return [
-            'required'  => trans('request.the').' :attribute '.trans('request.fieldIsRequired').'.',
-            'email'     => trans('request.the').' :attribute '.trans('request.mustBeAvalidEmailAddress').'.'
+            'required'  => ONE::transSite('the').' :attribute '.ONE::transSite('field_is_required').'.',
+            'email'     => ONE::transSite('the').' :attribute '.ONE::transSite('must_be_a_valid_email_address').'.'
         ];
     }
 }

@@ -5,7 +5,11 @@
 @else
     <div class="box-info">
         <div class="box-header">
-            <h3 class="box-title"><i class="fa"></i> {{ trans('privateCbsVoteAnalysis.channels') }}</h3>
+            <div class="row">
+                <div class="col-12 col-lg-12">
+                    <h3 class="box-title"><i class="fa"></i> {{ trans('privateCbsVoteAnalysis.channels') }}</h3>
+                </div>
+            </div>
         </div>
         <div class="box-body">
             <table id="proposals_list" class="table table-responsive table-hover order-column hover">
@@ -355,3 +359,5 @@
 
     </script>
 @endif
+
+@include('private.cbs.cbVoteAnalysis.cbDetailsScript')

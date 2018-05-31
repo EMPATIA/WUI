@@ -113,7 +113,7 @@ class OneForm
             if ($this->active) {
                 if(!is_null($editAction)) {
 
-                    if(Session::get('user_role') == 'admin' || (!is_null($this->module) && ONE::verifyUserPermissionsUpdate($module, $moduleType))){
+                    if(Session::get('user_role') == 'admin' || (!is_null($this->module))){
                         if(!is_null($topicEditPermission)){
                             if($topicEditPermission == 1 || Session::has('user_permissions') == false)
                                 $arrBtn['edit'] = $editAction;
@@ -123,7 +123,7 @@ class OneForm
                     }
                 }
                 if ($this->btn['delete'] && !is_null($deleteAction)) {
-                    if(Session::get('user_role') == 'admin' || (!is_null($this->module) && ONE::verifyUserPermissionsDelete($module, $moduleType))){
+                    if(Session::get('user_role') == 'admin' || (!is_null($this->module))){
                         if(!is_null($topicDeletePermission)){
                             if($topicDeletePermission == 1 || Session::has('user_permissions') == false)
                                 $arrBtn['delete'] = $deleteAction;
@@ -157,7 +157,6 @@ class OneForm
                 //'cancel' => Form::button(trans('form.cancel'), ['class' => 'btn btn-flat btn-default', 'onclick' => "location.href='" . action($cancelAction, $params) . "'"]),
                 'cancel' =>isset($cancelAction) ?'<a href="' . action($cancelAction, $params) . '" class="btn btn-flat btn-default"> ' . trans('form.cancel') . '</a>': null,
             ];
-
         return $this;
     }
 

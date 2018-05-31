@@ -25,10 +25,6 @@
     trans("oneCommentDefault.neutralComments");
     trans("oneCommentDefault.negativeComments");
 
-    trans("oneComment.positiveComments");
-    trans("oneComment.neutralComments");
-    trans("oneComment.negativeComments");
-
     trans("privateSidebar.Departamento");
 
     trans("publicUserTimeline.votesTitle");
@@ -97,4 +93,26 @@
     trans("privateContentManager.pages")
     trans("privateContentManager.events")
     trans("privateContentManager.news")
+
+    trans("privateCbsVoteAnalysis.kiosk")
+    trans("privateCbsVoteAnalysis.pc")
+    trans("privateCbsVoteAnalysis.mobile")
+    trans("privateCbsVoteAnalysis.table")
+    trans("privateCbsVoteAnalysis.other")
+    trans("privateCbsVoteAnalysis.in_person")
+    trans("privateCbsVoteAnalysis.sms")
+
+    trans("privateSidebar.pads_proposal")
+    trans("privateCbs.create_project_2c")
+
+    trans("form.edit")
+    trans("form.create")
+    trans("form.show")
+    trans("form.delete")
+    trans("form.add")
+    trans("form.accept")
+    trans("form.decline")
+    trans("form.activate")
+    trans("form.send")
+    trans("form.import")
 */

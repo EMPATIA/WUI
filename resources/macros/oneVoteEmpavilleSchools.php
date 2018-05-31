@@ -521,13 +521,11 @@ Html::macro('oneEmpavilleSchoolsLikesVoting', function($topicKey,$cbKey,$voteKey
                             <div class='oneNegativeVoteBtn positiveVote'>
                                 <i class="demo-icon icon-empatiadefault_dislike-btn"></i>
                             </div>
-<!--                            <img src="--><?php //echo asset('images/cml/votes/CML-Icons-47.png'); ?><!--" />-->
                         </div>
                         <div id="divNegativeUnselected_<?php echo $buttonClass; ?>" <?php echo (!empty($allReadyVoted) && $allReadyVoted == -1) ? 'hidden' : ''; ?>>
                             <div class='oneNegativeVoteBtn neutralVote'>
                                 <i class="demo-icon icon-empatiadefault_dislike-btn"></i>
                             </div>
-<!--                            <img src="--><?php //echo asset('images/cml/votes/CML-Icons-45.png'); ?><!--" />-->
                         </div>
                         <?php
                         if( count($configurations) > 0 && array_key_exists('dislikeLabels', $configurations) && count($configurations["dislikeLabels"]) == 2 ){

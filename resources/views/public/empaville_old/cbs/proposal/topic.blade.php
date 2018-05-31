@@ -200,7 +200,7 @@
                                 <img class="img-circle img-sm"
                                      src="{{URL::action('FilesController@download',[$usersNames[$message->created_by]['photo_id'], $usersNames[$message->created_by]['photo_code'], 1])}}">
                             @else
-                                <img class="img-circle img-sm" src="{{ asset('images/cml/icon-user-default-160x160.png') }}">
+                                <img class="img-circle img-sm" src="{{ asset('images/default/icon-user-default-160x160.png') }}">
                             @endif
                             <span class="username"
                                   style="margin-left: 40px;margin-top: 10px;"><a>{{$usersNames[$message->created_by]['name']}}</a></span>
@@ -265,7 +265,7 @@
                                     <img class="img-circle img-sm"
                                          src="{{URL::action('FilesController@download',[$usersNames[$message->created_by]['photo_id'], $usersNames[$message->created_by]['photo_code'], 1])}}">
                                 @else
-                                    <img class="img-circle img-sm" src="{{ asset('images/cml/icon-user-default-160x160.png') }}">
+                                    <img class="img-circle img-sm" src="{{ asset('images/default/icon-user-default-160x160.png') }}">
                                 @endif
 
 
@@ -314,7 +314,7 @@
                                                      src="{{URL::action('FilesController@download',[Session::get('user')->photo_id, Session::get('user')->photo_code, 1])}}">
                                             @else
                                                 <img class="img-responsive img-circle img-sm"
-                                                     src="{{ asset('images/cml/icon-user-default-160x160.png') }}">
+                                                     src="{{ asset('images/default/icon-user-default-160x160.png') }}">
                                             @endif
                                             <div class="img-push">
                                                 <input type="hidden" name="_token" value="{{ csrf_token() }}"/>
@@ -339,7 +339,7 @@
                                          src="{{URL::action('FilesController@download',[Session::get('user')->photo_id, Session::get('user')->photo_code, 1])}}">
                                 @else
                                     <img class="img-responsive img-circle img-sm"
-                                         src="{{ asset('images/cml/icon-user-default-160x160.png') }}">
+                                         src="{{ asset('images/default/icon-user-default-160x160.png') }}">
                                 @endif
                                 <div class="img-push">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}"/>

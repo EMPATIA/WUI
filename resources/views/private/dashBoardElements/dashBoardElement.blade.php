@@ -27,12 +27,17 @@
                 @foreach($languages as $language)
                     @php $form->openTabs('tab-translation-' . $language->code, $language->name); @endphp
                     <div style="padding: 10px;">
+
                         {!! Form::oneText('title_'.$language->code,
-                        trans('privateDashBoardElements.title'), isset($translations->{$language->code}) ? $translations->{$language->code}->title : null,
-                                           ['class' => 'form-control', 'id' => 'title_'.$language->code, $language->code == 'en' ? 'required' : '']) !!}
+                          trans('privateDashBoardElements.title'),
+                          isset($translations[$language->code]) ? $translations[$language->code]->title : null,
+                          ['class' => 'form-control', 'id' => 'title_'.$language->code, $language->code == 'pt' ? 'required' : '']) !!}
+
                         {!! Form::oneText('description_'.$language->code,
-                        trans('privateDashBoardElements.description'), isset($translations->{$language->code}) ? $translations->{$language->code}->description : null,
-                                           ['class' => 'form-control', 'id' => 'description_'.$language->code, $language->code == 'en' ? 'required' : '']) !!}
+                            trans('privateDashBoardElements.description'),
+                            isset($translations[$language->code]) ? $translations[$language->code]->description : null,
+                            ['class' => 'form-control', 'id' => 'description_'.$language->code, $language->code == 'en' ? 'required' : '']) !!}
+
 
                     </div>
                 @endforeach

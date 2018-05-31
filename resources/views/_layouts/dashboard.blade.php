@@ -1,13 +1,13 @@
 <!-- Details / resume - Top dashboard -->
 <div class="row row-sm-eq-height row-md-eq-height row-lg-eq-height">
-    <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+    <div class="col">
         <!-- Registered users -->
         <div class="dashboard-box">
             <div class="row">
-                <div class="col-4 col-sm-12 col-lg-4 text-xs-center">
+                <div class="col-3 col-sm-12 col-lg-4 text-xs-center">
                     <img src="{{ asset('/images/dashboard-registered.svg') }}" alt="registered">
                 </div>
-                <div class="col-8 col-sm-12 col-lg-8">
+                <div class="col-9 col-sm-12 col-lg-8">
                     {{ trans('private.registered_users') }}
                     <span class="info-box-number registered">--</span>
                 </div>
@@ -15,48 +15,63 @@
         </div>
     </div>
 
-    <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+    <div class="col">
         <!-- Logged users -->
         <div class="dashboard-box">
             <div class="row">
-                <div class="col-4 col-sm-12 col-lg-4 text-xs-center">
+                <div class="col-3 col-sm-12 col-lg-4 text-xs-center">
                     <img src="{{ asset('/images/dashboard-logged.svg') }}" alt="logged">
                 </div>
-                <div class="col-8 col-sm-12 col-lg-8">
+                <div class="col-9 col-sm-12 col-lg-8">
                     {{ trans('private.logged_users') }}
                     <span class="info-box-number logged_users">--</span>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+    <div class="col">
         <!-- Total pads -->
         <div class="dashboard-box">
             <div class="row">
-                <div class="col-4 col-sm-12 col-lg-4 text-xs-center">
+                <div class="col-3 col-sm-12 col-lg-4 text-xs-center">
                     <img src="{{ asset('/images/dashboard-ideas.svg') }}" alt="ideas">
                 </div>
-                <div class="col-8 col-sm-12 col-lg-8">
+                <div class="col-9 col-sm-12 col-lg-8">
                     {{ trans('private.total_pads') }}
                     <span class="info-box-number ideas">--</span>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+    <div class="col">
         <!-- Total comments -->
         <div class="dashboard-box">
             <div class="row">
-                <div class="col-4 col-sm-12 col-lg-4 text-xs-center">
+                <div class="col-3 col-sm-12 col-lg-4 text-xs-center">
                     <img src="{{ asset('/images/dashboard-comments.svg') }}" alt="comments">
                 </div>
-                <div class="col-8 col-sm-12 col-lg-8">
+                <div class="col-9 col-sm-12 col-lg-8">
                     {{ trans('private.total_comments') }}
                     <span class="info-box-number comments">--</span>
                 </div>
             </div>
         </div>
     </div>
+    <div class="col">
+        <!-- Total Votes -->
+        <div class="dashboard-box">
+            <div class="row">
+                <div class="col-4 col-sm-12 col-lg-4 text-xs-center">
+                    <img src="{{ asset('/images/dashboard-votes.svg') }}" alt="votes">
+                </div>
+                <div class="col-8 col-sm-12 col-lg-8">
+                    {{ trans('private.total_votes') }}
+                    <span class="info-box-number votes">--</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 

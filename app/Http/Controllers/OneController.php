@@ -134,6 +134,12 @@ class OneController extends Controller
             case 'moderation':
                 return view("private.sidebar.moderation");
                 break;
+            case 'sms':
+                return view("private.sidebar.sms", ['active' => $parameters['activeFirstMenu']]);
+                break;
+            case 'email':
+                return view("private.sidebar.email", ['active' => $parameters['activeFirstMenu']]);
+                break;
         }
 
         return null;

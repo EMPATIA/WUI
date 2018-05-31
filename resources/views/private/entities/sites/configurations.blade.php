@@ -8,13 +8,13 @@
     <script src="{{ asset('vendor/jildertmiedema/laravel-plupload/js/plupload.full.min.js') }}"></script>
 
     @php
-    $form = ONE::form('siteConfValues', trans('privateSiteConfValues.configurations'), 'orchestrator', 'site_configurations')
-        ->settings(["model" => isset($siteConfs) ? $siteConfs : null, 'id' => isset($siteConfs[0]) ? $siteConfs[0]->id : null])
-        ->show('SiteConfValuesController@edit', null, ['id' => $siteKey],
-            null, null)
-        ->create('EntitiesSitesController@store', 'EntitiesSitesController@index', ['entityKey' => isset($entityKey) ? $entityKey : null])
-        ->edit('SiteConfValuesController@update', 'SiteConfValuesController@index', ['id' => $siteKey ? $siteKey : null])
-        ->open();
+        $form = ONE::form('siteConfValues', trans('privateSiteConfValues.configurations'), 'orchestrator', 'site_configurations')
+            ->settings(["model" => isset($siteConfs) ? $siteConfs : null, 'id' => isset($siteConfs[0]) ? $siteConfs[0]->id : null])
+            ->show('SiteConfValuesController@edit', null, ['id' => $siteKey],
+                null, null)
+            ->create('EntitiesSitesController@store', 'EntitiesSitesController@index', ['entityKey' => isset($entityKey) ? $entityKey : null])
+            ->edit('SiteConfValuesController@update', 'SiteConfValuesController@index', ['id' => $siteKey ? $siteKey : null])
+            ->open();
     @endphp
     {{--<div class="box box-primary">
         <div class="box-body">
@@ -54,12 +54,14 @@
                                 @elseif(str_contains($subgroup->code,'boolean_'))
                                     {!! Form::hidden($subgroup->code, 0) !!}
                                     {!! Form::oneSwitch($subgroup->code, $subgroup->name, isset($subgroup->siteConfValues[0]->value) ? $subgroup->siteConfValues[0]->value : null) !!}
+                                @elseif(str_contains($subgroup->code, 'html_'))
+                                    {!! Form::oneTextArea($subgroup->code, $subgroup->name, $subgroup->siteConfValues[0]->value ?? '', ['class' => 'form-control tinyMCE', 'size' => '30x2', 'style' => 'resize: vertical', 'id' => $subgroup->code]) !!}
                                 @else
                                     {!! Form::oneText($subgroup->code, $subgroup->name, $subgroup->siteConfValues[0]->value ?? '', ['class' => 'form-control', 'id' => $subgroup->code]) !!}
                                 @endif
                             @endforeach
                         @endif
-                     </div>
+                    </div>
                 </div>
             </div>
         @endforeach
@@ -80,11 +82,9 @@
 @endsection
 
 @section('scripts')
+    <script src="{{ asset("js/tinymce/tinymce.min.js") }}"></script>
     <script>
-        $(function() {
-            getSidebar('{{ action("OneController@getSidebar") }}', 'configurations', "{{(isset($site) ? $site->key : null)}}", 'site' )
-        })
-
+        {!! ONE::addTinyMCE(".tinyMCE", ['action' => action('ContentManagerController@getTinyMCE')]) !!}
         function getSiteConf(elem){
             var val = elem.id;
             $("#siteConfsValues").empty();

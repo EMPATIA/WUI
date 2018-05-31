@@ -34,7 +34,8 @@ class TimezonesController extends Controller
      */
     public function index()
     {
-        return view('private.timezones.index');
+        $title = trans('privateTimezones.timezones');
+        return view('private.timezones.index', compact('title'));
     }
 
     /**
@@ -53,7 +54,7 @@ class TimezonesController extends Controller
      * @param TimezoneRequest $request
      * @return $this|View
      */
-    public function store(TimezoneRequest $request)
+    public function store(Request $request)
     {
         try {
             $timezone = Orchestrator::setTimezone($request->all());
@@ -110,7 +111,7 @@ class TimezonesController extends Controller
      * @param $id
      * @return $this|View
      */
-    public function update(TimezoneRequest $request, $id)
+    public function update(Request $request, $id)
     {
 
         try {
@@ -160,26 +161,32 @@ class TimezonesController extends Controller
      *
      *
      */
-    public function tableTimezones()
+    public function tableTimezones(Request $request)
     {
 
-        $manage = Orchestrator::getTimeZoneList();
-        // in case of json
-        $timezone = Collection::make($manage);
+            $manage = Orchestrator::getTimeZoneList($request);
+            // in case of json
+            $timezones = Collection::make($manage->timezones);
+            $recordsTotal = $manage->recordsTotal;
+            $recordsFiltered = $manage->recordsFiltered;
 
-        foreach ($timezone as $item){
-            $aux = explode("/", $item->name);
-            $item->continent=$aux[0];
-            $item->name= $aux[1];
-        }
+            foreach ($timezones as $item){
+                $aux = explode("/", $item->name);
+                $item->continent=$aux[0]??"";
+                $item->name= $aux[1]??"";
+            }
 
-        return Datatables::of($timezone)
-            ->editColumn('country_code', function ($timezone) {
-                return "<a href='".action('TimezonesController@show', $timezone->id)."'>".$timezone->country_code."</a>";
-            })
-            ->addColumn('action', function ($timezone) {
-                return ONE::actionButtons($timezone->id, ['edit' => 'TimezonesController@edit', 'delete' => 'TimezonesController@delete']);
-            })
-            ->make(true);
+            return Datatables::of($timezones)
+                ->editColumn('country_code', function ($timezone) {
+                    return "<a href='".action('TimezonesController@show', $timezone->id)."'>".$timezone->country_code."</a>";
+                })
+                ->addColumn('action', function ($timezone) {
+                    return ONE::actionButtons($timezone->id, ['edit' => 'TimezonesController@edit', 'delete' => 'TimezonesController@delete', 'form' => 'timezones']);
+                })
+                ->rawColumns(['country_code','action'])
+                ->with('filtered', $recordsFiltered ?? 0)
+                ->skipPaging()
+                ->setTotalRecords($recordsTotal ?? 0)
+                ->make(true);
     }
 }

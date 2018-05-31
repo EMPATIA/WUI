@@ -91,9 +91,13 @@
     <script>
         $(function() {
             getSidebar('{{ action("OneController@getSidebar") }}', 'emailTemplates', "{{(isset($siteKey) ? $siteKey : null)}}", 'site' )
-        })
+        });
         $(document).ready(function() {
             $('#tags_list').DataTable({
+                language: {
+                    url: '{!! asset('/datatableLang/'.Session::get('LANG_CODE').'.json') !!}',
+                    search: '<a class="btn searchBtn" id="searchBtn"><i class="fa fa-search"></i></a>'
+                },
                 columns: [
                     { name: 'code', width: "100px" },
                     { name: 'name', width: "200px" },
@@ -109,7 +113,7 @@
     <script>
         $(document).ready(function(){
 
-            {!! ONE::addTinyMCE(".templates", ['action' => action('ContentsController@getTinyMCE')]) !!}
+            {!! ONE::addTinyMCE(".templates", ['action' => action('ContentManagerController@getTinyMCE')]) !!}
 
         });
 

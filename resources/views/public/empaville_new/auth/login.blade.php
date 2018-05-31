@@ -116,13 +116,6 @@
                 <input type="password" name="password" class="form-control" placeholder="{{ trans('authLogin.password') }}">
                 <span class="glyphicon glyphicon-lock form-control-feedback"></span>
             </div>
-            {{--<div class="row">--}}
-                {{--<div class="col-xs-12 password-recovery">--}}
-                    {{--<div class="padding-login-button">--}}
-                        {{--<a href="{{ action('AuthController@recovery') }}" style="text-decoration: underline" >{{ trans('authLogin.password_recovery') }}</a>--}}
-                    {{--</div>--}}
-                {{--</div>--}}
-            {{--</div>--}}
             <div class="row">
                 <div class="col-xs-8"></div>
                 <div class="col-xs-4">

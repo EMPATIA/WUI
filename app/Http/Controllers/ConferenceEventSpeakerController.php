@@ -174,6 +174,7 @@ class ConferenceEventSpeakerController extends Controller
                 ->addColumn('action', function ($collection) use ($eventKey,$sessionKey) {
                     return ONE::actionButtons(['eventKey' => $eventKey,'sessionKey' => $sessionKey, 'speakerKey' => $collection->speaker_key], ['show' => 'ConferenceEventSpeakerController@show', 'delete' => 'ConferenceEventSpeakerController@delete']);
                 })
+                ->rawColumns(['title','action'])
                 ->make(true);
 
     }

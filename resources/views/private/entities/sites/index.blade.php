@@ -14,7 +14,7 @@
                             <th width="50%">{{ trans('privateEntities.siteName') }}</th>
                             <th width="40%">{{ trans('privateEntities.siteUrl') }}</th>
                             <th width="10%">
-                                @if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('orchestrator', 'entity_site'))
+                                @if(Session::get('user_role') == 'admin')
                                     {!! ONE::actionButtons(null, ['create' => 'EntitiesSitesController@create']) !!}
                                 @endif
                             </th>

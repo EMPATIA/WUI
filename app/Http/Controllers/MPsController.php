@@ -43,10 +43,6 @@ class MPsController extends Controller
      */
     public function create()
     {
-        if(!ONE::verifyUserPermissions('mp', 'mp', 'create')){
-            return redirect()->back()->withErrors(["mp.create" => trans('privateMp.permission_message')]);
-        }
-
         try {
             //for bold in sidebar
             $name_view = "mp";
@@ -68,10 +64,6 @@ class MPsController extends Controller
      */
     public function store(MPRequest $request)
     {
-        if(!ONE::verifyUserPermissions('mp', 'mp', 'create')){
-            return redirect()->back()->withErrors(["mp.store" => trans('privateMp.permission_message')]);
-        }
-
         try {
             $languages = Orchestrator::getLanguageList();
             // Translations
@@ -106,10 +98,6 @@ class MPsController extends Controller
      */
     public function edit($mpKey)
     {
-        if(!ONE::verifyUserPermissions('mp', 'mp', 'update')){
-            return redirect()->back()->withErrors(["mp.update" => trans('privateMp.permission_message')]);
-        }
-        
         try {
             //for bold in sidebar
             $name_view = "mp";
@@ -139,10 +127,6 @@ class MPsController extends Controller
      */
     public function show($mpKey)
     {
-        if(!ONE::verifyUserPermissions('mp', 'mp', 'show')){
-            return redirect()->back()->withErrors(["mp.show" => trans('privateMp.permission_message')]);
-        }
-
         try {
             //for bold in sidebar
             $name_view = "mp";
@@ -169,10 +153,6 @@ class MPsController extends Controller
      * @return \Illuminate\Http\RedirectResponse|View
      */
     public function showConfigurations($mpKey){
-        if(!ONE::verifyUserPermissions('mp', 'mp', 'show')){
-            return redirect()->back()->withErrors(["mp.showConfigurations" => trans('privateMp.permission_message')]);
-        }
-
         try {
             $mp = MP::getMp($mpKey);
             $mpOperators = $mp->operators ?? [];
@@ -198,10 +178,6 @@ class MPsController extends Controller
      */
     public function update(MPRequest $request, $mpKey)
     {
-        if(!ONE::verifyUserPermissions('mp', 'mp', 'update')){
-            return redirect()->back()->withErrors(["mp.update" => trans('privateMp.permission_message')]);
-        }
-
         try {
             $languages = Orchestrator::getLanguageList();
             $translations = [];
@@ -235,10 +211,6 @@ class MPsController extends Controller
      */
     public function destroy($mpKey)
     {
-        if(!ONE::verifyUserPermissions('mp', 'mp', 'delete')){
-            return redirect()->back()->withErrors(["mp.destroy" => trans('privateMp.permission_message')]);
-        }
-        
         try {
             MP::deleteMP($mpKey);
             Session::flash('message', trans('privateMPs.delete_ok'));
@@ -274,15 +246,12 @@ class MPsController extends Controller
      */
     public function getIndexTable()
     {
-        if(ONE::verifyUserPermissions('mp', 'mp', 'show')){
-            $mps = MP::getMps();
-            // in case of json
-            $collection = Collection::make($mps);
-        }else
-            $collection = Collection::make([]);
+        $mps = MP::getMps();
+        // in case of json
+        $collection = Collection::make($mps);
 
-        $edit = ONE::verifyUserPermissions('mp', 'mp', 'update');
-        $delete = ONE::verifyUserPermissions('mp', 'mp', 'delete');
+        $edit = true;
+        $delete = true;
 
         return Datatables::of($collection)
             ->editColumn('name', function ($collection) {
@@ -298,6 +267,7 @@ class MPsController extends Controller
                 else
                     return null;
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 

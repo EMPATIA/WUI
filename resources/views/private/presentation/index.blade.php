@@ -11,14 +11,14 @@
 
         <!-- CSS -->
     <link rel="stylesheet" href="{{ asset('css/switch-button.css')}}">
-    <link rel="stylesheet" href="{{ asset('css/presentation.css')}}">
+    <link rel="stylesheet" href="{{ asset('css/default/presentation.css')}}">
 
     @yield('header_styles')
 
     <script src="{{ url('/')."/".elixir("js/empatia.js") }}"></script>
 
     <!-- Dot Dot Dot -->
-    <script type="text/javascript" src="{{ asset('js\cml\jquery.dotdotdot.js')}}"></script>
+    <script type="text/javascript" src="{{ asset('js\default\jquery.dotdotdot.js')}}"></script>
 
     @yield('header_scripts')
 
@@ -29,7 +29,7 @@
     @yield('content')
     <footer>
         <div class="logo-right">
-            <img src="{{asset('images/presentationBackOffice_logo.jpg')}}"/>
+            <img src="{{asset('images/default/presentationBackOffice_logo.jpg')}}"/>
         </div>
     </footer>
 </div>

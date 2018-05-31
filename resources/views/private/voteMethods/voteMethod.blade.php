@@ -2,7 +2,7 @@
 
 @section('content')
 
-    @php $form = ONE::form('voteMethods')
+    @php $form = ONE::form('methods')
             ->settings(["model" => isset($voteMethod) ? $voteMethod : null])
             ->show('VoteMethodsController@edit', 'VoteMethodsController@delete', ['id' => isset($voteMethod) ? $voteMethod->id : null], 'VoteMethodsController@index', ['id' => isset($voteMethod) ? $voteMethod->id : null])
             ->create('VoteMethodsController@store', 'VoteMethodsController@index', ['id' => isset($voteMethod) ? $voteMethod->id : null])

@@ -302,6 +302,7 @@ class HomePageConfigurationsController extends Controller
             ->addColumn('action', function ($collection){
                 return ONE::actionButtons($collection->group_key, ['form' => 'homePageConfigurations','edit' => 'HomePageConfigurationsController@edit', 'delete' => 'HomePageConfigurationsController@delete']);
             })
+            ->rawColumns(['group_name','action'])
             ->make(true);
     }
 

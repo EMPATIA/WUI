@@ -3,20 +3,19 @@
 @section('content')
     <div class="box box-primary">
         <div class="box-header">
-            <h3 class="box-title"><i class="fa"></i> </h3>
+            <h3 class="box-title"><i class="fa"></i> {{ trans('auditing.list') }}</h3>
         </div>
 
         <div class="box-body">
             <table class="table table-hover table-striped dataTable no-footer table-responsive" id="tracking-table">
                 <thead>
                 <tr>
-                    <th>Id</th>
-                    <th>User Key</th>
-                    <th>Ip</th>
-                    <th>Url</th>
-                    <th>Method</th>
-                    <th>Time</th>
-                    <th>Action</th>
+                    <th> {{ trans('auditing.id') }} </th>
+                    <th>{{ trans('auditing.user') }} </th>
+                    <th>{{ trans('auditing.ip') }} </th>
+                    <th>{{ trans('auditing.url') }} </th>
+                    <th>{{ trans('auditing.action') }} </th>
+                    <th>{{ trans('auditing.time') }} </th>
                 </tr>
                 </thead>
 
@@ -40,12 +39,11 @@
                 ajax: '{!! action('TrackingController@getTrackingTable') !!}',
                 columns: [
                     { data: 'id', name: 'id'},
-                    { data: 'user_key', name: 'user_key'},
+                    { data: 'user', name: 'user'},
                     { data: 'ip', name: 'ip' },
                     { data: 'url', name: 'url'},
-                    { data: 'method', name: 'method'},
-                    { data: 'time', name: 'time' },
-                    { data: 'action', name: 'action' }
+                    { data: 'message', name: 'message' },
+                    { data: 'created_at', name: 'created_at' }
                 ],
                 order: [['0', 'desc']]
             });

@@ -1,1 +1,1 @@
-<?php return array (  'details' => 'Details',);
+<?php return array (  'notifications' => 'Notifications',  'details' => 'Details',);

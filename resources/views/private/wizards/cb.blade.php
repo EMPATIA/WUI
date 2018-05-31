@@ -3,6 +3,20 @@
 @section('content')
     @php
         $defaultConfigurations = array(
+            'empaville' => array(
+
+            ), '3gN7rsyzMvZrxBhZPiaFonMBpt9BcWZF' => array(
+                'idea' => array(
+                    'security_public_access',
+                    'security_anonymous_comments',
+                    'security_create_topics',
+                    'topic_options_allow_pictures',
+                    'topic_options_allow_share',
+                    'topic_options_allow_follow',
+                    'topic_comments_allow_comments',
+                    'topic_comments_normal'
+                )
+            ),
         );
 
         $entityKey = \ONE::getEntityKey();
@@ -13,23 +27,62 @@
             $currentConfigurations = $defaultConfigurations[$entityKey][$type] ?? [];
     @endphp
     <div class="row box-buffer">
-        <div class="col-xs-12 col-lg-12 text-center">
+        <div class="col-xs-12 col-lg-12 text-center" style="margin-bottom: 2%">
             <h2>
                 @if ($type!="empaville")
-                    {{ trans("privateCbsWizard.create_cb_title") }}
+                    @if($type =="idea")
+                        <h1>{{trans("privateCbWizard.create_new_continous_ideation_process")}}</h1>
+                        <small>
+                            {{trans("privateCbsWizard.create_continuous_ideation_cb_desc")}}
+                        </small>
+                    @endif
+                    @if($type =="project")
+                        <h1>{{trans("privateCbWizard.create_new_project")}}</h1>
+                        <small>
+                            {{trans("privateCbsWizard.create_participatory_budgeting_cb_desc")}}
+                        </small>
+                    @endif
+                    @if($type == "proposal")
+                        <h1>{{trans("privateCbWizard.create_new_proposal")}}</h1>
+                        <small>
+                            {{trans("privateCbsWizard.create_participatory_budgeting_cb_desc")}}
+                        </small>
+                    @endif
+                    @if($type =="consultation")
+                        <h1>{{trans("privateCbWizard.create_new_consultation")}}</h1>
+                        <small>
+                            {{trans("privateCbsWizard.create_consultation_cb_desc")}}
+                        </small>
+                    @endif
+                    @if($type =="fix_my_street")
+                        <h1>{{trans("privateCbWizard.create_new_fix_my_street")}}</h1>
+                        <small>
+                            {{trans("privateCbsWizard.create_fix_my_street_cb_desc")}}
+                        </small>
+                    @endif
+                    @if($type =="vote_event")
+                        <h1>{{trans("privateCbWizard.create_new_vote_event")}}</h1>
+                        <small>
+                            {{trans("privateCbsWizard.create_vote_event_cb_desc")}}
+                        </small>
+                    @endif
                 @else
-                    {{ trans("privateCbsWizard.create_cb_empaville") }}
+                    <h1>{{ trans("privateCbsWizard.create_cb_empaville") }}</h1>
+                    <small>
+                        {{ trans("privateCbsWizard.create_empaville_cb_desc")}}
+                    </small>
                 @endif
             </h2>
         </div>
         <div class="col-xs-12 col-md-8 col-md-offset-2 text-center">
-            <form role="form" action="{{action('CbsController@storeWizard', ['type' => $type])}}" method="post" name="formCb" id="formCb">
+            <form role="form" action="{{action('CbsController@storeWizard', ['type' => $type])}}" method="post"
+                  name="formCb" id="formCb">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="flagNewCb" value="1">
                 <input type="hidden" name="parameterItensIds" value="">
                 <input type="hidden" name="voteItensIds" value="">
 
-                @if(empty($currentConfigurations) && $type!="empaville")
+                @if(empty($currentConfigurations) && $type=="empaville")
                     <div class="text-left alert alert-danger">
                         {{ trans("privateCbsWizard.no_default_configurations_defined") }}
                     </div>
@@ -41,16 +94,12 @@
                 @if ($type!="empaville")
                     <div class="text-left">
                         <label for="start_date">{{trans("privateCbs.start_date")}}</label>
-                        <input type="date" name="start_date" class="form-control" value="{{(\Carbon\Carbon::now())->toDateString()}}">
+                        <input type="date" name="start_date" class="form-control"
+                               value="{{(\Carbon\Carbon::now())->toDateString()}}">
                     </div>
                 @endif
 
                 <div class="text-left" style="margin: 10px 0 10px 0">
-                    @if ($type!="empaville")
-                        <button type="button" class="btn btn-flat btn-info" data-toggle="collapse" data-target="#configurations">
-                            {{trans('privateCbsWizard.show_all_configurations')}}
-                        </button>
-                    @endif
                     <a href="{{ action("QuickAccessController@index") }}" class="btn btn-primary pull-left">
                         {{trans("privateCbsWizard.go_to_dashboard")}}
                     </a>
@@ -59,36 +108,6 @@
                         {{trans("privateCbsWizard.create_cb")}}
                     </button>
                 </div>
-                @if ($type!="empaville")
-                    <div id="configurations" class="text-left collapse" style="max-height: 500px; overflow: auto">
-                        <div>
-                            <label for="description">{{trans("privateCbs.description")}}</label>
-                            <textarea name="description" rows="4" class="form-control"></textarea>
-                        </div>
-                        <div>
-                            <label for="end_date">{{trans("privateCbs.end_date")}}</label>
-                            <input type="date" name="end_date" class="form-control" value="">
-                        </div>
-                        <br>
-                        <label for="configurations">{{trans("privateCbs.configurations")}}</label>
-                        <table class="table table-striped table-hover table-condensed">
-                            @foreach($configurations as $configuration)
-                                @foreach($configuration->configurations as $configurationValue)
-                                    <tr>
-                                        <td>
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" name="configuration_{{$configurationValue->id}}"  @if(in_array($configurationValue->code, $currentConfigurations)) checked @endif>
-                                                    {{$configurationValue->title}}
-                                                </label>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @endforeach
-                        </table>
-                    </div>
-                @endif
             </form>
         </div>
     </div>

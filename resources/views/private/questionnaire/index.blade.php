@@ -3,7 +3,7 @@
 @section('content')
     <div class="box box-primary">
         <div class="box-header">
-            <h3 class="box-title"><i class="fa"></i> {{ trans('privateQuestionnaire.titleList') }}</h3>
+            <h3 class="box-title"><i class="fa"></i> {{ trans('privateQuestionnaire.list') }}</h3>
         </div>
 
         <div class="box-body">
@@ -11,7 +11,7 @@
                 <thead>
                 <tr>
                     <th>{{ trans('privateQuestionnaire.title') }}</th>
-                    <th>@if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('q', 'q')){!! ONE::actionButtons(null, ['create' => 'QuestionnairesController@create']) !!}@endif</th>
+                    <th>@if(Session::get('user_role') == 'admin'){!! ONE::actionButtons(null, ['create' => 'QuestionnairesController@create']) !!}@endif</th>
                 </tr>
                 </thead>
             </table>

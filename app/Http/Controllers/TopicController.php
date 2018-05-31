@@ -56,7 +56,7 @@ class TopicController extends Controller
             // Get CB parameters
             $CbParameters = CB::getCbParametersOptions($cbKey)->parameters;
 
-            if(!empty($relatedParameter = collect($CbParameters)->where('code','=','associated_topics'))){
+            if (!empty($relatedParameter = collect($CbParameters)->where('code', '=', 'associated_topics'))) {
                 $data['relatedParameter'] = $relatedParameter;
 
             }
@@ -72,7 +72,7 @@ class TopicController extends Controller
                 foreach ($options as $option) {
                     $parameterOptions[$option->id] = $option->label;
                 }
-                $parameters[$name] = array('id' => $parameter->id, 'name' => $name, 'code' => $code, 'options' => $parameterOptions,'mandatory' => $parameter->mandatory,'description' => $parameter->description);
+                $parameters[$name] = array('id' => $parameter->id, 'name' => $name, 'code' => $code, 'options' => $parameterOptions, 'mandatory' => $parameter->mandatory, 'description' => $parameter->description);
 
                 /* check if is image */
                 if ($parameter->code == 'image_map') {
@@ -84,20 +84,24 @@ class TopicController extends Controller
                     $fileCode = $file->code;
                 }
             }
-            $status=CB::getStatusTypes();
+            $status = CB::getStatusTypes();
             $cb = CB::getCb($cbKey);
             $configurations = collect($cb->configurations)->pluck('code')->toArray();
 
             $allowFiles = [];
-            if( CB::checkCBsOption($configurations, 'ALLOW-FILES') ){
+            if (CB::checkCBsOption($configurations, 'ALLOW-FILES')) {
                 $allowFiles[] = "docs";
             }
 
-            if( CB::checkCBsOption($configurations, 'ALLOW-PICTURES')  ){
+            if (CB::checkCBsOption($configurations, 'ALLOW-PICTURES')) {
                 $allowFiles[] = "images";
             }
 
-            if(Session::has('filesToUpload')){
+            //if( CB::checkCBsOption($configurations, 'ALLOW-VIDEOS')  ){
+            $allowFiles[] = "videos";
+            // }
+
+            if (Session::has('filesToUpload')) {
                 Session::forget('filesToUpload');
             }
 
@@ -106,21 +110,21 @@ class TopicController extends Controller
             $cb_title = $cb->title;
             $cb_start_date = $cb->start_date;
 
-            $data['title']          = trans('privateTopics.create_topic');
-            $data['parameters']     = $parameters;
-            $data['type']           = $type;
-            $data['cbKey']          = $cbKey;
-            $data['fileId']         = $fileId;
-            $data['fileCode']       = $fileCode;
+            $data['title'] = trans('privateTopics.create_topic');
+            $data['parameters'] = $parameters;
+            $data['type'] = $type;
+            $data['cbKey'] = $cbKey;
+            $data['fileId'] = $fileId;
+            $data['fileCode'] = $fileCode;
             $data['configurations'] = $configurations;
-            $data['allowFiles']     = $allowFiles;
-            $data['uploadKey']      = Files::getUploadKey();
-            $data['sidebar']            = 'padsType';
-            $data['active']             = 'topics';
-            $data['cbAuthor']             = $author;
-            $data['cb_title']           = $cb_title;
-            $data['cb_start_date']      = $cb_start_date;
-            $data['status']         =$status;
+            $data['allowFiles'] = $allowFiles;
+            $data['uploadKey'] = Files::getUploadKey();
+            $data['sidebar'] = 'padsType';
+            $data['active'] = 'topics';
+            $data['cbAuthor'] = $author;
+            $data['cb_title'] = $cb_title;
+            $data['cb_start_date'] = $cb_start_date;
+            $data['status'] = $status;
 
             return view('private.topics.topic', $data);
         } catch (Exception $e) {
@@ -129,7 +133,13 @@ class TopicController extends Controller
     }
 
 
-    public function createWithUser($type,$cbKey) {
+    /**
+     * @param $type
+     * @param $cbKey
+     * @return $this|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function createWithUser($type, $cbKey)
+    {
         try {
             $dataToView = array();
 
@@ -138,7 +148,7 @@ class TopicController extends Controller
             $entities = [];
             $object = Orchestrator::getEntities();
 
-            foreach($object as $entity){
+            foreach ($object as $entity) {
                 $entities[$entity->entity_key] = $entity->name;
             }
 
@@ -147,11 +157,11 @@ class TopicController extends Controller
 
             //verify user parameters with responses
             $registerParameters = [];
-            foreach ($registerParametersResponse as $parameter){
+            foreach ($registerParametersResponse as $parameter) {
                 $parameterOptions = [];
 
                 $file = null;
-                if($parameter->parameter_type->code == 'radio_buttons' || $parameter->parameter_type->code == 'check_box' || $parameter->parameter_type->code == 'dropdown') {
+                if ($parameter->parameter_type->code == 'radio_buttons' || $parameter->parameter_type->code == 'check_box' || $parameter->parameter_type->code == 'dropdown') {
                     foreach ($parameter->parameter_user_options as $option) {
                         $parameterOptions [] = [
                             'parameter_user_option_key' => $option->parameter_user_option_key,
@@ -159,12 +169,12 @@ class TopicController extends Controller
                         ];
                     }
                 }
-                $registerParameters []= [
-                    'parameter_user_type_key'   => $parameter->parameter_user_type_key,
-                    'parameter_type_code'       => $parameter->parameter_type->code,
-                    'name'                      => $parameter->name,
-                    'mandatory'                 => $parameter->mandatory,
-                    'parameter_user_options'    => $parameterOptions
+                $registerParameters [] = [
+                    'parameter_user_type_key' => $parameter->parameter_user_type_key,
+                    'parameter_type_code' => $parameter->parameter_type->code,
+                    'name' => $parameter->name,
+                    'mandatory' => $parameter->mandatory,
+                    'parameter_user_options' => $parameterOptions
                 ];
             }
 
@@ -188,7 +198,7 @@ class TopicController extends Controller
                 foreach ($options as $option) {
                     $parameterOptions[$option->id] = $option->label;
                 }
-                $parameters[$name] = array('id' => $parameter->id, 'name' => $name, 'code' => $code, 'options' => $parameterOptions,'mandatory' => $parameter->mandatory,'description' => $parameter->description);
+                $parameters[$name] = array('id' => $parameter->id, 'name' => $name, 'code' => $code, 'options' => $parameterOptions, 'mandatory' => $parameter->mandatory, 'description' => $parameter->description);
 
                 /* check if is image */
                 if ($parameter->code == 'image_map') {
@@ -200,20 +210,20 @@ class TopicController extends Controller
                     $fileCode = $file->code;
                 }
             }
-            $status=CB::getStatusTypes();
+            $status = CB::getStatusTypes();
             $cb = CB::getCb($cbKey);
             $configurations = collect($cb->configurations)->pluck('code')->toArray();
 
             $allowFiles = [];
-            if( CB::checkCBsOption($configurations, 'ALLOW-FILES') ){
+            if (CB::checkCBsOption($configurations, 'ALLOW-FILES')) {
                 $allowFiles[] = "docs";
             }
 
-            if( CB::checkCBsOption($configurations, 'ALLOW-PICTURES')  ){
+            if (CB::checkCBsOption($configurations, 'ALLOW-PICTURES')) {
                 $allowFiles[] = "images";
             }
 
-            if(Session::has('filesToUpload')){
+            if (Session::has('filesToUpload')) {
                 Session::forget('filesToUpload');
             }
 
@@ -221,35 +231,35 @@ class TopicController extends Controller
             $cb_title = $cb->title;
             $cb_start_date = $cb->start_date;
 
-            $dataToView['title']            = trans('privateTopics.create_topic');
-            $dataToView['parameters']       = $parameters;
-            $dataToView['type']             = $type;
-            $dataToView['cbKey']            = $cbKey;
-            $dataToView['fileId']           = $fileId;
-            $dataToView['fileCode']         = $fileCode;
-            $dataToView['configurations']   = $configurations;
-            $dataToView['allowFiles']       = $allowFiles;
-            $dataToView['uploadKey']        = Files::getUploadKey();
-            $dataToView['sidebar']          = 'padsType';
-            $dataToView['active']           = 'topics';
-            $dataToView['cbAuthor']         = $author;
-            $dataToView['cb_title']         = $cb_title;
-            $dataToView['cb_start_date']    = $cb_start_date;
-            $dataToView['status']           = $status;
+            $dataToView['title'] = trans('privateTopics.create_topic');
+            $dataToView['parameters'] = $parameters;
+            $dataToView['type'] = $type;
+            $dataToView['cbKey'] = $cbKey;
+            $dataToView['fileId'] = $fileId;
+            $dataToView['fileCode'] = $fileCode;
+            $dataToView['configurations'] = $configurations;
+            $dataToView['allowFiles'] = $allowFiles;
+            $dataToView['uploadKey'] = Files::getUploadKey();
+            $dataToView['sidebar'] = 'padsType';
+            $dataToView['active'] = 'topics';
+            $dataToView['cbAuthor'] = $author;
+            $dataToView['cb_title'] = $cb_title;
+            $dataToView['cb_start_date'] = $cb_start_date;
+            $dataToView['status'] = $status;
             /* End of Get Topic Creation Data */
 
             return view('private.topics.createWithUser', $dataToView);
         } catch (Exception $e) {
-            dd($e);
             return redirect()->back()->withErrors(["topic.createWithUser" => $e->getMessage()]);
         }
     }
 
-    public function storeWithUser(Request $request, $type, $cbKey) {
+    public function storeWithUser(Request $request, $type, $cbKey)
+    {
         try {
             $userRequest = new UserRequest();
             $topicRequest = new TopicRequest();
-            foreach ($request->all() as $inputKey=>$inputValue) {
+            foreach ($request->all() as $inputKey => $inputValue) {
                 if (starts_with($inputKey, "userData_")) {
                     $inputKey = str_replace("userData_", "", $inputKey);
                     $userRequest[$inputKey] = $inputValue;
@@ -259,13 +269,15 @@ class TopicController extends Controller
                 }
             }
 
+            $topicRequest["files"] = $request["files"];
+
             /* User Creation */
             try {
-                $userCreationResponse = (new UsersController())->store($userRequest,true);
+                $userCreationResponse = (new UsersController())->store($userRequest, true);
                 if (isset($userCreationResponse["success"]))
                     $userKey = $userCreationResponse["success"];
                 else
-                    throw new Exception($userCreationResponse["error"]??"unrecognized error while creating user");
+                    throw new Exception($userCreationResponse["error"] ?? "unrecognized error while creating user");
             } catch (Exception $e) {
                 return redirect()->back()->withErrors(["topic.withUser.store" => $e->getMessage()]);
             }
@@ -274,19 +286,17 @@ class TopicController extends Controller
             try {
                 $topicRequest["topic_creator"] = $userKey;
 
-                $topicCreationResponse = (new TopicController())->store($topicRequest,$type,$cbKey,true);
+                $topicCreationResponse = (new TopicController())->store($topicRequest, $type, $cbKey, true);
                 if (isset($topicCreationResponse["success"]))
                     $topicKey = $topicCreationResponse["success"];
                 else
-                    throw new Exception($topicCreationResponse["error"]??"unrecognized error while creating topic");
+                    throw new Exception($topicCreationResponse["error"] ?? "unrecognized error while creating topic");
             } catch (Exception $e) {
-                dd(get_defined_vars());
                 return redirect()->back()->withErrors(["topic.withUser.store" => $e->getMessage()]);
             }
 
             return redirect()->action('TopicController@show', ['cbKey' => $cbKey, 'topicKey' => $topicKey, 'type' => $type]);
         } catch (Exception $e) {
-            dd(get_defined_vars());
             return redirect()->back()->withErrors(["topic.withUser.store" => $e->getMessage()]);
         }
     }
@@ -302,10 +312,8 @@ class TopicController extends Controller
     public function edit($type, $cbKey, $topicKey)
     {
         try {
-            if(Session::get('user_role') != 'admin') {
-                if (ONE::verifyUserPermissionsUpdate('cb', 'topics') == false) {
-                    return redirect()->back()->withErrors(["cb.show" => trans('privateCbs.permission_message')]);
-                }
+            if (Session::get('user_role') != 'admin') {
+                return redirect()->back()->withErrors(["cb.show" => trans('privateCbs.permission_message')]);
             }
 
             $topic = CB::getTopicParameters($topicKey, null);
@@ -313,11 +321,11 @@ class TopicController extends Controller
             $topic_author = (Auth::getUserByKey($topic->created_by))->name;
 
             $topicParameters = [];
-            foreach ($topic->parameters as $param){
+            foreach ($topic->parameters as $param) {
                 $topicParameters[$param->id] = $param;
             }
 
-            if(!($relatedParameter = collect($topic->parameters)->where('code','=','associated_topics'))->isEmpty()){
+            if (!($relatedParameter = collect($topic->parameters)->where('code', '=', 'associated_topics'))->isEmpty()) {
 
                 $data['relatedParameter'] = json_decode($relatedParameter->first()->pivot->value);
                 $data['relatedParameter']->id = $relatedParameter->first()->id;
@@ -328,8 +336,8 @@ class TopicController extends Controller
             $post = $topic->first_post;
             $CbParameters = CB::getCbParametersOptions($cbKey)->parameters;
 
-            if(!isset($data['relatedParameter'])){
-                if(!empty($relatedParameter = collect($CbParameters)->where('code','=','associated_topics'))){
+            if (!isset($data['relatedParameter'])) {
+                if (!empty($relatedParameter = collect($CbParameters)->where('code', '=', 'associated_topics'))) {
                     $data['relatedParameter'] = $relatedParameter;
 
                 }
@@ -341,18 +349,22 @@ class TopicController extends Controller
 
 
             // Check Access
-            if( !CB::checkCBsOption($configurations, 'PUBLIC-ACCESS') && !ONE::isAuth() ){
+            if (!CB::checkCBsOption($configurations, 'PUBLIC-ACCESS') && !ONE::isAuth()) {
                 return redirect()->action('AuthController@login');
             }
 
             $allowFiles = [];
-            if( CB::checkCBsOption($configurations, 'ALLOW-FILES') ){
+            if (CB::checkCBsOption($configurations, 'ALLOW-FILES')) {
                 $allowFiles[] = "docs";
             }
 
-            if( CB::checkCBsOption($configurations, 'ALLOW-PICTURES')  ){
+            if (CB::checkCBsOption($configurations, 'ALLOW-PICTURES')) {
                 $allowFiles[] = "images";
             }
+
+            // if( CB::checkCBsOption($configurations, 'ALLOW-VIDEOS')  ){
+            $allowFiles[] = "videos";
+            // }
 
             $fileId = 0;
             $posX = "";
@@ -363,7 +375,7 @@ class TopicController extends Controller
                 $name = $parameter->parameter;
                 $code = $parameter->type->code;
 
-                if( isset($topicParameters[$parameter->id]))
+                if (isset($topicParameters[$parameter->id]))
                     $value = $topicParameters[$parameter->id]->pivot->value;
                 else
                     $value = "";
@@ -374,7 +386,7 @@ class TopicController extends Controller
                     $parameterOptions[$option->id] = $option->label;
                 }
 
-                $parameters[$name] = array('id' => $parameter->id, 'value' => $value, 'name' => $name, 'code' => $code, 'options' => $parameterOptions,'mandatory' => $parameter->mandatory,'description' => $parameter->description);
+                $parameters[$name] = array('id' => $parameter->id, 'value' => $value, 'name' => $name, 'code' => $code, 'options' => $parameterOptions, 'mandatory' => $parameter->mandatory, 'description' => $parameter->description);
 
                 /* check if is image */
                 if ($parameter->code == 'image_map') {
@@ -384,7 +396,7 @@ class TopicController extends Controller
                         $coordinates = explode("-", $value);
 
                         if (count($coordinates) == 2) {
-                            if(strlen($coordinates[0]) > 0 && strlen($coordinates[1])){
+                            if (strlen($coordinates[0]) > 0 && strlen($coordinates[1])) {
                                 $posX = $coordinates[0];
                                 $posY = $coordinates[1];
                             }
@@ -392,11 +404,26 @@ class TopicController extends Controller
                     }
                 }
             }
-            $status=CB::getStatusTypes();
+            $status = CB::getStatusTypes();
             $fileCode = '';
             if ($fileId != 0) {
                 $file = Files::getFile($fileId);
                 $fileCode = $file->code;
+            }
+
+            $post_key = $topic->first_post->post_key;
+            $jsonFileList = [];
+            if (!empty($post_key)) {
+                $filesList = CB::listFilesForTopic($post_key);
+                // Convert to json filelist
+                foreach (!empty($filesList) ? $filesList : [] as $fileObj) {
+                    $file = ['id' => $fileObj->file_id,
+                        'code' => $fileObj->file_code,
+                        'name' => $fileObj->name,
+                        'description' => $fileObj->description];
+                    $file = (Object)$file;
+                    $jsonFileList[$fileObj->type_id][] = $file;
+                }
             }
 
             $title = trans('privateTopics.update_topic');
@@ -409,7 +436,7 @@ class TopicController extends Controller
             Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'topics', 'topicKey' => $topicKey]);
             Session::put('sidebarArguments.activeSecondMenu', 'details');
 
-            Session::put('sidebars', [0 => 'private', 1=> 'padsType', 2 => 'topics']);
+            Session::put('sidebars', [0 => 'private', 1 => 'padsType', 2 => 'topics']);
 
             $data['title'] = $title;
             $data['topic'] = $topic;
@@ -422,14 +449,15 @@ class TopicController extends Controller
             $data['fileCode'] = $fileCode;
             $data['allowFiles'] = $allowFiles;
             $data['configurations'] = $configurations;
-            $data['uploadKey']      = Files::getUploadKey();
-            $data['sidebar']            = 'topics';
-            $data['active']             = 'details';
-            $data['cbAuthor']             = $author;
-            $data['cb_title']           = $cb_title;
-            $data['cb_start_date']      = $cb_start_date;
-            $data['topic_author']       = $topic_author;
-            $data['status']             =$status;
+            $data['uploadKey'] = Files::getUploadKey();
+            $data['sidebar'] = 'topics';
+            $data['active'] = 'details';
+            $data['cbAuthor'] = $author;
+            $data['cb_title'] = $cb_title;
+            $data['cb_start_date'] = $cb_start_date;
+            $data['topic_author'] = $topic_author;
+            $data['status'] = $status;
+            $data['jsonFileList'] = $jsonFileList;
             return view('private.topics.topic', $data);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["topic.edit" => $e->getMessage()]);
@@ -451,22 +479,22 @@ class TopicController extends Controller
         $module = 'cb';
         $moduleType = 'topic';
         $data = [];
-//        if(Session::get('user_role') != 'admin') {
-//            if (ONE::verifyUserPermissionsShow('cb', 'topics') == false){
-//                return redirect()->back()->withErrors(["cb.show" => trans('privateCbs.permission_message')]);
-//            }
-//        }
 
         try {
+
             $topic = CB::getTopicParameters($topicKey, $version);
 
-            $topic_author = (Auth::getUserByKey($topic->created_by))->name;
+            if (strcasecmp($topic->created_by, "anonymous") != 0)
+                $topic_author = (Auth::getUserByKey($topic->created_by))->name;
+            else
+                $topic_author = trans("topic.anonymous");
+
             $topicParameters = [];
 
             foreach ($topic->parameters as $param) {
                 $topicParameters[$param->id] = $param;
             }
-            if(!($relatedParameter = collect($topic->parameters)->where('code','=','associated_topics'))->isEmpty()){
+            if (!($relatedParameter = collect($topic->parameters)->where('code', '=', 'associated_topics'))->isEmpty()) {
 
                 $data['relatedParameter'] = json_decode($relatedParameter->first()->pivot->value);
                 $data['relatedParameter']->id = $relatedParameter->first()->id;
@@ -477,8 +505,8 @@ class TopicController extends Controller
             $post = $topic->first_post;
             $CbParameters = CB::getCbParametersOptions($cbKey)->parameters;
 
-            if(!isset($data['relatedParameter'])){
-                if(!empty($relatedParameter = collect($CbParameters)->where('code','=','associated_topics'))){
+            if (!isset($data['relatedParameter'])) {
+                if (!empty($relatedParameter = collect($CbParameters)->where('code', '=', 'associated_topics'))) {
                     $data['relatedParameter'] = $relatedParameter;
                 }
             }
@@ -489,16 +517,16 @@ class TopicController extends Controller
             $configurations = $topicData->configurations;
 
             // Check Access
-            if( !CB::checkCBsOption($configurations, 'PUBLIC-ACCESS') && !ONE::isAuth() ){
+            if (!CB::checkCBsOption($configurations, 'PUBLIC-ACCESS') && !ONE::isAuth()) {
                 return redirect()->action('AuthController@login');
             }
 
             $allowFiles = [];
-            if( CB::checkCBsOption($configurations, 'ALLOW-FILES') ){
+            if (CB::checkCBsOption($configurations, 'ALLOW-FILES')) {
                 $allowFiles[] = "docs";
             }
 
-            if( CB::checkCBsOption($configurations, 'ALLOW-PICTURES')  ){
+            if (CB::checkCBsOption($configurations, 'ALLOW-PICTURES')) {
                 $allowFiles[] = "images";
             }
 
@@ -511,7 +539,7 @@ class TopicController extends Controller
                 $name = $parameter->parameter;
                 $code = $parameter->type->code;
 
-                if( isset($topicParameters[$parameter->id]))
+                if (isset($topicParameters[$parameter->id]))
                     $value = $topicParameters[$parameter->id]->pivot->value;
                 else
                     $value = "";
@@ -522,7 +550,7 @@ class TopicController extends Controller
                     $parameterOptions[$option->id] = $option->label;
                 }
 
-                $parameters[$name] = array('id' => $parameter->id, 'value' => $value, 'name' => $name, 'code' => $code, 'options' => $parameterOptions,'mandatory' => $parameter->mandatory);
+                $parameters[$name] = array('id' => $parameter->id, 'value' => $value, 'name' => $name, 'code' => $code, 'options' => $parameterOptions, 'mandatory' => $parameter->mandatory);
 
                 /* check if is image */
                 if ($parameter->code == 'image_map') {
@@ -532,7 +560,7 @@ class TopicController extends Controller
                         $coordinates = explode("-", $value);
 
                         if (count($coordinates) == 2) {
-                            if(strlen($coordinates[0]) > 0 && strlen($coordinates[1])){
+                            if (strlen($coordinates[0]) > 0 && strlen($coordinates[1])) {
                                 $posX = $coordinates[0];
                                 $posY = $coordinates[1];
                             }
@@ -550,9 +578,9 @@ class TopicController extends Controller
             $filesByType = [];
             $filesByType = CB::listFilesByType($topic->first_post->post_key);
 
-            try{
+            try {
                 $user = Auth::getUserByKey($topic->created_by);
-            } catch (Exception $e){
+            } catch (Exception $e) {
                 $user = null;
             }
 
@@ -565,96 +593,113 @@ class TopicController extends Controller
             $cb = CB::getCbConfigurations($cbKey);
             $statusAvailable = CB::getStatusTypes();
             $statusTypes = [];
-            foreach ($statusAvailable as $status){
+            foreach ($statusAvailable as $status) {
                 $statusTypes[$status->code] = $status->name;
             }
 
             $topicCooperators = CB::getCooperatorsList($request, $topicKey);
 
-            Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'topics', 'topicKey' => $topicKey]);
+            if (ONE::verifyModuleAccess('cb', 'flags')) {
+                $cb->flags = CB::getCbWithFlags($cbKey, "TOPICS")->flags ?? [];
+                $flagHistory = CB::getElementFlagHistory($topicKey, "TOPIC");
+
+                $usersKeys = [];
+                foreach ($flagHistory as $flag) {
+                    $usersKeys[$flag->pivot->created_by] = $flag->pivot->created_by;
+                }
+                $usersNames = Auth::getUserNames($usersKeys);
+                foreach ($flagHistory as $flag) {
+                    if (!empty($usersNames->{$flag->pivot->created_by}))
+                        $flag->pivot->created_by = $usersNames->{$flag->pivot->created_by}->name;
+                }
+            }
+
+            $languages = Orchestrator::getLanguageList();
+            Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'topics', 'topicKey' => $topicKey, 'cb' => $cb]);
             Session::put('sidebarArguments.activeSecondMenu', 'details');
 
             //Technical Analysis
             $hasAnalysis = !empty(CB::getCbQuestions($cbKey));
 
             $technicalAnalysis = null;
-            if ($hasAnalysis){
-                try{
+            if ($hasAnalysis) {
+                try {
                     $technicalAnalysis = CB::getTechnicalAnalysis($topicKey, $cbKey, $version);
-                } catch (Exception $e){
+                } catch (Exception $e) {
                     // do nothing
                 }
             }
-
             $data = [];
-            $data['title']              = $title;
-            $data['topic']              = $topic;
-            $data['type']               = $type;
-            $data['topicKey']           = $topicKey;
-            $data['cbKey']              = $cbKey;
-            $data['post']               = $post;
-            $data['fileId']             = $fileId;
-            $data['fileCode']           = $fileCode;
-            $data['parameters']         = $parameters;
-            $data['configurations']     = $configurations;
-            $data['topicParameters']    = $topicParameters;
-            $data['filesByType']        = $filesByType;
-            $data['edit']               = $editTopic ?? 1;
-            $data['user']               = $user ?? null;
-            $data['delete']             = $deleteTopic ?? 1;
-            $data['sidebar']            = 'topics';
-            $data['active']             = 'details';
-            $data['cbAuthor']           = $cbAuthor;
-            $data['cb_title']           = $cb_title;
-            $data['cb_start_date']      = $cb_start_date;
-            $data['topic_author']       = $topic_author;
-            $data['statusTypes']        = $statusTypes;
+            $data['title'] = $title;
+            $data['topic'] = $topic;
+            $data['type'] = $type;
+            $data['topicKey'] = $topicKey;
+            $data['cbKey'] = $cbKey;
+            $data['post'] = $post;
+            $data['fileId'] = $fileId;
+            $data['fileCode'] = $fileCode;
+            $data['parameters'] = $parameters;
+            $data['configurations'] = $configurations;
+            $data['topicParameters'] = $topicParameters;
+            $data['filesByType'] = $filesByType;
+            $data['edit'] = $editTopic ?? 1;
+            $data['user'] = $user ?? null;
+            $data['delete'] = $deleteTopic ?? 1;
+            $data['sidebar'] = 'topics';
+            $data['active'] = 'details';
+            $data['cbAuthor'] = $cbAuthor;
+            $data['cb_title'] = $cb_title;
+            $data['cb_start_date'] = $cb_start_date;
+            $data['topic_author'] = $topic_author;
+            $data['statusTypes'] = $statusTypes;
+            $data['flagHistory'] = $flagHistory ?? [];
+            $data['languages'] = $languages;
 
-            $data['topicCooperators']   = $topicCooperators;
-            $data['hasAnalysis']        = $hasAnalysis;
-            $data['technicalAnalysis']  = $technicalAnalysis;
+            $data['topicCooperators'] = $topicCooperators;
+            $data['hasAnalysis'] = $hasAnalysis;
+            $data['technicalAnalysis'] = $technicalAnalysis;
+            $data['cb'] = $cb;
 
             return view('private.topics.topic', $data);
-        }
-        catch(Exception $e) {
+        } catch (Exception $e) {
             return redirect()->back()->withErrors(["topic.show" => $e->getMessage()]);
         }
     }
 
-    public function sendEmailNotificationGroups($cbKey, $code, $type, $topic, $status = null){
+    public function sendEmailNotificationGroups($cbKey, $code, $type, $topic, $status = null)
+    {
         //get cb template
         $cbTemplates = CB::getCbTemplates($cbKey);
-        foreach ($cbTemplates as $cbTemplate){
-            if($cbTemplate->configuration_code  == $code){
+        foreach ($cbTemplates as $cbTemplate) {
+            if ($cbTemplate->configuration_code == $code) {
                 $template = $cbTemplate;
             }
         }
 
-        if($template!=''){
+        if (!empty($template)) {
             $cbConfigurations = CB::getCbConfigurations($cbKey);
-            foreach ($cbConfigurations->configurations as $cbConfiguration){
-                if($template->configuration_code == $cbConfiguration->code){
+            foreach ($cbConfigurations->configurations as $cbConfiguration) {
+                if ($template->configuration_code == $cbConfiguration->code) {
                     $groups = json_decode($cbConfiguration->pivot->value);
                 }
             }
 
             $usersEmail = [];
-            foreach ($groups as $group){
+            foreach ($groups as $group) {
                 $users = Orchestrator::getUsersByEntityGroupKey($group);
-                foreach ($users as $user){
+                foreach ($users as $user) {
                     $usersEmail[] = Orchestrator::getUserEmail($user->user_key);
                 }
             }
 
             $userKey = (Session::get('user'))->user_key;
 
-            $url = "<a href='".action('TopicController@show', [$type, $cbKey, $topic->topic_key])."'>".$topic->title."</a>";
+            $url = "<a href='" . action('TopicController@show', [$type, $cbKey, $topic->topic_key]) . "'>" . $topic->title . "</a>";
 
             $tags = ["topic" => $url, "title_topic" => $topic->title, "status" => $status];
 
             $sendEmail = Notify::sendEmailByTemplateKey($template->template_key, $usersEmail, $userKey, $tags);
-        }
-        else{
+        } else {
             Session::flash('message', trans('topic.fail_send_email'));
 
         }
@@ -670,23 +715,24 @@ class TopicController extends Controller
      * @param $owner
      * @param null $status
      */
-    public function sendEmailNotification($cbKey, $code, $type, $topic, $users, $owner, $status = null){
+    public function sendEmailNotification($cbKey, $code, $type, $topic, $users, $owner, $status = null)
+    {
         //get cb template
         $template = null;
         $cbTemplates = CB::getCbTemplates($cbKey);
-        foreach ($cbTemplates as $cbTemplate){
-            if($cbTemplate->configuration_code  == $code){
+        foreach ($cbTemplates as $cbTemplate) {
+            if ($cbTemplate->configuration_code == $code) {
                 $template = $cbTemplate;
             }
         }
 
-        if(!is_null($template)){
+        if (!is_null($template)) {
             $usersEmail = [];
-            foreach ($users as $user){
+            foreach ($users as $user) {
                 $usersEmail[] = Orchestrator::getUserEmail($user->user_key);
             }
 
-            if($owner!=null){
+            if ($owner != null) {
                 $userEmail = Orchestrator::getUserEmail($owner);
                 $usersEmail[] = $userEmail;
             }
@@ -694,13 +740,12 @@ class TopicController extends Controller
             $userKey = (Session::get('user'))->user_key;
 
 //            $url = "<a href='".action('TopicController@show', [$type, $cbKey, $topic->topic_key])."'>".$topic->title."</a>";  //private url
-            $url = "<a href='".action('PublicTopicController@show', [$cbKey, $topic->topic_key, 'type' => $type])."'>".$topic->title."</a>";    //public url
+            $url = "<a href='" . action('PublicTopicController@show', [$cbKey, $topic->topic_key, 'type' => $type]) . "'>" . $topic->title . "</a>";    //public url
 
             $tags = ["topic" => $url, "title_topic" => $topic->title, "status" => $status];
 
             $sendEmail = Notify::sendEmailByTemplateKey($template->template_key, $usersEmail, $userKey, $tags);
-        }
-        else{
+        } else {
             Session::flash('message', trans('topic.fail_send_email'));
         }
     }
@@ -718,15 +763,13 @@ class TopicController extends Controller
         try {
             //verify parameters of topic
             $parametersToSend = [];
-
-            if(isset($requestTopic['myTopics']) && !empty($requestTopic['myTopics'])){
-                $informationToStore = ['pad_type' => $requestTopic['pad_type'],'pad_key' => $requestTopic['pad_key'],'myTopics' => $requestTopic['myTopics']];
-                $parametersToSend[] = array('parameter_id' => $requestTopic['associated_id'], 'value' => json_encode($informationToStore));
-            }
+            // if(isset($requestTopic['myTopics']) && !empty($requestTopic['myTopics'])){
+            $informationToStore = ['pad_type' => $requestTopic['pad_type'], 'pad_key' => $requestTopic['pad_key']];
+            $parametersToSend[] = array('parameter_id' => $requestTopic['associated_id'], 'value' => json_encode($informationToStore));
+            // }
 
 
             foreach ($requestTopic->all() as $key => $value) {
-
                 if (strpos($key, 'parameter_maps_required_') !== false) {
 
                     $id = str_replace("parameter_maps_required_", "", $key);
@@ -761,19 +804,49 @@ class TopicController extends Controller
             $topic = CB::setTopicWithParameters($cbKey, $requestTopic, $parametersToSend, true);
 
             $post_key = $topic->first_post->post_key;
-            if (Session::has('filesToUpload')) {
+
+            // FILES
+            // if( !empty($requestTopic->get("files"))){
+            $files = $requestTopic->get("files");
+            // } else {
+            //    $files = $requestTopic["files"];
+            // }
+
+            if (!empty($files)) {
+                // New files - based in oneFileUpload macro and in JSON format
+                $fileTypeIndex = 0;
+                $arrayFiles = [];
+                foreach (!empty($files) ? $files : [] as $fileTypeId => $fileStrArray) {
+                    $fileObjArray = json_decode($fileStrArray);
+                    foreach (!empty($fileObjArray) ? $fileObjArray : [] as $fileObj) {
+                        $file = ['file_id' => $fileObj->id,
+                            'file_code' => $fileObj->code,
+                            'name' => $fileObj->name,
+                            'type_id' => $fileTypeId,
+                            'description' => $fileObj->description];
+                        $file = (Object)$file;
+                        $arrayFiles[] = $file;
+                        $fileTypeIndex++;
+                    }
+                }
+                // Store files for topic
+                if (!empty($arrayFiles) && !empty($topic->first_post->post_key)) {
+                    CB::setFilesArrayForTopic($post_key, $arrayFiles);
+                }
+            } else if (Session::has('filesToUpload')) {
                 $files = Session::get('filesToUpload');
                 foreach ($files as $file) {
                     CB::setFilesForTopic($post_key, $file);
                 }
+                Session::forget('filesToUpload');
             }
 
             $cbConfigs = CB::getCbConfigurations($cbKey);
-            foreach ($cbConfigs->configurations as $cbConfig){
-                if($cbConfig->code == 'notification_create_topic'){
+            foreach ($cbConfigs->configurations as $cbConfig) {
+                if ($cbConfig->code == 'notification_create_topic') {
                     $sendEmail = $this->sendEmailNotificationGroups($cbKey, 'notification_create_topic', $type, $topic);
                 }
-                if($cbConfig->code == 'notification_owner_create_topic'){
+                if ($cbConfig->code == 'notification_owner_create_topic') {
                     $owner = $topic->created_by;
                     $cooperators = CB::getCooperators($topic->topic_key);
                     if (is_array($cooperators))
@@ -806,67 +879,113 @@ class TopicController extends Controller
     public function update(TopicRequest $requestTopic, $type, $cbKey, $topicKey)
     {
         try {
-            // $type = $this->cbType[$requestTopic->type] ;
-
-
             $parametersToSend = [];
 
-            if(isset($requestTopic['myTopics']) && !empty($requestTopic['myTopics'])){
-                $informationToStore = ['pad_type' => $requestTopic['pad_type'],'pad_key' => $requestTopic['pad_key'],'myTopics' => $requestTopic['myTopics']];
+            if (isset($requestTopic['myTopics']) && !empty($requestTopic['myTopics'])) {
+                $informationToStore = ['pad_type' => $requestTopic['pad_type'], 'pad_key' => $requestTopic['pad_key'], 'myTopics' => $requestTopic['myTopics']];
                 $parametersToSend[] = array('parameter_id' => $requestTopic['associated_id'], 'value' => json_encode($informationToStore));
             }
             foreach ($requestTopic->all() as $key => $value) {
 
-
-                if ( strpos($key, 'parameter_maps_required_') !== false ) {
+                if (strpos($key, 'parameter_maps_required_') !== false) {
 
                     $id = str_replace("parameter_maps_required_", "", $key);
 
                     if ($value != '')
                         $parametersToSend[] = array('parameter_id' => $id, 'value' => $value);
 
-                } else if ( strpos($key, 'parameter_required_') !== false ) {
+                } else if (strpos($key, 'parameter_required_') !== false) {
 
                     $id = str_replace("parameter_required_", "", $key);
 
                     if ($value != '')
                         $parametersToSend[] = array('parameter_id' => $id, 'value' => $value);
 
-                }else if (strpos($key, 'parameter_') !== false) {
+                } else if (strpos($key, 'parameter_') !== false) {
                     $id = str_replace("parameter_", "", $key);
 
                     if ($value != '')
                         $parametersToSend[] = array('parameter_id' => $id, 'value' => $value);
 
                 } //Save position Image!
-                else if(strpos($key, 'marker_pos_x_') !== false){
+                else if (strpos($key, 'marker_pos_x_') !== false) {
                     $id = str_replace("marker_pos_x_", "", $key);
 
 
-                    $posX = $requestTopic["marker_pos_x_".$id];
-                    $posY = $requestTopic["marker_pos_y_".$id];
+                    $posX = $requestTopic["marker_pos_x_" . $id];
+                    $posY = $requestTopic["marker_pos_y_" . $id];
                     $parametersToSend[] = array('parameter_id' => $id, 'value' => $posX . "-" . $posY);
                 }
             }
+
+            $requestTopic->request->add(['cbKey' => $cbKey]);
 
             $requestTopic->request->add(['link' => action('PublicTopicController@show', [$cbKey, $topicKey, 'type' => $type])]);
 
             $topic = CB::updateTopicWithParameters($topicKey, $requestTopic, $parametersToSend, true);
 
             $cbConfigs = CB::getCbConfigurations($cbKey);
-            foreach ($cbConfigs->configurations as $cbConfig){
-                if($cbConfig->code == 'notification_edit_topic') {
+            foreach ($cbConfigs->configurations as $cbConfig) {
+                if ($cbConfig->code == 'notification_edit_topic') {
                     $sendEmail = $this->sendEmailNotificationGroups($cbKey, 'notification_edit_topic', $type, $topic);
-                }
-                else if($cbConfig->code == 'notification_content_change'){
+                } else if ($cbConfig->code == 'notification_content_change') {
                     $followers = CB::getFollowersTopic($topic->topic_key);
                     $sendEmail = $this->sendEmailNotification($cbKey, 'notification_content_change', $type, $topic, $followers, null);
-                }
-                else if($cbConfig->code == 'notification_owner_edit_topic'){
+                } else if ($cbConfig->code == 'notification_owner_edit_topic') {
                     $owner = $topic->created_by;
                     $cooperators = CB::getCooperators($topic->topic_key);
                     if (is_array($cooperators))
                         $sendEmail = $this->sendEmailNotification($cbKey, 'notification_owner_edit_topic', $type, $topic, $cooperators, $owner);
+                }
+            }
+
+            // FILES
+            $topicTmp = CB::getTopicParameters($topicKey); // this can be removed in future
+            $post_key = $topicTmp->first_post->post_key;
+
+            if (!empty($requestTopic["files"])) {
+                // New files - based in oneFileUpload macro and in JSON format
+                $fileTypeIndex = 0;
+                $arrayFiles = [];
+                foreach (!empty($requestTopic["files"]) ? $requestTopic["files"] : [] as $fileStrArray) {
+                    $fileTypeId = (isset($requestTopic["file_type_id"]) && !empty($requestTopic["file_type_id"][$fileTypeIndex])) ? $requestTopic["file_type_id"][$fileTypeIndex] : 1;
+                    $fileObjArray = json_decode($fileStrArray);
+                    foreach (!empty($fileObjArray) ? $fileObjArray : [] as $fileObj) {
+                        $file =
+                            [
+                                'file_id' => $fileObj->id,
+                                'file_code' => $fileObj->code,
+                                'name' => $fileObj->name,
+                                'type_id' => $fileTypeId,
+                                'description' => $fileObj->description
+                            ];
+                        $file = (Object)$file;
+                        $arrayFiles[] = $file;
+                        $fileTypeIndex++;
+                    }
+                }
+                // Update files for topic
+                if (!empty($arrayFiles) && !empty($post_key)) {
+                    CB::updateFilesArrayForTopic($post_key, $arrayFiles);
+                } else {
+
+                    CB::updateFilesArrayForTopic($post_key, $arrayFiles);
+                }
+            }
+
+
+            // Update files list
+            $jsonFileList = [];
+            if (!empty($post_key)) {
+                $filesList = CB::listFilesForTopic($post_key);
+                // Convert to json filelist
+                foreach (!empty($filesList) ? $filesList : [] as $fileObj) {
+                    $file = ['id' => $fileObj->file_id,
+                        'code' => $fileObj->file_code,
+                        'name' => $fileObj->name,
+                        'description' => $fileObj->description];
+                    $file = (Object)$file;
+                    $jsonFileList[] = $file;
                 }
             }
 
@@ -886,40 +1005,70 @@ class TopicController extends Controller
      * @param $topicKey
      * @return View
      */
-    public function destroy($type, $cbKey, $topicKey)
+    public function destroy(Request $request, $type, $cbKey, $topicKey)
     {
         try {
+            if (($request->btnValidate) == 1) {
+                if ($type == 0 && $cbKey == 0 && $topicKey == 0) {
+                    if (count($request->cbType) > 0) {
+                        for ($j = 0; $j < count($request->cbType); $j++) {
 
-            $topic = CB::getTopic($topicKey);
+                            $topic = CB::getTopic($request->topicKey[$j]);
 
-            //Get values before deletion
-            $followers = CB::getFollowersTopic($topicKey);
-            $cooperators = CB::getCooperators($topicKey);
+                            //Get values before deletion
+                            $followers = CB::getFollowersTopic($request->topicKey[$j]);
+                            $cooperators = CB::getCooperators($request->topicKey[$j]);
 
-            CB::deleteTopic($topicKey);
-            $cbConfigs = CB::getCbConfigurations($cbKey);
-            foreach ($cbConfigs->configurations as $cbConfig){
-                if($cbConfig->code == 'notification_delete_topic') {
-                    $sendEmail = $this->sendEmailNotificationGroups($cbKey, 'notification_delete_topic', $type, $topic->topic);
-                }
-                else if($cbConfig->code == 'notification_delete'){
-                    $sendEmail = $this->sendEmailNotification($cbKey, 'notification_delete', $type, $topic->topic, $followers, null);
-                }
-                else if($cbConfig->code == 'notification_owner_delete_topic'){
-                    $owner = $topic->topic->created_by;
-                    if ($owner != 'anonymous' && is_array($cooperators)) {
-                        $sendEmail = $this->sendEmailNotification($cbKey, 'notification_owner_delete_topic', $type, $topic->topic, $cooperators, $owner);
+                            CB::deleteTopic($request->topicKey[$j]);
+                            $cbConfigs = CB::getCbConfigurations($request->cbKey[$j]);
+
+                            foreach ($cbConfigs->configurations as $cbConfig) {
+                                if ($cbConfig->code == 'notification_delete_topic') {
+                                    $sendEmail = $this->sendEmailNotificationGroups($request->cbKey[$j], 'notification_delete_topic', $request->cbType[$j], $topic->topic);
+                                } else if ($cbConfig->code == 'notification_delete') {
+                                    $sendEmail = $this->sendEmailNotification($request->cbKey[$j], 'notification_delete', $request->cbType[$j], $topic->topic, $followers, null);
+                                } else if ($cbConfig->code == 'notification_owner_delete_topic') {
+                                    $owner = $topic->topic->created_by;
+                                    if ($owner != 'anonymous' && is_array($cooperators)) {
+                                        $sendEmail = $this->sendEmailNotification($request->cbKey[$j], 'notification_owner_delete_topic', $request->cbType[$j], $topic->topic, $cooperators, $owner);
+                                    }
+                                }
+//                            if($j == count($request->cbType)){
+//                                return action('CbsController@showTopics', ['cbKey' => $request->cbKey[$j], 'type' => $request->cbType[$j]]);
+//                            }
+                            }
+                        }
                     }
+                    // return action('CbsController@show', ['cbKey' => $cbKey[$j], 'topicKey' => $topicKey[$j], 'type' => cbType[$j]]);
                 }
+            } else {
+                $topic = CB::getTopic($topicKey);
 
-                return action('CbsController@showTopics', ['cbKey' => $cbKey, 'type' => $type]);
+                //Get values before deletion
+                $followers = CB::getFollowersTopic($topicKey);
+                $cooperators = CB::getCooperators($topicKey);
+
+                CB::deleteTopic($topicKey);
+                $cbConfigs = CB::getCbConfigurations($cbKey);
+                foreach ($cbConfigs->configurations as $cbConfig) {
+                    if ($cbConfig->code == 'notification_delete_topic') {
+                        $sendEmail = $this->sendEmailNotificationGroups($cbKey, 'notification_delete_topic', $type, $topic->topic);
+                    } else if ($cbConfig->code == 'notification_delete') {
+                        $sendEmail = $this->sendEmailNotification($cbKey, 'notification_delete', $type, $topic->topic, $followers, null);
+                    } else if ($cbConfig->code == 'notification_owner_delete_topic') {
+                        $owner = $topic->topic->created_by;
+                        if ($owner != 'anonymous' && is_array($cooperators)) {
+                            $sendEmail = $this->sendEmailNotification($cbKey, 'notification_owner_delete_topic', $type, $topic->topic, $cooperators, $owner);
+                        }
+                    }
+
+                    return action('CbsController@showTopics', ['cbKey' => $cbKey, 'type' => $type]);
+                }
+                return action('CbsController@show', ['cbKey' => $cbKey, 'topicKey' => $topicKey, 'type' => $type]);
             }
-            return action('CbsController@show', ['cbKey' => $cbKey, 'topicKey' => $topicKey, 'type' => $type]);
-
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["topic.destroy" => $e->getMessage()]);
         }
-
     }
 
     /**
@@ -930,11 +1079,13 @@ class TopicController extends Controller
      * @param $topicKey
      * @return View
      */
-    public function delete($type, $cbKey, $topicKey)
+    public
+    function delete(Request $request, $type, $cbKey, $topicKey)
     {
         $data = array();
 
         $data['action'] = action("TopicController@destroy", ['type' => $type, 'topicKey' => $topicKey, 'cbKey' => $cbKey]);
+
         $data['title'] = "DELETE";
         $data['msg'] = "Are you sure you want to delete this Topic?";
         $data['btn_ok'] = "Delete";
@@ -949,32 +1100,31 @@ class TopicController extends Controller
      * @param $cbKey
      * @return string
      */
-    public function updateStatus(Request $request, $type, $cbKey)
+    public
+    function updateStatus(Request $request, $type, $cbKey)
     {
         try {
-            if(Session::get('user_role') != 'admin') {
-                if (ONE::verifyUserPermissionsUpdate('cb', 'topics') == false) {
-                    return redirect()->back()->withErrors(["cb.show" => trans('privateCbs.permission_message')]);
-                }
+            if (Session::get('user_role') != 'admin') {
+                return redirect()->back()->withErrors(["cb.show" => trans('privateCbs.permission_message')]);
             }
             $newStatus = CB::updateTopicStatus($request);
-            if($request->status_type_code=='accepted'){
+            if ($request->status_type_code == 'accepted') {
                 $response = CB::getTopic($request->topicKey);
-                if($response->topic){
+                if ($response->topic) {
 
-                    if($response->topic->created_by=='anonymous'){
+                    if ($response->topic->created_by == 'anonymous') {
 
                         $user = array(
                             'email' => CB::getAnonymousEmail($response->topic->topic_key),
                             'name' => 'anonymous'
                         );
-                    }else{
-                        $user = (array) Auth::getUserByKey($response->topic->created_by);
+                    } else {
+                        $user = (array)Auth::getUserByKey($response->topic->created_by);
                     }
 
-                    if($user) {
+                    if ($user) {
 
-                        if($response->cb) {
+                        if ($response->cb) {
                             $emailType = 'topic_status_update';
                             $tags = [
                                 "topic_title" => $response->topic->title,
@@ -983,15 +1133,13 @@ class TopicController extends Controller
                             ];
 
                             $cbConfigs = CB::getCbConfigurations($cbKey);
-                            foreach ($cbConfigs->configurations as $cbConfig){
-                                if($cbConfig->code == 'notification_topic_status_change') {
+                            foreach ($cbConfigs->configurations as $cbConfig) {
+                                if ($cbConfig->code == 'notification_topic_status_change') {
                                     $sendEmail = $this->sendEmailNotificationGroups($cbKey, 'notification_topic_status_change', $type, $response->topic);
-                                }
-                                else if($cbConfig->code == 'notification_status_change'){
+                                } else if ($cbConfig->code == 'notification_status_change') {
                                     $followers = CB::getFollowersTopic($response->topic->topic_key);
                                     $sendEmail = $this->sendEmailNotification($cbKey, 'notification_status_change', $type, $response->topic, $followers, null);
-                                }
-                                else if($cbConfig->code == 'notification_owner_status_change'){
+                                } else if ($cbConfig->code == 'notification_owner_status_change') {
                                     $owner = $response->topic->created_by;
                                     $cooperators = CB::getCooperators($response->topic->topic_key);
                                     if (is_array($cooperators))
@@ -1011,22 +1159,20 @@ class TopicController extends Controller
 
             //Get Status Name for Notification
             $status = null;
-            foreach ($statusTypes as $statusType){
-                if($statusType->id == $newStatus->status_type_id){
+            foreach ($statusTypes as $statusType) {
+                if ($statusType->id == $newStatus->status_type_id) {
                     $status = $statusType->name;
                 }
             }
 
             $cbConfigs = CB::getCbConfigurations($cbKey);
-            foreach ($cbConfigs->configurations as $cbConfig){
-                if($cbConfig->code == 'notification_topic_status_change') {
+            foreach ($cbConfigs->configurations as $cbConfig) {
+                if ($cbConfig->code == 'notification_topic_status_change') {
                     $sendEmail = $this->sendEmailNotificationGroups($cbKey, 'notification_topic_status_change', $type, $response->topic, $status);
-                }
-                else if($cbConfig->code == 'notification_status_change'){
+                } else if ($cbConfig->code == 'notification_status_change') {
                     $followers = CB::getFollowersTopic($response->topic->topic_key);
                     $sendEmail = $this->sendEmailNotification($cbKey, 'notification_status_change', $type, $response->topic, $followers, null, $status);
-                }
-                else if($cbConfig->code == 'notification_owner_change_status'){
+                } else if ($cbConfig->code == 'notification_owner_change_status') {
                     $owner = $response->topic->created_by;
                     $cooperators = CB::getCooperators($response->topic->topic_key);
                     if (is_array($cooperators))
@@ -1035,7 +1181,7 @@ class TopicController extends Controller
             }
 
 
-            return action('CbsController@showTopics', ['type'=>$type,'cbKey' =>$cbKey]);
+            return action('CbsController@showTopics', ['type' => $type, 'cbKey' => $cbKey]);
 
         } catch (Exception $e) {
             return "false";
@@ -1047,41 +1193,86 @@ class TopicController extends Controller
      * @param Request $request
      * @return string
      */
-    public function updateStatusTopic(Request $request)
+    public
+    function updateStatusTopic(Request $request)
     {
         try {
-            $type = $request->type;
-            $cbKey = $request->cbKey;
-            $topicKey =  $request->topicKey;
+            if (is_array($request->type)) {
+                if (array_count_values($request->type) > 0) {
+                    for ($j = 0; $j < array_count_values($request->type); $j++) {
 
-            $newStatus = CB::updateTopicStatus($request);
+                        $type = $request->type[$j];
+                        $cbKey = $request->cbKey[$j];
+                        $topicKey = $request->topicKey[$j];
 
-            //Get Status Types List
-            $statusTypes = CB::getStatusTypes();
+                        $requestTopic = [
+                            'topicKey' => $topicKey,
+                            'status_type_code' => $request->status_type_code
+                        ];
 
-            //Get Status Name for Notification
-            $status = null;
-            foreach ($statusTypes as $statusType){
-                if($statusType->id == $newStatus->status_type_id){
-                    $status = $statusType->name;
+                        $newStatus = CB::updateTopicStatus($requestTopic);
+
+                        //Get Status Types List
+                        $statusTypes = CB::getStatusTypes();
+
+                        //Get Status Name for Notification
+                        $status = null;
+                        foreach ($statusTypes as $statusType) {
+                            if ($statusType->id == $newStatus->status_type_id) {
+                                $status = $statusType->name;
+                            }
+                        }
+
+                        $topic = CB::getTopic($topicKey)->topic;
+                        $cbConfigs = CB::getCbConfigurations($cbKey);
+                        foreach ($cbConfigs->configurations as $cbConfig) {
+                            if ($cbConfig->code == 'notification_topic_status_change') {
+                                $sendEmail = $this->sendEmailNotificationGroups($cbKey, 'notification_topic_status_change', $type, $topic, $status);
+                            } else if ($cbConfig->code == 'notification_status_change') {
+                                $followers = CB::getFollowersTopic($topic->topic_key);
+                                $sendEmail = $this->sendEmailNotification($cbKey, 'notification_status_change', $type, $topic, $followers, null, $status);
+                            } else if ($cbConfig->code == 'notification_owner_change_status') {
+                                $owner = $topic->created_by;
+                                $cooperators = CB::getCooperators($topic->topic_key);
+                                if (is_array($cooperators))
+                                    $sendEmail = $this->sendEmailNotification($cbKey, 'notification_owner_change_status', $type, $topic, $cooperators, $owner, $status);
+                            }
+                        }
+
+                    }
                 }
-            }
+            } else {
+                $type = $request->type;
+                $cbKey = $request->cbKey;
+                $topicKey = $request->topicKey;
 
-            $topic = CB::getTopic($topicKey);
-            $cbConfigs = CB::getCbConfigurations($cbKey);
-            foreach ($cbConfigs->configurations as $cbConfig){
-                if($cbConfig->code == 'notification_topic_status_change') {
-                    $sendEmail = $this->sendEmailNotificationGroups($cbKey, 'notification_topic_status_change', $type, $topic, $status);
+                $newStatus = CB::updateTopicStatus($request);
+
+                //Get Status Types List
+                $statusTypes = CB::getStatusTypes();
+
+                //Get Status Name for Notification
+                $status = null;
+                foreach ($statusTypes as $statusType) {
+                    if ($statusType->id == $newStatus->status_type_id) {
+                        $status = $statusType->name;
+                    }
                 }
-                else if($cbConfig->code == 'notification_status_change'){
-                    $followers = CB::getFollowersTopic($topic->topic_key);
-                    $sendEmail = $this->sendEmailNotification($cbKey, 'notification_status_change', $type, $topic, $followers, null, $status);
-                }
-                else if($cbConfig->code == 'notification_owner_change_status'){
-                    $owner = $topic->created_by;
-                    $cooperators = CB::getCooperators($topic->topic_key);
-                    if (is_array($cooperators))
-                        $sendEmail = $this->sendEmailNotification($cbKey, 'notification_owner_change_status', $type, $topic, $cooperators, $owner, $status);
+
+                $topic = CB::getTopic($topicKey)->topic;
+                $cbConfigs = CB::getCbConfigurations($cbKey);
+                foreach ($cbConfigs->configurations as $cbConfig) {
+                    if ($cbConfig->code == 'notification_topic_status_change') {
+                        $sendEmail = $this->sendEmailNotificationGroups($cbKey, 'notification_topic_status_change', $type, $topic, $status);
+                    } else if ($cbConfig->code == 'notification_status_change') {
+                        $followers = CB::getFollowersTopic($topic->topic_key);
+                        $sendEmail = $this->sendEmailNotification($cbKey, 'notification_status_change', $type, $topic, $followers, null, $status);
+                    } else if ($cbConfig->code == 'notification_owner_change_status') {
+                        $owner = $topic->created_by;
+                        $cooperators = CB::getCooperators($topic->topic_key);
+                        if (is_array($cooperators))
+                            $sendEmail = $this->sendEmailNotification($cbKey, 'notification_owner_change_status', $type, $topic, $cooperators, $owner, $status);
+                    }
                 }
             }
 
@@ -1097,38 +1288,39 @@ class TopicController extends Controller
      * @param Request $request
      * @return string
      */
-    public function statusHistory(Request $request)
+    public
+    function statusHistory(Request $request)
     {
         try {
             $topicKey = $request->topicKey;
             $historyStatus = CB::getStatusHistory($topicKey);
             $html = '';
-            if(count($historyStatus) > 0) {
+            if (count($historyStatus) > 0) {
                 foreach ($historyStatus as $status) {
                     $html .= '<dl>';
                     // Parse with carbon
                     $date = Carbon::parse($status->created_at)->toDateString();
                     $html .= '<div class="panel panel-default flat">';
-                    $html .= '<div class="panel-heading"><b>'.$status->name.'</b> '.$date.'</div>';
+                    $html .= '<div class="panel-heading"><b>' . $status->name . '</b> ' . $date . '</div>';
                     $html .= '<div class="panel-body">';
-                    if(isset($status->comments) && count($status->comments) > 0){
-                        $html .= '<h4>'.trans('topic.comments').'</h4>';
+                    if (isset($status->comments) && count($status->comments) > 0) {
+                        $html .= '<h4>' . trans('topic.comments') . '</h4>';
                         foreach ($status->comments as $comment) {
                             $html .= '<dd>';
                             $html .= empty($comment->public) ? trans('topic.privateComment') : trans('topic.publicComment');
                             $html .= '</dd>';
-                            $html .= '<dd>'.$comment->content.'</dd>';
+                            $html .= '<dd>' . $comment->content . '</dd>';
 
                         }
-                    }else{
+                    } else {
                         $html .= '<dd>' . trans('topic.noCommentsAvailable') . '</dd>';
                     }
                     $html .= '</div>';
-                    $html.= '</div>';
+                    $html .= '</div>';
                     $html .= '</dl>';
                     $html .= '<hr style="margin: 10px 0 10px 0">';
                 }
-            }else{
+            } else {
                 $html .= '<dt>' . trans('topic.noStatusHistoryAvailable') . '</dt>';
             }
             return $html;
@@ -1143,7 +1335,9 @@ class TopicController extends Controller
      * @param $topicKey
      * @return $this|View
      */
-    public function showPosts($type, $cbKey, $topicKey){
+    public
+    function showPosts($type, $cbKey, $topicKey)
+    {
         try {
             $topic = CB::getTopicParameters($topicKey, null);
 
@@ -1160,23 +1354,22 @@ class TopicController extends Controller
             $cb_start_date = $cb->start_date;
 
             $data = [];
-            $data['title']              = $title;
-            $data['topic']              = $topic;
-            $data['type']               = $type;
-            $data['topicKey']           = $topicKey;
-            $data['type']               = $type;
-            $data['configurations']     = $configurations;
-            $data['cbKey']              = $cbKey;
-            $data['sidebar']              = 'topics';
-            $data['active']              = 'posts';
-            $data['author']             = $author;
-            $data['cb_title']           = $cb_title;
-            $data['cb_start_date']      = $cb_start_date;
+            $data['title'] = $title;
+            $data['topic'] = $topic;
+            $data['type'] = $type;
+            $data['topicKey'] = $topicKey;
+            $data['type'] = $type;
+            $data['configurations'] = $configurations;
+            $data['cbKey'] = $cbKey;
+            $data['sidebar'] = 'topics';
+            $data['active'] = 'posts';
+            $data['author'] = $author;
+            $data['cb_title'] = $cb_title;
+            $data['cb_start_date'] = $cb_start_date;
 
 
             return view('private.topics.topicModeration', $data);
-        }
-        catch(Exception $e) {
+        } catch (Exception $e) {
             return redirect()->back()->withErrors(["topic.edit" => $e->getMessage()]);
         }
 
@@ -1189,7 +1382,8 @@ class TopicController extends Controller
      * @param $cbKey
      * @return mixed
      */
-    public function getIndexTable(Request $request, $type, $cbKey)
+    public
+    function getIndexTable(Request $request, $type, $cbKey)
     {
 
         $response = CB::topicsWithLastPost($request, $cbKey);
@@ -1205,56 +1399,62 @@ class TopicController extends Controller
         $module = 'cb';
         $moduleType = 'topics';
 
-        $edit = Session::get('user_role') == 'admin' || Session::get('user_permissions')->$module->$moduleType->permission_update;
-        $delete = Session::get('user_role') == 'admin' || Session::get('user_permissions')->$module->$moduleType->permission_delete;
+        $edit = Session::get('user_role') == 'admin';
+        $delete = Session::get('user_role') == 'admin';
 
         $topicData = CB::getCBAndTopics($cbKey);
         $configurations = $topicData->configurations;
         $isQuestionnaire = false;
 
-        if((ONE::checkCBsOption($configurations, 'TOPIC-AS-PRIV-QUESTIONNAIRE')) || (ONE::checkCBsOption($configurations, 'TOPIC-AS-PUBLIC-QUESTIONNAIRE'))){
+        if ((ONE::checkCBsOption($configurations, 'TOPIC-AS-PRIV-QUESTIONNAIRE')) || (ONE::checkCBsOption($configurations, 'TOPIC-AS-PUBLIC-QUESTIONNAIRE'))) {
             $isQuestionnaire = true;
         }
 
         return Datatables::of($collection)
-            ->editColumn('title', function($collection) use($type, $cbKey, $isQuestionnaire){
-                return "<a href='".action('TopicController@show', [$type, $cbKey, $collection->topic_key])."'>".($isQuestionnaire ? trans('privateTopics.show_questionnaire') : $collection->title)."</a>";
+            ->editColumn('select_topics', function ($topic) use ($type, $cbKey, $collection) {
+                return '<input class="topic_id" type="checkbox" value="' . $topic->id . '" id="' . $topic->id . '" cbType="' . $type . '" cbKey="' . $cbKey . '" topicKey="' . $collection->topic_key . ' "/>';
+            })
+            ->editColumn('title', function ($collection) use ($type, $cbKey, $isQuestionnaire) {
+                return "<a href='" . action('TopicController@show', [$type, $cbKey, $collection->topic_key]) . "'>" . ($isQuestionnaire ? trans('privateTopics.show_questionnaire') : $collection->title) . "</a>";
             })
             ->editColumn('created_by', function ($collection) use ($usersKeysNames) {
-                if($collection->created_by == 'anonymous')
+                if ($collection->created_by == 'anonymous')
                     return ucfirst($collection->created_by);
                 else
                     return "<a href='" . action('UsersController@show', [$collection->created_by]) . "'>" . $usersKeysNames[$collection->created_by] . "</a>";
             })
             ->addColumn('action', function ($collection) use ($type, $cbKey, $edit, $delete) {
-                if($edit and $delete)
+                if ($edit and $delete)
                     return ONE::actionButtons([$type, $cbKey, $collection->topic_key], ['form' => 'topic', 'edit' => 'TopicController@edit', 'delete' => 'TopicController@delete']);
-                elseif($edit==false and $delete)
+                elseif ($edit == false and $delete)
                     return ONE::actionButtons([$type, $cbKey, $collection->topic_key], ['form' => 'topic', 'delete' => 'TopicController@delete']);
-                elseif($edit and $delete==false)
+                elseif ($edit and $delete == false)
                     return ONE::actionButtons([$type, $cbKey, $collection->topic_key], ['form' => 'topic', 'edit' => 'TopicController@edit']);
                 else
                     return null;
             })
+            ->rawColumns(['select_topics', 'title', 'created_by', 'action'])
             ->skipPaging()
             ->setTotalRecords($recordsTotal)
             ->make(true);
     }
 
-    public function getFullTopicsTable($type)
+    public
+    function getFullTopicsTable($type)
     {
         $listCbs = Orchestrator::getAllCbs();
         $topics = CB::getAllTopics($listCbs);
         $collection = Collection::make($topics);
         return Datatables::of($collection)
-            ->editColumn('title', function($collection) use ($listCbs) {
+            ->editColumn('title', function ($collection) use ($listCbs) {
                 return "<a href='" . action('TopicController@show', [$listCbs->{$collection->cb_key}->cb_type->code, $collection->cb_key, $collection->topic_key]) . "'>" . $collection->title;
             })
             ->addColumn('action', function ($collection) use ($listCbs) {
                 // return '<a href="javascript:updateStatus(\''.$collection->topic_key.'\',\'accepted\')">' . '<span class="badge badge-success">'.trans('privatePropositionModeration.accept').'</span>' . '</a>
                 // <a href="javascript:updateStatus(\''.$collection->topic_key.'\',\'not_accepted\')">' . '<span class="badge badge-danger">'.trans('privatePropositionModeration.reject').'</span>' . "</a>";
-                return '<a href="javascript:updateStatus(\''.$collection->topic_key.'\',\'moderated\',\''.$collection->cb_key.'\',\''.$listCbs->{$collection->cb_key}->cb_type->code.'\')">' . '<span class="badge badge-success">'.trans('privatePropositionModeration.moderate').'</span>' . '</a>';
+                return '<a href="javascript:updateStatus(\'' . $collection->topic_key . '\',\'moderated\',\'' . $collection->cb_key . '\',\'' . $listCbs->{$collection->cb_key}->cb_type->code . '\')">' . '<span class="badge badge-success">' . trans('privatePropositionModeration.moderate') . '</span>' . '</a>';
             })
+            ->rawColumns(['title', 'action'])
             ->make(true);
     }
 
@@ -1264,14 +1464,20 @@ class TopicController extends Controller
      * @param $cbKey
      * @return mixed
      */
-    public function getIndexTableStatus(Request $request, $type, $cbKey)
+    public
+    function getIndexTableStatus(Request $request, $type, $cbKey, $hasFlags = false)
     {
-        $recordsTotal = 0;
+        $hasFlags = !empty($request->get("hasFlags")) ? $request->get("hasFlags") : 0;
 
-        $response = CB::topicsWithLastPost($request, $cbKey);
+        $showWithFlags = false;
+        if (isset($request['filters_static']['flags_filter'])) {
+            $showWithFlags = $request['filters_static']['flags_filter'];
+        }
+
+        $response = CB::topicsWithLastPost($request, $cbKey, $showWithFlags);
 
         $topics = $response->topics;
-        $recordsTotal = $response->recordsTotal;
+        $recordsTotal = !empty($response->recordsTotal) ? $response->recordsTotal : 0;
         $recordsFiltered = $response->recordsFiltered;
         $cbKeys[] = $cbKey;
 
@@ -1284,92 +1490,112 @@ class TopicController extends Controller
         $module = 'cb';
         $moduleType = 'topics';
 
-        $status = (Session::get('user_role') == 'admin' || Session::get('user_permissions')->$module->$moduleType->permission_update);
-        $history = (Session::get('user_role') == 'admin' || Session::get('user_permissions')->$module->$moduleType->permission_delete);
-        $edit = Session::get('user_role') == 'admin' || Session::get('user_permissions')->$module->$moduleType->permission_update;
-        $delete = Session::get('user_role') == 'admin' || Session::get('user_permissions')->$module->$moduleType->permission_delete;
+        $status = ONE::checkCBPermissions($cbKey, "topic_edit");
+        $history = true;
+        $edit = ONE::checkCBPermissions($cbKey, "topic_edit");
+        $delete =ONE::checkCBPermissions($cbKey, "topic_edit");
+
 
         $dataTableData = Datatables::of($collection)
-            ->editColumn('select_topics', function ($topic) {
-                return '<input class="topic_id" type="checkbox" value="'.$topic->id.'" id="'.$topic->id.'"/>';
+            ->editColumn('select_topics', function ($topic) use ($type, $cbKey) {
+                return '<input class="topic_id" type="checkbox" value="' . $topic->id . '" id="' . $topic->id . '" cbType="' . $type . '" cbKey="' . $cbKey . '" topicKey="' . $topic->topic_key . '"/>';
             })
             ->editColumn('title', function ($topic) use ($type, $cbKey) {
-                return '<a href="'.action('TopicController@show', [$type, $cbKey, isset($topic->topic_key) ? $topic->topic_key : null]).'">'.($topic->title ?? null).'</a>';
+                if(ONE::checkCBPermissions($cbKey, "topic_details")){
+                    return '<a href="' . action('TopicController@show', [$type, $cbKey, isset($topic->topic_key) ? $topic->topic_key : null]) . '">' . ($topic->title ?? null) . '</a>';
+                }
+                else{
+                    return  $topic->title ?? null;
+                }
 //                return '<div style="display: none" class="topic_id">'.$topic->id.'</div><a href="'.action('TopicController@show', [$type, $cbKey, isset($topic->topic_key) ? $topic->topic_key : null]).'">'.($topic->title ?? null).'</a>';
             })
             ->editColumn('status', function ($topic) {
                 return isset($topic->status->name) ? $topic->status->name : trans('topic.noStatusAvailable');
             })
-            ->editColumn('technical_analysis', function ($topic) use($type,$cbKey) {
-                if (collect($topic->technical_analysis??[])->where('active', 1)->count()){
+            ->editColumn('technical_analysis', function ($topic) use ($type, $cbKey) {
+
+                if (collect($topic->technical_analysis ?? [])->where('active', 1)->count()) {
 
                     $decision = collect($topic->technical_analysis)->where('active', 1)->first();
-                    if (!empty($decision) && $decision->decision < 0){
-                        return  '<a href="'.action("TechnicalAnalysisController@show", ['type' => $type, 'cbKey' => $cbKey, 'topicKey' => $topic->topic_key]).'">' .
-                                    '<img src="'.asset("/images/techEvaluation-icon-red.svg") .'" alt="'.trans('privateTopics.decision_failed').'" height="32" width="32" data-toggle="tooltip" title="'.trans('privateTopics.decision_failed').'">' .
-                                '</a>';
-                    } elseif (!empty($decision) && $decision->decision > 0){
-                        return  '<a href="'.action("TechnicalAnalysisController@show", ['type' => $type, 'cbKey' => $cbKey, 'topicKey' => $topic->topic_key]).'">' .
-                                    '<img src="'.asset("/images/techEvaluation-icon-green.svg") .'" alt="'.trans('privateTopics.decision_passed').'" height="32" width="32" data-toggle="tooltip" title="'.trans('privateTopics.decision_passed').'">' .
-                                '</a>';
-                    } elseif (!empty($decision) && $decision->decision == 0){
-                        return  '<a href="'.action("TechnicalAnalysisController@show", ['type' => $type, 'cbKey' => $cbKey, 'topicKey' => $topic->topic_key]).'">' .
-                                    '<img src="'.asset("/images/techEvaluation-icon.svg") .'" alt="'.trans('privateTopics.decision_undetermined').'" height="32" width="32" data-toggle="tooltip" title="'.trans('privateTopics.decision_undetermined').'">' .
-                                '</a>';
-
+                    if (!empty($decision) && $decision->decision < 0) {
+                        return '<a href="' . action("TechnicalAnalysisController@show", ['type' => $type, 'cbKey' => $cbKey, 'topicKey' => $topic->topic_key]) . '">' .
+                            '<img src="' . asset("/images/default/techEvaluation-icon-red.svg") . '" alt="' . trans('privateTopics.decision_failed') . '" height="32" width="32" data-toggle="tooltip" title="' . trans('privateTopics.decision_failed') . '">' .
+                            '</a>';
+                    } elseif (!empty($decision) && $decision->decision > 0) {
+                        return '<a href="' . action("TechnicalAnalysisController@show", ['type' => $type, 'cbKey' => $cbKey, 'topicKey' => $topic->topic_key]) . '">' .
+                            '<img src="' . asset("/images/default/techEvaluation-icon-green.svg") . '" alt="' . trans('privateTopics.decision_passed') . '" height="32" width="32" data-toggle="tooltip" title="' . trans('privateTopics.decision_passed') . '">' .
+                            '</a>';
+                    } elseif (!empty($decision) && $decision->decision == 0) {
+                        return '<a href="' . action("TechnicalAnalysisController@show", ['type' => $type, 'cbKey' => $cbKey, 'topicKey' => $topic->topic_key]) . '">' .
+                            '<img src="' . asset("/images/default/techEvaluation-icon.svg") . '" alt="' . trans('privateTopics.decision_undetermined') . '" height="32" width="32" data-toggle="tooltip" title="' . trans('privateTopics.decision_undetermined') . '">' .
+                            '</a>';
                     }
                 }
-                return  '<a href="'.action("TechnicalAnalysisController@create", ['type' => $type, 'cbKey' => $cbKey, 'topicKey' => $topic->topic_key]).'">' .
-                            '<img src="'.asset("/images/techEvaluation-icon-grey.svg") .'" alt="'.trans('privateTopics.create_technical_analysis').'" height="32" width="32" data-toggle="tooltip" title="'.trans('privateTopics.create_technical_analysis').'">' .
-                        '</a>';
+
+                 if(ONE::checkCBPermissions($cbKey, "topic_ta")){
+                     return '<a href="' . action("TechnicalAnalysisController@create", ['type' => $type, 'cbKey' => $cbKey, 'topicKey' => $topic->topic_key]) . '">' .
+                         '<img src="' . asset("/images/default/techEvaluation-icon-grey.svg") . '" alt="' . trans('privateTopics.create_technical_analysis') . '" height="32" width="32" data-toggle="tooltip" title="' . trans('privateTopics.create_technical_analysis') . '">' .
+                         '</a>';
+                 }
+                 else{
+                     return '<img src="' . asset("/images/default/techEvaluation-icon-grey.svg") . '" alt="' . trans('privateTopics.create_technical_analysis') . '" height="32" width="32" data-toggle="tooltip" title="' . trans('privateTopics.create_technical_analysis') . '">'
+                     ;
+                 }
+
             })
-            ->editColumn('name', function ($collection) use ($usersKeysNames){
+            ->editColumn('name', function ($collection) use ($usersKeysNames) {
                 if ($collection->created_by != 'anonymous') {
                     return $usersKeysNames[$collection->created_by];
                 }
                 return trans('privateUser.anonymous');
             })
             ->addColumn('update_status', function ($collection) use ($type, $cbKey, $status, $history) {
-                if($status and $history)
-                    return '<a href="javascript:updateStatus(\''.$collection->topic_key.'\')">' . '<span class="btn btn-flat btn-edit" data-toggle="tooltip" title="'.trans('privateCbs.topic_status').'"><i class="fa fa-repeat" aria-hidden="true"></i></span>' . '</a>
-              <a href="javascript:showStatusHistory(\''.$collection->topic_key.'\')">' . '<span class="btn btn-flat btn-edit" data-toggle="tooltip" title="'.trans('topic.history').'"><i class="fa fa-history" aria-hidden="true"></i></span>' . "</a>";
-                elseif($status==false and $history)
-                    return '<a href="javascript:showStatusHistory(\''.$collection->topic_key.'\')">' . '<span class="btn btn-flat btn-info">'.trans(" ").'</span>' . "</a>";
-                elseif($status and $history==false)
-                    return '<a href="javascript:updateStatus(\''.$collection->topic_key.'\')">' . '<span class="btn btn-flat btn-warning">'.trans(" ").'</span>' . '</a>';
+                if ($status and $history)
+                    return '<a href="javascript:updateStatus(\'' . $collection->topic_key . '\')">' . '<span class="btn btn-flat btn-edit" data-toggle="tooltip" title="' . trans('privateCbs.topic_status') . '"><i class="fa fa-repeat" aria-hidden="true"></i></span>' . '</a>
+              <a href="javascript:showStatusHistory(\'' . $collection->topic_key . '\')">' . '<span class="btn btn-flat btn-edit" data-toggle="tooltip" title="' . trans('topic.history') . '"><i class="fa fa-history" aria-hidden="true"></i></span>' . "</a>";
+                elseif ($status == false and $history)
+                    return '<a href="javascript:showStatusHistory(\'' . $collection->topic_key . '\')">' . '<span class="btn btn-flat btn-info">' . trans(" ") . '</span>' . "</a>";
+                elseif ($status and $history == false)
+                    return '<a href="javascript:updateStatus(\'' . $collection->topic_key . '\')">' . '<span class="btn btn-flat btn-warning">' . trans(" ") . '</span>' . '</a>';
                 else
                     return null;
 
-            })->addColumn('action', function ($collection) use ($type, $cbKey, $edit, $delete) {
-                if($edit and $delete)
-                    return ONE::actionButtons([$type, $cbKey, $collection->topic_key], ['form' => 'topic', 'edit' => 'TopicController@edit', 'delete' => 'TopicController@delete']);
-                elseif($edit==false and $delete)
-                    return ONE::actionButtons([$type, $cbKey, $collection->topic_key], ['form' => 'topic', 'delete' => 'TopicController@delete']);
-                elseif($edit and $delete==false)
-                    return ONE::actionButtons([$type, $cbKey, $collection->topic_key], ['form' => 'topic', 'edit' => 'TopicController@edit']);
-                else
-                    return null;
+            })->addColumn('action', function ($collection) use ($type, $cbKey, $edit, $delete, $hasFlags) {
+                $html = "";
+                if ($edit and $delete)
+                    $html .= ONE::actionButtons([$type, $cbKey, $collection->topic_key], ['form' => 'topic', 'edit' => 'TopicController@edit', 'delete' => 'TopicController@delete']);
+                elseif ($edit == false and $delete)
+                    $html .= ONE::actionButtons([$type, $cbKey, $collection->topic_key], ['form' => 'topic', 'delete' => 'TopicController@delete']);
+                elseif ($edit and $delete == false)
+                    $html .= ONE::actionButtons([$type, $cbKey, $collection->topic_key], ['form' => 'topic', 'edit' => 'TopicController@edit']);
+
+                if ($hasFlags && ONE::verifyModuleAccess('cb', 'flags')) {
+                    $html .= '<a class="attachFlag" href="javascript:attachFlag(\'' . $collection->topic_key . '\')">' . '<span class="btn btn-flat btn-info btn-xs" title="' . trans("privateCbs.attach_flag") . '"><i class="fa fa-flag" aria-hidden="true"></i></span>' . '</a>';
+                    $html .= '<a href="javascript:seeFlagHistory(\'' . $collection->topic_key . '\')">' . '<span class="btn btn-flat btn-xs bg-yellow" title="' . trans("privateCbs.show_flag_history") . '"><i class="fa fa-binoculars" aria-hidden="true"></i></i></span>' . '</a>';
+                }
+
+                return $html;
             })
             ->with('filtered', $recordsFiltered)
             ->skipPaging()
             ->setTotalRecords($recordsTotal);
 
 
-        if ($request->has("parameters.vote_event") && !empty($request->get("parameters")["vote_event"]??"")) {
+        if ($request->has("parameters.vote_event") && !empty($request->get("parameters")["vote_event"] ?? "")) {
             $dataTableData
-                ->addColumn("votes",function($topic) {
+                ->addColumn("votes", function ($topic) {
                     return $topic->balance_votes ?? 0;
                 })
-                ->order(function(){
+                ->order(function () {
                     return true;
                 });
         } else
             $dataTableData
-                ->addColumn("votes",function($topic) {
+                ->addColumn("votes", function ($topic) {
                     return 0;
                 });
 
-        return $dataTableData->make(true);
+        return $dataTableData->rawColumns(['select_topics', 'title', 'technical_analysis', 'update_status', 'action'])->make(true);
     }
 
     /**
@@ -1377,16 +1603,20 @@ class TopicController extends Controller
      * @param $topicKey
      * @return mixed
      */
-    public function getIndexTablePosts($type, $cbKey ,$topicKey)
+    public
+    function getIndexTablePosts($type, $cbKey, $topicKey)
     {
         // getting posts
         $topicData = CB::getTopicPrivateDataWithChilds($topicKey);
 
         $posts = $topicData->posts;
+        if (!empty($topicData->firstPostKey)) //Remove first post from list
+            $posts = collect($posts)->where("post_key", "!=", $topicData->firstPostKey)->toArray();
 
-        foreach($posts as $post){
-            if(!empty($post->replies)){
-                foreach($post->replies as $reply){
+        $postsList = array();
+        foreach ($posts as $post) {
+            if (!empty($post->replies)) {
+                foreach ($post->replies as $reply) {
                     $postsList[] = $reply;
 
                 }
@@ -1413,18 +1643,18 @@ class TopicController extends Controller
 
         // Filtering posts: requiring authorization and q need to be aproved + Post with abuse report
         $filteredPosts = [];
-        foreach($postsList as $post){
+        foreach ($postsList as $post) {
 
             $filteredPosts[] = $post;
-            if(!isset($post->abuses))
+            if (!isset($post->abuses))
                 $post->abuses = 0;
         }
 
         $response = CB::getCbAbuses($cbKey);
 
-        foreach($response as $posts){
-            foreach($posts->posts as $post){
-                if(!empty($post->abuses)){
+        foreach ($response as $posts) {
+            foreach ($posts->posts as $post) {
+                if (!empty($post->abuses)) {
 
                 }
             }
@@ -1433,26 +1663,26 @@ class TopicController extends Controller
         $collection = Collection::make($filteredPosts);
 
         return Datatables::of($collection)
-            ->addColumn('approve', function ($collection) use ($type, $cbKey, $topicKey, $commentsNeedsAuth)  {
+            ->addColumn('approve', function ($collection) use ($type, $cbKey, $topicKey, $commentsNeedsAuth) {
 
                 $html = "";
-                if($commentsNeedsAuth && $collection->active == 0){
-                    $html = '<a href="'. action('PostController@active', [$type, $cbKey, $topicKey,$collection->post_key, 1, 'posts']) .'" class="btn btn-flat btn-success btn-xs btn-thumbs-up-active" data-toggle="tooltip" data-original-title="approve"><i class="glyphicon glyphicon-thumbs-up"></i> </a> ';
-                    $html .= '<a href="'. action('PostController@active', [$type, $cbKey, $topicKey,$collection->post_key, 0, 'posts']) .'" class="btn btn-flat btn-danger btn-xs" data-toggle="tooltip" data-original-title="disapprove"><i class="glyphicon glyphicon-thumbs-down"></i> </a> ';
+                if ($commentsNeedsAuth && $collection->active == 0) {
+                    $html = '<a href="' . action('PostController@active', [$type, $cbKey, $topicKey, $collection->post_key, 1, 'posts']) . '" class="btn btn-flat btn-success btn-xs btn-thumbs-up-active" data-toggle="tooltip" data-original-title="approve"><i class="glyphicon glyphicon-thumbs-up"></i> </a> ';
+                    $html .= '<a href="' . action('PostController@active', [$type, $cbKey, $topicKey, $collection->post_key, 0, 'posts']) . '" class="btn btn-flat btn-danger btn-xs" data-toggle="tooltip" data-original-title="disapprove"><i class="glyphicon glyphicon-thumbs-down"></i> </a> ';
                     //$html .= "<span class='badge badge-warning' data-toggle=\"tooltip\" data-original-title='".trans("privatePosts.disapproved")."'>&nbsp;</span>";
-                } else if($commentsNeedsAuth && $collection->active == 1) {
-                    $html = '<a href="'. action('PostController@active', [$type, $cbKey, $topicKey,$collection->post_key, 1, 'posts']) .'" class="btn btn-flat btn-success btn-xs" data-toggle="tooltip" data-original-title="approve"><i class="glyphicon glyphicon-thumbs-up"></i> </a> ';
-                    $html .= '<a href="'. action('PostController@active', [$type, $cbKey, $topicKey,$collection->post_key, 0, 'posts']) .'" class="btn btn-flat btn-danger btn-xs btn-thumbs-down-active" data-toggle="tooltip" data-original-title="disapprove"><i class="glyphicon glyphicon-thumbs-down"></i> </a> ';
+                } else if ($commentsNeedsAuth && $collection->active == 1) {
+                    $html = '<a href="' . action('PostController@active', [$type, $cbKey, $topicKey, $collection->post_key, 1, 'posts']) . '" class="btn btn-flat btn-success btn-xs" data-toggle="tooltip" data-original-title="approve"><i class="glyphicon glyphicon-thumbs-up"></i> </a> ';
+                    $html .= '<a href="' . action('PostController@active', [$type, $cbKey, $topicKey, $collection->post_key, 0, 'posts']) . '" class="btn btn-flat btn-danger btn-xs btn-thumbs-down-active" data-toggle="tooltip" data-original-title="disapprove"><i class="glyphicon glyphicon-thumbs-down"></i> </a> ';
                     // $html .= "<span class='badge badge-success' data-toggle=\"tooltip\" data-original-title='".trans("privatePosts.approved")."'>&nbsp;</span>";
                 }
 
                 return $html;
             })
             ->editColumn('message', function ($collection) {
-                return  $collection->contents;
+                return $collection->contents;
             })->editColumn('parent_id', function ($collection) {
-                if($collection->parent_id != 0)
-                    return  $collection->parent_id;
+                if ($collection->parent_id != 0)
+                    return $collection->parent_id;
                 else
                     return '';
             })
@@ -1461,34 +1691,35 @@ class TopicController extends Controller
             })
             ->editColumn('abuses', function ($collection) use ($type, $cbKey, $topicKey) {
 
-                if($collection->blocked == 0){
+                if ($collection->blocked == 0) {
                     $buttons = "";
-                    if( $collection->abuses > 0 ){
-                        $buttons .= '<a href="'. action('PostController@blocked', [$type, $cbKey, $topicKey,$collection->post_key, 1, 'posts']) .'" class="btn btn-flat btn-danger btn-xs" data-toggle="tooltip" data-original-title="Block"><i class="glyphicon glyphicon-thumbs-up"></i> '.trans("privatePosts.block").'</a>';
+                    if ($collection->abuses > 0) {
+                        $buttons .= '<a href="' . action('PostController@blocked', [$type, $cbKey, $topicKey, $collection->post_key, 1, 'posts']) . '" class="btn btn-flat btn-danger btn-xs" data-toggle="tooltip" data-original-title="Block"><i class="glyphicon glyphicon-thumbs-up"></i> ' . trans("privatePosts.block") . '</a>';
                     }
 
-                    if($collection->abuses == 0){
+                    if ($collection->abuses == 0) {
                         $labelType = "badge badge-secondary";
-                    } else if($collection->abuses == 1){
+                    } else if ($collection->abuses == 1) {
                         $labelType = "badge badge-warning";
                     } else {
                         $labelType = "badge badge-danger";
                     }
-                    if( $collection->abuses > 0 ) {
+                    if ($collection->abuses > 0) {
                         $content = "<a href='javascript:showAbuses(\"" . $collection->post_key . "\")'><span class='label " . $labelType . "'>" . $collection->abuses . "</a></span> " . $buttons;
-                    }else{
+                    } else {
                         $content = "<span class='label " . $labelType . "'>" . $collection->abuses . "</span> " . $buttons;
                     }
                 } else {
-                    $buttons = '<a href="'. action('PostController@blocked', [$type, $cbKey, $topicKey,$collection->post_key, 0, 'posts']) .'" class="btn btn-flat btn-success btn-xs" data-toggle="tooltip" data-original-title="unblock"><i class="glyphicon glyphicon-thumbs-up"></i> '.trans("privatePosts.unblock").'</a>';
-                    $content = "<a href='javascript:showAbuses(\"".$collection->post_key."\")'><span class='badge badge-danger'>".$collection->abuses." / ".trans("privatePosts.blocked")."</a></span> ".$buttons;
+                    $buttons = '<a href="' . action('PostController@blocked', [$type, $cbKey, $topicKey, $collection->post_key, 0, 'posts']) . '" class="btn btn-flat btn-success btn-xs" data-toggle="tooltip" data-original-title="unblock"><i class="glyphicon glyphicon-thumbs-up"></i> ' . trans("privatePosts.unblock") . '</a>';
+                    $content = "<a href='javascript:showAbuses(\"" . $collection->post_key . "\")'><span class='badge badge-danger'>" . $collection->abuses . " / " . trans("privatePosts.blocked") . "</a></span> " . $buttons;
                 }
 
                 return $content;
             })
             ->addColumn('action', function ($collection) use ($type, $cbKey, $topicKey) {
-                return ONE::actionButtons([$type, $cbKey ,$topicKey, $collection->post_key], ['delete' => 'PostController@delete']);
+                return ONE::actionButtons([$type, $cbKey, $topicKey, $collection->post_key, "redirect" => "posts"], ['delete' => 'PostController@delete']);
             })
+            ->rawColumns(['approve', 'abuses', 'action'])
             ->make(true);
     }
 
@@ -1498,27 +1729,32 @@ class TopicController extends Controller
      * @param $cbKey
      * @param $topicKey
      */
-    public function getAbuses(Request $request, $type, $cbKey, $topicKey){
+    public
+    function getAbuses(Request $request, $type, $cbKey, $topicKey)
+    {
 
 
         $response = CB::getCbAbuses($cbKey);
         $html = "";
-        foreach($response as $posts){
-            foreach($posts->posts as $post){
-                if(!empty($post->abuses) && $post->post_key == $request->postKey){
-                    foreach($post->abuses as $abuse){
+        foreach ($response as $posts) {
+            foreach ($posts->posts as $post) {
+                if (!empty($post->abuses) && $post->post_key == $request->postKey) {
+                    foreach ($post->abuses as $abuse) {
                         $html .= "<div class='panel panel-default flat'>";
-                        switch($abuse->type_id){
-                            case 1: $html .= "<div class='panel-heading'> " .trans('privatePropositionModeration.spam')." </div>";
+                        switch ($abuse->type_id) {
+                            case 1:
+                                $html .= "<div class='panel-heading'> " . trans('privatePropositionModeration.spam') . " </div>";
                                 break;
-                            case 2: $html .= "<div class='panel-heading'> " . trans('privatePropositionModeration.contains_hate_speech_or_atacks')." </div>";
+                            case 2:
+                                $html .= "<div class='panel-heading'> " . trans('privatePropositionModeration.contains_hate_speech_or_atacks') . " </div>";
                                 break;
-                            case 3: $html .= "<div class='panel-heading'> " .trans('privatePropositionModeration.content_not_recommended')." </div>";
+                            case 3:
+                                $html .= "<div class='panel-heading'> " . trans('privatePropositionModeration.content_not_recommended') . " </div>";
                                 break;
                         }
                         $html .= "<div class='panel-body' style='overflow-y:auto'>";
 
-                        $html .= "<p>". $abuse->comment ."</p>";
+                        $html .= "<p>" . $abuse->comment . "</p>";
 
                         $html .= "</div></div>";
                     }
@@ -1534,27 +1770,32 @@ class TopicController extends Controller
     /**
      * @param Request $request
      */
-    public function getAbusesPrivate(Request $request){
+    public
+    function getAbusesPrivate(Request $request)
+    {
 
         $response = CB::getCbAbuses($request->cbKey);
 
         $html = "";
-        foreach($response->json()->data as $posts){
-            foreach($posts->posts as $post){
-                if(!empty($post->abuses) && $post->post_key == $request->postKey){
-                    foreach($post->abuses as $abuse){
+        foreach ($response->json()->data as $posts) {
+            foreach ($posts->posts as $post) {
+                if (!empty($post->abuses) && $post->post_key == $request->postKey) {
+                    foreach ($post->abuses as $abuse) {
                         $html .= "<div class='panel panel-default flat'>";
-                        switch($abuse->type_id){
-                            case 1: $html .= "<div class='panel-heading'> " .trans('privatePropositionModeration.spam')." </div>";
+                        switch ($abuse->type_id) {
+                            case 1:
+                                $html .= "<div class='panel-heading'> " . trans('privatePropositionModeration.spam') . " </div>";
                                 break;
-                            case 2: $html .= "<div class='panel-heading'> " . trans('privatePropositionModeration.contains_hate_speech_or_atacks')." </div>";
+                            case 2:
+                                $html .= "<div class='panel-heading'> " . trans('privatePropositionModeration.contains_hate_speech_or_atacks') . " </div>";
                                 break;
-                            case 3: $html .= "<div class='panel-heading'> " .trans('privatePropositionModeration.content_not_recommended')." </div>";
+                            case 3:
+                                $html .= "<div class='panel-heading'> " . trans('privatePropositionModeration.content_not_recommended') . " </div>";
                                 break;
                         }
                         $html .= "<div class='panel-body' style='overflow-y:auto'>";
 
-                        $html .= "<p>". $abuse->comment ."</p>";
+                        $html .= "<p>" . $abuse->comment . "</p>";
 
                         $html .= "</div></div>";
                     }
@@ -1618,8 +1859,9 @@ class TopicController extends Controller
 //    }
 
 
-
-    public function excel(Request $request, $type, $cbKey){
+    public
+    function excel(Request $request, $type, $cbKey)
+    {
         // Getting data to export
         $exportIds = $request->input('exportIds') ?? null;
         $data = CB::getDataToExport($cbKey, true, $exportIds);
@@ -1648,14 +1890,14 @@ class TopicController extends Controller
 
         foreach ($topics as $topic) {
             // Parameters by topic key
-            foreach ($topic->parameters as $parameter) {
+            foreach ($topic->parameters ?? [] as $parameter) {
 
                 $parameterPivotValues = [];
                 if (count($parameter->options) > '1') {
                     $parameterPivotValues = explode(',', $parameter->pivot->value);
                 }
 
-                if($parameter->code == 'topic_checkpoint_phase' || (!empty($parameter->visible) && ($parameter->visible == 1) && (isset($topic->topicVersionId) ? (isset($parameter->pivot->topic_version_id) ? $parameter->pivot->topic_version_id == $topic->topicVersionId : true) : true))) {
+                if ($parameter->code == 'topic_checkpoint_phase' || (!empty($parameter->visible) && ($parameter->visible == 1) && (isset($topic->topicVersionId) ? (isset($parameter->pivot->topic_version_id) ? $parameter->pivot->topic_version_id == $topic->topicVersionId : true) : true))) {
 
                     $options = [];
                     foreach (!empty($parameter->options) ? $parameter->options : [] as $optionItem) {
@@ -1675,20 +1917,23 @@ class TopicController extends Controller
                         $options = implode(', ', $options);
                     }
 
-                    if(!empty($parameter->pivot->value)){
+                    if (!empty($parameter->pivot->value)) {
                         $checkForZeros = explode(',', $parameter->pivot->value);
-                        if(in_array("0",$checkForZeros)){
+                        if (in_array("0", $checkForZeros)) {
                             $parameter->pivot->value = '';
                         }
                     }
-                    if($parameter->code == 'topic_checkpoint_phase'){
+                    if ($parameter->code == 'topic_checkpoint_phase') {
                         $parametersData[$topic->topic_key]['phases']["name"] = $parameter->type->name;
-                        if(empty($parametersData[$topic->topic_key]['phases']["value"])){
+                        if (empty($parametersData[$topic->topic_key]['phases']["value"])) {
                             $parametersData[$topic->topic_key]['phases']["value"] = '';
                         }
-                        if($parameter->pivot->value == 1 && !str_contains($parametersData[$topic->topic_key]['phases']["value"],$parameter->parameter))
-                            $parametersData[$topic->topic_key]['phases']["value"] = $parametersData[$topic->topic_key]['phases']["value"].$parameter->parameter.', ';
-                    }else{
+                        if ($parameter->pivot->value == 1 && !str_contains($parametersData[$topic->topic_key]['phases']["value"], $parameter->parameter))
+                            $parametersData[$topic->topic_key]['phases']["value"] = $parametersData[$topic->topic_key]['phases']["value"] . $parameter->parameter . ', ';
+
+                        // Headers
+                        $parametersTitle['phases'] = 'Status';
+                    } else {
                         $parametersData[$topic->topic_key][$parameter->id]["name"] = $parameter->type->name;
                         $parametersData[$topic->topic_key][$parameter->id]["value"] = empty($options) ? $parameter->pivot->value : $options;
 
@@ -1704,28 +1949,85 @@ class TopicController extends Controller
                 }
             }
         }
-        Excel::create('Topics', function($excel)  use ($topics, $userNames, $parametersTitle, $parametersData, $availableVoteEvents, $type, $cbKey) {
-            $excel->sheet("Data", function ($sheet) use ($topics, $userNames, $parametersTitle, $parametersData, $availableVoteEvents, $type, $cbKey) {
-                $sheet->loadView('private.cbs.excel.topics', compact('topics', 'userNames','parametersData','parametersTitle', 'availableVoteEvents', 'type', 'cbKey') );
+
+        /* Retreive Vote Analysis Data */
+        $voteAnalysisData = array();
+
+        if (!empty($request->get("export_analysis"))) {
+            try {
+                $userParameters = collect(Orchestrator::getEntityRegisterParameters())->filter(function ($parameter) {
+                    return ($parameter->parameter_type->code == 'birthday' ||
+                        $parameter->parameter_type->code == 'gender' ||
+                        $parameter->parameter_type->code == 'check_box' ||
+                        $parameter->parameter_type->code == 'radio_buttons' ||
+                        $parameter->parameter_type->code == 'dropdown' ||
+                        $parameter->parameter_type->code == 'neighborhood');
+                });
+            } catch (Exception $e) {
+                $userParameters = [];
+            }
+
+            if (!empty($userParameters)) {
+                foreach ($data->cb->votes as $voteEvent) {
+                    $voteEventKey = $voteEvent->vote_key;
+                    $voteEventMethod = $voteEvent->vote_method;
+
+                    $voteAnalysisData[$voteEventMethod]["totalOptionsCount"] = 0;
+                    $voteAnalysisData[$voteEventMethod]["parametersCount"] = 0;
+
+                    foreach ($userParameters as $userParameter) {
+                        try {
+                            $parameterKey = $userParameter->parameter_user_type_key;
+                            $parameterCode = $userParameter->parameter_type->code;
+
+                            $neighborhoodKey = null;
+                            if ($parameterCode != 'neighborhood' && $userParameters->keyBy('parameter_type.code')->has('neighborhood'))
+                                $neighborhoodKey = $userParameters->keyBy('parameter_type.code')->get('neighborhood')->parameter_user_type_key ?? "";
+
+                            $genderKey = null;
+                            if ($parameterCode != 'gender' && $userParameters->keyBy('parameter_type.code')->has('gender'))
+                                $genderKey = $userParameters->keyBy('parameter_type.code')->get('gender')->parameter_user_type_key ?? "";
+
+                            $statisticsByParameter = Analytics::getVoteStatisticsByParameter($voteEventKey, $parameterKey, $neighborhoodKey, $genderKey);
+
+                            $voteAnalysisData[$voteEventMethod]["parameters"][$parameterKey]["parameterName"] = $userParameter->name;
+                            $voteAnalysisData[$voteEventMethod]["parameters"][$parameterKey]["parameterCode"] = $parameterCode;
+                            $voteAnalysisData[$voteEventMethod]["parameters"][$parameterKey]["votesByTopicParameter"] = collect($statisticsByParameter->statistics_by_topic ?? [])->keyBy("topic_key")->toArray();
+                            $voteAnalysisData[$voteEventMethod]["parameters"][$parameterKey]["parametersOptions"] = $statisticsByParameter->parameters_options;
+
+                            $voteAnalysisData[$voteEventMethod]["parametersCount"]++;
+                            $voteAnalysisData[$voteEventMethod]["totalOptionsCount"] += count($statisticsByParameter->parameters_options);
+                        } catch (Exception $e) {
+                        }
+                    }
+                }
+            }
+        }
+
+        Excel::create('Topics', function ($excel) use ($topics, $userNames, $parametersTitle, $parametersData, $availableVoteEvents, $type, $cbKey, $voteAnalysisData) {
+            $excel->sheet("Data", function ($sheet) use ($topics, $userNames, $parametersTitle, $parametersData, $availableVoteEvents, $type, $cbKey, $voteAnalysisData) {
+                $sheet->loadView('private.cbs.excel.topics', compact('topics', 'userNames', 'parametersData', 'parametersTitle', 'availableVoteEvents', 'type', 'cbKey', 'voteAnalysisData'));
             });
         })->download('xlsx');
-
     }
 
     /**
      * @param Request $request
      * @return mixed
      */
-    public function getTopicsTechnicalEvaluation(Request $request){
+    public
+    function getTopicsTechnicalEvaluation(Request $request)
+    {
         $listCbs = Orchestrator::getAllCbs();
         $topics = CB::getAllTopicsWithTecnicalEvaluation($listCbs);
 
         $collection = Collection::make($topics);
 
         return Datatables::of($collection)
-            ->editColumn('title', function ($collection) use($listCbs) {
+            ->editColumn('title', function ($collection) use ($listCbs) {
                 return "<a href='" . action('TopicController@show', [$collection->cb_type, $collection->cb_key, $collection->topic_key]) . "'>" . $collection->title;
             })
+            ->rawColumns(['title'])
             ->make(true);
     }
 
@@ -1736,7 +2038,8 @@ class TopicController extends Controller
      * @param $cbKey
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
-    public function pdfList(Request $request, $type, $cbKey)
+    public
+    function pdfList(Request $request, $type, $cbKey)
     {
         try {
             $exportIds = $request->input('exportIds') ?? null;
@@ -1781,6 +2084,8 @@ class TopicController extends Controller
                     $pdfItem->save($fileName);
                     $zipFile->add($fileName, "topics-" . $index . ".pdf");
                     $fileNames[] = $fileName;
+                    $pdfItem = null;
+                    $pdf[$index] = null;
                 }
 
                 $zipFile->make($zipFileName);
@@ -1804,19 +2109,19 @@ class TopicController extends Controller
      * @param $version
      * @return $this|\Illuminate\Http\RedirectResponse
      */
-    public function changeActiveVersionStatus($type, $cbKey, $topicKey, $status, $version){
+    public
+    function changeActiveVersionStatus($type, $cbKey, $topicKey, $status, $version)
+    {
         try {
-            if(Session::get('user_role') != 'admin') {
-                if (ONE::verifyUserPermissionsUpdate('cb', 'topics') == false) {
-                    return redirect()->back()->withErrors(["cb.show" => trans('privateCbs.permission_message')]);
-                }
+            if (Session::get('user_role') != 'admin') {
+                return redirect()->back()->withErrors(["cb.show" => trans('privateCbs.permission_message')]);
             }
             $mayChangeParentTopics = false;
-            if($type == strtolower('EVENT')){
+            if ($type == strtolower('EVENT')) {
                 $mayChangeParentTopics = true;
             }
 
-            CB::changeActiveVersionStatus($topicKey, $version, $status, Session::get('user')->user_key,$mayChangeParentTopics);
+            CB::changeActiveVersionStatus($topicKey, $version, $status, Session::get('user')->user_key, $mayChangeParentTopics);
             return redirect()->action("TopicController@show", ["type" => $type, "cbKey" => $cbKey, "topicKey" => $topicKey, "version" => $version]);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["private.topics.changeActiveVersion" => $e->getMessage()]);
@@ -1830,7 +2135,8 @@ class TopicController extends Controller
      * @param $topicKey
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function showCooperators($type, $cbKey, $topicKey)
+    public
+    function showCooperators($type, $cbKey, $topicKey)
     {
         $cb = CB::getCbConfigurations($cbKey);
 
@@ -1854,9 +2160,11 @@ class TopicController extends Controller
      * @param $topicKey
      * @return mixed
      */
-    public function showCooperatorsTable(Request $request, $type, $cbKey, $topicKey)
+    public
+    function showCooperatorsTable(Request $request, $type, $cbKey, $topicKey)
     {
         $topicCooperators = CB::getCooperatorsList($request, $topicKey);
+
         $collection = isset($topicCooperators->cooperators) ? Collection::make($topicCooperators->cooperators) : Collection::make([]);
         $recordsTotal = $topicCooperators->recordsTotal;
         $recordsFiltered = $topicCooperators->recordsFiltered;
@@ -1866,24 +2174,27 @@ class TopicController extends Controller
             ->addColumn('name', function ($collection) {
                 return $collection->name;
             })
-            ->addColumn('permissions', function ($collection) use($permissions, $topicKey){
+            ->addColumn('status', function ($collection) {
+                return isset($collection->cooperation->code) ? ($collection->cooperation->code == 'requested' ? trans('privateTopics.requested_coop') : ($collection->cooperation->code == 'accepted' ? trans('privateTopics.accepted_coop') : trans('privateTopics.rejected_coop'))) : null;
+            })
+            ->addColumn('permissions', function ($collection) use ($permissions, $topicKey) {
                 $toReturn = "<div class='col-xs-3 col-md-6'>
-                            <select id='permission' style='width:100%;' class='form-control permission_select' onchange=\"changePermissions(this,'".$collection->user_key."', '".$topicKey."')\" name=''>";
+                            <select id='permission' style='width:100%;' class='form-control permission_select' onchange=\"changePermissions(this,'" . $collection->user_key . "', '" . $topicKey . "')\" name=''>";
 
                 foreach ($permissions as $permission) {
-                    if($collection->type_id == $permission->id){
+                    if ($collection->type_id == $permission->id) {
                         $toReturn .= "<option selected=\"selected\" value=\"$permission->id\">$permission->name</option>";
-                    }
-                    else{
+                    } else {
                         $toReturn .= "<option value=\"$permission->id\">$permission->name</option>";
                     }
                 }
 
                 return $toReturn . "</select></div>";
             })
-            ->addColumn('action', function ($collection) use($topicKey, $type, $cbKey){
+            ->addColumn('action', function ($collection) use ($topicKey, $type, $cbKey) {
                 return ONE::actionButtons(['type' => $type, 'cbKey' => $cbKey, 'topicKey' => $topicKey, 'userKey' => $collection->user_key], ['delete' => 'TopicController@deleteCooperator']);
             })
+            ->rawColumns(['permissions', 'action'])
             ->with('filtered', $recordsFiltered ?? 0)
             ->skipPaging()
             ->setTotalRecords($recordsTotal ?? 0)
@@ -1895,8 +2206,16 @@ class TopicController extends Controller
      * @param $topicKey
      * @return mixed
      */
-    public function addCooperator(Request $request, $topicKey){
-        $response = Orchestrator::setCooperators($topicKey, $request->cooperatorsKey);
+    public
+    function addCooperator(Request $request, $topicKey)
+    {
+
+        $cbKey = $request->input('cbKey');
+        $type = $request->input('type');
+
+        $actionUrl = action('PublicTopicController@show', [$cbKey, $topicKey, 'type' => $type, 'coopToken' => '#token#']);
+
+        $response = Orchestrator::setCooperators($topicKey, $request->cooperatorsKey, $actionUrl);
         Session::flash('message', trans('cooperators.store_ok'));
         return $response;
     }
@@ -1908,12 +2227,14 @@ class TopicController extends Controller
      * @param $userKey
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function deleteCooperator($type, $cbKey, $topicKey, $userKey){
+    public
+    function deleteCooperator($type, $cbKey, $topicKey, $userKey)
+    {
         $data = array();
 
         $data['action'] = action("TopicController@destroyCooperator", ['type' => $type, 'cbKey' => $cbKey, 'topicKey' => $topicKey, 'userKey' => $userKey]);
         $data['title'] = "DELETE";
-        $data['msg'] = "Are you sure you want to delete this Topic?";
+        $data['msg'] = "Are you sure you want to delete this Proponent?";
         $data['btn_ok'] = "Delete";
         $data['btn_ko'] = "Cancel";
 
@@ -1927,12 +2248,14 @@ class TopicController extends Controller
      * @param $userKey
      * @return $this|\Illuminate\Http\RedirectResponse
      */
-    public function destroyCooperator($type, $cbKey, $topicKey, $userKey){
-        try{
+    public
+    function destroyCooperator($type, $cbKey, $topicKey, $userKey)
+    {
+        try {
             Orchestrator::deleteCooperator($topicKey, $userKey);
             Session::flash('message', trans('cooperators.delete_ok'));
-            return action('TopicController@showCooperators', ['type' => $type, 'cbKey' => $cbKey, 'topicKey' => $topicKey]);
-        }catch(Exception $e) {
+            return action('TopicController@show', ['type' => $type, 'cbKey' => $cbKey, 'topicKey' => $topicKey]);
+        } catch (Exception $e) {
             Session::flash('error', trans('cooperators.delete_nok'));
             return redirect()->back()->withErrors(["cooperators.destroy" => $e->getMessage()]);
         }
@@ -1942,7 +2265,9 @@ class TopicController extends Controller
      * @param Request $request
      * @return mixed
      */
-    public function entityUsers(Request $request){
+    public
+    function entityUsers(Request $request)
+    {
         $response = Orchestrator::getEntityUsers($request);
         $collection = Collection::make($response->users);
 
@@ -1951,18 +2276,21 @@ class TopicController extends Controller
 
         return Datatables::of($collection)
             ->addColumn('cooperatorCheckbox', function ($collection) {
-                return "<div class='oneSwitch'><input onclick=\"toggleCooperatorItem(this,'".$collection->name."')\" type='checkbox' name='cooperators[]' value='".$collection->user_key."' class='oneSwitch-checkbox' id='cooperatorCheckbox_".$collection->user_key."'  ><label class='oneSwitch-label' for='cooperatorCheckbox_".$collection->user_key."'><span class='oneSwitch-inner'></span><span class='oneSwitch-switch'></span></label></div>";
+                return "<div class='oneSwitch'><input onclick=\"toggleCooperatorItem(this,'" . $collection->name . "')\" type='checkbox' name='cooperators[]' value='" . $collection->user_key . "' class='oneSwitch-checkbox' id='cooperatorCheckbox_" . $collection->user_key . "'  ><label class='oneSwitch-label' for='cooperatorCheckbox_" . $collection->user_key . "'><span class='oneSwitch-inner'></span><span class='oneSwitch-switch'></span></label></div>";
             })
             ->addColumn('name', function ($collection) {
                 return $collection->name;
             })
+            ->rawColumns(['cooperatorCheckbox'])
             ->with('filtered', $recordsFiltered ?? 0)
             ->skipPaging()
             ->setTotalRecords($recordsTotal ?? 0)
             ->make(true);
     }
 
-    public function updateCooperatorPermission(Request $request, $topicKey){
+    public
+    function updateCooperatorPermission(Request $request, $topicKey)
+    {
         $response = Orchestrator::updateCooperatorPermission($topicKey, $request);
         return $response;
     }

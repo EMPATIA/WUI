@@ -380,7 +380,7 @@ class ContentManagerController extends Controller
      * @return mixed
      */
     public function getIndexTable($contentType, $topicKey = null) {
-        if(Session::get('user_role') || (ONE::verifyUserPermissionsShow('orchestrator', 'entity_site', 'show') and ONE::verifyUserPermissionsShow('cm', $contentType, 'show'))){
+        if(Session::get('user_role')){
         // Request for Data List
         $contentList = CM::getNewContents($contentType,$this->siteKey);
         // JSON data collection
@@ -402,7 +402,7 @@ class ContentManagerController extends Controller
         }else
             $collection = Collection::make([]);
 
-        $delete = Session::get('user_role') || (ONE::verifyUserPermissionsDelete('orchestrator', 'entity_site') and ONE::verifyUserPermissionsDelete('cm', $contentType));
+        $delete = Session::get('user_role');
 
         // Render Datatable
         return Datatables::of($collection)
@@ -421,6 +421,7 @@ class ContentManagerController extends Controller
                     return ONE::actionButtons(["contentType" => $contentType, "content_key" => $content->content_key,"version"=>"","siteKey"=>$this->siteKey,"topicKey" => $topicKey], ['form' => 'ContentManager', 'edit' => 'ContentManagerController@edit'] );
 
             })
+            ->rawColumns(['name','code','action'])
             ->make(true);
     }
 
@@ -464,10 +465,10 @@ class ContentManagerController extends Controller
     {
         $types[] = trans('contents.files');
 
-        $uploadKey = Files::getUploadKey();
+        $uploadToken = Files::getUploadKey();
         $contentTypes = CM::getAllContentTypes();
 
-        foreach($contentTypes->data as $contentType) {
+        foreach(!empty( $contentTypes->data) ? $contentTypes->data :[] as $contentType) {
             $types[$contentType->id] = $contentType->translations[0]->title;
         }
 

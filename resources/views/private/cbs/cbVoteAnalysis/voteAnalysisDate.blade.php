@@ -1,10 +1,14 @@
 @extends('private._private.index')
 
 @section('content')
+
+    @include('private.cbs.cbVoteAnalysis.cbDetails')
+
     @if(!empty($voteEvents))
         <div class="margin-bottom-20">
             <div class="row">
                 <div class="col-12">
+                    <div><label>{{ trans('privateCbsVoteAnalysis.vote_event') }}</label></div>
                     <select id="voteEventSelect" name="voteEventSelect" class="voteEventSelect">
                         <option value="">{{ trans('privateCbsVoteAnalysis.select_vote_event') }}</option>
                         @foreach($voteEvents as $key => $voteEvent)
@@ -33,7 +37,26 @@
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active default-padding" id="tab_vote_analysis_date">
                     @if(!empty($voteEventKey))
-                        <h3> {{ trans('privateCbsVoteAnalysis.total_vote_statistics_by_date') }}</h3>
+                        <div class="row">
+                            <div class="col-12 col-lg-6">
+                                <h3> {{ trans('privateCbsVoteAnalysis.total_vote_statistics_by_date') }}</h3>
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <div class="text-right margin-top-3 margin-bottom-10">
+                                    <div class="colors btn-group" data-toggle="buttons" style="pointer-events: none;cursor: default;opacity:0.8;">
+                                        <label class="btn btn-primary">
+                                            <input type="radio" name="view_submitted" value="1" autocomplete="off" disabled > {{ trans('privateUserAnalysis.view_submitted') }}
+                                        </label>
+                                        <label id="default-view-all" class="btn btn-primary btn-selected">
+                                            <input type="radio" name="view_submitted" value="0" autocomplete="off" checked> {{ trans('privateUserAnalysis.all') }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
                         <div id="statistics_by_top_chart-download-wrapper" class="chart-download-wrapper">
                             <a id="statistics_by_top_DownloadCSV" class="btn btn-flat btn-blue pull-right">
                                 <i class="fa fa-file-excel-o" aria-hidden="true"></i> Download CSV
@@ -54,10 +77,6 @@
 
 @section('scripts')
     <script>
-        $(function() {
-            var array = ["{{ $type }}", "{{$cbKey}}"];
-            getSidebar('{{ action("OneController@getSidebar") }}', 'votes_by_date', array, 'voteAnalysis' );
-        });
 
         $("#voteEventSelect").select2();
         $("#userParameterSelect").select2();
@@ -95,7 +114,7 @@
                     vote_event_key: voteEventKey,
                     parameter_key: ''
                 },beforeSend: function () {
-                    var ajaxLoader = '<div class="chartLoader"><div><i class="fa fa-spinner fa-pulse fa-3x fa-fw default-color"></i><span class="sr-only">Loading...</span></div></div>';
+                    var ajaxLoader = '<div class="chartLoader"><div><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw default-color"></i><span class="sr-only">Loading...</span></div></div>';
                     $('#tab_'+id).html(ajaxLoader);
                 },
                 success: function (response) { // What to do if we succeed
@@ -138,7 +157,7 @@
                     @foreach($votesByDate->total->all_votes as $date => $voteValue)
                         {'{!! trim(preg_replace('/\s\s+/', ' ',trans('privateCbsVoteAnalysis.date'))) !!}': "{{ $date }}",
                         "name": '{!! trans('privateCbsVoteAnalysis.all_votes') !!}',
-                        '{!! trim(preg_replace('/\s\s+/', ' ',trans('privateCbsVoteAnalysis.votes'))) !!}': {{ number_format($voteValue, 3, '.', ',') }} },
+                        '{!! trim(preg_replace('/\s\s+/', ' ',trans('privateCbsVoteAnalysis.votes'))) !!}': {{ $voteValue }} },
                     @endforeach
                 ];
 
@@ -191,6 +210,7 @@
 
             // });
         </script>
+        @include('private.cbs.cbVoteAnalysis.cbDetailsScript')
     @endif
 
 

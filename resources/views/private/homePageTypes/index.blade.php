@@ -10,7 +10,7 @@
                 <thead>
                 <tr>
                     <th>{{ trans('homePageType.name') }}</th>
-                    <th>@if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('cm', 'home_page_type')){!! ONE::actionButtons(null, ['create' => 'HomePageTypesController@create']) !!}@endif</th>
+                    <th>@if(Session::get('user_role') == 'admin'){!! ONE::actionButtons(null, ['create' => 'HomePageTypesController@create']) !!}@endif</th>
                 </tr>
                 </thead>
             </table>

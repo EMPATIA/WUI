@@ -43,6 +43,8 @@ class One
     }
 
     public static function clearSession(){
+        // IMPROVE IF POSSIBLE. CANNOT FLUSH BECAUSE OF LARAVEL FORM VALIDATIONS.
+        
         Session::forget('user');
         Session::forget('sms_send');
         Session::forget('AUTH');
@@ -54,12 +56,10 @@ class One
         Session::forget('user_permissions_sidebar_groups');
         Session::forget('user_role');
         Session::forget('USER-ROLE-CODE');
-
-        // VERY IMPORTANT: don't clear Langs
-        /*
+        Session::forget('languages');
         Session::forget('LANG_CODE');
-        Session::forget('LANG_CODE_DEFAULT');
-         */
+        Session::forget('manager_user_permission');
+        Session::forget('manager_user_permission_cbs');
         Session::forget('userDashboardElements');
         Session::forget('entityDashboardElements_'.ONE::getEntityKey());
     }
@@ -343,7 +343,14 @@ class One
     public static function getAllLanguages()
     {
         try {
-            return Orchestrator::getLanguageList();
+            if(!empty(Session::get("languages",""))) {
+                return Session::get("languages");
+            } else {
+                $languages = Orchestrator::getLanguages(Session::get('X-ENTITY-KEY'));
+                Session::put("languages",$languages);
+                return $languages;
+            }
+
         } catch (Exception $e) {
             return [];
         }
@@ -472,6 +479,7 @@ class One
             'decline' => ['color' => 'btn-danger  btn-xs', 'icon' => 'remove'],
             'activate' => ['color' => 'btn-success  btn-xs', 'icon' => 'check'],
             'send' => ['color' => 'btn-success  btn-xs', 'icon' => 'send'],
+            'import' => ['color' => 'btn-success btn-xs', 'icon' => 'download']
         ];
 
         if (strpos($url, '/private/') !== false){
@@ -486,6 +494,7 @@ class One
                 'decline' => ['color' => 'danger', 'icon' => 'remove'],
                 'activate' => ['color' => 'success  btn-xs', 'icon' => 'check'],
                 'send' => ['color' => 'success', 'icon' => 'send'],
+                'import' => ['color' => 'warning', 'icon' => 'download']
             ];
         }
 
@@ -576,202 +585,203 @@ class One
 
     public static function send($action, $requestData)
     {
-        $authToken = Session::get('X-AUTH-TOKEN', 'INVALID');
-        $siteKey = Session::get('X-SITE-KEY','INVALID');
-        $entityKey = Session::get('X-ENTITY-KEY','INVALID');
-        $timezone = Session::get('TIMEZONE','INVALID');
+        try {
+            $authToken = Session::get('X-AUTH-TOKEN', 'INVALID');
+            $siteKey = Session::get('X-SITE-KEY', 'INVALID');
+            $entityKey = Session::get('X-ENTITY-KEY', 'INVALID');
+            $timezone = Session::get('TIMEZONE', 'INVALID');
 
-        $currentLang = Session::get('LANG_CODE','INVALID');
-        $defaultLang = Session::get('LANG_CODE_DEFAULT','INVALID');
-        if( env('PERFORMANCE_FLAG', 'false') == 'true' && env('LOGS_FLAG', 'false') =='true'){
-            $performanceFlag=true;
-        }else $performanceFlag=false;
+            $currentLang = Session::get('LANG_CODE', 'INVALID');
+            $defaultLang = Session::get('LANG_CODE_DEFAULT', 'INVALID');
+            if (env('PERFORMANCE_FLAG', 'false') == 'true' && env('LOGS_FLAG', 'false') == 'true') {
+                $performanceFlag = true;
+            } else $performanceFlag = false;
 
 
-        if(empty($currentLang)){
-            if(!empty($defaultLang)){
-                $currentLang = $defaultLang;
-            }else{
-                $defaultLang = ONE::getAppLanguageCode();
-                $currentLang = $defaultLang;
+            if (empty($currentLang)) {
+                if (!empty($defaultLang)) {
+                    $currentLang = $defaultLang;
+                } else {
+                    $defaultLang = 'en';
+                    $currentLang = $defaultLang;
+                }
             }
-        }
 
 
-        $url = null;
-        if (array_key_exists('url', $requestData)) {
-            $url = $requestData['url'];
-        } else {
-            if (array_key_exists('component', $requestData)) {
+            $url = null;
+            if (array_key_exists('url', $requestData)) {
+                $url = $requestData['url'];
+            } else {
+                if (array_key_exists('component', $requestData)) {
 
-                $components = Cache::get('COMPONENTS'.env('MODULE_TOKEN'));
+                    $components = Cache::get('COMPONENTS' . env('MODULE_TOKEN'));
 
-                if(empty($components)){
+                    if (empty($components)) {
 
-                    $request = [
-                        'url' => env('COMPONENT_MODULE_AUTH').'/components',
-                        'headers' => [
-                            'X-MODULE-TOKEN: '.env('MODULE_TOKEN','INVALID') ,
-                            'X-SITE-KEY: '.$siteKey,
-                            'LANG-CODE: '.$currentLang,
-                            'LANG-CODE-DEFAULT: '.$defaultLang,
-                            'X-ENTITY-KEY: '.$entityKey,
-                            'TIMEZONE: '.$timezone
-                        ]
-                    ];
-                    $response = HttpClient::GET($request);
-                    if($response->statusCode() == 200){
-                        $componentData = json_decode($response->content(),true);
-                        $components = $componentData['data'];
-                        Cache::put('COMPONENTS'.env('MODULE_TOKEN'),$components, 10);
+                        $request = [
+                            'url' => env('COMPONENT_MODULE_AUTH') . '/components',
+                            'headers' => [
+                                'X-MODULE-TOKEN: ' . env('MODULE_TOKEN', 'INVALID'),
+                                'X-SITE-KEY: ' . $siteKey,
+                                'LANG-CODE: ' . $currentLang,
+                                'LANG-CODE-DEFAULT: ' . $defaultLang,
+                                'X-ENTITY-KEY: ' . $entityKey,
+                                'TIMEZONE: ' . $timezone
+                            ]
+                        ];
+                        $response = HttpClient::GET($request);
+                        if ($response->statusCode() == 200) {
+                            $componentData = json_decode($response->content(), true);
+                            $components = $componentData['data'];
+                            Cache::put('COMPONENTS' . env('MODULE_TOKEN'), $components, 10);
+                        }
+
                     }
 
+                    $array = array(
+                        'analytics' => $components['ANALYTICS'],
+                        'auth' => $components['AUTH'],
+                        'cb' => $components['CB'],
+                        'cm' => $components['CM'],
+                        'files' => $components['FILES'],
+                        'logs' => $components['LOGS'],
+                        'mp' => $components['MP'],
+                        'notify' => $components['NOTIFY'],
+                        'orchestrator' => $components['ORCHESTRATOR'],
+                        'q' => $components['Q'],
+                        'vote' => $components['VOTE'],
+                        'wui' => $components['WUI'],
+                        'kiosk' => $components['KIOSK'],
+                        'events' => $components['EVENTS'],
+                        'empatia' => $components['EMPATIA']
+
+                    );
+
+                    $url = $array[$requestData['component']];
+
+                }
+
+            }
+            if (!empty($url)) {
+                if (!empty($requestData["api"]))
+                    $requestData["api"] = trim($requestData["api"], " /");
+
+                if (!empty($requestData["api_attribute"]))
+                    $requestData["api_attribute"] = trim($requestData["api_attribute"], " /");
+
+                if (!empty($requestData["method"]))
+                    $requestData["method"] = trim($requestData["method"], " /");
+
+                if (!empty($requestData["attribute"]))
+                    $requestData["attribute"] = trim($requestData["attribute"], " /");
+
+                if (!array_key_exists("params", $requestData))
+                    $requestData["params"] = [];
+
+
+                if (!empty($requestData['key'])) {
+
+                    $url .= "/" . $requestData["key"];
+                }
+                if (!empty($requestData["api"])) {
+                    $url .= "/" . $requestData["api"];
+                }
+
+                if (!empty($requestData["api_attribute"])) {
+                    $url .= "/" . $requestData["api_attribute"];
+                }
+
+                if (!empty($requestData["method"]))
+                    $url .= "/" . $requestData["method"];
+
+                if (!empty($requestData["attribute"]))
+                    $url .= "/" . $requestData["attribute"];
+
+
+                /* TODO: Remove string by default */
+
+
+                if (!empty($requestData["method"])) {
+                    if ($requestData["method"] == 'moderators') {
+
+                        // if($action == 'DELETE')
+                        //   dd($url);
+                    }
+                }
+                if (env('TIMELINE_DEBUG', false)) {
+                    $performance = session()->getId() . "_" . time();
+                } else {
+                    $performance = 'INVALID';
+                }
+                if (!empty($requestData["headers"])) {
+                    $request = [
+                        'url' => $url,
+                        'headers' => $requestData["headers"],
+                        'params' => $requestData['params'],
+                        'json' => true
+                    ];
+                } else {
+
+
+                    $request = [
+                        'url' => $url,
+                        'headers' => [
+                            'X-AUTH-TOKEN: ' . $authToken,
+                            'X-MODULE-TOKEN: ' . env('MODULE_TOKEN', 'INVALID'),
+                            'X-SITE-KEY: ' . $siteKey,
+                            'LANG-CODE: ' . $currentLang,
+                            'LANG-CODE-DEFAULT: ' . $defaultLang,
+                            'X-ENTITY-KEY: ' . $entityKey,
+                            'TIMEZONE: ' . $timezone,
+                            'PERFORMANCE: ' . $performanceFlag
+
+                        ],
+                        'params' => $requestData['params'],
+                        'params' => $requestData['params'],
+                        'json' => true
+                    ];
+
+
                 }
 
 
-                $array = array(
-                    'analytics'     => $components['ANALYTICS'],
-                    'auth'          => $components['AUTH'],
-                    'cb'            => $components['CB'],
-                    'cm'            => $components['CM'],
-                    'files'         => $components['FILES'],
-                    'logs'          => $components['LOGS'],
-                    'mp'            => $components['MP'],
-                    'notify'        => $components['NOTIFY'],
-                    'orchestrator'  => $components['ORCHESTRATOR'],
-                    'q'             => $components['Q'],
-                    'vote'          => $components['VOTE'],
-                    'wui'           => $components['WUI'],
-                    'kiosk'         => $components['KIOSK'],
-                    'events'        => $components['EVENTS'],
-                    'empatia'        => $components['EMPATIA']
+                Log::debug("SEND: " . $action . " " . json_encode($request));
 
-                );
+                $start_t = microtime(true);
 
-                $url = $array[$requestData['component']];
+                $request = ONE::removeInvalidHeaders($request);
 
-            }
-
-        }
-        if (!empty($url)) {
-            if (!empty($requestData["api"]))
-                $requestData["api"] = trim($requestData["api"], " /");
-
-            if (!empty($requestData["api_attribute"]))
-                $requestData["api_attribute"] = trim($requestData["api_attribute"], " /");
-
-            if (!empty($requestData["method"]))
-                $requestData["method"] = trim($requestData["method"], " /");
-
-            if (!empty($requestData["attribute"]))
-                $requestData["attribute"] = trim($requestData["attribute"], " /");
-
-            if (!array_key_exists("params", $requestData))
-                $requestData["params"] = [];
-
-
-            if (!empty($requestData['key'])) {
-
-                $url .= "/" . $requestData["key"];
-            }
-            if (!empty($requestData["api"])) {
-                $url .= "/" . $requestData["api"];
-            }
-
-            if (!empty($requestData["api_attribute"])) {
-                $url .= "/" . $requestData["api_attribute"];
-            }
-
-            if (!empty($requestData["method"]))
-                $url .= "/" . $requestData["method"];
-
-            if (!empty($requestData["attribute"]))
-                $url .= "/" . $requestData["attribute"];
-
-
-            /* TODO: Remove string by default */
-
-
-
-            if(!empty($requestData["method"])){
-                if($requestData["method"] == 'moderators'){
-
-                    // if($action == 'DELETE')
-                    //   dd($url);
+                if (env('TIMELINE_DEBUG', false)) {
+                    ONE::performanceEvaluation($performance, 'REQUEST_' . $action, $requestData['component'], null, $url);
                 }
+
+
+                if ($action === 'GET')
+                    $response = HttpClient::GET($request);
+                else if ($action === 'POST')
+                    $response = HttpClient::POST($request);
+                else if ($action === 'PUT')
+                    $response = HttpClient::PUT($request);
+                else if ($action === 'DELETE')
+                    $response = HttpClient::DELETE($request);
+                Log::debug("RCV: " . $action . " " . json_encode($response));
+
+                if (env('TIMELINE_DEBUG', false)) {
+                    ONE::performanceEvaluation($performance, 'REPLY_' . $action, $requestData['component'], null, $url);
+                }
+
+                $end_t = microtime(true);
+
+                if (env('TIME_CHECK', false)) {
+                    Log::debug("URL-REQUEST: " . $request['url'] . " | Pre-REQUEST: " . $start_t . " | Post-REQUEST: " . $end_t . " | Duration-REQUEST: " . ($end_t - $start_t));
+                }
+
+                return $response;
             }
-            if(env('TIMELINE_DEBUG', false)){
-                $performance = session()->getId()."_".time();
-            }else{
-                $performance = 'INVALID';
-            }
-            if (!empty($requestData["headers"])) {
-                $request = [
-                    'url' => $url,
-                    'headers' => $requestData["headers"],
-                    'params' => $requestData['params'],
-                    'json' => true
-                ];
-            } else {
-
-
-                $request = [
-                    'url' => $url,
-                    'headers' => [
-                        'X-AUTH-TOKEN: ' . $authToken,
-                        'X-MODULE-TOKEN: ' . env('MODULE_TOKEN', 'INVALID'),
-                        'X-SITE-KEY: ' . $siteKey,
-                        'LANG-CODE: '.$currentLang,
-                        'LANG-CODE-DEFAULT: '.$defaultLang,
-                        'X-ENTITY-KEY: ' . $entityKey,
-                        'TIMEZONE: '.$timezone,
-                        'PERFORMANCE: '.$performanceFlag
-
-                    ],
-                    'params' => $requestData['params'],
-                    'params' => $requestData['params'],
-                    'json' => true
-                ];
-
-
-            }
-
-
-            Log::debug("SEND: ".$action." ".json_encode($request));
-
-            $start_t = microtime(true);
-
-            $request = ONE::removeInvalidHeaders($request);
-
-            if(env('TIMELINE_DEBUG', false)){
-                ONE::performanceEvaluation($performance, 'REQUEST_'.$action , $requestData['component'], null, $url);
-            }
-
-
-
-            if ($action === 'GET')
-                $response = HttpClient::GET($request);
-            else if ($action === 'POST')
-                $response = HttpClient::POST($request);
-            else if ($action === 'PUT')
-                $response = HttpClient::PUT($request);
-            else if ($action === 'DELETE')
-                $response = HttpClient::DELETE($request);
-            Log::debug("RCV: ".$action." ".json_encode($response));
-
-            if(env('TIMELINE_DEBUG', false)){
-                ONE::performanceEvaluation($performance ,'REPLY_'.$action , $requestData['component'], null, $url);
-            }
-
-            $end_t = microtime(true);
-
-            if(env('TIME_CHECK', false)){
-                Log::debug("URL-REQUEST: " . $request['url'] . " | Pre-REQUEST: " . $start_t . " | Post-REQUEST: " . $end_t . " | Duration-REQUEST: " . ($end_t - $start_t));
-            }
-
-            return $response;
+        }catch (Exception $exception){
+            echo "<script>location.reload();</script>";
+            dd();
         }
-
     }
 
 
@@ -798,78 +808,9 @@ class One
      */
     public static function publicMiddleware($request, Closure $next)
     {
-        $siteKey = Session::get('X-SITE-KEY');
-        $entityKey = Session::get('X-ENTITY-KEY');
-        $currentLang = Session::get('LANG_CODE');
-        $defaultLang = Session::get('LANG_CODE_DEFAULT');
-        $middleware = Session::get('X-ACCESS-AREA');
-
-
-        if((empty($currentLang) || empty($defaultLang)) || $middleware != 'public') {
-
-            try {
-                $site = Orchestrator::getSiteEntity($_SERVER["HTTP_HOST"],true);
-                Session::put('X-SITE-KEY' , $site->site_key);
-                Session::put('X-ENTITY-KEY' , $site->entity_id);
-            } catch (Exception $e) {
-                if($e->getMessage()=="401") {
-                    return response()->json(['error' => 'Unauthorized'], 401)->send();
-                }else{
-                    return response()->json(['error' => 'Failed to verify Authorization'], 500)->send();
-                }
-            }
-        }elseif($siteKey == 'false'){
-            return response()->json(['error' => 'Unauthorized'], 401)->send();
-        }
-
-        if((empty($currentLang) || empty($defaultLang)) || $middleware != 'public') {
-            $userLang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-
-            ONE::clearLangSession();
-
-            $allLang = ONE::getAllLanguages();
-            foreach($allLang as $lang){
-                if (!empty($request->cookie('EMPATIA-LANG'))){
-                    if($request->cookie('EMPATIA-LANG') === $lang->code){
-                        $userDefaultLang = $lang->code;
-                    }
-                }else{
-                    if($userLang === $lang->code){
-                        $userDefaultLang = $lang->code;
-                    }
-                }
-                if($lang->default){
-                    $defaultLang = $lang->code;
-                }
-            }
-            if(isset($userDefaultLang)){
-                Session::put('LANG_CODE' , $userDefaultLang);
-            }
-            else{
-                Session::put('LANG_CODE' , $defaultLang);
-            }
-            Session::put('LANG_CODE_DEFAULT' , $defaultLang);
-
-        }
-
-        if(!empty($currentLang)){
-            App::setLocale($currentLang);
-        }
-        else{
-            App::setLocale($defaultLang);
-        }
-
-
-        Session::put('X-ACCESS-AREA', 'public');
-
-        /* Validate TOKEN */
-        if (Session::has('X-AUTH-TOKEN')) {
-            if(!ONE::checkIfValidToken()){
-                Session::forget('X-AUTH-TOKEN');
-            }
-        }
-
-        return $next($request);
+        // NOT BEING USED!
+        
+        //return $next($request);
     }
 
 
@@ -1056,18 +997,18 @@ class One
 
     /* ================= */
 
-    public function getAccessMenu(){
-
+    public function getAccessMenu($code = null){
         $menus = '';
         $response = $this->get([
-            'component' => 'orchestrator',
+            'component' => 'empatia',
             'api'       => 'accessmenu',
-            'method'    => 'info'
+            'method'    => 'info',
+            'params'    => ['code' => $code]
         ]);
-
+        
         if(($response->statusCode() == 200)&& !empty($response->json()->id)){
             $response = $this->get([
-                'component' => 'cm',
+                'component' => 'empatia',
                 'api'       => 'menu',
                 'method'    => 'listByAccessId',
                 'attribute' => $response->json()->id
@@ -1089,7 +1030,46 @@ class One
         return $menus;
     }
 
-    
+    public function getAccessMenuDemo(){
+        if(!empty(Session::get("menu",""))) {
+
+            $menusArray = json_decode(Session::get("menu"), true);
+            $menus = $this->buildPublicMenuDemo($menusArray);
+            return $menus;
+        } else {
+            $menus = '';
+            $response = $this->get([
+                'component' => 'empatia',
+                'api' => 'accessmenu',
+                'method' => 'info'
+            ]);
+
+            if (($response->statusCode() == 200) && !empty($response->json()->id)) {
+                $response = $this->get([
+                    'component' => 'empatia',
+                    'api' => 'menu',
+                    'method' => 'listByAccessId',
+                    'attribute' => $response->json()->id
+                ]);
+
+                if ($response->statusCode() == 200) {
+
+                    $accessMenu = json_decode($response->content(), true);
+
+                    $authToken = Session::get('X-AUTH-TOKEN', 'INVALID');
+                    $menusArray = $accessMenu['data'];
+                    if ($authToken == 'INVALID') {
+
+                        $menusArray = ONE::verifyArray($accessMenu['data']);
+                    }
+
+                    Session::put("menu", json_encode($menusArray));
+                    $menus = $this->buildPublicMenuDemo($menusArray);
+                }
+            }
+            return $menus;
+        }
+    }
 
     public static function verifyArray($array, $parentPrivate =false){
 
@@ -1131,10 +1111,10 @@ class One
                 $action = URL::action("PublicContentsController@show", ['key' =>$menu['value'],'type' => "events"], $absolute);
                 break;
             case 5:
-                $action = URL::action("PublicCbsController@show", ["id" => $menu['value'], "type" => "forum"], $absolute);
+                $action = URL::action("PublicCbsController@show", ["id" => $menu['value']], $absolute);
                 break;
             case 6:
-                $action = URL::action("PublicCbsController@show", ["id" => $menu['value'], "type" => "discussion"], $absolute);
+                $action = URL::action("PublicCbsController@show", ["id" => $menu['value']], $absolute);
                 break;
             case 7:
                 $action = URL::action("PublicCbsController@show", ["id" => $menu['value'], "type" => "proposal"], $absolute);
@@ -1149,28 +1129,28 @@ class One
                 $action = URL::action("PublicConfEventsController@index", $menu['value'], $absolute);
                 break;
             case 11:
-                $action = URL::action("PublicCbsController@show", ["id" => $menu['value'], "type" => "idea"], $absolute);
+                $action = URL::action("PublicCbsController@show", ["id" => $menu['value']], $absolute);
                 break;
             case 12:
-                $action = URL::action("PublicCbsController@show", ["id" => $menu['value'], "type" => "publicConsultation"], $absolute);
+                $action = URL::action("PublicCbsController@show", ["id" => $menu['value']], $absolute);
                 break;
             case 13:
-                $action = URL::action("PublicCbsController@show", ["id" => $menu['value'], "type" => "tematicConsultation"], $absolute);
+                $action = URL::action("PublicCbsController@show", ["id" => $menu['value']], $absolute);
                 break;
             case 14:
-                $action = URL::action("PublicCbsController@show", ["id" => $menu['value'], "type" => "survey"], $absolute);
+                $action = URL::action("PublicCbsController@show", ["id" => $menu['value']], $absolute);
                 break;
             case 15:
-                $action = URL::action("PublicCbsController@show", ["id" => $menu['value'], "type" => "phase1"], $absolute);
+                $action = URL::action("PublicCbsController@show", ["id" => $menu['value']], $absolute);
                 break;
             case 16:
-                $action = URL::action("PublicCbsController@show", ["id" => $menu['value'], "type" => "phase2"], $absolute);
+                $action = URL::action("PublicCbsController@show", ["id" => $menu['value']], $absolute);
                 break;
             case 17:
-                $action = URL::action("PublicCbsController@show", ["id" => $menu['value'], "type" => "phase3"], $absolute);
+                $action = URL::action("PublicCbsController@show", ["id" => $menu['value']], $absolute);
                 break;
             case 18:
-                $action = URL::action("PublicContentManagerController@show", ["contentType" => 'pages', "contentKey" => $menu['value']], $absolute);
+                $action = URL::action("PublicContentManagerController@showC", ["contentKey" => $menu['value']], $absolute);
                 break;
         }
         return $action;
@@ -1544,6 +1524,7 @@ class One
         return $html;
     }
 
+    
 
 
     public function buildSideMenu($menuArray, $level = 0)
@@ -1616,6 +1597,47 @@ class One
         return $html;
     }
 
+    public function buildPublicMenuDemo($menuArray)
+    {
+        $html = '';
+        foreach($menuArray as $menu){
+            if(empty($menu['id']) ){
+                $html .=
+                    '<li class="nav-item dropdown nav-link">' .
+                        '<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' . 
+                            $menu[0]['title'] . 
+                            '<span class="caret"></span>' .
+                        '</a>' .
+                        '<div class="dropdown-menu">';
+                
+                foreach ($menu as $subMenu) {
+                    if ($subMenu['id'] != $menu[0]['id']) {
+                        $html .= 
+                            '<a class="nav-link" href="' . $this->getActionMenu($subMenu) . '">' .
+                                $subMenu['title'] .
+                            '</a>';
+                    }
+                }
+                
+                $html .= 
+                        '</div>' .
+                    '</li>';
+            }
+            else{
+                $current = $this->getActionMenu($menu,true) == URL::current() ? 'active' : '';
+                $html .= 
+                    '<li class="nav-item nav-link' . $current . '">' .
+                        '<a href="' . $this->getActionMenu($menu) . '" class="nav-link">' . 
+                            $menu['title'] . 
+                        '</a>' .
+                    '</li>';
+
+
+            }
+        }
+        return $html;
+    }
+
     public function getFileIcon($file)
     {
 
@@ -1658,10 +1680,38 @@ class One
         }
     }
 
+    public function fileIconByFilename2($filename = ""){
+
+        $ext = pathinfo($filename, PATHINFO_EXTENSION);
+
+        $mTypes = [
+            "images" => "jpg,gif,png,tif",
+            "docs" => "doc,docx,rtf,zip,pdf,pptx,ppt,xls,xlsx",
+            "videos" => "mpg,avi,asf,mov,qt,flv,swf,mp4,wmv,webm,vob,ogv,ogg,mpeg,3gp",
+        ];
+
+        if ( $ext == 'pdf' ) {
+            return "<i class=\"far fa-file-pdf\"></i>";
+        } elseif ($ext == 'jpg' || $ext == 'gif' ||  $ext == 'png' ||  $ext == 'tif' ) {
+            return "<i class=\"far fa-file-image\"></i>";
+        }  elseif ($ext == 'zip' || $ext == 'rar') {
+            return "<i class=\"far fa-file-archive\"></i>";
+        }  elseif ($ext == 'doc' ||  $ext == 'docx' ||  $ext == 'rtf' ||  $ext == 'pptx' |  $ext == 'ppt' ||  $ext == 'xls' ||  $ext == 'xlsx') {
+            return "<i class=\"far fa-file\"></i>";
+        }  elseif ($ext == 'mpg' || $ext == 'avi' ||  $ext == 'asf' ||  $ext == 'mov' ||  $ext == 'qt'
+            || $ext == 'flv' || $ext == 'swf' ||  $ext == 'wmv' ||  $ext == 'webm' ||  $ext == 'vob'
+            || $ext == 'ogv' || $ext == 'mpeg' ||  $ext == '3gp'
+        ) {
+            return "<i class=\"far fa-video-camera\"></i>";
+        } else {
+            return "<i class=\"far fa-file\"></i>";
+        }
+    }
+
     public function imageButtonUpload($idUploading,$classes = "", $iconClass = "fa fa-upload")
     {
         $html = '<div> ';
-        $html .= '<a id="' . $idUploading . '" class="btn btn-flat btn-default btn-xs ' . $classes . '"><i class="'.$iconClass.'"></i> ' . trans('image.upload') . '</a> ';
+        $html .= '<a id="' . $idUploading . '" class="btn btn-flat btn-default btn-xs ' . $classes . '"><i class="'.$iconClass.'"></i> ' . $this->transSite('image.upload') . '</a> ';
         $html .= '</div> ';
 
         return $html;
@@ -1710,7 +1760,6 @@ class One
 
         return $html;
     }
-
 
     public function fileSingleUploadBox($id, $dropzoneMsg, $idSelect, $idUploading, $fileName)
     {
@@ -2055,6 +2104,188 @@ class One
         }
     }
 
+    public static function checkPermissions($permRequired) {
+        $user_role = Session::get("user_role");
+        $user_perm = Session::get("manager_user_permission");
+
+        // If admin always return true
+        if($user_role == "admin") return true;
+
+        if(is_null($user_perm)) return false;
+
+        // If not an array (only one permission to check) convert to array
+        if(!is_array($permRequired))
+            $permRequired = [$permRequired];
+
+        if(is_object($user_perm))
+            $user_perm = get_object_vars($user_perm);
+
+        // For each permission required check if user has permission
+        foreach($permRequired as $perm) {
+            // If user has required permission return true
+            if(in_array($perm, $user_perm)) return true;
+        }
+
+        // User has no permission => return false
+        return false;
+    }
+
+    public static function checkRoutePermissions($perms, $cbPerms, $controller) {
+        $route = \Route::getCurrentRoute();
+        $method = $route->getActionMethod();
+
+        $cbKey = null;
+        if(isset($route->parameters["cbId"])) {
+            $cbKey = $route->parameters["cbId"];
+        } else if(isset($route->parameters["cb_key"])) {
+            $cbKey = $route->parameters["cb_key"];
+        } else if(isset($route->parameters["cbKey"])) {
+            $cbKey = $route->parameters["cbKey"];
+        } else if(isset($route->parameters["cb"])) {
+            $cbKey = $route->parameters["cb"];
+        } else if(isset($route->parameters["pad_key"])) {
+            $cbKey = $route->parameters["pad_key"];
+        }
+
+        // If admin always return true
+        $user_role = Session::get("user_role");
+        if($user_role == "admin") {
+            if($cbKey == null && !isset($perms[$controller])) {
+
+             // Notify admin there is no permission for this controller
+
+                Session::flash('message', 'perm_error_controller: ' . $controller);
+            } else if($cbKey != null && !isset($cbPerms[$controller])) {
+                // Notify admin there is no permission for this controller & method
+                Session::flash('message', 'perm_error_controller_cb: '.$cbKey." - ".$controller);
+            } else if($cbKey != null && !isset($cbPerms[$controller][$method]) && !isset($cbPerms[$controller]["all"])) {
+                // Notify admin there is no permission for this controller & method
+                Session::flash('message', 'perm_error_controller_method_cb: '.$cbKey." - ".$controller." - ".$method);
+            }
+            return true;
+        }
+
+        // If controller permission not configured => ACCEPT PERMISSION!
+        if(!isset($cbPerms[$controller])) {
+            return true;
+        }
+
+        // Make sure it is an array
+        if(!is_array($cbPerms[$controller]))
+            $cbPerms[$controller] = [$cbPerms[$controller]];
+
+        if($cbKey != null) {
+            // User has "participation_admin"
+            if(ONE::checkPermissions("participation_admin")) return true;
+
+            // If controller METHOD permission not configured => ACCEPT PERMISSION!
+            if(!isset($cbPerms[$controller][$method])) {
+                // Check all permissions if no specific method is found
+                if(isset($cbPerms[$controller]["all"])) {
+                    foreach($cbPerms[$controller]["all"] as $perm) {
+                        if ($perm == "all") return true;
+
+                        // Check if user has permission for controller & method
+                        if (ONE::checkCBPermissions($cbKey, $perm)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                // Only true if all is not set => ACCEPT PERMISSION!
+                return true;
+            }
+
+            // Check controller & method permissions for CB
+            foreach($cbPerms[$controller][$method] as $perm) {
+                if ($perm == "all") return true;
+
+                // Check if user has permission for controller & method
+                if (ONE::checkCBPermissions($cbKey, $perm)) {
+                    return true;
+                }
+                // Check if user has permission for cb
+                if (ONE::checkCBPermissions($cbKey, null)) {
+                    return true;
+                }
+            }
+
+            // No permission
+            return false;
+        } else {
+            // Check controller permissions
+            foreach ($perms[$controller] as $perm) {
+                if ($perm == "all") return true;
+                if (ONE::checkPermissions($perm)) return true;
+                return false;
+            }
+
+            // No permission
+            return false;
+        }
+    }
+
+    public static function checkCBPermissions($cb_key, $permRequired) {
+        $user_role = Session::get("user_role");
+
+        // If admin always return true
+        if($user_role == "admin") return true;
+
+        // User has "participation_admin"
+        if(ONE::checkPermissions("participation_admin")) return true;
+
+        if($permRequired == null || $permRequired == 'show' ){
+            if(Session::has("manager_user_permission_cbs")) {
+                $user_perm_cb = Session::get("manager_user_permission_cbs");
+
+                // If not an array (only one permission to check) convert to array
+                if(!is_array($user_perm_cb)) {
+                    //$user_perm_cb = [$user_perm_cb];
+                }
+
+                if(is_object($user_perm_cb))
+                    $user_perm_cb = get_object_vars($user_perm_cb);
+
+                // If user has required permission return true
+                if(in_array($cb_key,$user_perm_cb)) {
+                    return true;
+                }
+            }
+        }
+
+        // Permissions not in session => get permissions
+        $entityKey = Session::get("X-ENTITY-KEY");
+        $user = Session::get("user");
+        $user_key = $user->user_key;
+
+        if(!Session::has("manager_user_permission_cbs_".$cb_key)) {
+            $user_perm = EMPATIA::getUserCBPermissions($cb_key, $user_key, $entityKey);
+            Session::put("manager_user_permission_cbs_".$cb_key, $user_perm);
+        } else {
+            $user_perm = Session::get("manager_user_permission_cbs_".$cb_key);
+        }
+
+        // If CB admin permission return true
+        if(!is_array($user_perm))
+            $user_perm = get_object_vars($user_perm);
+
+        if(in_array("participation_admin", $user_perm)) return true;
+
+        // If not an array (only one permission to check) convert to array
+        if(!is_array($permRequired))
+            $permRequired = [$permRequired];
+
+        // For each permission required check if user has permission in the CB
+        foreach($permRequired as $perm) {
+            // If user has required permission return true
+            if(in_array($perm, $user_perm)) return true;
+        }
+
+        // User has no permission => return false
+        return false;
+    }
+
+
     /**
      * Returns a list of all Entity Group Types to be listed on sidebar Menu
      *
@@ -2100,6 +2331,9 @@ class One
 
 
     public static function verifyUserMenuPermissions(){
+        // DISABLE OLD PERMISSIONS
+        return true;
+
         if(ONE::isAdmin()){
             return ['all'];
         }
@@ -2125,6 +2359,9 @@ class One
     }
 
     public static function verifyUserMenuGroupPermissions(){
+        // DISABLE OLD PERMISSIONS
+        return true;
+
         if(ONE::isAdmin()){
             return ['all'];
         }
@@ -2223,6 +2460,8 @@ class One
     }
 
     public static function verifyUserPermissions($module, $moduleType, $action){
+        // DISABLE OLD PERMISSIONS
+        return true;
 
         if(ONE::isAdmin()){
             return true;
@@ -2255,6 +2494,9 @@ class One
     }
 
     public static function verifyUserPermissionsCrud($module, $moduleType){
+        // DISABLE OLD PERMISSIONS
+        return true;
+
 
         if(ONE::isAdmin()){
             return true;
@@ -2276,6 +2518,9 @@ class One
     }
 
     public static function verifyUserPermissionsCreate($module, $moduleType){
+        // DISABLE OLD PERMISSIONS
+        return true;
+
 
         if(isset(Session::get('user_permissions')->$module->$moduleType)){
             if(Session::get('user_permissions')->$module->$moduleType->permission_create == 1)
@@ -2286,6 +2531,9 @@ class One
     }
 
     public static function verifyUserPermissionsUpdate($module, $moduleType){
+        // DISABLE OLD PERMISSIONS
+        return true;
+
 
         if(isset(Session::get('user_permissions')->$module->$moduleType)){
             if(Session::get('user_permissions')->$module->$moduleType->permission_update == 1)
@@ -2296,6 +2544,9 @@ class One
     }
 
     public static function verifyUserPermissionsDelete($module, $moduleType){
+        // DISABLE OLD PERMISSIONS
+        return true;
+
 
         if(isset(Session::get('user_permissions')->$module->$moduleType)) {
             if (Session::get('user_permissions')->$module->$moduleType->permission_delete == 1)
@@ -2306,6 +2557,8 @@ class One
     }
 
     public static function verifyUserPermissionsShow($module, $moduleType){
+        // DISABLE OLD PERMISSIONS
+        return true;
 
         if(isset(Session::get('user_permissions')->$module->$moduleType)) {
             if (Session::get('user_permissions')->$module->$moduleType->permission_show == 1)
@@ -2650,6 +2903,12 @@ class One
         return !empty(One::getEntityBEMenu());
     }
 
+    /**
+     * @param $operationSchedules
+     * @param $operationType
+     * @param $operationAction
+     * @return bool|null
+     */
     public static function checkOperationSchedulePermission($operationSchedules, $operationType, $operationAction) {
         if (is_array($operationSchedules))
             $operationSchedules = json_decode(json_encode($operationSchedules));
@@ -2662,4 +2921,176 @@ class One
         } else
             return null;
     }
+
+    public static function siteConfigurationExists($code) {
+        if (strpos($code,"SITE-CONFIGURATION.")===false)
+            $code = "SITE-CONFIGURATION." . $code;
+        
+        return !empty(Session::get($code));
+    }
+    public static function getSiteConfiguration($code, $default = null) {
+        if (strpos($code,"SITE-CONFIGURATION.")===false)
+            $code = "SITE-CONFIGURATION." . $code;
+        
+        $value = Session::get($code);
+
+        return empty($value) ? $default : $value;
+    }
+
+    public static function getStatusTranslation($translations = [], $code  = ""){
+        if(isset($translations->{$code}) && isset($translations->{$code}->during->{ONE::getAppLanguageCode()})){
+            return $translations->{$code}->during->{ONE::getAppLanguageCode()};
+        }
+
+        return trans("demo.".$code);
+    }
+
+
+    public static function topicHasParameterWithCode($parameters, $code) {
+        return !is_null(self::getTopicParameterByCode($parameters, $code, null));
+    }
+
+    public static function getTopicParameterValueByCode($parameters, $code, $default = null) {
+        $returned = self::getTopicParameterByCode($parameters, $code, null);
+
+        return !empty($returned->pivot->value??"") ? $returned->pivot->value : $default;
+    }
+    public static function getTopicParameterByCode($parameters, $code, $default = null) {
+        $parameter = collect($parameters)->where("parameter_code","=",$code)->first();
+
+        return !empty($parameter) ? $parameter : $default;
+    }
+
+    public static function transSite($code, $site_key = null, $language_code = null) {
+
+        $site_key = !empty($site_key) ? $site_key :  Session::get('X-SITE-KEY');
+        $language_code = !empty($language_code) ? $language_code : (Session::has('LANG_CODE') ? Session::get('LANG_CODE') :  Session::get('LANG_CODE_DEFAULT'));
+
+        if(empty($site_key) || empty($language_code)) {
+            return "ERROR transSite.".$language_code.".".$code;
+        }
+
+        $trans = ONE::transGetArray($code, $site_key, null, $language_code);
+
+        \Log::debug("SITE TRANS: received -> ".json_encode($trans));
+
+        if(empty($trans->$code))
+            return "transSite.".$language_code.".".$code;
+
+        // Get translation from code
+        $value = $trans->$code;
+
+        // Check translation: null => no translation in DB ; not null => translation
+        if(empty($value)) {
+            return "transSite.".$language_code.".".$code;
+        } else {
+            return $value->translation;
+        }
+    }
+
+    public static function transCb($code,  $cb_key, $language_code = null) {
+
+        $language_code = !empty($language_code) ? $language_code : (Session::has('LANG_CODE') ? Session::get('LANG_CODE') :  Session::get('LANG_CODE_DEFAULT'));
+        if(empty($cb_key) || empty($language_code)) {
+            return "ERROR transCb.".$language_code.".".$code;
+        }
+
+        $trans = ONE::transGetArray($code, null, $cb_key, $language_code);
+        if(empty($trans->$code))
+            return "transCb.".$language_code.".".$code;
+
+        // Get translation from code
+        $value = $trans->$code;
+
+        // Check translation: null => no translation in DB ; not null => translation
+        if(empty($value)) {
+            return "transCb.".$language_code.".".$code;
+        } else {
+            return $value->translation;
+        }
+    }
+
+    private static function transGetArray($code, $site_key, $cb_key, $language_code) {
+        if(!empty($site_key)) {
+            $redis_key = $site_key . "_" . $language_code;
+            $cb_key = null;
+        } else {
+            $redis_key = $cb_key . "_" . $language_code;
+            $site_key = null;
+        }
+
+        $trans = json_decode(Redis::get($redis_key));
+        \Log::debug("SITE TRANS: get from REDIS -> ".json_encode($trans));
+
+        if($trans == null) {
+            \Log::debug("SITE TRANS: no translations in REDIS");
+
+            // Get JSON translations (site/cb & language)
+            $trans = CB::getTranslation($code,$language_code, $site_key, $cb_key);
+ //           $trans = ["new_teste" => "New Teste"];
+
+            \Log::debug("SITE TRANS: translations received from EMPATIA -> ".json_encode($trans));
+
+            // Store translations (site/cb & language) in cache
+            Redis::set($redis_key, json_encode($trans));
+        }
+
+        // If code does not exist in EMPATIA component
+//        if(empty($trans) || !array_key_exists($code, $trans)) {
+//            \Log::debug("SITE TRANS: no code '".$code."' in translations array. Creating translations in EMPATIA.");
+////            EMPATIA::createTranslation($code, $language_code, $site_key, $cb_key);
+//            CB::setTranslation(null, $code ,null, null, $cb_key, $site_key);
+//            // Get JSON translations (site/cb & language)
+//            $trans = CB::getTranslation($code,$language_code, $site_key, $cb_key);
+//            // $trans = ["teste" => null,"new_teste" => "New Teste"];
+//            \Log::debug("SITE TRANS: translations received from EMPATIA -> ".json_encode($trans));
+//
+//            // Store translations (site/cb & language) in cache
+//            Redis::set($redis_key, json_encode($trans));
+//        }
+
+        return $trans;
+    }
+
+    public static function validateNifFormat($nif, $ignoreFirst=false) {
+        //Limpamos eventuais espaços a mais
+        $nif=trim($nif);
+        //Verificamos se é numérico e tem comprimento 9
+        if (!is_numeric($nif) || strlen($nif)!=9) {
+            return false;
+        } else {
+            $nifSplit=str_split($nif);
+            //O primeiro digíto tem de ser 1, 2, 5, 6, 8 ou 9
+            //Ou não, se optarmos por ignorar esta "regra"
+            if (
+                in_array($nifSplit[0], array(1, 2, 5, 6, 8, 9))
+                ||
+                $ignoreFirst
+            ) {
+                //Calculamos o dígito de controlo
+                $checkDigit=0;
+                for($i=0; $i<8; $i++) {
+                    $checkDigit+=$nifSplit[$i]*(10-$i-1);
+                }
+                $checkDigit=11-($checkDigit % 11);
+                //Se der 10 então o dígito de controlo tem de ser 0
+                if($checkDigit>=10) $checkDigit=0;
+                //Comparamos com o último dígito
+                if ($checkDigit==$nifSplit[8]) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+
+
+    public static function getCurrentTimeZone(){
+        $timezone = Session::get('TIMEZONE', 'INVALID');
+        return $timezone;
+    }
+
 }

@@ -1,20 +1,13 @@
 @extends('private._private.index')
-
 @section('content')
     @if(isset($parameter))
-        @if(count($parameter->parameter_user_options)> 0)
             <div class="form-group">
 
                 <label>{{trans("private.selectMunicipality")}}</label>
-                <select class="form-control" id="municipality" name="{{$parameter->parameter_user_type_key}}" @if($parameter->mandatory) required @endif>
-                    <option value="" selected>{{trans("private.selectOption")}}</option>
-                    @foreach($parameter->parameter_user_options as $option)
-                        <option value="{{$option->parameter_user_option_key}}">{{$option->name}}</option>
-                    @endforeach
-                </select>
+                <input type="text" id="municipality" class="form-control">
+                
                 <a id="save-municipality" class="btn empatia" style="margin-top: 15px;">{{trans("private.ok")}}</a>
             </div>
-        @endif
     @else
         <a id="set-for-voting" class="btn empatia">{{trans("private.set_for_voting")}}</a>
     @endif

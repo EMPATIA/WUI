@@ -28,7 +28,7 @@
         {{ method_field('PUT') }}
     @endif
 
-    @if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('cb', 'notifications'))
+    @if(Session::get('user_role') == 'admin')
         <!-- CB Configurations -->
             <div class="card flat">
                 <div class="box-header">

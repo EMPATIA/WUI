@@ -7,46 +7,52 @@
 <script src="{{ asset('vendor/jildertmiedema/laravel-plupload/js/plupload.full.min.js') }}"></script>
 @section('content')
 
-    <div class="row">
-        <div class="col-md-12">
-            @if($type == 'vat_numbers')
-                <div class="box box-primary">
-                    <div class="box-header">
-                        <h3 class="box-title"><i class="fa fa-unlock"></i> {{ trans('manageEntityRegistrationValues.title') }}
-                        </h3>
-                    </div>
-                    <div class="box-body">
-                        {!! ONE::fileUploadBox("importer-drop-zone", trans('manageEntityRegistrationValues.drop_zone'), trans('manageEntityRegistrationValues.import_file'), 'select-importer','importer-list', "importer-files") !!}
-                        <div id="result"></div>
-                    </div>
-                </div>
-            @endif
 
-            <div class="box box-primary">
-                <div class="box-header">
-                    <h3 class="box-title"><i class="fa fa-unlock"></i> {{ trans('manageEntityRegistrationValues.manual_add') }}
-                    </h3>
-                </div>
-                <div class="box-body">
+        <div class="row">
+            {{--<div class="col-12">--}}
+            <div class="col">
+                <div class="card ">
                     @if($type == 'vat_numbers')
-                        <label>{{ trans('manageEntityRegistrationValues.vat_number') }}</label>
-                        <input type="text" id="vat-number" class="form-control" placeholder="{{ trans('manageEntityRegistrationValues.insert_vat_number') }}">
-                    @else
-                        <label>{{ trans('manageEntityRegistrationValues.domain_title') }}</label>
-                        <input type="text" id="domain-title"  class="form-control" placeholder="{{ trans('manageEntityRegistrationValues.insert_domain_title') }}">
-                        <label>{{ trans('manageEntityRegistrationValues.domain_name') }}</label>
-                        <input type="text" id="domain-name" class="form-control" placeholder="{{ trans('manageEntityRegistrationValues.insert_domain_name') }}">
+                        <div class="card-header">
+                            <h4>
+                                {{ trans('manageEntityRegistrationValues.importeFile') }}
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            {!! ONE::fileUploadBox("importer-drop-zone", trans('manageEntityRegistrationValues.drop_zone'), trans('manageEntityRegistrationValues.import_file'), 'select-importer','importer-list', "importer-files") !!}
+                            <div id="result"></div>
+                        </div>
                     @endif
-                    <div id="loader-div">
-                        <a class="btn btn-flat btn-create btn-sm add_{{$type}}" title="Create" style="margin-top:15px">
-                            <i class="fa fa-plus"></i> {{ trans('manageEntityRegistrationValues.addVatNumber') }}
-                        </a>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>
+                            {{ trans('manageEntityRegistrationValues.manual_add') }}
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        @if($type == 'vat_numbers')
+                            <label>{{ trans('manageEntityRegistrationValues.vat_number') }}</label>
+                            <input type="text" id="vat-number" class="form-control" placeholder="{{ trans('manageEntityRegistrationValues.insert_vat_number') }}">
+                        @else
+                            <label>{{ trans('manageEntityRegistrationValues.domain_title') }}</label>
+                            <input type="text" id="domain-title"  class="form-control" placeholder="{{ trans('manageEntityRegistrationValues.insert_domain_title') }}">
+                            <label>{{ trans('manageEntityRegistrationValues.domain_name') }}</label>
+                            <input type="text" id="domain-name" class="form-control" placeholder="{{ trans('manageEntityRegistrationValues.insert_domain_name') }}">
+                        @endif
+                        <div id="loader-div">
+                            <a class="btn btn-flat btn-create btn-sm add_{{$type}}" title="Create" style="margin-top:15px">
+                                <i class="fa fa-plus"></i> {{ trans('manageEntityRegistrationValues.addVatNumber') }}
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-
-
-            <div class="box box-primary">
+        </div>
+        <div class="box box-primary" style="margin-top: 15px">
+            <div class="col-md-12">
                 <div class="box-body">
                     <table id="registration_values_list" class="table table-striped dataTable no-footer table-responsive">
                         <thead>
@@ -64,9 +70,8 @@
                     </table>
                 </div>
             </div>
-
         </div>
-    </div>
+
 @endsection
 
 @section('scripts')

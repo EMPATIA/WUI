@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 3.5.0 - July 22, 2017
+
+- Added support for auto-discovery in Laravel 5.5 (#184)
+- Allowed more versions of PHPUnit to be used (#183)
+- Make publishing the config file optional (#182)
+- Removed PHP 5.5 (EOL) from tested versions in Travis CI
+- Bumped the Graph API version in the config to [v2.10](https://developers.facebook.com/docs/apps/changelog)
+
+## 3.4.2 - April 20, 2017
+
+- Bumped the Graph API version in the config to [v2.9](https://developers.facebook.com/docs/apps/changelog).
+
 ## 3.4.1 - October 12, 2016
 
 - Bumped the Graph API version in the config to [v2.8](https://developers.facebook.com/docs/apps/changelog).

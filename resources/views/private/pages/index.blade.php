@@ -28,7 +28,7 @@
                 <tr>
                     <th>{{ trans('privatePages.title') }}</th>
                     <th>{{ trans('privatePages.publishDate') }}</th>
-                    <th>@if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('cm', $type)){!! ONE::actionButtons($type, ['create' => 'ContentsController@create']) !!}@endif</th>
+                    <th>@if(Session::get('user_role') == 'admin'){!! ONE::actionButtons($type, ['create' => 'ContentsController@create']) !!}@endif</th>
                 </tr>
                 </thead>
             </table>

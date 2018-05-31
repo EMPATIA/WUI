@@ -20,7 +20,7 @@ class VotesConfigsController extends Controller
 
     public function __construct()
     {
-        View::share('title', trans('privateVoteConfigs.title'));
+        View::share('title', trans('privateVoteConfigs.voteConfigurations'));
 
 
     }
@@ -238,6 +238,7 @@ class VotesConfigsController extends Controller
             ->addColumn('action', function ($collection) {
                 return ONE::actionButtons($collection->vote_configuration_key, ['form'=> 'voteConfig','edit' => 'VotesConfigsController@edit', 'delete' => 'VotesConfigsController@delete']);
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
     

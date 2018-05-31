@@ -227,6 +227,7 @@ class ConferenceEventsController extends Controller
             ->addColumn('action', function ($collection) {
                 return ONE::actionButtons($collection->event_key, ['show' => 'ConferenceEventsController@show', 'delete' => 'ConferenceEventsController@delete']);
             })
+            ->rawColumns(['title','action'])
             ->make(true);
 
     }

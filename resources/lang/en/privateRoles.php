@@ -1,1 +1,1 @@
-<?php return array (  'list_roles' => 'Roles List',  'create_role' => 'Create Role',  'show_role' => 'Show Role',  'update_role' => 'Update Role',  'roles' => 'Roles',  'key' => 'Key',  'name' => 'Name',  'code' => 'Code',  'details' => 'Details',  'description' => 'Description',);
+<?php return array (  'roles' => 'Roles',  'name' => 'Name',  'code' => 'Code',  'details' => 'Details',  'description' => 'Description',  'list_roles' => 'Roles List',  'create_role' => 'Create Role',  'show_role' => 'Show Role',  'update_role' => 'Update Role',);

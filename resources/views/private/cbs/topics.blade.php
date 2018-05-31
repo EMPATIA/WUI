@@ -1,6 +1,7 @@
 @extends('private._private.index')
 
 
+
 @section('content')
     @include('private.cbs.tabs')
 
@@ -77,6 +78,22 @@
                     </select>
                 </div>
 
+                @if(!empty($cb->flags))
+                    <div class="col-6 col-md-3 col-lg-3" style="margin-top:20px;">
+                        <label for="flags_filter">{{trans('privateCbs.filter_by_flags')}}</label><br>
+                        <select id="flags_filter" style="width:100%;" class="form-control filters filters_select" name="flags_filter">
+                            <option selected="selected" value="">{{trans('privateCbs.select_value')}}</option>
+
+                            @foreach($cb->flags as $key => $flag)
+                                @if($loop->first)
+                                    <option value="-1">{{ trans("privateCbs.without_flags") }}</option>
+                                @endif
+                                <option value="{{$flag->id}}">{{$flag->title}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+
                 @if((!ONE::checkCBsOption($configurations, 'TOPIC-AS-PRIV-QUESTIONNAIRE')) && (!ONE::checkCBsOption($configurations, 'TOPIC-AS-PUBLIC-QUESTIONNAIRE')))
 
                     @foreach ($parameters as $key=> $value)
@@ -132,7 +149,7 @@
                 @endif
                 <div class="col-6 col-md-3 col-lg-2" @if(!empty($cbVotes)) style="margin-top:20px;" @endif>
                     <br>
-                    <input type="submit" form="search_form" value="Submit" class="btn-submit" style="float: right; margin-top:13px">
+                    <input type="submit" form="search_form" value="{{ trans('privateCbs.search') }}" class="btn-submit" style="float: right; margin-top:13px">
                 </div>
             </div>
         </form>
@@ -144,6 +161,7 @@
                 <table id="topics_list" class="table table-responsive  table-hover table-striped ">
                     <thead>
                     <tr>
+                        <th><input type="checkbox" id="checkAll"/></th>
                         <th>{{ trans('privateCbs.topic_number') }}</th>
                         @if((ONE::checkCBsOption($configurations, 'TOPIC-AS-PRIV-QUESTIONNAIRE')) || (ONE::checkCBsOption($configurations, 'TOPIC-AS-PUBLIC-QUESTIONNAIRE')))
                             <th></th>
@@ -153,7 +171,7 @@
                         <th>{{ trans('privateCbs.topic_created_at') }}</th>
                         <th>{{ trans('privateCbs.topic_author') }}</th>
                         <th>
-                            @if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('cb', 'topics'))
+                            @if(Session::get('user_role') == 'admin')
                                 {!! ONE::actionButtons(['type'=>$type,'cbKey'=>$cb->cb_key], ['create' => 'TopicController@create']) !!}
                                 <a href="{{ action("TopicController@createWithUser",['type'=>$type,'cbKey'=>$cb->cb_key]) }}" class="btn btn-flat btn-create btn-xs">
                                     <i class="fa fa-user-plus"></i>
@@ -164,7 +182,7 @@
                     </thead>
                 </table>
             @else
-                <div class="dataTables_wrapper dt-bootstrap no-footer">
+                <div class="dataTables_wrapper dt-bootstrap no-footer table-responsive ">
                     <table id="topics_list_status"
                            class="table table-responsive table-hover table-striped ">
                         <thead>
@@ -179,14 +197,17 @@
                             <th>{{ trans('privateCbs.technical_analysis') }}</th>
                             <th>{{ trans('privateCbs.topic_status') }}</th>
                             <th>
-                                @if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('cb', 'topics'))
-                                    {!! ONE::actionButtons(['type'=>$type,'cbKey'=>$cb->cb_key], ['create' => 'TopicController@create']) !!}
-                                    <a href="{{ action("TopicController@createWithUser",['type'=>$type,'cbKey'=>$cb->cb_key]) }}" class="btn btn-flat btn-create btn-xs">
-                                        <i class="fa fa-user-plus"></i>
-                                    </a>
+                                @if(Session::get('user_role') == 'admin')
+                                    @if(ONE::checkCBPermissions($cb->cb_key, "topic_create"))
+                                        {!! ONE::actionButtons(['type'=>$type,'cbKey'=>$cb->cb_key], ['create' => 'TopicController@create']) !!}
+                                    @endif
+                                    @if(ONE::checkCBPermissions($cb->cb_key, "topic_create_with_user"))
+                                        <a href="{{ action("TopicController@createWithUser",['type'=>$type,'cbKey'=>$cb->cb_key]) }}" class="btn btn-flat btn-create btn-xs">
+                                            <i class="fa fa-user-plus"></i>
+                                        </a>
+                                    @endif
                                 @endif
                             </th>
-
                         </tr>
                         </thead>
                     </table>
@@ -196,12 +217,14 @@
             <form id="exportExcelList"
                   action="{{ action("TopicController@excel",['type'=>$type,'cbKey'=>$cb->cb_key]) }}" method="POST">
                 <input type="hidden" name="_token" value="@php echo csrf_token(); @endphp"/>
+                <input type="hidden" id="export_analysis" name="export_analysis" value="0"/>
                 <input type="hidden" id="exportIds" name="exportIds"/>
             </form>
 
             <form id="exportPdfList"
                   action="{{ action("TopicController@pdfList",['type'=>$type,'cbKey'=>$cb->cb_key]) }}" method="POST">
                 <input type="hidden" name="_token" value="@php echo csrf_token(); @endphp"/>
+                <input type="hidden" id="export_analysis_pdf" name="export_analysis_pdf" value="0"/>
                 <input type="hidden" id="exportIdsPdf" name="exportIds"/>
             </form>
 
@@ -216,12 +239,25 @@
                             <div class="row">
                                 <div class="col-12 text-center">
                                     <div id="excel_list" class="btn btn-flat btn-success btn-sm">
-                                        <i class="fa fa-file-excel-o" aria-hidden="true"></i>nelson
+                                        <i class="fa fa-file-excel-o" aria-hidden="true"></i>
                                         {{ trans('privateCbs.download_excel') }}
                                     </div>
                                     <div id="pdf_list" class="btn btn-flat btn-success btn-sm">
                                         <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
                                         {{ trans('privateCbs.download_pdf') }}
+                                    </div>
+                                    <hr>
+                                </div>
+                                <div class="col-12">
+                                    <label for="export_vote_analysis">
+                                        Export Vote Analytics
+                                    </label>
+                                    <div class="onoffswitch">
+                                        <input type="checkbox" name="export_vote_analysis" class="onoffswitch-checkbox" id="export_vote_analysis" value="1">
+                                        <label class="onoffswitch-label" for="export_vote_analysis">
+                                            <span class="onoffswitch-inner"></span>
+                                            <span class="onoffswitch-switch"></span>
+                                        </label>
                                     </div>
                                 </div>
                             </div>
@@ -233,20 +269,49 @@
                 </div>
             </div>
 
+            {{--Delete Checkbox--}}
+            <div class="modal fade" id="modalDelete" role="dialog" aria-labelledby="modalDelete">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="card-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title"> {{trans('privateCbs.delete')}}</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p>{{trans('privateCbs.are_you_sure_you_want_to_delete_this_topic')}}</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-flat btn-preview" id="deleteTopic"> {{trans('privateCbs.delete')}}</button>
+                            <button type="button" class="btn empatia" data-dismiss="modal">{{ trans('privateCbs.cancel') }}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{--Change State Data Button--}}
+            <button type="button" class="btn btn-flat btn-submit dropdown-toggle dropdown-toggle-split " data-toggle="dropdown" aria-haspopup="true" name="none" aria-expanded="false"  style="margin-top:20px">
+                {{trans("privateCbs.state")}}
+            </button>
+            <div class="dropdown-menu" >
+                @foreach($statusTypes as $key => $statusType)
+                    <a class="dropdown-item" onclick="updateChecklistItem('{{$key}}')" >{{$statusType}}</a>
+                @endforeach
+            </div>
+
+            {{--Delete Data Button--}}
+            <div id="deleteModal" class="btn btn-flat btn-submit" style="margin-top:20px">
+                <i class="fa fa-remove" aria-hidden="true"></i>
+                {{ trans('privateCbs.delete') }}
+            </div>
+
             {{--Exportation Data Button--}}
             <div id="exportModal" class="btn btn-flat btn-submit">
                 <i class="fa fa-download" aria-hidden="true"></i>
                 {{ trans('privateCbs.export') }}
             </div>
-
-            <br><br>
-            <span class="btn btn-flat btn-warning"></span> - {{ trans('privateCbs.topic_status') }}
-            <span style="margin-right:10px;"></span>
-            <span class="btn btn-flat btn-info"></span>
-            - {{ trans('topic.history') }}
         </div>
     </div>
-    </div>
+
 
     <!-- update status modal -->
     <div class="modal fade" tabindex="-1" role="dialog" id="updateStatusModal" >
@@ -267,11 +332,9 @@
                             <div class="form-group ">
                                 <label for="status_type_code">{{trans('privateCbs.status_types')}}</label>
                                 <div for="status_type_code"  style="font-size:x-small">{{trans('privateCbs.status_typesDescription')}}</div>
-
                                 <select id="status_type_code" class="form-control" name="status_type_code">
                                     <option selected="selected" value="">{{trans('privateCbs.select_value')}}</option>
-                                    <option  value="0">{{trans('privateCbs.withoutstatus')}}</option>
-
+{{--                                    <option  value="0">{{trans('privateCbs.withoutstatus')}}</option>--}}
                                     @foreach($statusTypes as $key => $statusType)
                                         <option value="{{$key}}">{{$statusType}}</option>
                                     @endforeach
@@ -317,6 +380,83 @@
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
+
+    @if(!empty($cb->flags))
+        <!-- attach flag modal -->
+        <div class="modal fade" tabindex="-1" role="dialog" id="flagAttachmentModal" >
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="card-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">{{trans("privateCbs.flag_attachment")}}</h4>
+                    </div>
+                    <div class="modal-body">
+                        {!! Form::hidden('topicKey','', ['id' => 'topicKey']) !!}
+                        <div class="row">
+                            @foreach($cb->flags as $key => $flag)
+                                <div class="col-12 col-md-8">
+                                    {{ $flag->title }}
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    {!! Form::oneSwitch("flag[".$flag->id."][status]",null, null,["readonly"=>false]) !!}
+                                </div>
+                                <div class="col-12" id="flag-translations-{{ $flag->id }}">
+                                    <ul class="nav nav-tabs" role="tablist">
+                                        @foreach($languages as $language)
+                                            <li role="presentation @if($loop->first) active @endif" class="@if($loop->first) active @endif">
+                                                <a href="#tab-translation-{{ $flag->id }}-{{ $language->code }}" aria-controls="affa" role="tab" data-toggle="tab" class="@if($loop->first) active @endif">
+                                                    {{ $language->name }}
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                    <div class="tab-content" style="min-height:auto;">
+                                        @foreach($languages as $language)
+                                            <div role="tabpanel" class="tab-pane @if($loop->first) active @endif" id="tab-translation-{{ $flag->id }}-{{ $language->code }}">
+                                                <div class="form-group">
+                                                    <label for="flag[{{ $flag->id }}][translation][{{ $language->code }}]">
+                                                        {{trans('privateCbs.flag_attachment_description')}}
+                                                    </label>
+                                                    <input class="form-control" type="text" name="flag[{{ $flag->id }}][translation][{{ $language->code }}]" id="flag[{{ $flag->id }}][translation][{{ $language->code }}]">
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="closeFlagAttachmentModal">{{trans("privateCbs.close")}}</button>
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <button type="button" class="btn btn-primary" id="attachFlagSave">{{trans("privateCbs.save_changes")}}</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+        <!-- flag history modal -->
+        <div class="modal fade" tabindex="-1" role="dialog" id="flagHistoryModal" >
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="card-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">{{trans('privateCbs.flag_history')}}</h4>
+                    </div>
+                    <div class="modal-body" style="overflow-y: scroll;max-height: 50vh;">
+                        <div id="flagHistory">
+
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{trans("privateCbs.close")}}</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+    @endif
+
 @endsection
 
 @section('scripts')
@@ -430,6 +570,7 @@
         $(function () {
             // Topics List
             $('#topics_list').DataTable({
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
                 language: {
                     url: '{!! asset('/datatableLang/'.Session::get('LANG_CODE').'.json') !!}',
                     search: '<a class="btn searchBtn" id="searchBtn"><i class="fa fa-search"></i></a>'
@@ -437,15 +578,16 @@
                 responsive: true,
                 processing: true,
                 serverSide: true,
-                ajax: '{!! action('TopicController@getIndexTable',['type'=>$type,'cbKey'=>$cb->cb_key]) !!}',
+                ajax: '{!! action('TopicController@getIndexTable', ['type'=>$type, 'cbKey'=>$cb->cb_key]) !!}',
                 columns: [
-                    { data: 'topic_number', name: 'topic_number', width: "5px"},
-                    { data: 'title', name: 'title'},
+                    { data: 'select_topics', name: 'select_topics', searchable: false, orderable: false, width: "5px" },
+                    { data: 'topic_number', name: 'topic_number', width: "5px" },
+                    { data: 'title', name: 'title' },
                     { data: 'created_at', name: 'created_at', width: "50px" },
-                    { data: 'created_by', name: 'created_by', width: "20px"},
+                    { data: 'created_by', name: 'created_by', width: "20px" },
                     { data: 'action', name: 'action', searchable: false, orderable: false, width: "30px" }
                 ],
-                order: [['0', 'desc']]
+                order: [['1', 'desc']]
             });
 
             // Topics List Status
@@ -459,7 +601,7 @@
                 serverSide: true,
                 responsive: true,
                 ajax: {
-                    url: '{!! action('TopicController@getIndexTableStatus',['type'=>$type,'cbKey'=>$cb->cb_key]) !!}',
+                    url: '{!! action('TopicController@getIndexTableStatus', ['type'=>$type,'cbKey'=>$cb->cb_key, 'hasFlags' => !empty($cb->flags)]) !!}',
                     type:"post",
                     data:function(d){
                         d.parameters=buildSearchDataRoles();
@@ -543,6 +685,7 @@
                 topicIds.push($(obj).val());
             });
 
+            $("#export_vote_analysis_pdf").val($("#export_vote_analysis").is(":checked") ? 1 : 0);
             $('#exportIdsPdf').val(JSON.stringify(topicIds));
             $('#exportPdfList').submit();
         });
@@ -553,13 +696,154 @@
                 topicIds.push($(obj).val());
             });
 
+            $("#export_analysis").val($("#export_vote_analysis").is(":checked") ? 1 : 0);
             $('#exportIds').val(JSON.stringify(topicIds));
             $('#exportExcelList').submit();
         });
 
         $("#exportModal").click(function () {
             $("#modalExport").modal('show')
-        })
+        });
+
+        function attachFlag(topicKey){
+            $('#topicKey').val(topicKey);
+            $('#flagAttachmentModal').modal('show');
+        }
+
+        $('#flagAttachmentModal').on('show.bs.modal', function (event) {
+            $('#attachFlagSave').off();
+            $('#attachFlagSave').on('click', function (evt) {
+                var allVals = {};
+                var isValid = true;
+
+                $.each($('#flagAttachmentModal :input').serializeArray(), function (key, value) {
+                    allVals[value.name] = value.value;
+                });
+                
+                allVals.attachmentCode = 'TOPIC';
+                $.ajax({
+                    method: 'POST', // Type of response and matches what we said in the route
+                    url: "{{action('FlagsController@attachFlag')}}", // This is the url we gave in the route
+                    data: allVals, // a JSON object to send back
+                    success: function (response) { // What to do if we succeed
+
+                        $('#flagAttachmentModal').modal('hide');
+                        reloadTable();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) { // What to do if we fail
+                        $('#flagAttachmentModal').modal('hide');
+                        toastr.error('{{ trans('privateCbs.error_updating_state_or_sending_email_to_user') }}', '', {timeOut: 3000,positionClass: "toast-bottom-right"});
+                    }
+                });
+            });
+            //clear inputs and close update status modal
+            $('#closeFlagAttachmentModal').on('click', function (evt) {
+                $('#flagAttachmentModal input:text').each(function () {
+                    $(this).val('');
+                });
+                $('#flagAttachmentModal input:checkbox').each(function () {
+                    $(this).prop("checked","");
+                });
+                $('#flagAttachmentModal').modal('hide');
+            });
+            {{--{!! session()->get('LANG_CODE').'json' !!}--}}
+        });
+
+        //function to get status history
+        function seeFlagHistory(topicKey){
+            $.ajax({
+                method: 'POST', // Type of response and matches what we said in the route
+                url: '{{action("FlagsController@getElementFlagHistory")}}', // This is the url we gave in the route
+                data: {
+                    attachmentCode: "TOPIC",
+                    elementKey: topicKey
+                }, // a JSON object to send back
+                success: function (response) { // What to do if we succeed
+                    if(response != 'false'){
+                        $('#flagHistory').html(response);
+                        if (!$('#flagHistoryModal').is(":visible"))
+                            $('#flagHistoryModal').modal('show');
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) { // What to do if we fail
+                    console.log("AJAX error: " + textStatus + ' : ' + errorThrown);
+                }
+            });
+        }
+
+        //Checkbox - Delete
+
+        $("#deleteModal").click(function () {
+            $("#modalDelete").modal('show');
+        });
+
+
+        $("#deleteTopic").click(function() {
+            $("#modalDelete").modal('hide');
+
+            var cbType = [];
+            var cbKey = [];
+            var topicKey = [];
+
+            $('.topic_id:checked').each( function(i, obj){
+                cbType.push(($(this).attr('cbType')));
+                cbKey.push(($(this).attr('cbKey')));
+                topicKey.push(($(this).attr('topicKey')));
+            });
+
+            $.ajax({
+                type: "delete",
+                url: '{{action("TopicController@destroy", [0, 0,0]) }}',
+                data: {
+                    "_token"   : "{{ csrf_token() }}",
+                    "cbType"   :cbType,
+                    "cbKey"    :cbKey,
+                    "topicKey" :topicKey,
+                    "btnValidate" : 1,
+                },
+                success: function (response) {
+                    location.reload();
+                },
+                error: function (response) {
+
+                }
+            });
+        });
+
+        function updateChecklistItem(key){
+
+            var type = [];
+            var cbKey = [];
+            var topicKey = [];
+            
+            $('.topic_id:checked').each( function(i, obj){
+                type.push(($(this).attr('cbType')));
+                cbKey.push(($(this).attr('cbKey')));
+                topicKey.push(($(this).attr('topicKey')));
+            });
+
+            if( jQuery.isEmptyObject(type)){
+                alert("{!!trans('privateCbs.please_select_first_in_the_table') !!}");
+            }
+            else{
+                $.ajax({
+                    method: 'POST', // Type of response and matches what we said in the route
+                    url: "{{action('TopicController@updateStatusTopic',[0,0])}}", // This is the url we gave in the route
+                    data: {
+                        "_token"   : "{{ csrf_token() }}",
+                        "type"     :type,
+                        "cbKey"    :cbKey,
+                        "topicKey" :topicKey,
+                        "status_type_code" :key,
+                    },
+                    success: function (response) { // What to do if we succeed
+                        location.reload();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) { // What to do if we fail
+                    }
+                });
+            }
+        }
 
     </script>
 @endsection

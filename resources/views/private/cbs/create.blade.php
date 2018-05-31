@@ -1,5 +1,12 @@
 @extends('private._private.index')
-
+@section('header_styles')
+    <link href="{!! asset(elixir('css/bootstrap-datetimepicker/bootstrap-datetimepicker.css')) !!}" rel="stylesheet"
+          type="text/css"/>
+@endsection
+@section('header_scripts')
+    <script src="{!! asset(elixir('js/bootstrap-datetimepicker/moment-with-locales.js')) !!}"></script>
+    <script src="{!! asset(elixir('js/bootstrap-datetimepicker/bootstrap-datetimepicker.js')) !!}"></script>
+@endsection
 @section('content')
     <div class="box box-primary">
         <div class="">
@@ -16,13 +23,14 @@
 
             {!! Form::hidden('cb_key', isset($cbKey) ? $cbKey : null, ['id' => 'cb_key']) !!}
             {!! Form::hidden('parent_cb_id', isset($cb) ? $cb->parent_cb_id : 0, ['id' => 'parent_cb_id']) !!}
+
             <div id="cbWizard">
                 <div class=""  style="">
                     <div class="cb-empatia-wrapper">
 
                         <button type="button" onclick="getTemplates()" class="btn btn-flat btn-submit" data-toggle="modal" data-target="#useTemplate" style="margin-bottom: 10px">{{ trans('privateCbs.use_template') }}</button>
 
-                        <a type="" class="btn-flat btn-cancel pull-right" href="{{action('CbsController@indexManager','typeFilter='.$type)}}">{!! trans("privateCbs.cancel") !!}</a>
+                        <a type="" class="btn-flat btn-cancel pull-right" href="{{action('CbsController@indexManager')}}">{!! trans("privateCbs.cancel") !!}</a>
                    <br>
 
                     <hr>
@@ -225,7 +233,7 @@
         $('#cbWizard .btn-next').click(function(){
             var stepDiv = $(this).parents('.tab-pane').next().attr("id");
 
-            if(stepDiv == "step10"){
+            if(stepDiv == "step{{ $i+2 }}"){
                 createCb();
             }
 
@@ -237,9 +245,11 @@
                 toastr.error("{!! preg_replace( "/\r|\n/", "", htmlentities(trans("privateCbs.titleRequiredOnTab"),ENT_QUOTES)) !!} #1!");
 
                 return false;
-            }
-            else  if( stepDiv == "step2" && $("#start_date").val() =="" ){
+            } else  if( stepDiv == "step2" && $("#start_date").val() =="" ){
                 toastr.error("{!! preg_replace( "/\r|\n/", "", htmlentities(trans("privateCbs.start_dateRequiredOnTab"),ENT_QUOTES)) !!} #3!");
+                return false;
+            } else if(stepDiv == "step2" && $("#end_date").val() !== "" && $("#start_date").val() >= $("#end_date").val()) {
+                toastr.error("{{ preg_replace( "/\r|\n/", "", htmlentities(trans("privateCbs.invalid_dates"),ENT_QUOTES)) }} #1!");
                 return false;
             }
 
@@ -366,7 +376,7 @@
             $.ajax({
                 'url': '{{action('CbsController@getDetailsView', ['type' => isset($type)?$type:null])}}',
                 'method' : 'get',
-                'data' : {cbKey : $("#cb_key").text()},
+                'data' : {cbKey : $("#cb_key").val()},
                 success: function(response){
                     window.location.href = response;
                 },

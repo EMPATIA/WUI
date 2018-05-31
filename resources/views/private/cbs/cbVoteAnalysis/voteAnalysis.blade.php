@@ -1,13 +1,15 @@
 @extends('private._private.index')
 
 @section('content')
+    @include('private.cbs.cbVoteAnalysis.cbDetails')
 
     @include('private.cbs.tabs')
 
     <div class="box box-primary background-white">
         <div class="box-body">
-            @if(!empty($voteEvents))
+        @if(!empty($voteEvents))
                 <div class="col-12" style="padding-bottom: 20px">
+                    <div><label>{{ trans('privateCbsVoteAnalysis.vote_event') }}</label></div>
                     <select id="voteEventSelect" name="voteEventSelect" class="voteEventSelect" style="width: 50%;">
                         <option value="">{{ trans('privateCbsVote.select_vote_event') }}</option>
                         @foreach($voteEvents as $key => $voteEvent)

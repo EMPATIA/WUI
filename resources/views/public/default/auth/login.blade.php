@@ -1,170 +1,247 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>EMPATIA | Log in</title>
-    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <link href="{{ url('/').elixir("css/empatia.css") }}" rel="stylesheet" type="text/css"/>
-    <link rel="stylesheet" href="{{ asset('css/sweetalert.css')}}">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+@extends('public.default._layouts.loginLayout')
+@section('header_styles')
     <style>
-        .loginBtn {
-            box-sizing: border-box;
-            position: relative;
-            /* width: 13em;  - apply for fixed size */
-            margin: 0.2em;
-            padding: 0 15px 0 46px;
-            border: none;
-            text-align: left;
-            line-height: 34px;
-            white-space: nowrap;
-            border-radius: 0.2em;
-            font-size: 16px;
-            color: #FFF;
-        }
-        .loginBtn:before {
-            content: "";
-            box-sizing: border-box;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 34px;
+        html{
             height: 100%;
         }
-        .loginBtn:focus {
-            outline: none;
+
+        .login-bg .login-row .login-box .footer-buttons .login-btn button{
+            cursor: pointer;
         }
-        .loginBtn:active {
-            box-shadow: inset 0 0 0 32px rgba(0,0,0,0.1);
+        .login-bg .login-row .login-box .footer-buttons .login-btn button{
+            cursor: pointer;
+
         }
 
-
-        /* Facebook */
-        .loginBtn--facebook {
-            background-color: #4C69BA;
-            background-image: linear-gradient(#4C69BA, #3B55A0);
-            /*font-family: "Helvetica neue", Helvetica Neue, Helvetica, Arial, sans-serif;*/
-            text-shadow: 0 -1px 0 #354C8C;
-        }
-        .loginBtn--facebook:before {
-            border-right: #364e92 1px solid;
-            background: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/14082/icon_facebook.png') 6px 6px no-repeat;
-        }
-        .loginBtn--facebook:hover,
-        .loginBtn--facebook:focus {
-            background-color: #5B7BD5;
-            background-image: linear-gradient(#5B7BD5, #4864B1);
+        .login-bg .login-row .login-box .footer-buttons .login-btn button:hover{
+            background: {{ONE::getSiteConfiguration("color_secondary") }}!important;
+            color: white!important;
         }
 
-
-        /* Google */
-        .loginBtn--google {
-            /*font-family: "Roboto", Roboto, arial, sans-serif;*/
-            background: #DD4B39;
-        }
-        .loginBtn--google:before {
-            border-right: #BB3F30 1px solid;
-            background: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/14082/icon_google.png') 6px 6px no-repeat;
-        }
-        .loginBtn--google:hover,
-        .loginBtn--google:focus {
-            background: #E74B37;
+        .footer-buttons .login_line_between{
+            background-color: white;
+            height: 2px;
+            margin-top: 25px;
+            margin-bottom: 20px;
         }
 
-        /*  password recovery anchor */
+        .login-bg .login-row .login-box .footer-buttons .signIn-btn a, .login-bg .login-row .login-box .footer-buttons .signIn-btn button{
+            border: none;
+            padding: 0;
+            width: auto;
+        }
 
-        .password-recovery {
-            text-align: right;
-            padding-bottom: 10px;
+        .login-bg .login-row .login-box .footer-buttons .signIn-btn a:hover, .login-bg .login-row .login-box .footer-buttons .signIn-btn button:hover{
+            background-color: {{ ONE::getSiteConfiguration("color_primary") }}!important;
+            color: {{ ONE::getSiteConfiguration("color_secondary") }};
         }
-        .password-recovery a{
-            color: #000;
-            text-decoration: underline;
-        }
-        .password-recovery a:hover{
-            font-weight: bold;
-        }
-        .password-recovery a:active{
-            font-weight: bold;
-            color: #588837;
-        }
-        /*  //  password recovery anchor*/
 
+        .login-bg .login-row .login-box .social-login-btns a{
+            color: {{ ONE::getSiteConfiguration("color_primary") }}!important;
+            border: none;
+        }
+
+        .login-bg .login-row .login-box .social-login-btns a:hover{
+            background-color: {{ ONE::getSiteConfiguration("color_secondary") }};
+            color: white !important;
+        }
+
+        .login-bg .login-row .login-box .login-form .forgot-password a:hover{
+            color: {{ ONE::getSiteConfiguration("color_secondary") }};
+        }
+
+        .login-bg{
+            background-image: url({{ ONE::getSiteConfiguration("file_background_login") ."?w=1250" }})!important ;
+        }
+
+        .login-bg .login-row .login-box .login-form .input-warning{
+            color: white;
+        }
+
+        .login-bg .login-row .login-box .login-form .input-warning a{
+            color: white;
+        }
+
+        .modal-footer .cancel-btn:hover{
+            background-color: #c4c4c4 !important;
+            max-height: 800px;
+        }
+
+        .modal-body{
+            padding: 2rem 30px 0rem 30px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .modal{
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .modal-dialog{
+            width: 80%;
+            max-width: 900px;
+        }
+
+        .modal-footer{
+            justify-content: flex-end;
+        }
+
+        .accept-terms{
+            padding: 10px;
+            background: {{ ONE::getSiteConfiguration("color_primary") }}!important;
+            color: white;
+        }
+
+        .accept-terms:hover{
+            text-decoration: none;
+            background: {{ ONE::getSiteConfiguration("color_secondary") }}!important;
+        }
     </style>
-</head>
-<body class="hold-transition login-page">
-<div id="bck_image" style="position: fixed; top: 0; bottom: 0; left: 0; right: 0; background-image: url('{{ asset('/images/background.jpg') }}'); background-position: top center; background-size: cover; background-repeat: no-repeat;  z-index: -100;"></div>
-<div class="login-box" style="margin: 5% auto">
-    <div class="login-box-body">
-        <div style='max-width: 320px; margin: auto; text-align: center'>
-            <a href="{{ action('PublicController@index') }}"><img src="{{ asset('images/orig_logo.png') }}" style='width: 80%' /></a>
-        </div>
-        <p class="login-box-msg"></p>
-        @if(old('auth.wait.registration') == '1')
-            <div class="alert alert-warning fade in">
-                <!--strong>Warning!</strong><br-->{{trans('register.confirmation.email.check')}}
-            </div>
-        @endif
-        <form action="{{ URL::action('AuthController@verifyLogin') }}" method="POST">
-            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-            <div class="form-group has-feedback">
-                <input type="text" name="email" class="form-control" placeholder="Email" value="{{ old('email') }}" autofocus>
-                <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
-            </div>
-            <div class="form-group has-feedback">
-                <input type="password" name="password" class="form-control" placeholder="{{ trans('authLogin.password') }}">
-                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-            </div>
-            <div class="row">
-                <div class="col-xs-12 password-recovery">
-                    <div class="padding-login-button">
-                        <a href="{{ action('AuthController@recovery') }}" style="text-decoration: underline" >{{ trans('authLogin.password_recovery') }}</a>
+@endsection
+
+@section("content")
+
+    <!-- Login -->
+    <div class="container-fluid login-bg">
+        <div class="row login-row">
+            <div class="col-12 col-sm-11 col-md-10 col-lg-5 login-box">
+                <div class="login-close">
+
+                </div>
+                <div class="login-title">
+                    {{ ONE::transSite("login_title") }}
+                </div>
+                <div class="login-description-text">
+                    {{ ONE::transSite("login_title_description") }}
+                </div>
+                
+                @if(!empty($errors->all()))
+                <div class="login-form">
+                    <div class="input-warning">
+                        @foreach ($errors->all() as $error)
+                            <div style="padding: 3px 0;"> <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{ ONE::transSite($error) }}</div>
+                        @endforeach
                     </div>
                 </div>
+                @endif
+
+                @if($facebook_login || $googleAuthMethod)
+                    <div class="row social-login-btns">
+                        @if($facebook_login)
+                            <div class="@if($googleAuthMethod) col-sm-6 @else col-12 @endif">
+                                <a data-toggle="modal" data-target="#modal_terms"><i class="fa fa-facebook" aria-hidden="true"></i> {{ ONE::transSite("login_facebook") }}</a>
+                                {{--                                <a href="{{ URL::action('AuthSocialNetworkController@redirectToFacebook') }}"><i class="fa fa-facebook" aria-hidden="true"></i> {{ ONE::transSite("login_facebook") }}</a>--}}
+                            </div>
+                        @endif
+                        @if($googleAuthMethod)
+                            <div class="@if($facebook_login) col-sm-6 @else col-12 @endif">
+                                <a href="#"><i class="fa fa-google-plus" aria-hidden="true"></i> {{ ONE::transSite("login_google") }}</a>
+                            </div>
+                        @endif
+
+                        <p>{{ ONE::transSite("login_or") }}</p>
+                    </div>
+                @endif
+                <form action="{{ action('AuthController@verifyLogin') }}" method="POST">
+                    <div class="login-form">
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <div class="form-group">
+                            <label>{{ ONE::transSite("login_email_address") }}</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="{{ ONE::transSite("login_email_address_placeholder") }}">
+                        </div>
+                        <div class="form-group">
+                            <label>{{ ONE::transSite("login_password") }}</label>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="{{ ONE::transSite("login_password_placeholder") }}">
+                            {{--
+                            @if($errors->count()>0)
+                              <div class="input-warning">
+                                  <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{ ONE::transSite("login_authentication_error") }}
+                              </div>
+                            @endif
+                            --}}
+                        </div>
+                        <div class="forgot-password">
+                            <a href="{{ action('AuthController@recovery') }}">
+                                {{ ONE::transSite("login_forgot_password") }}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row footer-buttons">
+                        <div class="col-12 login-btn">
+                            <button type="submit" style="cursor: pointer">
+                                {{ ONE::transSite("login_submit") }}
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <div class="login_line_between"></div>
+                        </div>
+                        <div class="col-12 signIn-btn">
+                            <a href="{{ action('AuthController@register') }}">{{ ONE::transSite("login_sign_up") }}</a>
+                        </div>
+                    </div>
+                    {{--  <div class="row footer-buttons">
+                        <div class="offset-sm-6 col-sm-6 col-12 login-btn">
+                            <a href="#">Resend</a>
+                        </div>
+                    </div>  --}}
+                </form>
             </div>
-            <div class="row">
-                <div class="col-xs-8"></div>
-                <div class="col-xs-4">
-                    <button type="submit" class="btn btn-block btn-flat" style="background-color: #62a351; color:white">{{ trans('auth.enter') }}</button>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal_terms" role="dialog">
+        <div class="modal-dialog modal-terms modal-50">
+            <div class="modal-content">
+                <div class="modal-header no-border">
+                    <h3 class="modal-title terms-conditions-modal-title">{{ ONE::transSite("register_terms_and_conditions") }}</h3>
+                    <div class="float-right"><a data-dismiss="modal" style="cursor:pointer"><em class="fa fa-times my-custom-fa-close"></em></a></div>
+                </div>
+                <div class="modal-body terms-conditions-wrapper">
+                    {!! html_entity_decode(ONE::getSiteEthic('use_terms')) !!}
+                    {!! html_entity_decode(ONE::getSiteEthic('privacy_policy')) !!}
+                </div>
+                <div class="modal-footer">
+                                <a href="{{ URL::action('AuthSocialNetworkController@redirectToFacebook') }}" class="accept-terms" style="">{{ ONE::transSite("accept_terms") }}</a>
+                                {{--                                <a href="{{ URL::action('AuthSocialNetworkController@redirectToFacebook') }}"><i class="fa fa-facebook" aria-hidden="true"></i> {{ ONE::transSite("login_facebook") }}</a>--}}
                 </div>
             </div>
-        </form>
+        </div>
+
+        @endsection
+        @section('scripts')
+            <script>
+                $(document).ready(function() {
+                    var timeout = 0;
+
+                    $('.modal').on('show.bs.modal', function () {
+                        $(this).find('.modal-body').css({
+                            width:'auto', //probably not needed
+                            height:'auto', //probably not needed
+                        });
+                    });
+
+                    $( window ).resize(function() {
+                        $('.modal-body').css({
+                            width:'auto', //probably not needed
+                            height:'auto', //probably not needed
+                        });
+                    });
 
 
-        {{--Login by code--}}
-        {{--<div class="row">--}}
-        {{--<div class="col-md-12" style="padding-right: 42.5px; ">--}}
-        {{--<h4>-- {{trans('login.or')}} --</h4>--}}
-        {{--</div>--}}
-        {{--<div class="col-md-12">--}}
-        {{--{!! Html::oneLoginCode()!!}--}}
-        {{--</div>--}}
+                });
+            </script>
 
-        {{--</div>--}}
+            <style>
+                .terms-conditions-wrapper {
+                    font-size: 14px;
+                }
+
+                .form-row{
+                    margin-left: -15px;
+                    margin-right: -15px;
+                }
 
 
-        <br>
-
-        @if($facebook_login==true)
-            <form action="{{ URL::action('AuthSocialNetworkController@redirectToFacebook') }}" method="get">
-                <button class="loginBtn loginBtn--facebook">
-                    {{ trans('defaultAuthLogin.facebook_login') }}
-                </button>
-            </form>
-        @endif
-
-        {{--<a href="{{ action('AuthController@recovery') }}" style="color: #62a351">I forgot my password</a><br>--}}
-        {{--<br>--}}
-        {{--<a href="{{ action('AuthController@register') }}" class="text-center" style="color: #62a351">{{trans('PublicAuth.register')}}</a>--}}
-    </div>
-</div>
-
-<script src="{{ url('/')."/".elixir("js/empatia.js") }}"></script>
-<script src="{{ asset('js/sweetalert.min.js')}}"></script>
-
-@include('sweet::alert')
-
-{!! ONE::messages() !!}
-</body>
-</html>
+            </style>
+@endsection

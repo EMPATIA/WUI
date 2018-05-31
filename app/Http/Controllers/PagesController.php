@@ -302,6 +302,7 @@ class PagesController extends Controller
             ->addColumn('action', function ($page) {
                 return ONE::actionButtons($page->id, ['edit' => 'PagesController@edit', 'delete' => 'PagesController@destroy']);
             })
+            ->rawColumns(['id','action'])
             ->make(true);
     }
 }

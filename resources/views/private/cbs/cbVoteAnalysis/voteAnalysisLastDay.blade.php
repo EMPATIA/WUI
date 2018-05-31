@@ -15,7 +15,7 @@
         @foreach($votesLastDay->total as $hour => $voteValue)
             {'{!! trim(preg_replace('/\s\s+/', ' ',trans('privateCbsVoteAnalysis.hour'))) !!}': '{!! $hour !!}',
              "name":'{!! trans('privateCbsVoteAnalysis.all_votes') !!}',
-             '{!! trim(preg_replace('/\s\s+/', ' ',trans('privateCbsVoteAnalysis.votes'))) !!}': {{ number_format($voteValue, 3, '.', ',') }} },
+             '{!! trim(preg_replace('/\s\s+/', ' ',trans('privateCbsVoteAnalysis.votes'))) !!}': {{ $voteValue }} },
         @endforeach
     ];
 
@@ -60,3 +60,5 @@
     }
 
 </script>
+
+@include('private.cbs.cbVoteAnalysis.cbDetailsScript')

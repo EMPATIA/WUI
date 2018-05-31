@@ -179,73 +179,69 @@
         </div>
         {!! $form->make() !!}
 
-        @if(ONE::verifyUserPermissions('q', 'poll', 'update'))
-            <!-- Periods -->
-            <div class="box box-primary">
-                <div class="box-header">
-                    <h3 class="box-title">{!! trans('privateEventSchedules.period_details') !!}</h3>
-                    @if(ONE::verifyUserPermissions('q', 'poll_periods', 'create'))
-                        <div class="box-tools pull-right">
-                            <a class="btn btn-flat btn-success btn-sm" href="{!! action('EventSchedulesController@editPeriods', $eventSchedule->key) !!}?f=eventSchedule"><i class="fa fa-pencil"></i></a>
-                        </div>
-                    @endif
-                </div>
-                <div class="box-body">
-                    <dl>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="box-body no-padding">
-                                    @if($eventSchedule->type_id == 1)
-                                        <div class="user-panel" id="periods">
-                                            <div class="row">
-                                                <div class="col-md-6"><b>{!! trans('eventSchedule.date') !!}</b></div>
-                                                <div class="col-md-6"><b>{!! trans('eventSchedule.time') !!}</b></div>
-                                            </div>
-                                            @foreach((isset($eventSchedule->periods)?$eventSchedule->periods:[]) as $period)
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <dd> {!! $period->start_date !!} </dd>
-                                                    </div>
-                                                    <div class="col-md-5">
-                                                        <dd> {!! $period->start_time !!} </dd>
-                                                    </div>
-                                                    <div class='col-md-1 text-center'>
-                                                        @if($eventSchedule->closed == 1)
-                                                            {{ ($eventSchedule->es_period_id==$period->id) ? "<i class='glyphicon glyphicon-ok'></i>" : "" }}
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                                <hr style="margin: 10px 0 10px 0" />
-                                            @endforeach
-                                        </div>
-                                    @elseif($eventSchedule->type_id == 2)
-                                        <div class="user-panel" id="questions">
-                                            <div class="row">
-                                                <div class="col-md-12"><b>{!! trans('eventSchedule.question') !!}</b></div>
-                                            </div>
-                                            @foreach((isset($eventSchedule->questions)?$eventSchedule->questions:[]) as $question)
-                                                <div class="row">
-                                                    <div class="col-md-11">
-                                                        <dd> {!! $question->question !!} </dd><hr style="margin: 10px 0 10px 0">
-                                                    </div>
-                                                    <div class='col-md-1 text-center'>
-                                                        @if($eventSchedule->closed == 1)
-                                                            {{ ($eventSchedule->es_question_id==$question->id) ? "<i class='glyphicon glyphicon-ok'></i>" : "" }}
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                            <hr style="margin: 10px 0 10px 0" />
-                                        </div>
-                                    @endif
-
-                                </div>
-                            </div>
-                        </div>
-                    </dl>
+        <!-- Periods -->
+        <div class="box box-primary">
+            <div class="box-header">
+                <h3 class="box-title">{!! trans('privateEventSchedules.period_details') !!}</h3>
+                <div class="box-tools pull-right">
+                    <a class="btn btn-flat btn-success btn-sm" href="{!! action('EventSchedulesController@editPeriods', $eventSchedule->key) !!}?f=eventSchedule"><i class="fa fa-pencil"></i></a>
                 </div>
             </div>
-        @endif
+            <div class="box-body">
+                <dl>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="box-body no-padding">
+                                @if($eventSchedule->type_id == 1)
+                                    <div class="user-panel" id="periods">
+                                        <div class="row">
+                                            <div class="col-md-6"><b>{!! trans('eventSchedule.date') !!}</b></div>
+                                            <div class="col-md-6"><b>{!! trans('eventSchedule.time') !!}</b></div>
+                                        </div>
+                                        @foreach((isset($eventSchedule->periods)?$eventSchedule->periods:[]) as $period)
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <dd> {!! $period->start_date !!} </dd>
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <dd> {!! $period->start_time !!} </dd>
+                                                </div>
+                                                <div class='col-md-1 text-center'>
+                                                    @if($eventSchedule->closed == 1)
+                                                        {{ ($eventSchedule->es_period_id==$period->id) ? "<i class='glyphicon glyphicon-ok'></i>" : "" }}
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <hr style="margin: 10px 0 10px 0" />
+                                        @endforeach
+                                    </div>
+                                @elseif($eventSchedule->type_id == 2)
+                                    <div class="user-panel" id="questions">
+                                        <div class="row">
+                                            <div class="col-md-12"><b>{!! trans('eventSchedule.question') !!}</b></div>
+                                        </div>
+                                        @foreach((isset($eventSchedule->questions)?$eventSchedule->questions:[]) as $question)
+                                            <div class="row">
+                                                <div class="col-md-11">
+                                                    <dd> {!! $question->question !!} </dd><hr style="margin: 10px 0 10px 0">
+                                                </div>
+                                                <div class='col-md-1 text-center'>
+                                                    @if($eventSchedule->closed == 1)
+                                                        {{ ($eventSchedule->es_question_id==$question->id) ? "<i class='glyphicon glyphicon-ok'></i>" : "" }}
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                        <hr style="margin: 10px 0 10px 0" />
+                                    </div>
+                                @endif
+
+                            </div>
+                        </div>
+                    </div>
+                </dl>
+            </div>
+        </div>
     @endif
 
 @endsection

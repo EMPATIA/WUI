@@ -12,9 +12,8 @@
                 <tr>
                     <th>{{ trans('privateContentManager.code') }}</th>
                     <th>{{ trans('privateContentManager.name') }}</th>
-                    <th>{{ trans('privateContentManager.created_at') }}</th>
                     <th>
-                        @if(Session::get('user_role') == 'admin' || (ONE::verifyUserPermissionsCreate('orchestrator', 'entity_site') and ONE::verifyUserPermissionsCreate('cm', 'news')))
+                        @if(Session::get('user_role') == 'admin')
                             {!! ONE::actionButtons(["contentType"=>$contentType,"siteKey"=>$siteKey, "topicKey" => $topicKey], ['create' => 'ContentManagerController@create']) !!}
                         @endif
                     </th>
@@ -44,7 +43,6 @@
                 columns: [
                     { data: 'code', name: 'code' },
                     { data: 'name', name: 'name' },
-                    { data: 'created_at', name: 'created_at' , width: "130px"},
                     { data: 'action', name: 'action', searchable: false, orderable: false, width: "50px" },
                 ],
                 order: [['1', 'asc']]

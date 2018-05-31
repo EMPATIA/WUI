@@ -6,10 +6,9 @@
     "type": "project",
     "require": {
         "php": ">=7",
-        "laravel/framework": "5.3.*",
+        "laravel/framework": "5.5.*",
         "vinelab/http": "^1.2",
         "barryvdh/laravel-ide-helper": "^2.1",
-        "yajra/laravel-datatables-oracle": "^6.1",
         "davejamesmiller/laravel-breadcrumbs": "^3.0",
         "barryvdh/laravel-debugbar": "^2.1",
         "laravelcollective/html": "^5.2",
@@ -17,27 +16,32 @@
         "select2/select2": "^4.0",
         "oriceon/toastr-5-laravel": "dev-master",
         "illuminate/translation": "^5.2",
-        "barryvdh/laravel-translation-manager": "0.2.x",
         "jildertmiedema/laravel-plupload": "^0.3.0",
         "infinety/alerts": "*@dev",
         "predis/predis": "^1.0",
         "ktquez/laravel-tinymce": "^1.0",
         "uxweb/sweet-alert": "^1.1",
         "jenssegers/agent": "^2.3",
-        "barryvdh/laravel-dompdf": "^0.7",
+        "barryvdh/laravel-dompdf": "0.8.1",
         "chencha/share": "^5.2",
         "laravel/socialite": "^2.0",
         "spatie/laravel-cookie-consent": "^1.2",
         "sammyk/laravel-facebook-sdk": "^3.0",
         "artem-schander/l5-modular": "dev-master",
-        "google/recaptcha": "^1.1"
+        "google/recaptcha": "^1.1",
+        "chumper/zipper": "^1.0",
+        "laravel/tinker": "^1.0",
+        "maatwebsite/excel": "2.1.23",
+        "yajra/laravel-datatables-oracle": "^8.3",
+        "consoletvs/charts": "6.*"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
         "mockery/mockery": "0.9.*",
-        "phpunit/phpunit": "~4.0",
+        "phpunit/phpunit": "~6.0",
         "symfony/css-selector": "3.1.*",
-        "symfony/dom-crawler": "3.1.*"
+        "symfony/dom-crawler": "3.1.*",
+        "filp/whoops": "~2.0"
     },
     "autoload": {
         "classmap": [
@@ -53,6 +57,10 @@
         ]
     },
     "scripts": {
+	"post-autoload-dump": [
+	    "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+	    "php artisan package:discover"
+	],
         "post-root-package-install": [
             "php -r \"copy('.env.example', '.env');\""
         ],
@@ -60,14 +68,10 @@
             "php artisan key:generate"
         ],
         "post-install-cmd": [
-            "php artisan clear-compiled",
-            "php artisan optimize"
+            "php artisan clear-compiled"
         ],
         "pre-update-cmd": [
             "php artisan clear-compiled"
-        ],
-        "post-update-cmd": [
-            "php artisan optimize"
         ]
     },
     "config": {

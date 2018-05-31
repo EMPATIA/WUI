@@ -37,7 +37,7 @@
                             @endforeach
                         @endif
                     </select>
-                    <label for="send_to_all"><small>{{trans('form.send_to_all')}}</label></small>
+                    <label for="send_to_all"><small>{{trans('form.send_to_all')}}</small></label>
                     <input type="checkbox" id="send_to_all" name="send_to_all">
                 </div>
                {!! Form::oneText('subject', trans('form.subject'), null, ['class' => 'form-control', 'id' => 'subject']) !!}
@@ -62,7 +62,7 @@
     <script src="{{ asset("js/tinymce/tinymce.min.js") }}"></script>
     <script>
         $(".filters_select").select2();
-        {!! ONE::addTinyMCE(".tinyMCE", ['action' => action('ContentsController@getTinyMCE')]) !!}
+        {!! ONE::addTinyMCE(".tinyMCE", ['action' => action('ContentManagerController@getTinyMCE')]) !!}
 
         $(document).on('change', '#send_to_all', function () {
             if(this.checked) {

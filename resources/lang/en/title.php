@@ -1,1 +1,1 @@
-<?php return array (  'mps' => 'MPs',  'mails' => 'Mails',  'forum' => 'Forum',  'menus' => 'Menus',  'geoareas' => 'Geographic Areas',  'eventSchedules' => 'Polls',  'events' => 'Events',);
+<?php return array (  'events' => 'Events',  'eventSchedules' => 'Polls',  'menus' => 'Menus',  'forum' => 'Forum',  'geoareas' => 'Geographic Areas',  'mails' => 'Mails',  'mps' => 'MPs',);

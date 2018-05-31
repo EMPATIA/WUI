@@ -242,7 +242,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="box-body">
-                                                        <div id="newOptionsDiv_{{$parameterCounter}}_{{$language->code}}" class="newOptionsDiv_{{$parameterCounter}} {{(isset($language->default) && $language->default == true ? 'required' : null)}}">
+                                                        <div id="newOptionsDiv_{{$parameterCounter}}_{{$language->code}}" class="row newOptionsDiv_{{$parameterCounter}} {{(isset($language->default) && $language->default == true ? 'required' : null)}}">
                                                             @if(isset($parameter))
                                                                 @foreach($parameter['options'] as $option)
                                                                     <div class="col-md-3 opt_{{ $parameterCounter }}_{{$loop->iteration}}" id="">

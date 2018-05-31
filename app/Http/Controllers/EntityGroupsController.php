@@ -50,8 +50,9 @@ class EntityGroupsController extends Controller
      */
     public function showUsers(Request $request, $entityGroupKey){
 
+        $entityGroup = Orchestrator::getEntityGroupByKey($entityGroupKey);
         //entity group key to set and send on sidebar view
-        $title = trans('privateEntityGroups.list_all_users');
+        $title = isset($entityGroup->name) ? $entityGroup->name: null;
         $sidebar = 'entityGroupDetails';
         $active = 'entity_group_users';
         $groupTypeKey = Session::get('sidebarArguments')['groupTypeKey'];
@@ -70,7 +71,7 @@ class EntityGroupsController extends Controller
     public function tableGroupUsers(Request $request)
     {
 
-        if (Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('wui', 'entity_groups_users')) {
+        if (Session::get('user_role') == 'admin') {
 
             $data = Orchestrator::getUsersByEntityGroupKey($request->entityGroupKey);
 
@@ -98,7 +99,7 @@ class EntityGroupsController extends Controller
             $entityGroupKey = $request->entityGroupKey;
         }
 
-        $delete = Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsDelete('wui', 'entity_groups_users');
+        $delete = Session::get('user_role') == 'admin';
 
         // in case of json
         return Datatables::of($collection)
@@ -111,6 +112,7 @@ class EntityGroupsController extends Controller
                 else
                     return null;
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 
@@ -147,6 +149,7 @@ class EntityGroupsController extends Controller
                 return "<a href='".action('EntityGroupsController@addUser', ['entityGroupKey' => $entityGroupKey, 'userKey' => $user->user_key])."' class=\"btn btn-flat btn-warning btn-xs user\" ><i class=\"fa fa-plus\"></i></a>" ;
 
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 
@@ -214,6 +217,7 @@ class EntityGroupsController extends Controller
                 ->addColumn('action', function ($entityGroup) use ($groupTypeKey) {
                     return ONE::actionButtons(['entityGroupKey' => $entityGroup->entity_group_key, 'groupTypeKey' => $groupTypeKey], ['edit' => 'EntityGroupsController@edit', 'delete' => 'EntityGroupsController@delete', 'form' => 'entityGroups']);
                 })
+                ->rawColumns(['name','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["entityGroups.tableEntityGroups" => $e->getMessage()]);
@@ -234,7 +238,7 @@ class EntityGroupsController extends Controller
             $entityGroup = Orchestrator::getEntityGroupByKey($entityGroupKey);
 
             // Form title (layout)
-            $title = trans('privateEntityGroups.show_entity_group').' '.(isset($entityGroup->name) ? $entityGroup->name: null);
+            $title = isset($entityGroup->name) ? $entityGroup->name: null;
 
 
 

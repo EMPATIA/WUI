@@ -7,6 +7,7 @@ use App\ComModules\CB;
 use App\ComModules\EMPATIA;
 use App\ComModules\Files;
 use App\ComModules\Questionnaire;
+use App\ComModules\LogsRequest;
 use App\Http\Requests\CBRequest;
 use App\Http\Requests\QRequest;
 use App\Http\Requests\UserRequest;
@@ -98,9 +99,12 @@ class PublicQController extends Controller
                     }
                 }
             }
+            LogsRequest::setAccess('show_questionnaire',true, null,null,null,null,$questionnaireKey,null,null, 'formKey: '.$formKey, Session::has('user') ? Session::get('user')->user_key : 'anonymous' );
             return view('public.' . ONE::getEntityLayout() . '.questionnaire.form', compact('uploadKey','titleQuestionnaire', 'questionsAll', 'formKey','questionsDependencies','formPublic','descriptionQuestionnaire'));
 
         } catch (Exception $e) {
+            $jsonObj = json_encode(array('error' => "Failure: ".$e->getMessage() ));
+            LogsRequest::setAccess('show_questionnaire',false, null,null,null,null,$questionnaireKey,null,$jsonObj, null, Session::has('user') ? Session::get('user')->user_key : 'anonymous' );
             return redirect()->back()->withErrors(["form.list" => $e->getMessage()]);
         }
 
@@ -177,9 +181,13 @@ class PublicQController extends Controller
             $formReplyKey = $obj->form_reply_key;
             $message = 0;
             $locationJson = !empty($location) ? json_decode($location) : "";
+
+            LogsRequest::setAccess('create_questionnaire',true, null,null,null,null,$formKey,null,null, null, Session::has('user') ? Session::get('user')->user_key : 'anonymous' );
             return view('public.'.ONE::getEntityLayout().'.questionnaire.index', compact('formKey','formReplyKey','message','locationJson'));
         } catch (Exception $e) {
             //TODO: save inputs
+            $jsonObj = json_encode(array('error' => "Failure: ".$e->getMessage() ));
+            LogsRequest::setAccess('create_questionnaire',false, null,null,null,null,null,null, $jsonObj, null, Session::has('user') ? Session::get('user')->user_key : 'anonymous' );
             return redirect()->back()->withErrors(["form.store" => $e->getMessage()]);
         }
     }

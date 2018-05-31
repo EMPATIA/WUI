@@ -69,6 +69,9 @@ class CbTranslationController extends Controller
         $entities = Orchestrator::getEntities();
         $user = ONE::userRole();
 
+        Session::put('sidebarArguments', ['type' => $type, 'cbKey' => $cbKey, 'activeFirstMenu' => 'cbtranslation']);
+        Session::put('sidebars', [0 => 'private', 1=> 'padsType']);
+
         return view('private.cbsTranslations.cbTranslation', compact('title', 'cb_translations','languages', 'type', 'cbKey','sidebar','active', 'entities', 'CbsEntity','user','cb'));
     }
 

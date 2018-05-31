@@ -20,22 +20,12 @@
             <!-- Sub Menu -->
             <ul class="sub-menu-wrapper">
                 <li class="treeview">
-                    <div class="menu-wrapper"><a @if($active=='details') class="menu-active"  @endif href="{{ action("UsersController@show", ["userKey" => $userKey, 'role' => $role]) }}">{{ trans('privateSidebar.user_details') }}</a></div>
+                    <div class="menu-wrapper"><a @if($active=='details') class="menu-active"  @endif href="{{ action("UsersController@show", ["userKey" => $userKey]) }}">{{ trans('privateSidebar.user_details') }}</a></div>
                 </li>
 
                 <li class="treeview">
-                    <div class="menu-wrapper"><a @if($active=='permissions') class="menu-active"  @endif href="{{ action("UsersController@showPermissions", ["userKey" => $userKey, 'role' => $role]) }}">{{ trans('privateSidebar.user_permissions') }}</a></div>
+                    <div class="menu-wrapper"><a @if($active=='menuPermissions') class="menu-active"  @endif href="{{ action("PermissionsController@indexUsers", ["userKey" => $userKey]) }}">{{ trans('privateSidebar.permissions') }}</a></div>
                 </li>
-            
-                @if(ONE::verifyUserPermissionsCrud('cm', 'personal_dynamic_be_menu'))
-                    <li class="treeview">
-                        <div class="menu-wrapper">
-                            <a @if($active=='personal_dynamic_be_menu') class="menu-active" @endif href="{{ action("UserBEMenuController@userIndex",["userKey" => $userKey]) }}">
-                                {{ trans('privateSidebar.user_dynamic_be_menu') }}
-                            </a>
-                        </div>
-                    </li>
-                @endif
             </ul>
         </li>
     </ul>

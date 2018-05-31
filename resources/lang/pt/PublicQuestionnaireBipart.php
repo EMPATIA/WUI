@@ -1,0 +1,1 @@
+<?php return array (  'back' => 'Anterior',  'next' => 'Próximo',);

@@ -24,7 +24,8 @@
     <link href='https://fonts.googleapis.com/css?family=Maven+Pro' rel='stylesheet' type='text/css'>
     <script src="https://use.fontawesome.com/76a29a2c01.js"></script>
 
-    <link rel="stylesheet" href="{{ asset('css/cbs.css')}}">
+    <link rel="stylesheet" href="{{ asset('css/default/default.css')}}">
+    <link rel="stylesheet" href="{{ asset('css/default/default.css')}}">
 
 
 
@@ -40,8 +41,8 @@
     <script src="{{ asset('js/sweetalert.min.js')}}"></script>
 
     <!-- dotdotdot  -->
-    <script type="text/javascript" src="{{ asset('js/jquery.dotdotdot.min.js')}}"></script>
-    <script type="text/javascript" src="{{ asset('js/jquery.dotdotdot.js')}}"></script>
+    <script type="text/javascript" src="{{ asset('js/default/jquery.dotdotdot.min.js')}}"></script>
+    <script type="text/javascript" src="{{ asset('js/default/jquery.dotdotdot.js')}}"></script>
 </head>
 
 

@@ -226,6 +226,7 @@ class QuestionOptionsController extends Controller
 //                ->addColumn('action', function ($collection) {
 //                    return ONE::actionButtons($collection->id, ['edit' => 'QuestionGroupsController@edit', 'delete' => 'QuestionGroupsController@delete']);
 //                })
+//                  ->rawColumns(['id','label','action'])
 //                ->make(true);
 //        }
 //    }

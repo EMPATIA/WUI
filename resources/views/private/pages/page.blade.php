@@ -213,7 +213,7 @@
     <script src="{{ asset("js/tinymce/tinymce.min.js") }}"></script>
     <script>
         $( document ).ready(function() {
-            {!! ONE::addTinyMCE(".content_page", ['action' => action('ContentsController@getTinyMCE')]) !!}
+            {!! ONE::addTinyMCE(".content_page", ['action' => action('ContentManagerController@getTinyMCE')]) !!}
          });
 
     </script>

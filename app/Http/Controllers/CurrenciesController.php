@@ -31,7 +31,8 @@ class CurrenciesController extends Controller
      */
     public function index()
     {
-        return view('private.currencies.index');
+        $title = trans('privateCurrencies.currency');
+        return view('private.currencies.index', compact('title'));
     }
 
     /**
@@ -157,20 +158,26 @@ class CurrenciesController extends Controller
      *
      *
      */
-    public function tableCurrencies()
+    public function tableCurrencies(Request $request)
     {
-        $manage = Orchestrator::getCurrencyList();
+        $manage = Orchestrator::getCurrencyList($request);
 
         // in case of json
-        $currency = Collection::make($manage->data);
+        $currencies = collect($manage->currencies);
+        $recordsTotal = $manage->recordsTotal;
+        $recordsFiltered = $manage->recordsFiltered;
 
-        return Datatables::of($currency)
+        return Datatables::of($currencies)
             ->editColumn('currency', function ($currency) {
                 return "<a href='".action('CurrenciesController@show', $currency->id)."'>".$currency->currency."</a>";
             })
             ->addColumn('action', function ($currency) {
-                return ONE::actionButtons($currency->id, ['edit' => 'CurrenciesController@edit', 'delete' => 'CurrenciesController@delete']);
+                return ONE::actionButtons($currency->id, ['edit' => 'CurrenciesController@edit', 'delete' => 'CurrenciesController@delete', 'form' => 'currencies']);
             })
+            ->rawColumns(['currency','action'])
+            ->with('filtered', $recordsFiltered ?? 0)
+            ->skipPaging()
+            ->setTotalRecords($recordsTotal ?? 0)
             ->make(true);
     }
 }

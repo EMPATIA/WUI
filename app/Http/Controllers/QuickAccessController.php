@@ -102,6 +102,7 @@ class QuickAccessController extends Controller
                 ->editColumn('title', function($newList) use($color) {
                     return '<i class="fa fa-circle '.$newList->type.'" aria-hidden="true" data-toggle="tooltip" data-placement="right" '.(isset($color[$newList->type]) ? $color[$newList->type] : null).' title="'.$newList->type.'"></i>&nbsp;&nbsp;<a href="'. action('CbsController@showTopics', [$newList->type,$newList->cb_key]) . '"\>' . $newList->title . '</a>';
                 })
+                ->rawColumns(['title'])
                 ->make(true);
 
 

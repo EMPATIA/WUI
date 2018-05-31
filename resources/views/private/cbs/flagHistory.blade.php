@@ -15,30 +15,30 @@
         width: 10px;
         height: 10px;
         display: block;
-        background: #f43059;
+        background: none;
         position: absolute;
         top: 0;
         left: 50%;
-        margin-left: -5px;
+        margin-left: -7px;
+        border: 7px solid #f43059;
 
-        -webkit-border-radius: 20px;
-        -moz-border-radius: 20px;
-        border-radius: 20px;
+        -webkit-border-radius: 50%;
+        -moz-border-radius: 50%;
+        border-radius: 50%;
     }
 
-    #timeline:after {
-        margin-left: -7px;
-        background: none;
+    #timeline:before {
         border: 7px solid transparent;
-        border-top-color: #f43059;
-        width: 0;
-        height: 0;
-        top: auto;
-        bottom: -7px;
+        border-bottom-color: #f43059;
+        top: -7px;
 
         -webkit-border-radius: 0;
         -moz-border-radius: 0;
         border-radius: 0;
+    }
+    #timeline:after {
+        top: auto;
+        bottom: 0px;
     }
 
     #timeline li:before,
@@ -116,11 +116,42 @@
             <small>
                 <time><i class="fa fa-clock-o" aria-hidden="true"></i> {{ $flag->pivot->created_at }}</time>
             </small>
+            <br>
+            <span>
+                @if($flag->pivot->active)
+                    {{ trans("privateCbs.active") }}
+                @else
+                    {{ trans("privateCbs.inactive") }}
+                @endif
+            </span>
         </li>
     @endforeach
 
 
 </ol>
+<script>
+    $("a.toggle-flag-status").on("click",function(event) {
+        event.preventDefault();
+        element = $(this);
+
+        $.ajax({
+            method: 'POST', // Type of response and matches what we said in the route
+            url: '{{action("FlagsController@toggleActiveStatus")}}', // This is the url we gave in the route
+            data: {
+                status: element.attr("data-status"),
+                elementKey: "{{ $elementKey }}",
+                relationId: element.attr("data-relation"),
+                attachmentCode: "TOPIC"
+            }, // a JSON object to send back
+            success: function (response) { // What to do if we succeed
+                seeFlagHistory("{{ $elementKey }}");
+            },
+            error: function (jqXHR, textStatus, errorThrown) { // What to do if we fail
+                console.log("AJAX error: " + textStatus + ' : ' + errorThrown);
+            }
+        });
+    });
+</script>
 @else
 <div class="col-12 text-center"><h3>{{trans('privateCbs.no_flag_history_available')}}</h3></div>
 @endif

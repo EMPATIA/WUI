@@ -683,6 +683,7 @@ class MPCbsController extends Controller
                 ->addColumn('action', function () {
                     return "";
                 })
+                ->rawColumns(['moderadorCheckbox','name'])
                 ->make(true);
         }catch (Exception $e) {
             return redirect()->back()->withErrors([trans("privateMPCbs.all_users_error") => $e->getMessage()]);

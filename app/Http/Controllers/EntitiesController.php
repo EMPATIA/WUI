@@ -7,6 +7,8 @@ use App\ComModules\EMPATIA;
 use App\ComModules\Notify;
 use App\ComModules\Orchestrator;
 use App\Http\Requests\EntitySiteRequest;
+use App\ComModules\CM;
+use App\ComModules\CB;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -38,7 +40,7 @@ class EntitiesController extends Controller
      */
     public function index()
     {
-        $title = trans('privateEntities.list_entities');
+        $title = trans('privateEntities.entities');
         return view('private.entities.index', compact('title'));
     }
 
@@ -69,7 +71,7 @@ class EntitiesController extends Controller
             $sidebar = 'entities';
             $active = 'layouts';
 
-            Session::put('sidebarArguments', ['entityKey' => $entityKey, 'activeFirstMenu' => 'details']);
+            Session::put('sidebarArguments', ['entityKey' => $entityKey, 'activeFirstMenu' => 'layouts']);
             return view('private.entities.layouts', compact('entity', 'entityKey', 'sidebar', 'active'));
         } else {
 
@@ -404,7 +406,7 @@ class EntitiesController extends Controller
     public function store(EntityRequest $request)
     {
         try {
-            $entity = Orchestrator::setEntity($request);
+            $entity = Orchestrator::setEntity($request->all());
 
             if($request->language_id != null) {
                 Orchestrator::setLanguage($request->language_id, $entity->entity_key, 1);
@@ -584,6 +586,7 @@ class EntitiesController extends Controller
                 ->addColumn('action', function ($entity) {
                     return ONE::actionButtons($entity->entity_key, ['edit' => 'EntitiesController@edit', 'delete' => 'EntitiesController@delete', 'form' => 'entities']);
                 })
+                ->rawColumns(['name', 'action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["entity.tableEntities" => $e->getMessage()]);
@@ -599,7 +602,7 @@ class EntitiesController extends Controller
     public function tableUsersEntity($entityKey)
     {
         try {
-            $response = Orchestrator::getAllManagers();
+            $response = Orchestrator::getAllManagers($entityKey);
 
             $usersKey = [];
 
@@ -615,6 +618,7 @@ class EntitiesController extends Controller
                 ->addColumn('action', function ($user) use ($entityKey) {
                     return ONE::actionButtons([$entityKey, $user->user_key], ['form' => 'entities', 'edit' => 'EntitiesController@editManager', 'delete' => 'EntitiesController@deleteUserConfirm']);
                 })
+                ->rawColumns(['action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["entity.tableUsersEntity" => $e->getMessage()]);
@@ -660,6 +664,7 @@ class EntitiesController extends Controller
                 ->addColumn('action', function ($language) use ($entityKey) {
                     return ONE::actionButtons([$entityKey, $language->id], ['delete' => 'EntitiesController@deleteLangConfirm']);
                 })
+                ->rawColumns(['name','activateAction','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["entities.tableLanguagesEntity" => $e->getMessage()]);
@@ -682,6 +687,8 @@ class EntitiesController extends Controller
         $data['msg'] = "Are you sure you want to make this Language Default for this entity?";
         $data['btn_ok'] = "Make default";
         $data['btn_ko'] = "Cancel";
+        $data['id'] = $id;
+        $data['languageId'] = $languageId;
 
         return view("_layouts.activateModal", $data);
     }
@@ -816,6 +823,7 @@ class EntitiesController extends Controller
                 ->addColumn('action', function ($language) use ($entityKey) {
                     return ONE::actionButtons([$entityKey, $language->id], ['add' => 'EntitiesController@addLanguageAction']);
                 })
+                ->rawColumns(['action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["entities.tableAddLanguageEntity" => $e->getMessage()]);
@@ -1004,6 +1012,7 @@ class EntitiesController extends Controller
                 ->addColumn('action', function ($collection) use ($entityKey) {
                     return ONE::actionButtons(['entityKey' => $entityKey, 'siteKey' => $collection->key], ['edit' => 'EntitiesController@editEntitySite', 'delete' => 'EntitiesController@deleteSiteConfirm']);
                 })
+                ->rawColumns(['name','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["entities.show" => $e->getMessage()]);
@@ -1225,6 +1234,7 @@ class EntitiesController extends Controller
                 ->addColumn('action', function ($layouts) use ($entityKey) {
                     return ONE::actionButtons(['entityKey' => $entityKey, 'layoutKey' => $layouts->layout_key], ['delete' => 'EntitiesController@deleteLayoutConfirm']);
                 })
+                ->rawColumns(['name','action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors([trans('privateEntities.table_layouts_entity') => $e->getMessage()]);
@@ -1318,6 +1328,7 @@ class EntitiesController extends Controller
                 ->addColumn('action', function ($collection) use ($entityKey) {
                     return ONE::actionButtons(['entityKey' => $entityKey, 'layoutKey' => $collection->layout_key], ['add' => 'EntitiesController@addLayoutAction']);
                 })
+                ->rawColumns(['action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors([trans('privateSites.table_add_layout') => $e->getMessage()]);
@@ -1372,6 +1383,7 @@ class EntitiesController extends Controller
                 ->addColumn('action', function ($authMethods) use ($entityKey) {
                     return ONE::actionButtons([$entityKey, $authMethods->auth_method_key], ['delete' => 'EntitiesController@deleteAuthMethodConfirm']);
                 })
+                ->rawColumns(['action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["entities.tableAuthMethodEntity" => $e->getMessage()]);
@@ -1397,6 +1409,7 @@ class EntitiesController extends Controller
                 ->addColumn('action', function ($authMethods) use ($entityKey) {
                     return ONE::actionButtons([$entityKey, $authMethods->auth_method_key], ['add' => 'EntitiesController@addAuthMethodAction']);
                 })
+                ->rawColumns(['action'])
                 ->make(true);
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["entities.tableAuthMethodEntity" => $e->getMessage()]);
@@ -1525,7 +1538,8 @@ class EntitiesController extends Controller
             Session::flash('message', trans('privateEntities.module_update_ok'));
 
             \Cache::forget('entityModulesActive_'.$entityKey);
-            return redirect()->action('EntitiesController@showModules', $entityKey);
+//            return redirect()->action('EntitiesController@showModules', $entityKey);
+            return redirect()->action('EntitiesController@addEntityModule', $entityKey);
 
         } catch (Exception $e) {
             Session::flash('message', trans('privateEntities.module_update_nok'));
@@ -1540,16 +1554,20 @@ class EntitiesController extends Controller
      */
     public function showNotifications(Request $request, $entityKey){
         try{
-            if (Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('orchestrator', 'entity_notification')) {
+            if (Session::get('user_role') == 'admin') {
 
                 $data['notificationTypes'] = EMPATIA::getNotificationTypes();
                 $data['entityNotifications'] = EMPATIA::getEntityNotifications();
                 $data['entityKey'] = $entityKey;
                 $data['groups'] = Orchestrator::getEntityGroups();
 
-                $data['type'] = 'teste'; //Used Only For Debug - DELETE AFTER!!
+                $data['sidebar'] = 'entity';
+                $data['active'] = 'notifications';
 
-                return view('private.entities.notifications.notifications', $data);
+                $sidebar = 'entity';
+                $active = 'notifications';
+
+                return view('private.entities.notifications.notifications', $data, compact('sidebar', 'active'));
             }
             return redirect()->back()->withErrors(["Error" => "Unauthorized"]);
         } catch (Exception $e){
@@ -1566,14 +1584,15 @@ class EntitiesController extends Controller
     public function editNotifications(Request $request, $entityKey)
     {
         try {
-            if (Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('orchestrator', 'entity_notification')) {
+            if (Session::get('user_role') == 'admin') {
 
                 $data['notificationTypes'] = EMPATIA::getNotificationTypes();
                 $data['entityNotifications'] = EMPATIA::getEntityNotifications();
                 $data['entityKey'] = $entityKey;
                 $data['groups'] = Orchestrator::getEntityGroups();
 
-                $data['type'] = 'teste'; //Used Only For Debug - DELETE AFTER!!
+                $data['sidebar'] = 'entity';
+                $data['active'] = 'notifications';
 
                 return view('private.entities.notifications.notifications', $data);
             }
@@ -1591,7 +1610,7 @@ class EntitiesController extends Controller
      */
     public function updateNotifications(Request $request, $entityKey){
         try{
-            if (Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsUpdate('orchestrator', 'entity_notification')) {
+            if (Session::get('user_role') == 'admin') {
 
                 $entityNotificationTypeCodes = $request->input('notifications');
                 $groups = $request->input('groups');
@@ -1616,7 +1635,7 @@ class EntitiesController extends Controller
      */
     public function createEntityNotificationTemplate(Request $request, $entityKey, $notificationCode){
         try{
-            if (Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('orchestrator', 'entity_notification')) {
+            if (Session::get('user_role') == 'admin') {
 
                 $data['entityKey'] = $entityKey;
                 $data['notificationCode'] = $notificationCode;
@@ -1639,7 +1658,7 @@ class EntitiesController extends Controller
      */
     public function showEntityNotificationTemplate(Request $request, $entityKey, $notificationCode){
         try{
-            if (Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('orchestrator', 'entity_notification')) {
+            if (Session::get('user_role') == 'admin') {
 
                 $data['entityKey'] = $entityKey;
                 $data['notificationCode'] = $notificationCode;
@@ -1673,7 +1692,7 @@ class EntitiesController extends Controller
      */
     public function editEntityNotificationTemplate(Request $request, $entityKey, $notificationCode){
         try{
-            if (Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('orchestrator', 'entity_notification')) {
+            if (Session::get('user_role') == 'admin') {
 
                 $data['entityKey'] = $entityKey;
                 $data['notificationCode'] = $notificationCode;
@@ -1707,7 +1726,7 @@ class EntitiesController extends Controller
      */
     public function updateEntityNotificationTemplate(Request $request, $entityKey, $notificationCode){
         try {
-            if (Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsUpdate('orchestrator', 'entity_notification')) {
+            if (Session::get('user_role') == 'admin') {
 
                 $params = $request->all();
                 $templateKey = $request->input('template_key');
@@ -1745,7 +1764,7 @@ class EntitiesController extends Controller
      */
     public function storeEntityNotificationTemplate(Request $request, $entityKey, $notificationCode){
         try {
-            if (Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('orchestrator', 'entity_notification')) {
+            if (Session::get('user_role') == 'admin') {
                 $params = $request->all();
                 $siteKey = Session::get('X-SITE-KEY');
                 $languages = Orchestrator::getLanguageList();
@@ -1780,7 +1799,7 @@ class EntitiesController extends Controller
             $countries = Orchestrator::getCountryList();
             $timezones = Orchestrator::getTimeZoneList();
             $currencies = Orchestrator::getCurrencyList();
-
+Session::forget('X-ENTITY-KEY');
             $title = trans('privateEntities.create_entity');
 
             return view('private.wizards.entity', compact("languages","countries","timezones","currencies","title"));
@@ -1800,7 +1819,7 @@ class EntitiesController extends Controller
             $data['description'] = $request->input('description');
             $data['designation'] = $request->input('designation');
             $data['no_reply_email'] = $request->input('no_reply_email');
-            $data['link'] = $request->input('link');
+            $data['link'] = $request->input('url');
 
             $entity = Orchestrator::setEntity($data);
 
@@ -1810,8 +1829,63 @@ class EntitiesController extends Controller
 
             $data['layout_reference'] = $request->input('layout');
             $data['entity_key'] = $entity->entity_key;
+            $data['partial_link'] = 0;
             $data['active'] = 1;
             Orchestrator::setNewEntitySite($entity->entity_key, $data);
+
+            $permissionsToGive = array(
+                "auth" => array(
+                    "user_parameters",
+                    "user",
+                    "manager"
+                ),
+                "cb" => array(
+                    "idea",
+                    "project",
+                    "proposal",
+                    "topics",
+                    "pad_parameters",
+                    "pad_votes",
+                    "configurations",
+                    "topic_status",
+                    "comments"
+                ),
+                "cm" => array(
+                    "pages",
+                    "news",
+                    "menu"
+                ),
+                "orchestrator" => array(
+                    "site_privacy_policy",
+                    "site_use_terms",
+                    "entity_language",
+                    "entity_layout",
+                    "entity_site",
+                    "entity",
+                    "role_permissions",
+                    "site_configurations"
+                ),
+                "wui" => array(
+                    "email",
+                    "sites"
+                )
+            );
+            $modules = collect(Orchestrator::getModulesList()->data ?? []);
+
+            foreach ($permissionsToGive as $module=>$permissions) {
+                $cbModule = $modules->where("code", "=", $module)->first() ?? [];
+
+                if (!empty($cbModule)) {
+                    foreach ($permissions as $permission) {
+//                         dd(collect($cbModule->module_types)->where("code", "=", $permission)->first(), $permission);
+                        $cbModuleType = collect($cbModule->module_types)->where("code", "=", $permission)->first() ?? [];
+
+                        if (!empty($cbModuleType))
+                            Orchestrator::setModuleTypeForEntity($cbModule->module_key, $cbModuleType->module_type_key,$entity->entity_key);
+                    }
+                }
+            }
+
 
 
             Session::flash('message', trans('entity.store_ok'));
@@ -1822,8 +1896,10 @@ class EntitiesController extends Controller
                 self::setEntityKey($request);
                 Session::put("firstInstallWizardEntityName",$entity->name);
                 return redirect()->action("QuickAccessController@firstInstallWizard");
-            } else
+            } else{
+                Session::forget('X-ENTITY-KEY');
                 return redirect()->action('EntitiesController@show', $entity->entity_key);
+            }
 
         } catch (Exception $e) {
             return redirect()->back()->withErrors(["entity.store" => $e->getMessage()]);

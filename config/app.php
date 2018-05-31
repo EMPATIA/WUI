@@ -166,7 +166,7 @@ return [
          */        
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
         Vinelab\Http\HttpServiceProvider::class,
-        Yajra\Datatables\DatatablesServiceProvider::class,
+        Yajra\DataTables\DataTablesServiceProvider::class,
         DaveJamesMiller\Breadcrumbs\ServiceProvider::class,
         Kamaln7\Toastr\ToastrServiceProvider::class,
         //Barryvdh\TranslationManager\ManagerServiceProvider::class,
@@ -180,7 +180,8 @@ return [
         Laravel\Socialite\SocialiteServiceProvider::class,
         SammyK\LaravelFacebookSdk\LaravelFacebookSdkServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
-        Chumper\Zipper\ZipperServiceProvider::class
+        Chumper\Zipper\ZipperServiceProvider::class,
+        ConsoleTVs\Charts\ChartsServiceProvider::class,
     ],
 
     /*
@@ -227,7 +228,6 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View'      => Illuminate\Support\Facades\View::class,
         'HttpClient'=> Vinelab\Http\Facades\Client::class,
-        'Datatables' => yajra\Datatables\Datatables::class,
         'Input'     => Illuminate\Support\Facades\Input::class,
         'Breadcrumbs' => DaveJamesMiller\Breadcrumbs\Facade::class,
         'Form'      => Collective\Html\FormFacade::class,
@@ -245,7 +245,8 @@ return [
         'Files' => App\ComModules\Files::class,
         'OneCbs' => \App\One\OneCbs::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
-        'Zipper' => Chumper\Zipper\Zipper::class,
+	'Zipper' => Chumper\Zipper\Zipper::class,
+	'Datatables' => Yajra\DataTables\Facades\DataTables::class,
     ],
 
 ];

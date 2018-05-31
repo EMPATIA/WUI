@@ -14,7 +14,7 @@
                             <th width="50%">{{ trans('privateEntities.authMethodName') }}</th>
                             <th width="40%">{{ trans('privateEntities.authMethodDescription') }}</th>
                             <th>
-                                @if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsCreate('orchestrator', 'entity_auth_method'))
+                                @if(Session::get('user_role') == 'admin')
                                     {!! ONE::actionButtons(null, ['add' => 'EntitiesDividedController@addAuthMethod']) !!}
                                 @endif
                             </th>

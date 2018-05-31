@@ -158,7 +158,7 @@ Form::macro('oneCheckbox', function($name,$label, $value = null, $checked = null
     $html = "";
 
     $field = Form::checkbox($name, ($value == null ? 1 : $value), $checked, $options);
-    
+
     $labelFor = $name;
     if(!empty( $options["id"] )){
         $labelFor = $options["id"];
@@ -192,8 +192,15 @@ Form::macro('oneSelect', function($name,$label, $list = array(), $selected = nul
     $html = "";
     $options = ONE::initOptions($name,$options);
 
+    $firstoption = trans('form.select_value');
+    foreach ($options as $option => $tmp) {
+        if (strtolower($option) == "firstoption") {
+            $firstoption = $tmp;
+        }
+    }
+
     if(ONE::isEdit()) {
-        $arrList = array(""=>trans('form.select_value'));
+        $arrList = array(""=> $firstoption);
         if (is_array($list)) {
             $arrList += $list;
         }
@@ -253,7 +260,6 @@ Form::macro('oneTime', function($name, $label, $value = null, $options = array()
     return $html;
 });
 
-
 Form::macro('oneDateRange', function($start,$end,$label, $startValue = null, $endValue = null, $options = array()) {
 
     if (!isset($options['class'])) {
@@ -285,15 +291,6 @@ Form::macro('oneDateRange', function($start,$end,$label, $startValue = null, $en
 
 /**
  * Displays the Google Maps Interface.
- *
- * Example:
- *   $options = array("defaultLocation" => "49.9853106,14.6259324", "enableSearch" => true, "markerIcon" => asset("images/default/pins/construction.png");
- *   Form::oneMaps('maps',"Maps","39.557191,-7.8536599", $options )
- *
- * Example:
- *   $options = array("defaultLocation" => "49.9853106,14.6259324", "enableSearch => true, "markerIcon" => asset("images/default/pins/construction.png", readOnly=> true);
- *   $geometrySelection = array("select" => "geometry", "from" => "1N2LBk4JHwWpOY4d9fobIn27lfnZ5MDy-NoqqRpk", "where" => "ISO_2DIGIT IN ('CZ')");
- *   Form::oneMaps('maps',"Maps","39.557191,-7.8536599", $options, $geometrySelection)
  *
  * This macro needs the following header:
  *   <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
@@ -356,6 +353,7 @@ Form::macro('oneMaps', function($name, $label, $value = null, $options = array()
     $removeOption = false;
     $noPinOnSearch = false;
     $help_has_tooltip = false;
+    $required = "";
 
     if( ONE::isEdit() ) {
         $zoom = 13;
@@ -429,6 +427,10 @@ Form::macro('oneMaps', function($name, $label, $value = null, $options = array()
         }
         if(strtolower($option) == "help_has_tooltip" ){
             $help_has_tooltip = $tmp;
+        }
+
+        if(strtolower($option) == "required" ){
+            $required = $tmp;
         }
     }
 
@@ -527,17 +529,17 @@ Form::macro('oneMaps', function($name, $label, $value = null, $options = array()
                         <label><?php echo $label; ?></label>
                     <?php }?>
                     <?php if(!empty($description)){
-                                if($help_has_tooltip){?>
-                                    <i style='margin-left: 10px; color: #02686f' data-toggle='tooltip' title='". <?php echo $description; ?> ."' class=\"fa fa-info-circle\" aria-hidden=\"true\"></i>"
-                                <?php}else{
-                        ?>
+                        if($help_has_tooltip){?>
+                            <i style='margin-left: 10px; color: #02686f' data-toggle='tooltip' title='". <?php echo $description; ?> ."' class="fa fa-info-circle" aria-hidden="true"></i>"
+                        <?php}else{
+                            ?>
 
-                        <span class="help-block oneform-help-block" style="margin:-4px 0px 5px;font-size:10px;"><?php echo $description; ?></span>
-                    <?php }
+                            <span class="help-block oneform-help-block" style="margin:-4px 0px 5px;font-size:10px;"><?php echo $description; ?></span>
+                        <?php }
                     } ?>
 
                     <div id="oneMap<?php echo $name;?>" class="oneGoogleMap" style="height:<?php echo $height;?>;" ></div>
-                    <input id="<?php echo $name;?>" name="<?php echo $name;?>" <?php echo $attributes; ?> value="<?php echo $value; ?>" type="hidden" />
+                    <input id="<?php echo $name;?>" name="<?php echo $name;?>" <?php echo $attributes; ?> value="<?php echo $value; ?>" type="" <?php if(!empty($required) && $required == 1)  echo "required"; ?> style="z-index:-1;bottom: -10px;position: absolute;" />
                 </div>
 
             </div>
@@ -905,7 +907,6 @@ Form::macro('oneReverseGeocoding', function($name, $label, $value = "", $icon = 
 });
 
 
-
 /**
  * Displays the Google Maps interface that shows a group of Locations in a Clustered way.
  *
@@ -915,7 +916,6 @@ Form::macro('oneReverseGeocoding', function($name, $label, $value = "", $icon = 
  *                ['Title C', 3.147372, 101.597443 ,"transportation"],
  *                ['Title D', 3.191251, 101.710052, "security"]]];
  *   $geometrySelection = array("select" => "geometry", "from" => "1N2LBk4JHwWpOY4d9fobIn27lfnZ5MDy-NoqqRpk", "where" => "ISO_2DIGIT IN ('PT')");
- *   $options = array("folderIcons" => "/images/default/pins/", "zoom" => 7, "defaultLocation" => "49.9853106,14.6259324", "style" => "height:500px;width:100%;", "markerIcon" => asset('images/default/pins/construction.png'));
  *   Form::oneMapsLocations("mapId1", "Maps", $locations, $options, $geometrySelection);
  *
  * This macro needs the following header:
@@ -959,6 +959,8 @@ Form::macro('oneMapsLocations', function($objId, $label, $locations = [], $optio
     $pinGroup =  trans("googleMaps.pinGroups");
     $attributes = "";
     $hasLegend = true;
+    $layout = "/resources/views/private/_macros/oneMapsLocation.php";
+    $javascript = "/resources/views/private/_macros/oneMapsLocationScript.php";
 
     foreach ($options as $option => $tmp){
         if($option!="id"){
@@ -1002,6 +1004,12 @@ Form::macro('oneMapsLocations', function($objId, $label, $locations = [], $optio
         if(strtolower($option) == "nolegend"){
             $hasLegend = false;
         }
+        if(strtolower($option) == "layout" ) {
+            $layout = $tmp;
+        }
+        if(strtolower($option) == "javascript" ) {
+            $javascript = $tmp;
+        }
     }
 
     /** Categories for help - show in map view*/
@@ -1026,19 +1034,700 @@ Form::macro('oneMapsLocations', function($objId, $label, $locations = [], $optio
         $categoriesHelp = $categoriesHelp->unique();
     }
 
-    
-        if ($hasLegend) {
-            $mapColumns = array(
-                "map" => "col-md-10 col-sm-12 col-12",
-                "legend" => "col-md-2 col-sm-12 col-12",
-            );
-        } else {
-            $mapColumns = array(
-                "map" => "col-xs-12 col-12",
-                "legend" => "hidden",
-            );
+    if ($hasLegend) {
+        $mapColumns = array(
+            "map" => "",
+            "legend" => "",
+        );
+    } else {
+        $mapColumns = array(
+            "map" => "",
+            "legend" => "",
+        );
+    }
+
+    // including layout and script
+    include '..'.$layout;
+    include '..'.$javascript;
+
+});
+
+
+Form::macro('onePassword', function($name, $label, $value = null, $options = array()) {
+    $html = "";
+    // inicializa a opcao id e classe se nao existirem.
+    $options = ONE::initOptions($name,$options);
+
+    // metodo original da laravel, se o valor for null é feito o databind do valor a input.
+    $field = Form::password($name, $options);
+
+    // verifica se esta form está em modo edit ou view
+    if(ONE::isEdit()) {
+        $html = Form::oneFieldEdit($name, $label, $field, $options);
+    } else {
+        // Se nao for especificado, vai buscar o valor ao modelo
+        if ($value == null) {
+            $value = Form::getValueAttribute($name);
         }
-    
+        //metodo para fazer o render do html
+        if ($value != "")
+            $html = Form::oneFieldShow($name, $label, $value, $options);
+    }
+    return $html;
+});
+
+
+/**
+ * Displays an On/Off FlipSwitch.
+ *
+ * Example 1:
+ *  Form::oneSwitch('flipSwitch1',"Mostrar total de votos",1)
+ *  Form::oneSwitch("configuration_".$option->id,$option->title, in_array($option->id, (isset($cbConfigurations) ? $cbConfigurations : []) )  )
+ *
+ * Example 2:
+ *  $options = array("value"=>17, "readonly"=>false,'id' => $module->module_key,'data-toggle' => 'collapse','data-target' => '#'.$module->name, 'aria-expanded' => 'true','aria-controls' => $module->name);
+ *  Form::oneSwitch("modules[]",null, array_key_exists($module->module_key, (isset($entityModules) ? $entityModules : []), $options)
+ *
+ * Example 3:
+ *  $options = array("groupClass"=>"row", "labelClass" => "col-sm-12 col-md-9", "switchClass" => "col-sm-12 col-md-3" );
+ *  Form::oneSwitch("configuration_".$option->id,$option->title, in_array($option->id, (isset($cbConfigurations) ? $cbConfigurations : []) ) , $options)
+ *
+ * Example 4:
+ *   Form::oneSwitch("configuration",
+ *                   array("name" => "Title", "description" => "Lorem ipsum dolor sit amet, consectetur adipiscing elit."),
+ *                   in_array($option->id, (isset($cbConfigurations) ? $cbConfigurations : []) ),
+ *                   array("groupClass"=>"row", "labelClass" => "col-sm-12 col-md-9", "switchClass" => "col-sm-12 col-md-3" ) )
+ *
+ * The input $checked can be 1, 0, null, true or false
+ *
+ * @param String $name
+ * @param String $label
+ * @param Mixed $checked
+ * @param Array $options
+ * @return html
+ */
+Form::macro('oneSwitch', function($name, $label, $checked = false, $options = array()) {
+    $html = "";
+    $attributes = "";
+    $id = $name;
+    $value = 1;
+    $groupClass = "";
+    $labelClass = "";
+    $switchClass = "";
+    $type = "checkbox";
+
+    foreach ($options as $option => $tmp){
+        if(strtolower($option) == "readonly" ){
+            $readOnly = $tmp;
+        } else if(strtolower($option) == "id" ){
+            $id = $tmp;
+        } else if(strtolower($option) == "name" ){
+            $name = $tmp;
+        } else if(strtolower($option) == "value" ){
+            $value = $tmp;
+        } else if(strtolower($option) == "type" ){
+            $type = $tmp;
+        } else if(strtolower($option) == "groupclass" ){
+            $groupClass = $tmp;
+        } else if(strtolower($option) == "labelclass" ){
+            $labelClass = $tmp;
+        } else if(strtolower($option) == "switchclass" ){
+            $switchClass = $tmp;
+        }else {
+            $attributes .= $option.'="'.$tmp.'" ';
+        }
+    }
+
+    // Readonly Check
+    if(!isset($readOnly) && ONE::isEdit() || (isset($readOnly) && $readOnly === false)){
+        $disabled = "";
+        $pointerEvents = "";
+        $classReadOnly = "";
+    } else {
+        $disabled = "disabled";
+        $pointerEvents = "style=\"pointer-events: none\"";
+        $classReadOnly = ($checked) ?  "readOnlySwitch-on" : "readOnlySwitch-off";
+    }
+
+    ob_start();
+
+    if(!empty($label)) {
+        ?>
+        <div class="<?php echo $groupClass; ?>">
+        <div class="<?php echo $labelClass; ?>">
+            <label for="<?php echo $id; ?>"><?php echo is_array($label) ? $label["name"] : $label; ?></label>
+            <?php
+            if(is_array($label) && $label["description"] ){
+                ?>
+                <span class="help-block oneform-help-block" style="margin:-4px 0px 5px;font-size:10px;"><?php echo $label["description"]; ?></span>
+                <?php
+            }
+            ?>
+        </div>
+        <div class="<?php echo $switchClass; ?>">
+        <?php
+    }
+    ?>
+
+    <div class="onoffswitch <?php echo $classReadOnly; ?>" <?php echo $attributes; ?> <?php echo $pointerEvents; ?> >
+        <input id="<?php echo $id; ?>" name="<?php echo $name; ?>" type="<?php echo $type; ?>" <?php echo !empty($checked) ?  'checked': ''; ?> class="onoffswitch-checkbox" value="<?php echo $value; ?>" <?php echo $disabled; ?>/>
+        <label for="<?php echo $id; ?>" class="onoffswitch-label" <?php echo $disabled; ?> >
+            <span class="onoffswitch-inner"></span>
+            <span class="onoffswitch-switch"></span>
+        </label>
+    </div>
+    <?php
+    if(!empty($label)) {
+        ?>
+        </div>
+        </div>
+        <?php
+    }
+
+    $html .= ob_get_contents();
+    ob_end_clean();
+
+    return $html;
+});
+
+
+Form::macro('oneFieldEdit', function($name, $label, $input, $options = array(), $datepicker = false) {
+    $e = "";
+
+    if(Session::has('errors')) {
+        $errors = Session::get('errors');
+    }
+
+    if(Session::has('errors') && $errors->has($name)) {
+        $e = "has-error";
+    }
+
+    if(in_array("required", $options, true))
+        $required = "required";
+    else
+        $required = "";
+
+    $html = '<div class="form-group '.$e.' ' . $required . '">';
+
+    if (!empty($label) && !is_array($label) ){
+        $html .= Form::label($name, $label);
+    } else  if(!empty($label) && is_array($label) ){
+        $html .= Form::label($name, !empty($label["name"]) ? $label["name"] : "");
+        if(isset($options['help_has_tooltip'])){
+            $html .= "<i style='margin-left: 10px; color: #02686f' data-toggle='tooltip' title='". (!empty($label["description"]) ? $label["description"] : "") ."' class=\"fa fa-info-circle\" aria-hidden=\"true\"></i>";
+        }else{
+            $html .= "<span class=\"help-block oneform-help-block\" style=\"margin:-4px 0px 5px;font-size:10px;\">".(!empty($label["description"]) ? $label["description"] : "")."</span>";
+        }
+
+
+    }
+
+    if ($datepicker === 'date') {
+        $html .= '<div class="input-group date">';
+        $html .= '<span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>';
+    } elseif ($datepicker === 'time') {
+        $html .= '<div class="input-group time">';
+        $html .= '<span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>';
+    }
+
+    $html .= $input;
+
+    if ($datepicker !== false) {
+        $html .= '</div>';
+    }
+
+    if(Session::has('errors') && $errors->has($name)) {
+        $html .= '<p class="help-block">'.$errors->first($name).'</p>';
+    }
+
+    $html .= '</div>';
+    return $html;
+});
+
+
+Form::macro('oneFieldShow', function($name, $label, $value, $options = array()) {
+    $html = "";
+    if (!empty($label) && !is_array($label) ){
+        $html = "<dt>".$label."</dt>";
+    } else  if(!empty($label) && is_array($label) ){
+        $html = "<dt>".(!empty($label["name"]) ? $label["name"] : "")."</dt>";
+        $html .= "<span class=\"help-block oneform-help-block-show\" style=\"margin:1px 0px 5px;font-size:10px;\">".(!empty($label["description"]) ? $label["description"] : "")."</span>";
+    }
+    $html .= "<dd> ".nl2br(strip_tags($value))." </dd>";
+    if (!isset($options["noTop"]) || $options["noTop"] === false) {
+        $html = $html."<hr style='margin: 10px 0 10px 0'>" ;
+    }
+
+    return $html;
+});
+
+
+Form::macro('oneEmpavilleMap', function($name, $label, $imageMap, $edit ,$mandatory, $value = null ) {
+    // Initial values
+    $html = "";
+    $latitude = "";
+    $longitude = "";
+    $mapId = 'map_'.uniqid();
+    if($value === ',')
+        $value =  null;
+
+    // Geo Location
+    if(!empty($value)){
+        $geoLocation = explode(",",$value);
+        if(is_array($geoLocation) && count($geoLocation) == 2){
+            $latitude = $geoLocation[0];
+            $longitude = $geoLocation[1];
+        }
+    }
+    ob_start();
+    ?>
+
+    <div class="row">
+        <div class="col-xs-12 col-12">
+            <!-- EmpavilleMap -->
+            <label><?php echo $label; ?></label>
+            <div class="oneEmpavilleImageGroup">
+                <div id="<?php echo $mapId; ?>" class="image_map"></div>
+                <input id="xcoord_<?php echo $name;?>" name="xcoord_<?php echo $name;?>" value="<?php echo $value; ?>" type="hidden" />
+                <input id="ycoord_<?php echo $name;?>" name="ycoord_<?php echo $name;?>" value="<?php echo $value; ?>" type="hidden" />
+                <input id="coord_required_<?php echo $name;?>" name="coord_required_<?php echo $name;?>" value="<?php echo $mandatory; ?>" type="hidden"  />
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            <?php if($edit){ ?>
+            $('#<?php echo $mapId; ?>').dropPin({
+                fixedHeight:390,
+                fixedWidth:307,
+                backgroundImage: '<?php echo $imageMap;?>',
+                pin: '<?php echo asset('images/empavilleSchools/map_pin.png');?>',
+                cursor: 'pointer',
+                hiddenXid: '#xcoord_<?php echo $name;?>',
+                hiddenYid: '#ycoord_<?php echo $name;?>',
+                pinclass: 'qtipinfo'
+            });
+            <?php if(!empty($value)){ ?>
+            $('#<?php echo $mapId; ?>').dropPin('showPin' ,{
+                fixedHeight:390,
+                fixedWidth:307,
+                backgroundImage: '<?php echo $imageMap;?>',
+                pin: '<?php echo asset('images/empavilleSchools/map_pin.png');?>',
+                cursor: 'pointer',
+                hiddenXid: '#xcoord_<?php echo $name;?>',
+                hiddenYid: '#ycoord_<?php echo $name;?>',
+                pinclass: 'qtipinfo',
+                pinX: <?php echo $latitude?>,
+                pinY: <?php echo $longitude ?>
+            });
+            <?php } ?>
+            <?php }else{ ?>
+
+            $('#<?php echo $mapId; ?>').dropPin('showPin' ,{
+                fixedHeight:390,
+                fixedWidth:307,
+                backgroundImage: '<?php echo $imageMap;?>',
+                pin: '<?php echo asset('images/empavilleSchools/map_pin.png');?>',
+                cursor: '',
+                pinclass: 'qtipinfo',
+                pinX: <?php echo $latitude?>,
+                pinY: <?php echo $longitude ?>
+            });
+            <?php }?>
+        });
+    </script>
+
+
+    <?php
+    $html .= ob_get_contents();
+    ob_end_clean();
+
+    return $html;
+});
+
+
+Form::macro('oneEmpavilleParkMap', function($name, $label, $imageMap, $edit ,$mandatory, $value = null ) {
+    // Initial values
+    $html = "";
+    $latitude = "";
+    $longitude = "";
+    $mapId = 'map_'.uniqid();
+    // Geo Location
+
+    if($value === ',')
+        $value =  null;
+
+    if(!empty($value)){
+        $geoLocation = explode(",",$value);
+        if(is_array($geoLocation) && count($geoLocation) == 2){
+            $latitude = $geoLocation[0];
+            $longitude = $geoLocation[1];
+        }
+
+    }
+    ob_start();
+    ?>
+
+    <div class="row">
+        <div class="col-xs-12 col-12">
+            <!-- EmpavilleMap -->
+            <label><?php echo $label; ?></label>
+            <div class="oneEmpavilleParkImageGroup">
+                <div id="<?php echo $mapId; ?>" class="image_map"></div>
+                <input id="xcoord_<?php echo $name;?>" name="xcoord_<?php echo $name;?>" value="<?php echo $value; ?>" type="hidden"  />
+                <input id="ycoord_<?php echo $name;?>" name="ycoord_<?php echo $name;?>" value="<?php echo $value; ?>" type="hidden"  />
+                <input id="coord_required_<?php echo $name;?>" name="coord_required_<?php echo $name;?>" value="<?php echo $mandatory; ?>" type="hidden"  />
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            <?php if($edit){ ?>
+            $('#<?php echo $mapId; ?>').dropPin({
+                fixedHeight:209,
+                fixedWidth:297,
+                backgroundImage: '<?php echo $imageMap;?>',
+                pin: '<?php echo asset('images/empavilleSchools/map_pin.png');?>',
+                cursor: 'pointer',
+                hiddenXid: '#xcoord_<?php echo $name;?>',
+                hiddenYid: '#ycoord_<?php echo $name;?>',
+                pinclass: 'qtipinfo'
+            });
+            <?php if(!empty($value)){ ?>
+            $('#<?php echo $mapId; ?>').dropPin('showPin' ,{
+                fixedHeight:209,
+                fixedWidth:297,
+                backgroundImage: '<?php echo $imageMap;?>',
+                pin: '<?php echo asset('images/empavilleSchools/map_pin.png');?>',
+                cursor: 'pointer',
+                hiddenXid: '#xcoord_<?php echo $name;?>',
+                hiddenYid: '#ycoord_<?php echo $name;?>',
+                pinclass: 'qtipinfo',
+                pinX: <?php echo $latitude?>,
+                pinY: <?php echo $longitude ?>
+            });
+            <?php } ?>
+            <?php }else{ ?>
+
+            $('#<?php echo $mapId; ?>').dropPin('showPin' ,{
+                fixedHeight:209,
+                fixedWidth:297,
+                backgroundImage: '<?php echo $imageMap;?>',
+                pin: '<?php echo asset('images/empavilleSchools/map_pin.png');?>',
+                cursor: '',
+                pinclass: 'qtipinfo',
+                pinX: <?php echo $latitude?>,
+                pinY: <?php echo $longitude ?>
+            });
+            <?php }?>
+        });
+    </script>
+
+
+    <?php
+    $html .= ob_get_contents();
+    ob_end_clean();
+
+    return $html;
+});
+
+
+/**
+ * Displays the oneFileUpload interface.
+ *
+ * Example:
+ *  Form::oneFileUpload("files", "Files", [], $uploadKey )
+ *  Form::oneFileUpload("files", "Files", $files, $uploadKey, array("max_file_size"=>"50mb") )
+ *  Form::oneFileUpload("files", "Files", [], $uploadKey, array("readonly"=> false) )
+ *  Form::oneFileUpload("files", "Files", [], $uploadKey, array("filesCountLimit"=> 1) )
+ *  Form::oneFileUpload("files", "Files", [], $uploadKey, array("filesCountLimit"=> 1,'replaceFile'=>true) )
+ *  Form::oneFileUpload("files", "Files", [], $uploadKey, array("acceptedtypes"=> "images") )
+ *  Form::oneFileUpload("files", "Files", [], $uploadKey, array("acceptedtypes"=> ["images","docs"]) )
+ *  Form::oneFileUpload("files", "Files", [], isset($uploadKey) ? $uploadKey : "",["name" => "files[]"])
+ *
+ * Files should be a JSON array:
+ *   [{"id":865,"code":"sorSAm8HpAOde5DG4aRZ","name":"home.png","type":"image\/png","size":"1421378","description":"home"},
+ *    {"id":867,"code":"ycQ46l8gLrjyCj0Vj7Xz","name":"home_no_logo.png","type":"image\/png","size":1375823,"description":"home no logo"}]
+ *
+ *
+ * This macro needs the following header:
+ *  <script src="{{ asset('vendor/jildertmiedema/laravel-plupload/js/plupload.full.min.js') }}"></script>
+ *
+ *
+ * @param String $objName
+ * @param String $label
+ * @param JsonArray $files
+ * @param String $uploadKey
+ * @param Array $options
+ * @return html
+ */
+Form::macro('oneFileUpload', function($objName, $label, $files = [], $uploadKey = "", $options = array()){
+    // Initial values
+    $html = "";
+    $downloadPath = "/file/download/";
+    $fileTypes = [
+        "images"    => ["title" => "Imagens",   "extensions" => "jpg,jpeg,gif,png,tif"],
+        "docs"      => ["title" => "Docs",      "extensions" => "doc,docx,rtf,zip,rar,pdf,xls,ppt,xppt"],
+        "videos"    => ["title" => "Videos",    "extensions" => "mpg,avi,asf,mov,qt,flv,swf,mp4,wmv,webm,vob,ogv,ogg,mpeg,3gp"],
+    ];
+
+    // Attributes
+    $max_file_size = "25mb";
+    $attributes = "";
+    $fileCountLimit = false;
+    $replaceFile = false;
+    $acceptedTypes = "";
+    $multi_selection = false;
+    $name = "";
+    $wrapper = "";
+    $translation = "";
+    $filesType = "";
+    $layout = "/resources/views/private/_macros/oneFileUpload.php";
+    $javascript = "/resources/views/private/_macros/oneFileUploadScript.php";
+
+    foreach ($options as $option => $tmp){
+        if(strtolower($option) == "name" ) {
+            $name = $tmp;
+        }elseif(strtolower($option) == "layout" ) {
+            $layout = $tmp;
+        }elseif(strtolower($option) == "javascript" ) {
+            $javascript = $tmp;
+        }elseif(strtolower($option) == "multi_selection" ) {
+            $multi_selection = $tmp;
+        }elseif(strtolower($option) == "max_file_size" ) {
+            $max_file_size = $tmp;
+        } else if(strtolower($option) == "readonly" ){
+            $readOnly = $tmp;
+        } else if(strtolower($option) == "downloadpath" ){
+            $downloadPath = $tmp;
+        } else if(strtolower($option) == "filescountlimit" && is_int($tmp)) {
+            $fileCountLimit = $tmp;
+        } else if(strtolower($option) == "replacefile") {
+            $replaceFile = true;
+        } else if(strtolower($option) == "acceptedtypes") {
+            if (is_array($tmp)) {
+                foreach ($tmp as $tmp2) {
+                    $acceptedTypes .= "{title: '" . $fileTypes[$tmp2]["title"] . "', extensions: '" . $fileTypes[$tmp2]["extensions"] . "'},";
+                }
+            } else
+                $acceptedTypes .= "{title: '" . $fileTypes[$tmp]["title"] . "', extensions: '" . $fileTypes[$tmp]["extensions"] . "'}";
+
+            if ($acceptedTypes!=="")
+                $acceptedTypes = "mime_types: [" . rtrim($acceptedTypes, '.') . "]";
+        }else if(strtolower($option) == "wrapper") {
+            $wrapper = $tmp;
+        }else if(strtolower($option) == "translation") {
+            $translation = $tmp;
+        }else if(strtolower($option) == "filestype") {
+            $filesType = $tmp;
+        } else {
+            $attributes .= $option.'="'.$tmp.'" ';
+        }
+    }
+
+    // Readonly Check
+    if(!isset($readOnly) && ONE::isEdit() || (isset($readOnly) && $readOnly === false)){
+        $isEdit = true;
+    } else {
+        $isEdit = false;
+    }
+
+    $files = json_encode($files);
+
+    // including layout and script
+    include '..'.$layout;
+    include '..'.$javascript;
+
+    return $html;
+});
+
+/**
+ * Displays the oneImageUpload interface.
+ *
+ * Example:
+ *  Form::oneImageUpload("files", "Image", ["id" => 122, "code" => "GYtak716"], $uploadKey, ["maxfilesize"=>20,"mimetypes"=>"jpg,gif,png"])
+ *
+ * This macro needs the following header:
+ *  <script src="{{ asset('vendor/jildertmiedema/laravel-plupload/js/plupload.full.min.js') }}"></script>
+ *  <script src="{{ asset("js/cropper.min.js") }}"></script>
+ *  <script src="{{ asset("js/canvas-to-blob.js") }}"></script>
+ *
+ *
+ * @param String $objName
+ * @param String $label
+ * @param Array $image
+ * @param String $uploadKey
+ * @param Array $options
+ * @return html
+ */
+Form::macro('oneImageUpload', function($objName, $label, $image, $uploadKey = "", $options = array()){
+    // Initial values
+    $html = "";
+    $downloadPath = "/file/download/";
+    $maxFileSize = 20;
+    $idBrowseButton = 'browse-button-' . $objName;
+    $idDropZone = 'image-drop-zone-' . $objName;
+    $variable = "imageUploader" . $objName;
+    $idModal = 'getCroppedCanvasModal';
+    $aspectRatio = 1;
+    $dragMode = "move";
+    $idTitle = "getCroppedCanvasTitle";
+    $title = trans('files.imageResize');
+    $imageId = "fuImage_" . $objName;
+    $cropperButton = "cropper_button_" . $objName;
+    $imageContainer = "img-container" . $objName;
+    $mimeTypes = "jpg,gif,png";
+    $imageClass = "";
+    $wrapperClass = "";
+    $wrapperButtons = "";
+    $buttonClass = "btn btn-outlined btn-block btn-file-upload";
+    $imagedefault = "/images/default_image.gif";
+    $layout = "/resources/views/private/_macros/oneImageUpload.php";
+    $javascript = "/resources/views/private/_macros/oneImageUploadScript.php";
+    $name = $objName;
+    $multi_selection = true;
+
+    foreach ($options as $option => $tmp) {
+        if (strtolower($option) == "maxfilesize") {
+            $maxFileSize = $tmp;
+        }
+        if (strtolower($option) == "mimetypes") {
+            $mimeTypes = $tmp;
+        }
+        if (strtolower($option) == "aspectratio") {
+            $aspectRatio = $tmp;
+        }
+        if (strtolower($option) == "dragmode") {
+            $dragMode = $tmp;
+        }
+        if (strtolower($option) == "imagedefault") {
+            $imagedefault = $tmp;
+        }
+        if (strtolower($option) == "wrapperclass") {
+            $wrapperClass = $tmp;
+        }
+        if (strtolower($option) == "wrapperbuttons") {
+            $wrapperButtons = $tmp;
+        }
+        if (strtolower($option) == "buttonclass") {
+            $buttonClass = $tmp;
+        }
+        if(strtolower($option) == "readonly") {
+            $readOnly = $tmp;
+        }
+        if(strtolower($option) == "layout") {
+            $layout = $tmp;
+        }
+        if(strtolower($option) == "javascript") {
+            $javascript = $tmp;
+        }
+        if(strtolower($option) == "name") {
+            $name = $tmp;
+        }
+        if(strtolower($option) == "multiSelection") {
+            $multi_selection = $tmp;
+        }
+    }
+    // Readonly Check
+    if(!isset($readOnly) && ONE::isEdit() || (isset($readOnly) && $readOnly === false)){
+        $isEdit = true;
+    } else {
+        $isEdit = false;
+    }
+
+    // including layout and script
+    include '..'.$layout;
+    include '..'.$javascript;
+    return $html;
+});
+
+
+/**
+ * oneMapsLocation Copy personalized for Lisbon
+ *
+ *
+ * */
+Form::macro('oneMapsLocationsLisbon', function($objId, $label, $locations = [], $options = array("style" => "min-height:300px;width:100%;") , $geometrySelection = [],  $totalNoMapTopics = null, $allCategoriesHelp = null){
+    // Initial values
+    $html = "";
+
+    // If default location not set, $defaultLocation = Coimbra
+    $defaultLocation = "39.557191,-7.8536599";
+    $mapTypeId = "google.maps.MapTypeId.ROADMAP";  //  google.maps.MapTypeId.ROADMAP|| google.maps.MapTypeId.SATELLITE
+    $zoom = 13;
+    $folderIcons = "";
+    $defaultIconsType = "png";
+    $markerIcon = "";
+    $pinTitle = trans("googleMaps.pin");
+    $pinGroup =  trans("googleMaps.pinGroups");
+    $attributes = "";
+
+    foreach ($options as $option => $tmp){
+        if($option!="id"){
+            $attributes .= $option.'="'.$tmp.'" ';
+        }
+
+        if(strtolower($option) == "defaultlocation" ){
+            $defaultLocation = $tmp;
+        }
+
+        if(strtolower($option) == "zoom" ){
+            $zoom = $tmp;
+        }
+
+        if(strtolower($option) == "maptypeid" ){
+            $mapTypeId = $tmp;
+        }
+
+        if(strtolower($option) == "foldericons"){
+            $folderIcons = $tmp;
+        }
+
+        if(strtolower($option) == "defaulticonstype"){
+            $defaultIconsType = $tmp;
+        }
+
+        if(strtolower($option) == "markericon" ){
+            if(Session::get("SITE-CONFIGURATION.file_marker_icon") && !empty(Session::get("SITE-CONFIGURATION.file_marker_icon"))) {
+                $markerIcon = Session::get("SITE-CONFIGURATION.file_marker_icon");
+            }else{
+                $markerIcon = $tmp;
+            }
+        }
+
+        if(strtolower($option) == "pintitle" ){
+            $pinTitle = $tmp;
+        }
+        if(strtolower($option) == "pingroup" ){
+            $pinGroup = $tmp;
+        }
+    }
+
+    /** Categories for help - show in map view*/
+    if(empty($allCategoriesHelp)){
+        $categoriesHelp = [];
+        foreach($locations as $location){
+            if(!empty($location[5]) ){
+                $categoriesHelp[] = [$location[5],$location[4]];
+            }
+        }
+
+        $categoriesHelp = collect($categoriesHelp);
+        $categoriesHelp = $categoriesHelp->unique();
+    }else{
+        $categoriesHelp = [];
+        foreach($allCategoriesHelp as $category){
+            if(!empty($category['category']) && !empty($category['pin'])){
+                $categoriesHelp[] = [$category['category'], $category['pin']];
+            }
+        }
+        $categoriesHelp = collect($categoriesHelp);
+        $categoriesHelp = $categoriesHelp->unique();
+    }
+
+
     ?>
 
     <!-- Map Locations -->
@@ -1051,10 +1740,10 @@ Form::macro('oneMapsLocations', function($objId, $label, $locations = [], $optio
         }
         ?>
         <div class="row">
-            <div class="<?php echo $mapColumns["map"] ?>">
+            <div class="col-sm-12">
                 <div id="<?php echo $objId ?>" <?php echo $attributes; ?>></div>
             </div>
-            <div class="<?php echo $mapColumns["legend"] ?> g-map-label-group">
+            <!-- <div class="col-sm-12 g-map-label-group">
                 <div class="row map-statistics-row">
                     <!-- Number of topics with geo-reference -->
                     <div class="col-md-6 col-xs-12 col-12">
@@ -1098,7 +1787,7 @@ Form::macro('oneMapsLocations', function($objId, $label, $locations = [], $optio
                             $j++;
                             $image = $categoryHelp[1][0];
                             ?>
-                            <div class="col-md-3 col-xs-12 col-12">
+                            <div class="col-md-3 col-xs-12">
                                 <div class="row">
                                     <div class="col-lg-3 col-md-4 col-xs-3 col-3"><img src="<?php echo  URL::action('FilesController@download', ['id' => $image->id, 'code' => $image->code, 1] ); ?>" style="height:4em;" /></div>
                                     <div class="col-lg-9 col-md-8 col-xs-9 col-9" style="padding-top: 1em"><?php echo ucfirst($categoryHelp[0]); ?></div>
@@ -1120,7 +1809,7 @@ Form::macro('oneMapsLocations', function($objId, $label, $locations = [], $optio
                     <?php
                 }
                 ?>
-            </div>
+            </div> -->
         </div>
     </div>
 
@@ -1132,15 +1821,15 @@ Form::macro('oneMapsLocations', function($objId, $label, $locations = [], $optio
                 $lats = 0;
                 $longs = 0;
                 foreach($locations as $location){
-                    $latItem = !empty($location[0]) ? $location[0] : 0;
-                    $longItem = !empty($location[1]) ? $location[1] : 0;
-                    $markerIcon = !(empty($location[4][0]) ) ? action('FilesController@download',["id"=>$location[4][0]->id, "code" => $location[4][0]->code, 1]) : "";
-                    ?>
-                    ['<?php echo str_replace("\n","",$latItem);  ?>', <?php echo $longItem; ?>, <?php echo $location[2]; ?>, '<?php echo $markerIcon; ?>'],
-                    <?php
-                    $lats += $location[1];
-                    $longs += $location[2];
-                    $i++;
+                $latItem = !empty($location[0]) ? $location[0] : 0;
+                $longItem = !empty($location[1]) ? $location[1] : 0;
+                $markerIcon = !(empty($location[4][0]) ) ? action('FilesController@download',["id"=>$location[4][0]->id, "code" => $location[4][0]->code, 1]) : "";
+                ?>
+                ['<?php echo $latItem; ?>', <?php echo $longItem; ?>, <?php echo $location[2]; ?>, '<?php echo $markerIcon; ?>'],
+                <?php
+                $lats += $location[1];
+                $longs += $location[2];
+                $i++;
                 }
                 ?>
             ];
@@ -1268,7 +1957,6 @@ Form::macro('oneMapsLocations', function($objId, $label, $locations = [], $optio
                     $(this).css({opacity: '1'});
                 });
             });
-
         }
 
         // Load Maps
@@ -1285,30 +1973,6 @@ Form::macro('oneMapsLocations', function($objId, $label, $locations = [], $optio
 
 });
 
-
-
-Form::macro('onePassword', function($name, $label, $value = null, $options = array()) {
-    $html = "";
-    // inicializa a opcao id e classe se nao existirem.
-    $options = ONE::initOptions($name,$options);
-
-    // metodo original da laravel, se o valor for null é feito o databind do valor a input.
-    $field = Form::password($name, $options);
-
-    // verifica se esta form está em modo edit ou view
-    if(ONE::isEdit()) {
-        $html = Form::oneFieldEdit($name, $label, $field, $options);
-    } else {
-        // Se nao for especificado, vai buscar o valor ao modelo
-        if ($value == null) {
-            $value = Form::getValueAttribute($name);
-        }
-        //metodo para fazer o render do html
-        if ($value != "")
-            $html = Form::oneFieldShow($name, $label, $value, $options);
-    }
-    return $html;
-});
 
 
 /**
@@ -1340,7 +2004,7 @@ Form::macro('onePassword', function($name, $label, $value = null, $options = arr
  * @param Array $options
  * @return html
  */
-Form::macro('oneSwitch', function($name, $label, $checked = false, $options = array()) {
+Form::macro('oneSwitch2', function($name, $label, $checked = false, $options = array()) {
     $html = "";
     $attributes = "";
     $id = $name;
@@ -1348,14 +2012,19 @@ Form::macro('oneSwitch', function($name, $label, $checked = false, $options = ar
     $groupClass = "";
     $labelClass = "";
     $switchClass = "";
+    $type = "checkbox";
 
     foreach ($options as $option => $tmp){
         if(strtolower($option) == "readonly" ){
             $readOnly = $tmp;
         } else if(strtolower($option) == "id" ){
             $id = $tmp;
+        } else if(strtolower($option) == "name" ){
+            $name = $tmp;
         } else if(strtolower($option) == "value" ){
             $value = $tmp;
+        } else if(strtolower($option) == "type" ){
+            $type = $tmp;
         } else if(strtolower($option) == "groupclass" ){
             $groupClass = $tmp;
         } else if(strtolower($option) == "labelclass" ){
@@ -1379,909 +2048,41 @@ Form::macro('oneSwitch', function($name, $label, $checked = false, $options = ar
     }
 
     ob_start();
-
-    if(!empty($label)) {
-        ?>
-        <div class="<?php echo $groupClass; ?>">
-        <div class="<?php echo $labelClass; ?>">
-            <label for="<?php echo $id; ?>"><?php echo is_array($label) ? $label["name"] : $label; ?></label>
+    ?>
+    <div class="row">
+        <div class="col-8 col-lg-12">
             <?php
-            if(is_array($label) && $label["description"] ){
+            if(!empty($label)) {
                 ?>
-                <span class="help-block oneform-help-block" style="margin:-4px 0px 5px;font-size:10px;"><?php echo $label["description"]; ?></span>
+
+                <label for="<?php echo $id; ?>"><?php echo is_array($label) ? $label["name"] : $label; ?></label>
+                <?php
+                if(is_array($label) && $label["description"] ){
+                    ?>
+                    <span class="help-block oneform-help-block" style="margin:-4px 0px 5px;font-size:10px;"><?php echo $label["description"]; ?></span>
+                    <?php
+                }
+                ?>
+
                 <?php
             }
             ?>
         </div>
-        <div class="<?php echo $switchClass; ?>">
-        <?php
-    }
-    ?>
-
-    <div class="onoffswitch <?php echo $classReadOnly; ?>" <?php echo $attributes; ?> <?php echo $pointerEvents; ?> >
-        <input id="<?php echo $id; ?>" name="<?php echo $name; ?>" type="checkbox" <?php echo !empty($checked) ?  'checked': ''; ?> class="onoffswitch-checkbox" value="<?php echo $value; ?>" <?php echo $disabled; ?>/>
-        <label for="<?php echo $id; ?>" class="onoffswitch-label" <?php echo $disabled; ?> >
-            <span class="onoffswitch-inner"></span>
-            <span class="onoffswitch-switch"></span>
-        </label>
+        <div class="col-4 col-lg-12">
+            <div class="onoffswitch <?php echo $classReadOnly; ?>" <?php echo $attributes; ?> <?php echo $pointerEvents; ?> >
+                <input id="<?php echo $id; ?>" name="<?php echo $name; ?>" type="<?php echo $type; ?>" <?php echo !empty($checked) ?  'checked': ''; ?> class="onoffswitch-checkbox" value="<?php echo $value; ?>" <?php echo $disabled; ?>/>
+                <label for="<?php echo $id; ?>" class="onoffswitch-label" <?php echo $disabled; ?> >
+                    <span class="onoffswitch-inner"></span>
+                    <span class="onoffswitch-switch"></span>
+                </label>
+            </div>
+        </div>
     </div>
     <?php
-    if(!empty($label)) {
-        ?>
-        </div>
-        </div>
-        <?php
-    }
+
 
     $html .= ob_get_contents();
     ob_end_clean();
 
     return $html;
 });
-
-
-
-Form::macro('oneFieldEdit', function($name, $label, $input, $options = array(), $datepicker = false) {
-    $e = "";
-
-    if(Session::has('errors')) {
-        $errors = Session::get('errors');
-    }
-
-    if(Session::has('errors') && $errors->has($name)) {
-        $e = "has-error";
-    }
-
-    if(in_array("required", $options, true))
-        $required = "required";
-    else
-        $required = "";
-
-    $html = '<div class="form-group '.$e.' ' . $required . '">';
-
-    if (!empty($label) && !is_array($label) ){
-        $html .= Form::label($name, $label);
-    } else  if(!empty($label) && is_array($label) ){
-        $html .= Form::label($name, !empty($label["name"]) ? $label["name"] : "");
-        if(isset($options['help_has_tooltip'])){
-            $html .= "<i style='margin-left: 10px; color: #02686f' data-toggle='tooltip' title='". (!empty($label["description"]) ? $label["description"] : "") ."' class=\"fa fa-info-circle\" aria-hidden=\"true\"></i>";
-        }else{
-            $html .= "<span class=\"help-block oneform-help-block\" style=\"margin:-4px 0px 5px;font-size:10px;\">".(!empty($label["description"]) ? $label["description"] : "")."</span>";
-        }
-
-
-    }
-
-    if ($datepicker === 'date') {
-        $html .= '<div class="input-group date">';
-        $html .= '<span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>';
-    } elseif ($datepicker === 'time') {
-        $html .= '<div class="input-group time">';
-        $html .= '<span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>';
-    }
-
-    $html .= $input;
-
-    if ($datepicker !== false) {
-        $html .= '</div>';
-    }
-
-    if(Session::has('errors') && $errors->has($name)) {
-        $html .= '<p class="help-block">'.$errors->first($name).'</p>';
-    }
-
-    $html .= '</div>';
-    return $html;
-});
-
-Form::macro('oneFieldShow', function($name, $label, $value, $options = array()) {
-    $html = "";
-    if (!empty($label) && !is_array($label) ){
-        $html = "<dt>".$label."</dt>";
-    } else  if(!empty($label) && is_array($label) ){
-        $html = "<dt>".(!empty($label["name"]) ? $label["name"] : "")."</dt>";
-        $html .= "<span class=\"help-block oneform-help-block-show\" style=\"margin:1px 0px 5px;font-size:10px;\">".(!empty($label["description"]) ? $label["description"] : "")."</span>";
-    }
-    $html .= "<dd> ".nl2br(strip_tags($value))." </dd>";
-    if (!isset($options["noTop"]) || $options["noTop"] === false) {
-        $html = $html."<hr style='margin: 10px 0 10px 0'>" ;
-    }
-
-    return $html;
-});
-
-
-
-Form::macro('oneEmpavilleMap', function($name, $label, $imageMap, $edit ,$mandatory, $value = null ) {
-    // Initial values
-    $html = "";
-    $latitude = "";
-    $longitude = "";
-    $mapId = 'map_'.uniqid();
-    if($value === ',')
-        $value =  null;
-
-    // Geo Location
-    if(!empty($value)){
-        $geoLocation = explode(",",$value);
-        if(is_array($geoLocation) && count($geoLocation) == 2){
-            $latitude = $geoLocation[0];
-            $longitude = $geoLocation[1];
-        }
-    }
-    ob_start();
-    ?>
-
-    <div class="row">
-        <div class="col-xs-12 col-12">
-            <!-- EmpavilleMap -->
-            <label><?php echo $label; ?></label>
-            <div class="oneEmpavilleImageGroup">
-                <div id="<?php echo $mapId; ?>" class="image_map"></div>
-                <input id="xcoord_<?php echo $name;?>" name="xcoord_<?php echo $name;?>" value="<?php echo $value; ?>" type="hidden" />
-                <input id="ycoord_<?php echo $name;?>" name="ycoord_<?php echo $name;?>" value="<?php echo $value; ?>" type="hidden" />
-                <input id="coord_required_<?php echo $name;?>" name="coord_required_<?php echo $name;?>" value="<?php echo $mandatory; ?>" type="hidden"  />
-            </div>
-        </div>
-    </div>
-
-    <script>
-        $(document).ready(function() {
-            <?php if($edit){ ?>
-            $('#<?php echo $mapId; ?>').dropPin({
-                fixedHeight:390,
-                fixedWidth:307,
-                backgroundImage: '<?php echo $imageMap;?>',
-                pin: '<?php echo asset('images/empavilleSchools/map_pin.png');?>',
-                cursor: 'pointer',
-                hiddenXid: '#xcoord_<?php echo $name;?>',
-                hiddenYid: '#ycoord_<?php echo $name;?>',
-                pinclass: 'qtipinfo'
-            });
-            <?php if(!empty($value)){ ?>
-            $('#<?php echo $mapId; ?>').dropPin('showPin' ,{
-                fixedHeight:390,
-                fixedWidth:307,
-                backgroundImage: '<?php echo $imageMap;?>',
-                pin: '<?php echo asset('images/empavilleSchools/map_pin.png');?>',
-                cursor: 'pointer',
-                hiddenXid: '#xcoord_<?php echo $name;?>',
-                hiddenYid: '#ycoord_<?php echo $name;?>',
-                pinclass: 'qtipinfo',
-                pinX: <?php echo $latitude?>,
-                pinY: <?php echo $longitude ?>
-            });
-            <?php } ?>
-            <?php }else{ ?>
-
-            $('#<?php echo $mapId; ?>').dropPin('showPin' ,{
-                fixedHeight:390,
-                fixedWidth:307,
-                backgroundImage: '<?php echo $imageMap;?>',
-                pin: '<?php echo asset('images/empavilleSchools/map_pin.png');?>',
-                cursor: '',
-                pinclass: 'qtipinfo',
-                pinX: <?php echo $latitude?>,
-                pinY: <?php echo $longitude ?>
-            });
-            <?php }?>
-        });
-    </script>
-
-
-    <?php
-    $html .= ob_get_contents();
-    ob_end_clean();
-
-    return $html;
-});
-
-Form::macro('oneEmpavilleParkMap', function($name, $label, $imageMap, $edit ,$mandatory, $value = null ) {
-    // Initial values
-    $html = "";
-    $latitude = "";
-    $longitude = "";
-    $mapId = 'map_'.uniqid();
-    // Geo Location
-
-    if($value === ',')
-        $value =  null;
-
-    if(!empty($value)){
-        $geoLocation = explode(",",$value);
-        if(is_array($geoLocation) && count($geoLocation) == 2){
-            $latitude = $geoLocation[0];
-            $longitude = $geoLocation[1];
-        }
-
-    }
-    ob_start();
-    ?>
-
-    <div class="row">
-        <div class="col-xs-12 col-12">
-            <!-- EmpavilleMap -->
-            <label><?php echo $label; ?></label>
-            <div class="oneEmpavilleParkImageGroup">
-                <div id="<?php echo $mapId; ?>" class="image_map"></div>
-                <input id="xcoord_<?php echo $name;?>" name="xcoord_<?php echo $name;?>" value="<?php echo $value; ?>" type="hidden"  />
-                <input id="ycoord_<?php echo $name;?>" name="ycoord_<?php echo $name;?>" value="<?php echo $value; ?>" type="hidden"  />
-                <input id="coord_required_<?php echo $name;?>" name="coord_required_<?php echo $name;?>" value="<?php echo $mandatory; ?>" type="hidden"  />
-            </div>
-        </div>
-    </div>
-
-    <script>
-        $(document).ready(function() {
-            <?php if($edit){ ?>
-            $('#<?php echo $mapId; ?>').dropPin({
-                fixedHeight:209,
-                fixedWidth:297,
-                backgroundImage: '<?php echo $imageMap;?>',
-                pin: '<?php echo asset('images/empavilleSchools/map_pin.png');?>',
-                cursor: 'pointer',
-                hiddenXid: '#xcoord_<?php echo $name;?>',
-                hiddenYid: '#ycoord_<?php echo $name;?>',
-                pinclass: 'qtipinfo'
-            });
-            <?php if(!empty($value)){ ?>
-            $('#<?php echo $mapId; ?>').dropPin('showPin' ,{
-                fixedHeight:209,
-                fixedWidth:297,
-                backgroundImage: '<?php echo $imageMap;?>',
-                pin: '<?php echo asset('images/empavilleSchools/map_pin.png');?>',
-                cursor: 'pointer',
-                hiddenXid: '#xcoord_<?php echo $name;?>',
-                hiddenYid: '#ycoord_<?php echo $name;?>',
-                pinclass: 'qtipinfo',
-                pinX: <?php echo $latitude?>,
-                pinY: <?php echo $longitude ?>
-            });
-            <?php } ?>
-            <?php }else{ ?>
-
-            $('#<?php echo $mapId; ?>').dropPin('showPin' ,{
-                fixedHeight:209,
-                fixedWidth:297,
-                backgroundImage: '<?php echo $imageMap;?>',
-                pin: '<?php echo asset('images/empavilleSchools/map_pin.png');?>',
-                cursor: '',
-                pinclass: 'qtipinfo',
-                pinX: <?php echo $latitude?>,
-                pinY: <?php echo $longitude ?>
-            });
-            <?php }?>
-        });
-    </script>
-
-
-    <?php
-    $html .= ob_get_contents();
-    ob_end_clean();
-
-    return $html;
-});
-
-
-
-
-/**
- * Displays the oneFileUpload interface.
- *
- * Example:
- *  Form::oneFileUpload("files", "Files", [], $uploadKey )
- *  Form::oneFileUpload("files", "Files", $files, $uploadKey, array("max_file_size"=>"50mb") )
- *  Form::oneFileUpload("files", "Files", [], $uploadKey, array("readonly"=> false) )
- *  Form::oneFileUpload("files", "Files", [], $uploadKey, array("filesCountLimit"=> 1) )
- *  Form::oneFileUpload("files", "Files", [], $uploadKey, array("filesCountLimit"=> 1,'replaceFile'=>true) )
- *  Form::oneFileUpload("files", "Files", [], $uploadKey, array("acceptedtypes"=> "images") )
- *  Form::oneFileUpload("files", "Files", [], $uploadKey, array("acceptedtypes"=> ["images","docs"]) )
- *
- * Files should be a JSON array:
- *   [{"id":865,"code":"sorSAm8HpAOde5DG4aRZ","name":"home.png","type":"image\/png","size":"1421378","description":"home"},
- *    {"id":867,"code":"ycQ46l8gLrjyCj0Vj7Xz","name":"home_no_logo.png","type":"image\/png","size":1375823,"description":"home no logo"}]
- *
- *
- * This macro needs the following header:
- *  <script src="{{ asset('vendor/jildertmiedema/laravel-plupload/js/plupload.full.min.js') }}"></script>
- *
- *
- * @param String $objName
- * @param String $label
- * @param JsonArray $files
- * @param String $uploadKey
- * @param Array $options
- * @return html
- */
-Form::macro('oneFileUpload', function($objName, $label, $files = [], $uploadKey = "", $options = array()){
-    // Initial values
-    $html = "";
-    $downloadPath = "/file/download/";
-    $fileTypes = [
-        "images"    => ["title" => "Imagens",   "extensions" => "jpg,gif,png,tif"],
-        "docs"      => ["title" => "Docs",      "extensions" => "doc,docx,rtf,zip,rar,pdf,xls,ppt,xppt"],
-        "videos"    => ["title" => "Videos",    "extensions" => "mpg,avi,asf,mov,qt,flv,swf,mp4,wmv,webm,vob,ogv,ogg,mpeg,3gp"],
-    ];
-
-    // Attributes
-    $max_file_size = "25mb";
-    $attributes = "";
-    $fileCountLimit = false;
-    $replaceFile = false;
-    $acceptedTypes = "";
-    foreach ($options as $option => $tmp){
-        if(strtolower($option) == "max_file_size" ) {
-            $max_file_size = $tmp;
-        } else if(strtolower($option) == "readonly" ){
-            $readOnly = $tmp;
-        } else if(strtolower($option) == "downloadpath" ){
-            $downloadPath = $tmp;
-        } else if(strtolower($option) == "filescountlimit" && is_int($tmp)) {
-            $fileCountLimit = $tmp;
-        } else if(strtolower($option) == "replacefile") {
-            $replaceFile = true;
-        } else if(strtolower($option) == "acceptedtypes") {
-            if (is_array($tmp)) {
-                foreach ($tmp as $tmp2) {
-                    $acceptedTypes .= "{title: '" . $fileTypes[$tmp2]["title"] . "', extensions: '" . $fileTypes[$tmp2]["extensions"] . "'},";
-                }
-            } else
-                $acceptedTypes .= "{title: '" . $fileTypes[$tmp]["title"] . "', extensions: '" . $fileTypes[$tmp]["extensions"] . "'}";
-
-            if ($acceptedTypes!=="")
-                $acceptedTypes = "mime_types: [" . rtrim($acceptedTypes, '.') . "]";
-        } else {
-            $attributes .= $option.'="'.$tmp.'" ';
-        }
-    }
-
-    // Readonly Check
-    if(!isset($readOnly) && ONE::isEdit() || (isset($readOnly) && $readOnly === false)){
-        $isEdit = true;
-    } else {
-        $isEdit = false;
-    }
-
-    $files = json_encode($files);
-
-    ob_start();
-    ?>
-    <!-- HTML for fileupload -->
-    <div id="attachments-container-<?php echo $objName; ?>" class="form-group attachments-container" >
-        <div id="drop-zone-<?php echo $objName; ?>" class="box files-drop-zone">
-            <div class="files-dragdrop-here">
-                <?php if($isEdit){ ?>
-                    <i class="fa fa-cloud-download"></i> <?php echo trans("files.drag_and_drop_files_to_here") ?>
-                <?php } ?>
-            </div>
-            <div class="row no-gutters">
-                <div class="col-sm-10"><h5><i class="fa fa-file-o"></i> <?php echo $label; ?></h5></div>
-                <div class="col-sm-2 box-tools files-box-tools">
-                    <?php if($isEdit){ ?>
-                        <a id="select-files-<?php echo $objName; ?>" class="btn btn-flat empatia btn-xs pull-right file-upload-button"><i class="fa fa-upload"></i> <?php echo trans('files.upload'); ?></a>
-                    <?php } ?>
-                </div>
-            </div>
-            <div id="files-<?php echo $objName; ?>" class="files"></div>
-            <div id="files-list-<?php echo $objName; ?>" class="files-list box-footer" style="display: none"></div>
-        </div>
-        <!-- Hidden input to store files in JSON format -->
-        <input id="<?php echo $objName ?>" name="<?php echo $objName ?>" value='<?php echo (!empty($files) ? $files : ""); ?>'  <?php echo $attributes; ?> type="hidden" >
-    </div>
-
-
-    <!-- JavaScript for fileupload -->
-    <script>
-        var fileUploader_<?php echo $objName; ?> = new plupload.Uploader(
-            {
-                headers: {
-                    'X-CSRF-TOKEN': "<?php echo  csrf_token(); ?>",
-                    'X-UPLOAD-TOKEN': "<?php echo $uploadKey; ?>",
-                    'X-AUTH-TOKEN': "<?php echo Session::get('X-AUTH-TOKEN', 'INVALID'); ?>" },
-                browse_button: 'select-files-<?php echo $objName; ?>',
-                drop_element: document.getElementById('drop-zone-<?php echo $objName; ?>'),
-                runtimes: 'html5,flash,silverlight,html4',
-                url: "<?php echo action('FilesController@upload'); ?>",
-                chunk_size: '1mb',
-                filters: {  max_file_size: '<?php echo $max_file_size; ?>',<?php echo $acceptedTypes;?>},
-                flash_swf_url: "<?php echo asset('vendor/jildertmiedema/laravel-plupload/js/Moxie.swf');  ?>",
-                silverlight_xap_url: "<?php echo asset('vendor/jildertmiedema/laravel-plupload/js/Moxie.xap'); ?>",
-                init: {
-                    PostInit: function () { },
-                    FilesAdded: function (up, files) {
-                        <?php if ($fileCountLimit!=false && $replaceFile!=false) { ?>
-                        oldFiles = JSON.parse($("#<?php echo $objName ?>").val());
-                        if (oldFiles.length>=<?php echo $fileCountLimit;?>) {
-                            removeUploadedFile_<?php echo $objName; ?>(oldFiles.shift()["id"]);
-                            toastr.error('<?php echo trans('files.file_limit_reached_removed_oldest'); ?>');
-                        }
-                        <?php } else if ($fileCountLimit!=false && $replaceFile==false) { ?>
-                        if (JSON.parse($("#<?php echo $objName; ?>").val()).length<<?php echo $fileCountLimit;?>) {
-                            <?php } ?>
-
-                            plupload.each(files,
-                                function (file) {
-                                    var html = "<div id='file_<?php echo $objName; ?>_" + file.id + "' class='row'><div class='col-xs-8 col-sm-8 col-8'><i style='cursor:pointer' class='text-danger' onclick=removeUploadedFile_<?php echo $objName; ?>('" + file.id + "') class='fa fa-times' aria-hidden='true'></i> " + file.name + " (" + plupload.formatSize(file.size) + ")</div><div id='file_progress_bar_<?php echo $objName; ?>_" + file.id + "' class='col-xs-4 col-sm-4 col-4 text-right' ><div class='progress' style='margin-bottom: 0px'><div class='progress-bar progress-bar-success' role='progressbar' aria-valuenow='0' aria-valuemin='0' aria-valuemax='100' style='width:0%'><span>0%</span></div></div></div></div>"
-                                    $("#files-list-<?php echo $objName; ?>").append(html);
-                                });
-                            fileUploader_<?php echo $objName; ?>.start();
-                            $("#files-list-<?php echo $objName; ?>").slideDown();
-
-                            <?php if ($fileCountLimit!=false && $replaceFile==false) { ?>
-                        } else {
-                            // Adicionar toastr aqui
-                            toastr.error('<?php echo trans('files.file_limit_reached'); ?>');
-                            $.each(files, function (i, file) {
-                                up.removeFile(file);
-                            });
-                        }
-                        <?php }?>
-                    },
-                    UploadProgress: function (up, file) {
-                        var div = $("#files-list-<?php echo $objName; ?> #file_<?php echo $objName; ?>_" + file.id);
-                        div.find("span").html(file.percent + "%");
-                        div.find(".progress-bar").width(file.percent + "%"); div.find(".progress-bar").attr("aria-valuenow", file.percent);
-                    },
-
-                    removeFile: function ( file) {
-                        console.log("removeFile");
-                    },
-
-                    FileUploaded: function (up, file, obj) {
-                        var filesStr = "";
-                        var objJson =  JSON.parse(obj.response);
-
-                        if($("#<?php echo $objName; ?>").val() == "null" || $("#<?php echo $objName; ?>").val() =="" ){
-                            filesStr = "[]";
-                        } else {
-                            filesStr = $("#<?php echo $objName; ?>").val();
-                        }
-
-                        var jsonArray = JSON.parse( filesStr );
-
-                        var jsonStringFile = '{"id": '+objJson.result.id+', "code": "'+objJson.result.code+'", "name": "'+file.name+'" , "type": "'+file.type+'" , "size": '+file.size+', "description": ""  }';
-                        jsonArray.push( JSON.parse(jsonStringFile) );
-
-                        var jsonString = JSON.stringify(jsonArray);
-
-                        $("#<?php echo $objName; ?>").val(jsonString);
-
-                        var jsonObj = JSON.parse(obj.response);
-                        $("#"+file.id).attr("file_id",jsonObj.result.id);
-
-                        var html = "<div class='fu-file-wrapper'><div id='file_<?php echo $objName; ?>_" +objJson.result.id + "' file_id='" + objJson.result.id + "' class='row'>" +
-                            '<div class="col-xs-8 col-8"><span class="fu-file-name" id="file_title_<?php echo $objName; ?>_'+objJson.result.id+'">' + file.name + '</span></div> ' +
-                            '<div class="col-xs-4 col-4" style="text-align: right;"> ' +
-                            <?php if($isEdit){ ?>
-                            '<a class="btn-flat btn-xs file-btn-info" href="javascript:getFileDetails_<?php echo $objName; ?>(' + objJson.result.id  + ')"><i class="fa fa-gear"></i></a> ' +
-                            <?php } ?>
-                            '<a class="btn-flat btn-xs file-btn-success" href="<?php echo $downloadPath; ?>?id=' + objJson.result.id  + '&code=' + objJson.result.code  +'" target="_blank" ><i class="fa fa-download"></i></a> ' +
-                            <?php if($isEdit){ ?>
-                            '<a class="btn-flat btn-xs file-btn-danger" href="javascript:removeUploadedFile_<?php echo $objName; ?>('+objJson.result.id +')"><i class="fa fa-trash"></i></a> ' +
-                            <?php } ?>
-                            '</div> ' +
-                            '</div> ' +
-                            '</div> ';
-                        $("#files-<?php echo $objName; ?>").append(html);
-                        $("#file_<?php echo $objName; ?>_" + file.id).fadeOut("slow");
-                    },
-                    Error: function (up, err) {
-                        toastr["error"](err.message);
-                        var div = $("#files-list-<?php echo $objName; ?> #" + err.file.id); div.find("span").html("Erro: " + err.message);
-                        div.find(".progress-bar").width("100%");
-                        div.find(".progress-bar").attr("aria-valuenow", 100);
-                        div.find(".progress-bar").removeClass("progress-bar-success").addClass("progress-bar-danger");
-                    }
-                }
-            });
-
-        <?php if($isEdit){ ?>
-        $( document ).ready(function() {
-            fileUploader_<?php echo $objName; ?>.init();
-        });
-        <?php } ?>
-
-        function removeUploadedFile_<?php echo $objName; ?>(id){
-            var file_id = $("#file_<?php echo $objName; ?>_"+id).attr("file_id");
-            $("#file_<?php echo $objName; ?>_"+id).remove();
-
-            var jsonArray = JSON.parse( $("#<?php echo $objName; ?>").val() );
-            for(var i = 0; i < jsonArray.length; i++){
-                if(jsonArray[i].id == file_id) {
-                    jsonArray.splice(i,1);
-                    break;
-                }
-            }
-            $("#<?php echo $objName; ?>").val(JSON.stringify(jsonArray));
-        }
-
-        function getFileDetails_<?php echo $objName; ?>(id) {
-            var filesStr = $("#<?php echo $objName; ?>").val();
-            var jsonArray = JSON.parse( filesStr );
-
-            for(var k in jsonArray) {
-                if(jsonArray[k].id == id){
-                    var name = jsonArray[k].name;
-                    var description = jsonArray[k].description;
-                }
-            }
-
-            var random = Math.floor(Math.random() * 99999999999999);
-            <!-- Modal Dialog -->
-            var data = '<div class="modal-dialog">' +
-                '<div class="modal-content">'+
-                '<div class="modal-header">'+
-                '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>'+
-                '<h4 class="modal-title"><?php echo preg_replace( "/\r|\n/", "", trans("files.editFile")); ?></h4>'+
-                '</div>'+
-                '<div class="modal-body">'+
-                '<div class="form-group "><label for="name"><?php echo preg_replace( "/\r|\n/", "", trans("files.editFile")); ?></label><input class="form-control" id="name_'+random+'_'+id+'" name="name" type="text" value=""></div>'+
-                '<div class="form-group "><label for="description"><?php echo preg_replace( "/\r|\n/", "", trans("files.description")); ?></label><input class="form-control" id="description_'+random+'_'+id+'" name="description" type="text" value=""></div>'+
-                '</div>'+
-                '<div class="modal-footer">'+
-                '<button type="button" class="btn btn-default file-modal-close" data-dismiss="modal"><?php echo preg_replace( "/\r|\n/", "", trans("files.cancel")); ?></button>'+
-                '<button type="button" class="btn btn-success file-modal-success" id="confirm" onclick=saveFileDetails_<?php echo $objName; ?>('+id+',"'+random+'") ><?php echo preg_replace( "/\r|\n/", "", trans("files.save")); ?></button>'+
-                '</div>'+
-                '</div>'+
-                '</div>';
-
-            $('<div id="fileDetails-modal_'+random+'_'+id+'" class="modal fade">' + data + '</div>').modal();
-
-            setTimeout(function(){
-                $('#name_'+random+'_'+id).val(name);
-                $('#description_'+random+'_'+id).val(description);
-            }, 300);
-
-        }
-
-        function saveFileDetails_<?php echo $objName; ?>(id,random){
-            var filesStr = $("#<?php echo $objName; ?>").val();
-            var jsonArray = JSON.parse( filesStr );
-
-            for(var k in jsonArray) {
-                if(jsonArray[k].id == id){
-                    var name = $('#name_'+random+'_'+id).val();
-                    var description = $('#description_'+random+'_'+id).val();
-                    jsonArray[k].name = name;
-                    jsonArray[k].description = description;
-                    // Update in List
-                    $("#file_title_<?php echo $objName; ?>_"+id).html(name);
-                }
-            }
-
-            var jsonString = JSON.stringify(jsonArray);
-            $("#<?php echo $objName; ?>").val(jsonString);
-
-            $('#fileDetails-modal_'+random+'_'+id).modal('hide')
-        }
-
-        function initFileUploadList_<?php echo $objName; ?>(){
-            var jsonArray = JSON.parse( $("#<?php echo $objName; ?>").val() );
-            for(var i = 0; i < jsonArray.length; i++){
-                var file = jsonArray[i].name + " (" + plupload.formatSize( jsonArray[i].size) + ")";
-
-                var html = "<div class='fu-file-wrapper'><div id='file_<?php echo $objName; ?>_" + jsonArray[i].id + "' file_id='" + jsonArray[i].id + "' class='row'>" +
-                    '<div class="col-xs-8 col-8"><span class="fu-file-name" id="file_title_<?php echo $objName; ?>_' + jsonArray[i].id + '" >' + jsonArray[i].name + '</span></div> ' +
-                    '<div class="col-xs-4 col-4" style="text-align: right;"> ' +
-                    <?php if($isEdit){ ?>
-                    '<a class="btn-flat btn-xs file-btn-info" href="javascript:getFileDetails_<?php echo $objName; ?>(' + jsonArray[i].id + ')"><i class="fa fa-gear"></i></a> ' +
-                    <?php } ?>
-                    '<a class="btn-flat btn-xs file-btn-success" href="<?php echo $downloadPath; ?>?id=' + jsonArray[i].id + '&code=' + jsonArray[i].code + '" target="_blank" ><i class="fa fa-download"></i></a> ' +
-                    <?php if($isEdit){ ?>
-                    '<a class="btn-flat btn-xs file-btn-danger" href="javascript:removeUploadedFile_<?php echo $objName; ?>('+ jsonArray[i].id+')"><i class="fa fa-trash"></i></a> ' +
-                    <?php } ?>
-                    '</div> ' +
-                    '</div> ' +
-                    '</div> ';
-
-                $("#files-<?php echo $objName; ?>").append(html);
-            }
-            $("#files-list-<?php echo $objName; ?>").slideDown();
-        }
-
-        initFileUploadList_<?php echo $objName; ?>();
-    </script>
-    <?php
-    $html .= ob_get_contents();
-    ob_end_clean();
-
-    return $html;
-});
-
-
-
-/**
- * Displays the oneImageUpload interface.
- *
- * Example:
- *  Form::oneImageUpload("files", "Image", ["id" => 122, "code" => "GYtak716"], $uploadKey, ["maxfilesize"=>20,"mimetypes"=>"jpg,gif,png"])
- *
- * This macro needs the following header:
- *  <script src="{{ asset('vendor/jildertmiedema/laravel-plupload/js/plupload.full.min.js') }}"></script>
- *  <script src="{{ asset("js/cropper.min.js") }}"></script>
- *  <script src="{{ asset("js/canvas-to-blob.js") }}"></script>
- *
- *
- * @param String $objName
- * @param String $label
- * @param Array $image
- * @param String $uploadKey
- * @param Array $options
- * @return html
- */
-Form::macro('oneImageUpload', function($objName, $label, $image, $uploadKey = "", $options = array()){
-    // Initial values
-    $html = "";
-    $downloadPath = "/file/download/";
-    $maxFileSize = 20;
-    $idBrowseButton = 'browse-button-' . $objName;
-    $idDropZone = 'image-drop-zone-' . $objName;
-    $variable = "imageUploader" . $objName;
-    $idModal = 'getCroppedCanvasModal';
-    $aspectRatio = 1;
-    $dragMode = "move";
-    $idTitle = "getCroppedCanvasTitle";
-    $title = trans('files.imageResize');
-    $imageId = "fuImage_" . $objName;
-    $cropperButton = "cropper_button_" . $objName;
-    $imageContainer = "img-container" . $objName;
-    $mimeTypes = "jpg,gif,png";
-    $imageClass = "";
-    $wrapperClass = "";
-    $wrapperButtons = "";
-    $buttonClass = "btn btn-outlined btn-block btn-file-upload";
-
-    foreach ($options as $option => $tmp) {
-        if (strtolower($option) == "maxfilesize") {
-            $maxFileSize = $tmp;
-        }
-        if (strtolower($option) == "mimetypes") {
-            $mimeTypes = $tmp;
-        }
-        if (strtolower($option) == "aspectratio") {
-            $aspectRatio = $tmp;
-        }
-        if (strtolower($option) == "dragmode") {
-            $dragMode = $tmp;
-        }
-        if (strtolower($option) == "imagedefault") {
-            $imagedefault = $tmp;
-        }
-        if (strtolower($option) == "wrapperclass") {
-            $wrapperClass = $tmp;
-        }
-        if (strtolower($option) == "wrapperbuttons") {
-            $wrapperButtons = $tmp;
-        }
-        if (strtolower($option) == "buttonclass") {
-            $buttonClass = $tmp;
-        }
-        if(strtolower($option) == "readonly" ) {
-            $readOnly = $tmp;
-        }
-    }
-
-    // Readonly Check
-    if(!isset($readOnly) && ONE::isEdit() || (isset($readOnly) && $readOnly === false)){
-        $isEdit = true;
-    } else {
-        $isEdit = false;
-    }
-
-    ob_start();
-    ?>
-    <label><?php echo $label; ?></label><br>
-    <div class="<?php echo  $wrapperClass ?>">
-        <?php if(is_array($image) && array_key_exists('id', $image) && array_key_exists('code', $image) && $image["id"] > 0) { ?>
-            <img class="<?php echo $imageClass; ?>" src="<?php echo URL::action('FilesController@download', ['id' => $image["id"], 'code' => $image["code"], 1] ); ?>" alt="" id="<?php echo $idDropZone ?>" style="max-height: 200px">
-        <?php } else { ?>
-            <img class="<?php echo $imageClass; ?>" src="<?php echo asset($imagedefault); ?>" alt="" id="<?php echo $idDropZone; ?>" style="max-height: 200px">
-        <?php }  ?>
-        <input id="<?php echo $objName ?>" name="<?php echo $objName ?>" value="<?php if(is_array($image) && array_key_exists('id', $image)) { echo $image["id"]; } ?>" type="hidden" >
-    </div>
-
-
-    <?php
-    if($isEdit) {
-        ?>
-        <!-- /.widget-user-image -->
-        <div class="<?php echo $wrapperButtons; ?>">
-            <button id="<?php echo $idBrowseButton ?>" class="<?php echo $buttonClass; ?>">
-                <i class="fa fa-upload"></i>&nbsp;<?php echo trans('user.change_profile_picture') ?>
-            </button>
-            <div class="modal fade docs-cropped" id="<?php echo $idModal; ?>" aria-hidden="true"
-                 aria-labelledby="<?php echo $idTitle; ?>" role="dialog" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                            <h4 class="modal-title" id="<?php echo $idTitle; ?>"><?php echo $title; ?></h4>
-                        </div>
-                        <div class="modal-body">
-                            <div class="docs-preview clearfix">
-                                <div class="img-preview preview-lg"></div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div id="<?php echo $imageContainer ?>" style="height:400px;width:400px;">
-                                        <img id="<?php echo $imageId; ?>" src="" alt="">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default"
-                                    data-dismiss="modal"><?php echo trans('files.close'); ?></button>
-                            <a class="btn btn-primary" id="<?php echo $cropperButton; ?>"
-                               data-method="getCroppedCanvas"><?php echo trans('files.save'); ?></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php
-    }
-    ?>
-
-    <script>
-        function updateClickListener<?php echo $objName; ?>() {
-            $('#<?php echo $cropperButton; ?>').click(function () {
-                var $image = $("#<?php echo $imageId; ?>");
-                var $this = $(this);
-                var data = $this.data();
-                var $target;
-                var result;
-                if ($this.prop('disabled') || $this.hasClass('disabled')) {
-                    return;
-                }
-                if($image.data('cropper') && data.method) {
-                    data = $.extend({}, data); // Clone a new one
-                    if (typeof data.target !== 'undefined') {
-                        $target = $(data.target);
-                        if (typeof data.option === 'undefined') {
-                            try {
-                                data.option = JSON.parse($target.val());
-                            } catch (e) {
-                                console.log(e.message);
-                            }
-                        }
-                    }
-                    result = $image.cropper(data.method, data.option, data.secondOption);
-
-                    switch (data.method) {
-                        case 'scaleX':
-                        case 'scaleY':
-                            $(this).data('option', -data.option);
-                            break;
-                        case 'getCroppedCanvas':
-                            if (result) {
-                                result.toBlob(
-                                    function (blob) {
-                                        // Do something with the blob object,
-                                        // e.g. creating a multipart form for file uploads:
-                                        var formData = new FormData();
-                                        formData.append('file', blob, $("#<?php echo $imageId; ?>").attr("title"));
-                                        var file = new Blob([blob], { type: "image/jpeg" });
-                                        var up = this[$("#<?php echo $imageId; ?>").attr("uploader")];
-                                        up.addFile(file);
-
-                                        $("#<?php echo $imageId; ?>").attr("src", "");
-                                        /* ... */
-                                    },
-                                    'image/jpeg'
-                                );
-                            }
-
-                            break;
-                    }
-                    if ($.isPlainObject(result) && $target) {
-                        try {
-                            $target.val(JSON.stringify(result));
-                        } catch (e) {
-                            console.log(e.message);
-                        }
-                    }
-                }
-            });
-
-        }
-
-        // This is just a sample script. Paste your real code (javascript or HTML) here.
-        var <?php echo $variable ?> = new plupload.Uploader({
-            headers: {
-                'X-CSRF-TOKEN': "<?php echo csrf_token(); ?>",
-                'X-UPLOAD-TOKEN': "<?php echo $uploadKey; ?>",
-                'X-AUTH-TOKEN': "<?php echo Session::get('X-AUTH-TOKEN', 'INVALID'); ?>",
-            },
-            browse_button: '<?php echo $idBrowseButton; ?>',
-            drop_element: document.getElementById('<?php echo $idDropZone ?>'),
-            runtimes: 'html5,flash,silverlight,html4',
-            url: "<?php echo action('FilesController@upload'); ?>",
-            chunk_size: '1mb',
-            multi_selection: false,
-            filters: {
-                // Maximum file size
-                <?php if(!empty($maxFileSize) && $maxFileSize!=0){ ?>
-                max_file_size: '<?php echo $maxFileSize; ?>mb',
-                <?php } ?>
-                mime_types: [{
-                    title: "images",
-                    extensions: "<?php echo $mimeTypes; ?>"
-                }, ]
-            },
-            flash_swf_url: "<?php echo asset('vendor/jildertmiedema/laravel-plupload/js/Moxie.swf'); ?>",
-            silverlight_xap_url: "<?php asset('vendor/jildertmiedema/laravel-plupload/js/Moxie.xap'); ?>",
-            init: {
-                PostInit: function() {},
-                FilesAdded: function(up, files) {
-                    originalData = {};
-                    if ($('#<?php echo $idModal; ?>').hasClass('in')) {
-                        $('#<?php echo $idModal; ?>').modal('hide');
-                        <?php echo $variable ?>.start();
-                        return;
-                    }
-                    $('#<?php echo $idModal ?>').modal();
-                    if (files && files[0]) {
-                        var reader = new FileReader();
-                        reader.onload = function(e) {
-                            $('#<?php echo $imageContainer; ?> > img').attr('src', e.target.result);
-                        };
-                        reader.readAsDataURL(files[0].getNative());
-                        var $image = $("#<?php echo $imageContainer; ?> > img");
-                        up.splice();
-                        reader.onload = function(oFREvent) {
-                            $image.cropper('destroy');
-                            $image.attr('src', this.result);
-                            $("#<?php echo $imageContainer; ?> > img").attr("title", files[0].name);
-                            $("#<?php echo $imageContainer; ?> > img").attr("uploader", "<?php echo $variable ?>");
-                            var options = {
-                                aspectRatio: <?php echo $aspectRatio; ?>,
-                                dragMode: '<?php echo $dragMode; ?>',
-                                crop: function(e) {}
-                            };
-                            $image.on({}).cropper(options);
-                        };
-                    }
-                },
-                UploadProgress: function(up, file) {
-                    /*
-                     var div = $("#banner-list #" + file.id);
-                     div.find("span").html(file.percent + "%");
-                     div.find(".progress-bar").width(file.percent + "%");
-                     div.find(".progress-bar").attr("aria-valuenow", file.percent);
-                     */
-                },
-                FileUploaded: function(up, file, obj) {
-                    try {
-                        // console.log(obj);
-                        var jsonObj = JSON.parse(obj.response);
-
-                        $("#<?php echo $objName; ?>").val(jsonObj.result.id);
-                        // $("#<?php echo $idDropZone; ?>").attr("src",jsonObj.result.link);
-                        $("#<?php echo $idDropZone; ?>").attr("src",'<?php echo $downloadPath; ?>?id='+jsonObj.result.id+'&code='+jsonObj.result.code);
-                    } catch (e) {
-                        console.log(e);
-                    }
-                },
-                Error: function(up, err) {
-                    toastr["error"](err.message);
-                    /*
-                     var div = $("#banner-list #" + err.file.id);
-                     div.find("span").html("Erro: " + err.message);
-                     div.find(".progress-bar").width("100%");
-                     div.find(".progress-bar").attr("aria-valuenow", 100);
-                     div.find(".progress-bar").removeClass("progress-bar-success").addClass("progress-bar-danger");
-                     */
-                }
-            }
-        });
-        <?php echo $variable ?>.init();
-        updateClickListener<?php echo $objName; ?>();
-    </script>
-    <?php
-    $html .= ob_get_contents();
-    ob_end_clean();
-
-    return $html;
-});
-

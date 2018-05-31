@@ -1,0 +1,1 @@
+<?php return array (  'privacy_private' => 'Privado',  'privacy_public' => 'Público',  'personal_data' => 'Dados pessoais',);

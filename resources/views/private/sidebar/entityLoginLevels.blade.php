@@ -4,8 +4,8 @@
     else{
         localStorage.removeItem('nextSidebar');
     }
-    localStorage.setItem('currentSidebar', 'entity');
-    localStorage.setItem('previousSidebar', 'private');
+    localStorage.setItem('currentSidebar', 'entityLoginLevels');
+    localStorage.setItem('previousSidebar', 'entity');
     localStorage.setItem('sidebarPosition', 1)
 </script>
 

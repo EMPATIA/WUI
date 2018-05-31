@@ -1,6 +1,6 @@
 @section('header_styles')
     <!-- Questionnaire -->
-    <link rel="stylesheet" href="{{asset('css/cml/form-css.css')}}">
+    <link rel="stylesheet" href="{{asset('css/default/form-css.css')}}">
     <link rel="stylesheet" href="{{asset('css/stepwizard.css')}}">
     <link rel="stylesheet" href="{{asset('css/flaticon/flaticon.css')}}">
 @endsection

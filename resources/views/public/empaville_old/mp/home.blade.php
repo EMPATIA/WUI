@@ -18,6 +18,9 @@
                             <hr>
                         </div>
                         <div class="row">
+                            <div class="col-sm-12 col-md-5">
+                                <a><img src="http://t-l.it/default/prova/image/default.jpg" alt="Create Idea" class="img-responsive"></a>
+                            </div>
                             <div class="col-sm-12 col-md-7">
                                 <ul class="tutorialList">
                                     <li><h4><span></span>{{ trans('mp.3m') }} Take 3 minutes to write an idea</h4></li>
@@ -88,6 +91,7 @@
                                 <div class="col-sm-6 col-md-3">
                                     <div class="box box-secundary">
                                         <div class="box-body">
+                                            <div class="BP-thumbIcon"><img src="http://t-l.it/default/prova/image/ico-ambiente.png" alt="Ambiente" class="img-responsive"></div>
                                             <div class="BP-breadCrumbs">
                                                 <div class="BP-property">
                                                     {{ $topic['title'] }}<span>»</span>

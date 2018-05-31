@@ -94,10 +94,10 @@
     @php $i = 0; @endphp
     @foreach($languages as $language)
         @php $form->openTabs('tab-translation-' . $language->code, $language->name); @endphp
-        {!! Form::oneText($language->default == true ? 'required_title_'.$language->code : 'title_'.$language->code, array("name"=>trans('menus.title_'.$language->code),"description"=>trans('menus.title_'.$language->code)), isset($menuTranslation[$language->code]) ? $menuTranslation[$language->code]->title : null, ['class' => 'form-control', 'id' => 'title_'.$language->code]) !!}
+        {!! Form::oneText($language->default == true ? 'required_title_'.$language->code : 'title_'.$language->code, array("name"=>trans('menus.name'),"description"=>trans('menus.name')), isset($menuTranslation[$language->code]) ? $menuTranslation[$language->code]->title : null, ['class' => 'form-control', 'id' => 'title_'.$language->code]) !!}
 
          <div id="typeId1" style="@if(!empty($menu->type_id) && $menu->type_id == 1  ) display:block; @else display:none; @endif" class="types typeId1">
-             {!! Form::oneText('link_'.$language->code, array("name"=>trans('menus.link_'.$language->code),"description"=>trans('menus.link_'.$language->code)), isset($menuTranslation[$language->code]) ? $menuTranslation[$language->code]->link : null, ['class' => 'form-control', 'id' => 'link']) !!}
+             {!! Form::oneText('link_'.$language->code, array("name"=>trans('menus.link'),"description"=>trans('menus.link')), isset($menuTranslation[$language->code]) ? $menuTranslation[$language->code]->link : null, ['class' => 'form-control', 'id' => 'link']) !!}
          </div>
       @endforeach
 

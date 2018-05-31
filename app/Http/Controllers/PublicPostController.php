@@ -8,6 +8,7 @@ use App\ComModules\Orchestrator;
 use App\ComModules\Notify;
 use App\ComModules\Questionnaire;
 use App\Http\Requests\PostRequest;
+use App\ComModules\LogsRequest;
 use Carbon\Carbon;
 //use App\Http\Requests\Request;
 use Exception;
@@ -41,9 +42,9 @@ class PublicPostController extends Controller
 
         View::share('title', trans('post.title'));
 
-        $this->topicId = Route::current()->getParameter('topicId');
+        $this->topicId = Route::current()->parameter('topicId');
         if($this->topicId != null){
-            Session::set('topicId', $this->topicId);
+            Session::put('topicId', $this->topicId);
         }
 
 
@@ -275,44 +276,63 @@ class PublicPostController extends Controller
         } catch (Exception $e){}
 
         try {
-            if (empty($cbKey))
-                $cbKey = $requestPost->get('cbKey') ?? null;
 
-            $commentType = null;
-            if ($requestPost->commentType){
-                $commentType = $this->getCommentType($requestPost->commentType);
-            }
-            $requestPost->request->add(['link' => action('PublicTopicController@show', [$requestPost->cbKey , $requestPost->topicKey, 'type' => $requestPost->type])]);
+            $contents = $requestPost->input('contents') ?? null;
+            if ($contents && (strlen($contents) > 0 && strlen(trim($contents)) > 0)) {
 
-            CB::storePost($requestPost, $topicKey, $commentType);
+                if (empty($cbKey))
+                    $cbKey = $requestPost->get('cbKey') ?? null;
 
-            $topic = CB::getTopic($topicKey);
-            $cbConfigs = CB::getCbConfigurations($cbKey);
-            foreach ($cbConfigs->configurations as $cbConfig){
-                if($cbConfig->code == 'notification_new_comments'){
-                    $followers = CB::getFollowersTopic($topic->topic->topic_key);
-                    $sendEmail = $this->sendEmailNotification($cbKey, 'notification_new_comments', $requestPost->type, $topic->topic, $followers, null);
+                $commentType = null;
+                if ($requestPost->commentType) {
+                    $commentType = $this->getCommentType($requestPost->commentType);
                 }
-                else if($cbConfig->code == 'notification_owner_new_comments'){
-                    $owner = $topic->topic->created_by;
-                    $cooperators = CB::getCooperators($topic->topic->topic_key);
-                    $sendEmail = $this->sendEmailNotification($cbKey, 'notification_owner_new_comments', $requestPost->type, $topic->topic, $cooperators, $owner);
+                $requestPost->request->add(['link' => action('PublicTopicController@show', [$requestPost->cbKey, $requestPost->topicKey, 'type' => $requestPost->type])]);
+
+
+                $post = CB::storePost($requestPost, $topicKey, $commentType);
+
+                LogsRequest::setAccess('create_post',true, $topicKey,null,empty($cbKey) ? $requestPost->cbKey : $cbKey ,$post->post_key,null,null,null, 'comentType: '.$commentType, Session::has('user') ? Session::get('user')->user_key : 'anonymous' );
+
+                $topic = CB::getTopic($topicKey);
+                $cbConfigs = CB::getCbConfigurations($cbKey);
+                foreach ($cbConfigs->configurations as $cbConfig) {
+                    if ($cbConfig->code == 'notification_new_comments') {
+                        $followers = CB::getFollowersTopic($topic->topic->topic_key);
+                        $sendEmail = $this->sendEmailNotification($cbKey, 'notification_new_comments', $requestPost->type, $topic->topic, $followers, null);
+                    } else if ($cbConfig->code == 'notification_owner_new_comments') {
+                        $owner = $topic->topic->created_by;
+                        $cooperators = CB::getCooperators($topic->topic->topic_key);
+                        $sendEmail = $this->sendEmailNotification($cbKey, 'notification_owner_new_comments', $requestPost->type, $topic->topic, $cooperators, $owner);
+                    }
                 }
+
+                $topicData = CB::getTopicDataWithChilds($topicKey);
+                $configurations = $topicData->configurations;
+
+                $this->getQuestionnaireModalData($requestPost->cbKey, $topicKey, "comment", null);
+
+                if (ONE::checkCBsOption($configurations, 'COMMENT-NEEDS-AUTHORIZATION')) {
+                    Session::flash('message', trans('topic.commentWaitingForModeration'));
+                }
+
+                return redirect()->back();
+            } else {
+                dd($e->getMessage() );
+
+                $jsonObj = json_encode(array('error' => "Failure: ".$e->getMessage() ));
+                LogsRequest::setAccess('create_post',false, $topicKey,null,empty($cbKey) ? $requestPost->cbKey : $cbKey ,null,null,null,$jsonObj, 'empty_comments_not_allowed', Session::has('user') ? Session::get('user')->user_key : 'anonymous' );
+
+                return redirect()->back()->withErrors(["post.store" => trans('topic.empty_comments_not_allowed')]);
             }
-
-            $topicData = CB::getTopicDataWithChilds($topicKey);
-            $configurations = $topicData->configurations;
-
-            $this->getQuestionnaireModalData($requestPost->cbKey, $topicKey, "comment",null);
-
-            if(ONE::checkCBsOption($configurations, 'COMMENT-NEEDS-AUTHORIZATION')) {
-                Session::flash('message', trans('topic.commentWaitingForModeration'));
-            }
-
-            return redirect()->back();
-
 
         } catch (Exception $e) {
+
+            dd($e->getMessage() );
+
+            $jsonObj = json_encode(array('error' => "Failure: ".$e->getMessage() ));
+            LogsRequest::setAccess('create_post',false, $topicKey,null,empty($cbKey) ? $requestPost->cbKey : $cbKey ,null,null,null,$jsonObj, null, Session::has('user') ? Session::get('user')->user_key : 'anonymous' );
+
             return redirect()->back()->withErrors(["post.store" => $e->getMessage()]);
         }
     }
@@ -622,7 +642,7 @@ class PublicPostController extends Controller
             return array_values($files);
 
         } catch (Exception $e) {
-            return "exception";
+            return [];
         }
     }
 
@@ -668,7 +688,7 @@ class PublicPostController extends Controller
                         $filesToUpload = Session::get('filesToUpload');
                         unset($filesToUpload[$i]);
                         $filesToUpload = array_values($filesToUpload);
-                        Session::set('filesToUpload', $filesToUpload);
+                        Session::put('filesToUpload', $filesToUpload);
                         return "true";
                     }
                 }

@@ -61,9 +61,7 @@ class InPersonRegistrationController extends Controller
     public function create()
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsCreate('auth', 'in_person_registration')) {
-                return redirect()->back()->withErrors(["inPersonResgistration.create" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["inPersonResgistration.create" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         $registerParametersResponse = Orchestrator::getEntityRegisterParameters();
@@ -111,9 +109,7 @@ class InPersonRegistrationController extends Controller
     public function store(InPersonRegistrationRequest $request)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsCreate('auth', 'in_person_registration')) {
-                return redirect()->back()->withErrors(["inPersonResgistration.store" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["inPersonResgistration.store" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         try {
@@ -148,9 +144,7 @@ class InPersonRegistrationController extends Controller
     public function show($userKey)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsShow('auth', 'in_person_registration')) {
-                return redirect()->back()->withErrors(["inPersonResgistration.show" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["inPersonResgistration.show" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         try {
@@ -221,9 +215,7 @@ class InPersonRegistrationController extends Controller
     public function edit($userKey)
     {
         if(Session::get('user_role') != 'admin'){
-            if( !ONE::verifyUserPermissionsUpdate('auth', 'in_person_registration')) {
-                return redirect()->back()->withErrors(["inPersonResgistration.edit" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["inPersonResgistration.edit" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         try {
@@ -274,7 +266,12 @@ class InPersonRegistrationController extends Controller
                 ];
             }
 
-            return view('private.inPersonRegistration.user', compact('registerParameters','user'));
+            $sidebar = 'registration';
+            $active = 'personRegistration';
+
+            Session::put('sidebarArguments', ['activeFirstMenu' => 'personRegistration']);
+
+            return view('private.inPersonRegistration.user', compact('registerParameters','user', 'sidebar','active'));
 
         }
         catch(Exception $e) {
@@ -291,9 +288,7 @@ class InPersonRegistrationController extends Controller
     public function update(InPersonRegistrationRequest $request, $userKey)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsUpdate('auth', 'in_person_registration')) {
-                return redirect()->back()->withErrors(["inPersonResgistration.update" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["inPersonResgistration.update" => trans('privateEntitiesDivided.permission_message')]);
         }
         
         try {
@@ -327,9 +322,7 @@ class InPersonRegistrationController extends Controller
     public function destroy($userKey)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsDelete('auth', 'in_person_registration')){
-                return redirect()->back()->withErrors(["inPersonResgistration.destroy" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["inPersonResgistration.destroy" => trans('privateEntitiesDivided.permission_message')]);
         }
         
         try {
@@ -374,7 +367,7 @@ class InPersonRegistrationController extends Controller
      */
     public function getIndexTable()
     {
-        if (Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('auth', 'in_person_registration')){
+        if (Session::get('user_role') == 'admin'){
             $usersResponse = Orchestrator::getAllUsers();
 
             $usersKey = [];
@@ -390,8 +383,8 @@ class InPersonRegistrationController extends Controller
             $collection = Collection::make([]);
         }
 
-        $edit = Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsUpdate('auth', 'in_person_registration');
-        $delete = ONE::verifyUserPermissions('auth', 'in_person_registration', 'delete');
+        $edit = Session::get('user_role') == 'admin';
+        $delete = true;
 
         // in case of json
         return Datatables::of($collection)
@@ -408,6 +401,7 @@ class InPersonRegistrationController extends Controller
                 else
                     return null;
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 

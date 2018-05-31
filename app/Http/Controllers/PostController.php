@@ -10,6 +10,7 @@ use Breadcrumbs;
 use HttpClient;
 use App\One\One;
 use Illuminate\Support\Collection;
+use Illuminate\Http\Request;
 
 
 class PostController extends Controller
@@ -118,19 +119,19 @@ class PostController extends Controller
      * @param $postKey
      * @return $this|\Illuminate\Http\RedirectResponse
      */
-    public function destroy($type,$cbKey,$topicKey,$postKey, $redirect){
+    public function destroy(Request $request, $type,$cbKey,$topicKey,$postKey){
 
         try {
             $response = CB::deletePost($postKey);
 
-            if ($redirect == 'posts') {
-                return  redirect()->action('TopicController@showPosts', ['type' => $type, 'cbKey' => $cbKey, 'topicKey' => $topicKey]);
+            switch($request->get("redirect")) {
+                case "posts":
+                    return redirect()->action('TopicController@showPosts', ['type' => $type, 'cbKey' => $cbKey, 'topicKey' => $topicKey]);
+                    break;
+                case "home":
+                    return redirect('/private');
+                    break;
             }
-
-            if ( $redirect == 'home') {
-                return redirect('/private');
-            }
-
         }
         catch(Exception $e) {
             return redirect()->back()->withErrors(["topic.show" => trans("PrivatePost.errorWhileRemovingPost") ]);

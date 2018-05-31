@@ -41,9 +41,7 @@ class MenusController extends Controller
     public function index($accessM = null)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsShow('cm', 'menu')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         try {
@@ -268,9 +266,7 @@ class MenusController extends Controller
     public function show($id)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsShow('cm', 'menu')) {
-                return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["private" => trans('privateEntitiesDivided.permission_message')]);
         }
 
         try {

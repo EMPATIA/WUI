@@ -38,9 +38,7 @@ class HomePageTypesController extends Controller
     public function create()
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsCreate('cm', 'home_page_type')){
-                return redirect()->back()->withErrors(["homePageType.create" => trans('privateHomePagetype.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["homePageType.create" => trans('privateHomePagetype.permission_message')]);
         }
 
         $types = [
@@ -84,8 +82,11 @@ class HomePageTypesController extends Controller
             $parents[$parent->home_page_type_key] = $parent->name;
 
         }
+        $sidebar = 'cmHomePagesType';
+        $active = 'children';
+
         $title = trans('privateHomePageTypes.create_homePageType');
-        return view('private.homePageTypes.homePageGroupType',compact('title', 'types','parents','homePageTypeKey'));
+        return view('private.homePageTypes.homePageGroupType',compact('title', 'types','parents','homePageTypeKey','sidebar','active'));
     }
     /**
      * Store a newly created resource in storage.
@@ -95,9 +96,7 @@ class HomePageTypesController extends Controller
     public function store(HomePageTypeRequest $request)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsCreate('cm', 'home_page_type')) {
-                return redirect()->back()->withErrors(["homePageType.store" => trans('privateHomePagetype.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["homePageType.store" => trans('privateHomePagetype.permission_message')]);
         }
 
         try {
@@ -120,9 +119,7 @@ class HomePageTypesController extends Controller
     public function show($homePageTypeKey)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsShow('cm', 'home_page_type')) {
-                return redirect()->back()->withErrors(["homePageType.show" => trans('privateHomePagetype.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["homePageType.show" => trans('privateHomePagetype.permission_message')]);
         }
         
         try {
@@ -188,9 +185,7 @@ class HomePageTypesController extends Controller
     public function edit($homePageTypeKey)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsUpdate('cm', 'home_page_type')) {
-                return redirect()->back()->withErrors(["homePageType.update" => trans('privateHomePagetype.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["homePageType.update" => trans('privateHomePagetype.permission_message')]);
         }
 
         try {
@@ -230,9 +225,7 @@ class HomePageTypesController extends Controller
     public function update(HomePageTypeRequest $request, $homePageTypeKey)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsUpdate('cm', 'home_page_type')) {
-                return redirect()->back()->withErrors(["homePageType.update" => trans('privateHomePagetype.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["homePageType.update" => trans('privateHomePagetype.permission_message')]);
         }
         
         try {
@@ -273,9 +266,7 @@ class HomePageTypesController extends Controller
     public function destroy($homePageTypeKey)
     {
         if(Session::get('user_role') != 'admin'){
-            if(!ONE::verifyUserPermissionsDelete('cm', 'home_page_type')) {
-                return redirect()->back()->withErrors(["homePageType.destroy" => trans('privateHomePagetype.permission_message')]);
-            }
+            return redirect()->back()->withErrors(["homePageType.destroy" => trans('privateHomePagetype.permission_message')]);
         }
         
         try {
@@ -294,15 +285,15 @@ class HomePageTypesController extends Controller
  */
     public function getIndexTable()
     {
-        if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('cm', 'home_page_type')){
+        if(Session::get('user_role') == 'admin'){
         $homePageTypes = Orchestrator::getGroupHomePageTypes();
         // in case of json
         $collection = Collection::make($homePageTypes);
         }else
             $collection = Collection::make([]);
 
-        $edit = Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsUpdate('cm', 'home_page_type');
-        $delete = Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsDelete('cm', 'home_page_type');
+        $edit = Session::get('user_role') == 'admin';
+        $delete = Session::get('user_role') == 'admin';
 
         return Datatables::of($collection)
             ->editColumn('name', function ($collection) {
@@ -318,6 +309,7 @@ class HomePageTypesController extends Controller
                 else
                     return null;
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 
@@ -327,7 +319,7 @@ class HomePageTypesController extends Controller
     public function getGroupTypesTable(Request $request)
     {
 
-        if(Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsShow('cm', 'home_page_types_children')) {
+        if(Session::get('user_role') == 'admin') {
             // Advanced Search var's
             $home_page_type_key = $request->input("home_page_type_key");
 
@@ -338,8 +330,8 @@ class HomePageTypesController extends Controller
         }else
             $collection = Collection::make([]);
 
-        $edit = Session::get('user_role') == 'admin' ||  ONE::verifyUserPermissionsUpdate('cm', 'home_page_types_children');
-        $delete = Session::get('user_role') == 'admin' || ONE::verifyUserPermissionsDelete('cm', 'home_page_types_children');
+        $edit = Session::get('user_role') == 'admin';
+        $delete = Session::get('user_role') == 'admin';
 
         return Datatables::of($collection)
             ->editColumn('name', function ($collection) use ($home_page_type_key) {
@@ -355,6 +347,7 @@ class HomePageTypesController extends Controller
                 else
                     return null;
             })
+            ->rawColumns(['name','action'])
             ->make(true);
     }
 }
